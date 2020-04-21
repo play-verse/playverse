@@ -10,7 +10,11 @@ enum pInfo
 {
 	pID,
     pPlayerName[MAX_PLAYER_NAME],
-    registerPassword[25]
+    skinID,
+    registerPassword[25],
+    pPassword[65],
+    loginKe, // Mencatat jumlah login
+    lastGlobalChat
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 

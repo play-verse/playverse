@@ -10,12 +10,13 @@
 #include <foreach>
 #include <core>
 #include <float>
+#include <PreviewModelDialog>
 /*
 	INCLUDE INCLUDE BUATAN DIBAWAH
 */
 #include <global_variable> // variable disini
+#include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
-#include <fungsi_tambahan> // Fungsi tambahan disini
 
 #include "../include/gl_common.inc"
 #include "../include/gl_spawns.inc"
@@ -34,6 +35,8 @@ public OnPlayerConnect(playerid)
 	*/
 	SetPlayerColor(playerid, PlayerRainbowColors[random(sizeof(PlayerRainbowColors))]);
 	
+	resetPlayerVariable(playerid);
+
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
 	PlayerInfo[playerid][pPlayerName] = nama;
@@ -83,18 +86,17 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
         {
             if( response )
             {
-				new password[65];
-				mysql_format(koneksi, query, sizeof(query), "SELECT `password` FROM `user` WHERE `nama` = '%e'", PlayerInfo[playerid][pPlayerName]);
-				mysql_query(koneksi, query);
-				cache_get_value_name(0, "password", password, sizeof(password));
-
 				new hash[65];
 				// hashing the text that user entered and salt that was loaded
 				SHA256_PassHash(inputtext, PlayerInfo[playerid][pPlayerName], hash, 64);
-				// if the hash is same as the loaded password
-				if(sama(hash, password))
+				if(sama(hash, PlayerInfo[playerid][pPassword]))
 				{
-					pindahkanKameraKePemilihanKelas(playerid);
+					mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `jumlah_login` = `jumlah_login` + 1 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
+					mysql_tquery(koneksi, query, "spawnPemain", "d", playerid);
+
+					PlayerInfo[playerid][loginKe]++;
+					format(msg, sizeof(msg), "~r~Selamat ~y~datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %d ~w~!", PlayerInfo[playerid][loginKe]);
+					GameTextForPlayer(playerid, msg, 3000, 4);
 					return 1;
 				}
 				else
@@ -118,6 +120,7 @@ public OnPlayerSpawn(playerid)
 	new randSpawn = 0;
 	
 	SetPlayerInterior(playerid,0);
+	SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
 	TogglePlayerClock(playerid,0);
  	ResetPlayerMoney(playerid);
 	GivePlayerMoney(playerid, 30000);
@@ -129,10 +132,7 @@ public OnPlayerSpawn(playerid)
 		gRandomSpawns_LosSantos[randSpawn][2]);
 
 	SetPlayerFacingAngle(playerid,gRandomSpawns_LosSantos[randSpawn][3]);
-    GivePlayerWeapon(playerid,WEAPON_COLT45,100);
-	//GivePlayerWeapon(playerid,WEAPON_MP5,100);
 	TogglePlayerClock(playerid, 0);
-
 	return 1;
 }
 
@@ -159,6 +159,18 @@ public OnPlayerDeath(playerid, killerid, reason)
 public OnPlayerRequestClass(playerid, classid)
 {
 	if(IsPlayerNPC(playerid)) return 1;
+	return 1;
+}
+
+public OnPlayerRequestSpawn(playerid){
+	if(PlayerInfo[playerid][loginKe] == 1){
+		PlayerInfo[playerid][skinID] = GetPlayerSkin(playerid);
+		format(msg, sizeof(msg), "PID : %d\nSkin ID : %d", PlayerInfo[playerid][pID], PlayerInfo[playerid][skinID]);
+		print(msg);
+		tambahSkinPlayer(playerid, PlayerInfo[playerid][skinID]);
+		updatePlayerCurrentSkin(playerid, PlayerInfo[playerid][skinID]);
+		return 1;
+	}
 	return 1;
 }
 
@@ -312,6 +324,8 @@ public OnPlayerUpdate(playerid)
 public OnPlayerText(playerid, text[]){
 	format(msg,sizeof(msg), "[{%06x}%d{FFFFFF}] {%06x}%s {FFFFFF}: %s",GetPlayerColor(playerid) >>> 8, playerid,  GetPlayerColor(playerid) >>> 8, PlayerInfo[playerid][pPlayerName], text);
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
+	format(msg,sizeof(msg), "berkata: %s", text);
+	SetPlayerChatBubble(playerid, msg, -1, 30.0, 5000);
 	ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000);
 }
 

@@ -41,6 +41,7 @@
 #define COL_RED "{F81414}"
 #define COL_GREEN "{00FF22}"
 #define COL_BLUE "{00CED1}"
+#define COL_GRAY "{C0C0C0}"
 #define COLOR_WHITE 0xFFFFFFFF
 #define COLOR_BLUE 0x0000FFFF
 #define COLOR_RED 0xFF0000FF
