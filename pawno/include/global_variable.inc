@@ -1,7 +1,7 @@
 /*
 	GLOBAL DEFINITION VARIABLE FOR MYSQL
  */
-new MySQL:koneksi, query[400];
+new MySQL:koneksi, query[400], errno;
 
 /*
     GLOBAL VARIABLE FOR PLAYER VAR
@@ -11,12 +11,22 @@ enum pInfo
 	pID,
     pPlayerName[MAX_PLAYER_NAME],
     skinID,
-    registerPassword[25],
     pPassword[65],
     loginKe, // Mencatat jumlah login
+    uang[100],
+
     lastGlobalChat
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
+
+enum rInfo
+{
+    freeSkinID,
+    jenisKelamin, // 0 - Laki, 1 - Perempuan
+    registerPassword[25],
+    email[100]
+}
+new registerInfo[MAX_PLAYERS][rInfo];
 
 
 new msg[256];
@@ -25,6 +35,19 @@ new total_vehicles_from_files=0;
 /*
     SERVER VAR
 */
+
+new const SKIN_FEMALE_GRATIS[] = {
+    9, 11, 12, 13, 40, 41, 54, 55, 56, 69, 76, 141, 148, 150, 151,
+    157, 172, 190, 191, 192, 193, 194, 195, 198, 201, 211, 225, 233, 226, 298, 304
+};
+
+new const SKIN_MALE_GRATIS[] = {
+    1, 2, 7, 14, 15, 17, 19, 20, 21, 22, 24, 25, 27, 28, 30, 47, 48,
+    60, 68, 67, 72, 73, 98, 101, 125, 142, 143, 170, 179, 183, 184
+};
+
+
+
 new PlayerRainbowColors[511] = {
 /*OKStyle*/ 0x000022FF, 0x000044FF, 0x000066FF, 0x000088FF, 0x0000AAFF, 0x0000CCFF, 0x0000EEFF,
 0x002200FF, 0x002222FF, 0x002244FF, 0x002266FF, 0x002288FF, 0x0022AAFF, 0x0022CCFF, 0x0022EEFF,

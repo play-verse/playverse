@@ -21,3 +21,9 @@ CMD:a(playerid, params[]){
     PlayerInfo[playerid][lastGlobalChat] = gettime();
     return 1;
 }
+
+CMD:jetpack(playerid, params[]){
+    if(!IsPlayerAdmin(playerid)) return 0;
+    SetPlayerSpecialAction(playerid, 2);
+    return 1;
+}

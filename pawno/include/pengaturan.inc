@@ -30,6 +30,9 @@
 #define DIALOG_LOGIN 3
 #define DIALOG_SUCCESS_1 4
 #define DIALOG_SUCCESS_2 5
+#define DIALOG_INPUT_EMAIL 6
+#define DIALOG_INPUT_JEKEL 7
+#define DIALOG_INPUT_SKIN_GRATIS 8
 
 
 
@@ -47,3 +50,11 @@
 #define COLOR_RED 0xFF0000FF
 #define COLOR_GREEN 0x3BBD44FF
 #define COLOR_NORMAL_PLAYER 0xFFBB7777
+
+
+/**********
+*	DEFINED FUNCTION
+***********/
+#if !defined isnull
+    #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))))
+#endif
