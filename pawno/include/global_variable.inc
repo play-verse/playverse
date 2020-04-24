@@ -14,6 +14,16 @@ enum pInfo
     pPassword[65],
     loginKe, // Mencatat jumlah login
     uang[100],
+    jenisKelamin, // 0 - Laki , 1 - Perempuan
+
+    // Position
+    Float:last_x,
+    Float:last_y,
+    Float:last_z,
+    Float:last_a,
+    last_int,
+    last_vw,
+
 
     lastGlobalChat
 }
