@@ -34,7 +34,7 @@
 #pragma unused gPoliceSpawns
 #pragma unused gRandomSpawns_LasVenturas
 #pragma unused gRandomSpawns_SanFierro
-
+#pragma unused gRandomSpawns_LosSantos
 
 public OnPlayerConnect(playerid)
 {
@@ -63,6 +63,8 @@ public OnPlayerConnect(playerid)
 
 public OnPlayerDisconnect(playerid, reason){
 	DeletePVar(playerid, "selected_skin");
+
+	updateOnPlayerDisconnect(playerid);
 	return 1;
 }
 
@@ -122,7 +124,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(msg, sizeof(msg), "~r~Selamat ~y~datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %d ~w~!", PlayerInfo[playerid][loginKe]);
 					GameTextForPlayer(playerid, msg, 4000, 3);
 
-					GivePlayerMoney(playerid, strval(PlayerInfo[playerid][uang]));
+					GivePlayerMoney(playerid, PlayerInfo[playerid][uang]);
+					printf("Berhasil memberi uang %d", PlayerInfo[playerid][uang]);
 					return 1;
 				}
 				else
@@ -289,18 +292,7 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 public OnPlayerSpawn(playerid)
 {
 	if(IsPlayerNPC(playerid)) return 1;
-
-	new randSpawn = 0;
-	
-	SetPlayerInterior(playerid,0);
 	SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
-	randSpawn = random(sizeof(gRandomSpawns_LosSantos));
-	SetPlayerPos(playerid,
-		gRandomSpawns_LosSantos[randSpawn][0],
-		gRandomSpawns_LosSantos[randSpawn][1],
-		gRandomSpawns_LosSantos[randSpawn][2]);
-
-	SetPlayerFacingAngle(playerid,gRandomSpawns_LosSantos[randSpawn][3]);
 	return 1;
 }
 
@@ -308,17 +300,11 @@ public OnPlayerSpawn(playerid)
 
 public OnPlayerDeath(playerid, killerid, reason)
 {
-    new playercash;
-        
-	if(killerid == INVALID_PLAYER_ID) {
-        ResetPlayerMoney(playerid);
-	} else {
-		playercash = GetPlayerMoney(playerid);
-		if(playercash > 0)  {
-			GivePlayerMoney(killerid, playercash);
-			ResetPlayerMoney(playerid);
-		}
-	}
+	new random_spawn = random(sizeof(SPAWN_POINT));
+	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+
+	SetPlayerVirtualWorld(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_VW]);
+	SetPlayerInterior(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR]);
    	return 1;
 }
 

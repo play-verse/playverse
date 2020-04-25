@@ -13,12 +13,28 @@ public isRegistered(playerid)
 
 		cache_get_value_name_int(0, "jenis_kelamin", PlayerInfo[playerid][jenisKelamin]);
 
-		cache_get_value_name(0, "uang", PlayerInfo[playerid][uang]);
+		cache_get_value_name(0, "uang", temp_value);
+		printf("Uang player %s", temp_value);
+		PlayerInfo[playerid][uang] = strval(temp_value);
 		// Reset dulu uangnya, saat berhasil login baru beri uang
 		ResetPlayerMoney(playerid);
 
+		// Get Player Position
+		cache_get_value_name(0, "last_x", temp_value);
+		PlayerInfo[playerid][last_x] = floatstr(temp_value);
+		cache_get_value_name(0, "last_y", temp_value);
+		PlayerInfo[playerid][last_y] = floatstr(temp_value);
+		cache_get_value_name(0, "last_z", temp_value);
+		PlayerInfo[playerid][last_z] = floatstr(temp_value);
+		cache_get_value_name(0, "last_a", temp_value);
+		PlayerInfo[playerid][last_a] = floatstr(temp_value);
+		cache_get_value_name(0, "last_int", temp_value);
+		PlayerInfo[playerid][last_int] = strval(temp_value);
+		cache_get_value_name(0, "last_vw", temp_value);
+		PlayerInfo[playerid][last_vw] = strval(temp_value);
+
 		// Pindahkan player
-		SetSpawnInfo(playerid, 0, 0,2093.7747,-1806.4586,13.5499,87.6500, 0, 0, 0, 0, 0, 0);
+		SetSpawnInfo(playerid, 0, 0, 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
 		SetPlayerVirtualWorld(playerid, playerid);
 		SpawnPlayer(playerid);
 
@@ -69,8 +85,28 @@ dialogEmail(playerid){
 forward spawnPemain(playerid);
 public spawnPemain(playerid)
 {
-	SetPlayerVirtualWorld(playerid, 0);
-	SpawnPlayer(playerid);	
+	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0)){
+		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
+		SetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
+
+		SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][last_vw]);
+		SetPlayerInterior(playerid, PlayerInfo[playerid][last_int]);
+
+		PlayerInfo[playerid][last_x] = 0;
+		PlayerInfo[playerid][last_y] = 0;
+		PlayerInfo[playerid][last_z] = 0;
+		PlayerInfo[playerid][last_a] = 0;
+		PlayerInfo[playerid][last_vw] = 0;
+		PlayerInfo[playerid][last_int] = 0;
+	}else{
+		new random_spawn = random(sizeof(SPAWN_POINT));
+		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+
+		SetPlayerVirtualWorld(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_VW]);
+		SetPlayerInterior(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR]);
+	}
+	SpawnPlayer(playerid);
+	return 1;
 }
 
 
@@ -113,6 +149,25 @@ public tampilInventorySkinPlayer(playerid){
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Invalid", WHITE"Tidak terdapat skin pada akun anda!\nAnda dapat menghubungi administrator untuk info lebih lanjut!", "Ok", "");
 	}
 	return 1; // For deleteing cache tquery
+}
+
+updateOnPlayerDisconnect(playerid){
+	// new temp_value[256];
+
+	// Position
+	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw;
+	GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
+	GetPlayerFacingAngle(playerid, last_spawn_info_a);
+	last_spawn_info_vw = GetPlayerVirtualWorld(playerid);
+	last_spawn_info_int = GetPlayerInterior(playerid);
+
+	// Uang
+	new str_uang[100];
+	valstr(str_uang, GetPlayerMoney(playerid));
+
+	mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', uang = '%s' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, str_uang, PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, query);
+	return 1;
 }
 
 tampilkanTextDrawShowItem(playerid, model_id, jumlah, keterangan[], nama_pemilik[]){

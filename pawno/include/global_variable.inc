@@ -13,7 +13,7 @@ enum pInfo
     skinID,
     pPassword[65],
     loginKe, // Mencatat jumlah login
-    uang[100],
+    uang,
     jenisKelamin, // 0 - Laki , 1 - Perempuan
 
     // Position
@@ -61,6 +61,19 @@ new const SKIN_MALE_GRATIS[] = {
     60, 68, 67, 72, 73, 98, 101, 125, 142, 143, 170, 179, 183, 184
 };
 
+
+enum SPAWN_POINT_INFO {
+    Float:SPAWN_POINT_X,
+    Float:SPAWN_POINT_Y,
+    Float:SPAWN_POINT_Z,
+    Float:SPAWN_POINT_A,
+    SPAWN_POINT_INTERIOR,
+    SPAWN_POINT_VW
+}
+new const SPAWN_POINT[][SPAWN_POINT_INFO] = {
+    {154.0393, -1942.6648, 3.7734, 359.4115, 0, 0},
+    {299.0191, -2026.3314, 1.4131, 1.1118, 0, 0}
+};
 
 
 new PlayerRainbowColors[511] = {
