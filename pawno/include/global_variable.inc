@@ -42,6 +42,11 @@ new registerInfo[MAX_PLAYERS][rInfo];
 new msg[256];
 new total_vehicles_from_files=0;
 
+/**
+    Textdraw Variable For Player
+*/
+new PlayerText:showItem[MAX_PLAYERS][6];
+
 /*
     SERVER VAR
 */

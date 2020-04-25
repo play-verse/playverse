@@ -20,7 +20,7 @@ stock ProxDetector(Float:radi, playerid, string[], color)
 {
     new Float:x, Float:y, Float:z;
     GetPlayerPos(playerid, x, y, z);
-    foreach(Player, i)
+    foreach(new i : Player)
     {
         if(IsPlayerInRangeOfPoint(i, radi, x, y, z))
         {

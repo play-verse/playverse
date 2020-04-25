@@ -10,7 +10,7 @@
 #include <mapping>
 #include <a_mysql>
 #include <zcmd>
-#include <foreach>
+#include <YSI_Data\y_iterate>
 #include <moneyhax>
 #include <core>
 #include <float>
@@ -35,11 +35,11 @@
 #pragma unused gRandomSpawns_LasVenturas
 #pragma unused gRandomSpawns_SanFierro
 
-#pragma tabsize 0
 
 public OnPlayerConnect(playerid)
 {
 	removeBangunanUntukMapping(playerid);
+	loadTextDrawPemain(playerid);
 	/*
 	Removes vending machines
 	RemoveBuildingForPlayer(playerid, 1302, 0.0, 0.0, 0.0, 6000.0);
@@ -58,6 +58,11 @@ public OnPlayerConnect(playerid)
     mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE `nama` = '%e'", PlayerInfo[playerid][pPlayerName]);
 	mysql_tquery(koneksi, query, "isRegistered", "d", playerid);
 
+	return 1;
+}
+
+public OnPlayerDisconnect(playerid, reason){
+	DeletePVar(playerid, "selected_skin");
 	return 1;
 }
 
@@ -194,14 +199,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_PAKAI_SKIN:
+		case DIALOG_PILIH_SKIN:
 		{
 			if(response){
-				new id_skin = strval(inputtext);
-				updatePlayerCurrentSkin(playerid, id_skin);
-				PlayerInfo[playerid][skinID] = id_skin;
+				ShowPlayerDialog(playerid, DIALOG_OPTION_SKIN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", WHITE"Pakai Skin\nShow Item", "Ok", "Keluar");
 
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", GREEN"Anda berhasil mengganti skin anda!\n"WHITE"Silahkan ke kamar ganti terdekat atau spawn ulang untuk mendapatkan efeknya.", "Ok", "");
+				new id_skin = strval(inputtext);
+				SetPVarInt(playerid, "selected_skin", id_skin);
 			}
 			return 1;
 		}
@@ -216,6 +220,54 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_OPTION_SKIN_INVENTORY:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						new id_skin = GetPVarInt(playerid, "selected_skin");
+						
+						updatePlayerCurrentSkin(playerid, id_skin);
+						PlayerInfo[playerid][skinID] = id_skin;
+
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", GREEN"Anda berhasil mengganti skin anda!\n"WHITE"Silahkan ke kamar ganti terdekat atau spawn ulang untuk mendapatkan efeknya.", "Ok", "");
+					}
+					case 1:
+					{
+						ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+					}
+				}
+			}else{
+				DeletePVar(playerid, "selected_skin");
+			}
+			return 1;
+		}
+		case DIALOG_SHOW_ITEM_FOR_PLAYER:
+		{
+			new target_id;
+			if(response){
+				if(sscanf(inputtext, "u", target_id)) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Invalid playerid, silahkan masukan kembali! "WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+
+				if(!IsPlayerConnected(target_id)) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Player dengan id tersebut tidak ada, silahkan masukan kembali! "WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+				
+				if(target_id == playerid) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Anda tidak dapat memasukan ID anda sendiri, silahkan masukan kembali! "WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+
+				new Float:me_x, Float:me_y, Float:me_z;
+				GetPlayerPos(playerid, me_x, me_y, me_z);
+
+				if(!IsPlayerInRangeOfPoint(target_id, 8.0, me_x, me_y, me_z)) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Player tersebut tidak berada di dekat anda, silahkan masukan kembali! "WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+
+				// Tampilkan Textdraw
+				tampilkanTextDrawShowItem(target_id, GetPVarInt(playerid, "selected_skin"), 1, "Skin dapat digunakan, saat anda memilikinya!", PlayerInfo[playerid][pPlayerName]);
+
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", WHITE"Anda "GREEN"berhasil "WHITE"menampilkan info item anda ke player tertuju!", "Ok", "");
+
+			}else{
+				DeletePVar(playerid, "selected_skin");
+			}
+			return 1;
+		}
     }
 
 	// Wiki-SAMP OnDialogResponse should return 0
@@ -223,6 +275,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 }
 
 
+public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
+{
+    if(playertextid == showItem[playerid][4])
+    {
+        CancelSelectTextDraw(playerid);
+		hideTextDrawShowItem(playerid);
+        return 1;
+    }
+    return 0;
+}
 
 public OnPlayerSpawn(playerid)
 {

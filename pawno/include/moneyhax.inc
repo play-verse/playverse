@@ -28,7 +28,7 @@ public MoneyCheck()
 {
 	new money;
 	#if defined _foreach_included
-	foreach(Player,playerid)
+	foreach(new playerid : Player)
 	{
 		money = GetPlayerMoney(playerid);
 		if( money < PMoney[playerid] && money > -1 ) PMoney[playerid]=money;

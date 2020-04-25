@@ -5,18 +5,23 @@ CMD:kick(playerid, params[]){
     if(!IsPlayerConnected(target_id)) return  error_command(playerid, "Player dengan id tersebut tidak ada!");
     if(target_id == playerid) return  error_command(playerid, "Tidak dapat mengusir diri sendiri!");
 
+    format(msg, sizeof(msg),  RED"[KICK] "WHITE"Anda telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", pesan);
+    SendClientMessage(playerid, COLOR_WHITE, msg);
     Kick(target_id);
+
+    format(msg, sizeof(msg), ORANGE"[ADMIN] "RED"%s "WHITE"telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", PlayerInfo[target_id][pPlayerName], pesan);
+    SendClientMessageToAll(COLOR_WHITE, msg);
 	return 1;
 }
 
-CMD:a(playerid, params[]){
+CMD:bc(playerid, params[]){
     new pesan[256];
-	if(sscanf(params, "s[256]", pesan)) return error_syntax(playerid, "/a [pesan]");
+	if(sscanf(params, "s[256]", pesan)) return error_syntax(playerid, "/bc [pesan]");
     if(gettime() - PlayerInfo[playerid][lastGlobalChat] < (5 * 60)){
-        format(msg, sizeof(msg), "Anda hanya dapat mengirim pesan global 5 menit sekali, anda harus menunggu %d detik lagi!", 5 * 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
+        format(msg, sizeof(msg), "Anda hanya dapat mengirim pesan broadcast 5 menit sekali, anda harus menunggu %d detik lagi!", 5 * 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
         return error_command(playerid, msg);
     }
-    format(msg, sizeof(msg), WHITE"["GREEN"GLOBAL"WHITE"] ["GREY"%d"WHITE"] %s "WHITE": %s", playerid, PlayerInfo[playerid][pPlayerName], pesan);
+    format(msg, sizeof(msg), WHITE"["BLUE"BC"WHITE"] ["GREY"%d"WHITE"] %s "WHITE": %s", playerid, PlayerInfo[playerid][pPlayerName], pesan);
     SendClientMessageToAll(COLOR_WHITE, msg);
     PlayerInfo[playerid][lastGlobalChat] = gettime();
     return 1;
