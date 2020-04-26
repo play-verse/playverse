@@ -23,18 +23,11 @@
 #include <fungsi> // Fungsi disini
 
 #include "../include/gl_common.inc"
-#include "../include/gl_spawns.inc"
 
 /**
 	Unused params
  */
 #pragma unused PlayerRainbowColors
-#pragma unused gArmySpawns
-#pragma unused gMedicalSpawns
-#pragma unused gPoliceSpawns
-#pragma unused gRandomSpawns_LasVenturas
-#pragma unused gRandomSpawns_SanFierro
-#pragma unused gRandomSpawns_LosSantos
 
 public OnPlayerConnect(playerid)
 {
@@ -125,7 +118,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					GameTextForPlayer(playerid, msg, 4000, 3);
 
 					GivePlayerMoney(playerid, PlayerInfo[playerid][uang]);
-					printf("Berhasil memberi uang %d", PlayerInfo[playerid][uang]);
 					return 1;
 				}
 				else

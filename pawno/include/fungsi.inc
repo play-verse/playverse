@@ -14,7 +14,6 @@ public isRegistered(playerid)
 		cache_get_value_name_int(0, "jenis_kelamin", PlayerInfo[playerid][jenisKelamin]);
 
 		cache_get_value_name(0, "uang", temp_value);
-		printf("Uang player %s", temp_value);
 		PlayerInfo[playerid][uang] = strval(temp_value);
 		// Reset dulu uangnya, saat berhasil login baru beri uang
 		ResetPlayerMoney(playerid);
