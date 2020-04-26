@@ -42,16 +42,15 @@ CMD:spawn(playerid, params[]){
 }
 
 CMD:inventory(playerid, params[]){
-    ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", "Skin", "Pilih", "Batal");
+    ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", "Barang\nSkin", "Pilih", "Batal");
     return 1;
 }
 
 CMD:beliskin(playerid, params[]){    
     if(!IsPlayerAdmin(playerid)) return 0;
-    new len;
     new subString[16];
-    static string[500];
-    len = PlayerInfo[playerid][jenisKelamin] == 0 ? sizeof(SKIN_MALE_GRATIS) : sizeof(SKIN_FEMALE_GRATIS);
+    new len = ((PlayerInfo[playerid][jenisKelamin] == 0) ? sizeof(SKIN_MALE_GRATIS) : sizeof(SKIN_FEMALE_GRATIS));
+    new string[500];
 
     for (new i = 0; i < len; i++) {
         format(subString, sizeof(subString), "%i\n", PlayerInfo[playerid][jenisKelamin] == 0 ? SKIN_MALE_GRATIS[i] : SKIN_FEMALE_GRATIS[i]);
@@ -61,3 +60,29 @@ CMD:beliskin(playerid, params[]){
     ShowPlayerDialog(playerid, DIALOG_BELI_SKIN, DIALOG_STYLE_PREVIEW_MODEL, "Pilih skin yang anda inginkan", string, "Pilih", "Keluar");
     return 1;
 }
+
+CMD:daftarnomor(playerid, params[]){
+    if(!IsPlayerAdmin(playerid)) return 0;
+    if(strcmp(PlayerInfo[playerid][nomorHP], "invalid")) return error_command(playerid, "Maaf anda telah memiliki nomor HP");
+    ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
+    return 1;
+}
+
+CMD:giveitem(playerid, params[]){
+    if(!IsPlayerAdmin(playerid)) return 0;
+
+    new subString[45];
+    static string[MAX_MS_ITEM * 45];
+    if(string[0] == EOS){
+        for(new i = 0; i < MAX_MS_ITEM; i++){
+            format(subString, sizeof(subString), "%i\t%s\n", MasterItem[i][modelID], MasterItem[i][namaItem]);
+            strcat(string, subString);
+        }
+    }
+	ShowPlayerDialog(playerid, DIALOG_ADMIN_GIVE_ITEM, DIALOG_STYLE_PREVIEW_MODEL, "~w~Pilih item yang ingin diberi :", string, "~w~Pilih", "Keluar");
+    return 1;
+}
+
+// CMD:ephone(playerid, params[]){
+//     return 1;
+// }

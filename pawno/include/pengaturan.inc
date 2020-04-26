@@ -20,6 +20,7 @@
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 50
 
+#define MAX_MS_ITEM 4 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
 
 /*
 	DIALOG ID
@@ -39,6 +40,13 @@
 #define DIALOG_BELI_SKIN 11
 #define DIALOG_OPTION_SKIN_INVENTORY 12
 #define DIALOG_SHOW_ITEM_FOR_PLAYER 13
+#define DIALOG_DAFTAR_NOMOR 14
+#define DIALOG_PILIH_PLAYER_FOR_ITEM 15
+#define DIALOG_PILIH_ITEM 16
+#define DIALOG_OPTION_ITEM_INVENTORY 17
+#define DIALOG_ADMIN_GIVE_ITEM 18
+#define DIALOG_PILIH_JUMLAH_ITEM 19
+
 
 /**********
 *	DEFINED FUNCTION

@@ -24,6 +24,9 @@ enum pInfo
     last_int,
     last_vw,
 
+    // Equiped Item
+    ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
+    nomorHP[12], // Berisi 62 + 4 kode
 
     lastGlobalChat
 }
@@ -75,6 +78,14 @@ new const SPAWN_POINT[][SPAWN_POINT_INFO] = {
     {299.0191, -2026.3314, 1.4131, 1.1118, 0, 0}
 };
 
+
+enum ITEM_INFO {
+    itemID,
+    namaItem[256],
+    keteranganItem[500],
+    modelID
+}
+new MasterItem[MAX_MS_ITEM][ITEM_INFO];
 
 new PlayerRainbowColors[511] = {
 /*OKStyle*/ 0x000022FF, 0x000044FF, 0x000066FF, 0x000088FF, 0x0000AAFF, 0x0000CCFF, 0x0000EEFF,

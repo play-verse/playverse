@@ -1,5 +1,8 @@
-	/*
-	GAME MODE NATHAN
+/*
+	ETERNITY LEGEND SCRIPT
+
+	MAJOR MINUS :
+	- Setiap item harus memiliki model_id yang unique, jika ingin menggunakan DIALOG_PREVIEW_MODEL
 */
 
 #include <a_samp>
@@ -55,8 +58,7 @@ public OnPlayerConnect(playerid)
 }
 
 public OnPlayerDisconnect(playerid, reason){
-	DeletePVar(playerid, "selected_skin");
-
+	resetPVarInventory(playerid);
 	updateOnPlayerDisconnect(playerid);
 	return 1;
 }
@@ -187,6 +189,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
+						mysql_format(koneksi, query, sizeof(query), "SELECT a.id_item, a.jumlah FROM `user_item` a WHERE a.`id_user` = '%d' ORDER BY a.id_item ASC", PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, query, "tampilInventoryBarangPlayer", "d", playerid);
+					}
+					case 1:
+					{
 						mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user_skin` WHERE `id_user` = '%d'", PlayerInfo[playerid][pID]);
 						mysql_tquery(koneksi, query, "tampilInventorySkinPlayer", "d", playerid);
 					}
@@ -197,10 +204,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_PILIH_SKIN:
 		{
 			if(response){
-				ShowPlayerDialog(playerid, DIALOG_OPTION_SKIN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", WHITE"Pakai Skin\nShow Item", "Ok", "Keluar");
+				ShowPlayerDialog(playerid, DIALOG_OPTION_SKIN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", GREEN"Pakai Skin\n"LIGHT_BLUE"Beritahu Item\n"BLUE"Info Item, "Ok", "Keluar");
 
 				new id_skin = strval(inputtext);
-				SetPVarInt(playerid, "selected_skin", id_skin);
+				SetPVarInt(playerid, "inv_model", id_skin);
+				SetPVarString(playerid, "inv_keterangan", "Jenis skin biasa, yang dapat digunakan jika kamu memilikinya.");
 			}
 			return 1;
 		}
@@ -221,7 +229,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						new id_skin = GetPVarInt(playerid, "selected_skin");
+						new id_skin = GetPVarInt(playerid, "inv_model");
 						
 						updatePlayerCurrentSkin(playerid, id_skin);
 						PlayerInfo[playerid][skinID] = id_skin;
@@ -234,7 +242,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 				}
 			}else{
-				DeletePVar(playerid, "selected_skin");
+				resetPVarInventory(playerid);
 			}
 			return 1;
 		}
@@ -254,12 +262,115 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(!IsPlayerInRangeOfPoint(target_id, 8.0, me_x, me_y, me_z)) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Player tersebut tidak berada di dekat anda, silahkan masukan kembali! "WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
 
 				// Tampilkan Textdraw
-				tampilkanTextDrawShowItem(target_id, GetPVarInt(playerid, "selected_skin"), 1, "Skin dapat digunakan, saat anda memilikinya!", PlayerInfo[playerid][pPlayerName]);
+				new string[500];
+				GetPVarString(playerid, "inv_keterangan", string, sizeof(string));
+				tampilkanTextDrawShowItem(target_id, GetPVarInt(playerid, "inv_model"), 1, string, PlayerInfo[playerid][pPlayerName]);
 
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", WHITE"Anda "GREEN"berhasil "WHITE"menampilkan info item anda ke player tertuju!", "Ok", "");
 
 			}else{
-				DeletePVar(playerid, "selected_skin");
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_DAFTAR_NOMOR:
+		{
+			if(response){
+				if(!(strlen(inputtext) == 4)) return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Kode harus terdiri dari 4 angka!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
+				if(inputtext[0] == '-' || !isNumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Kode harus terdiri dari angka saja!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
+
+				new Cache:result, bool:valid;
+				new nomor_hp[16] = "62";
+				strcat(nomor_hp, inputtext);
+				mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE nomor_handphone = '%s'", nomor_hp);
+				result = mysql_query(koneksi, query);
+				if(cache_num_rows())
+					valid = false;
+				else
+					valid = true;
+				cache_delete(result);
+
+				if(valid){
+					mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET nomor_handphone = '%e' WHERE id = '%d'", nomor_hp, PlayerInfo[playerid][pID]);
+					mysql_tquery(koneksi, query);
+
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendaftarkan nomor HP", WHITE"Anda "GREEN"berhasil "WHITE"mendaftarkan nomor HP!", "Ok", "");
+				}else{
+					return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Nomor HP telah ada, silahkan input yang lain!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_GIVE_ITEM:
+		{
+			if(response){
+				SetPVarInt(playerid, "inv_indexlist", listitem);
+
+				ShowPlayerDialog(playerid, DIALOG_PILIH_PLAYER_FOR_ITEM, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",WHITE"Masukan ID player yang akan kamu tampilkan item.","Beri","Keluar");
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_PLAYER_FOR_ITEM:
+		{
+			if(response){
+				new target_id;
+				if(sscanf(inputtext, "u", target_id)) return ShowPlayerDialog(playerid, DIALOG_PILIH_PLAYER_FOR_ITEM, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Invalid playerid, silahkan masukan kembali!\n"WHITE"Masukan ID player yang akan kamu tampilkan item.","Beri","Keluar");
+				if(!IsPlayerConnected(target_id)) return ShowPlayerDialog(playerid, DIALOG_PILIH_PLAYER_FOR_ITEM, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Player dengan id tersebut tidak ada, silahkan masukan kembali!\n"WHITE"Masukan ID player yang akan kamu tampilkan item.","Beri","Keluar");
+
+				SetPVarInt(playerid, "inv_target_id", target_id);
+
+				ShowPlayerDialog(playerid, DIALOG_PILIH_JUMLAH_ITEM, DIALOG_STYLE_INPUT,""WHITE"Jumlah barang",WHITE"Berapa banyak yang ingin kamu berikan :", "Beri", "Keluar");
+			}else{
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_JUMLAH_ITEM:
+		{
+			if(response){
+				new jumlah, item_id;
+				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_PILIH_JUMLAH_ITEM, DIALOG_STYLE_INPUT,""WHITE"Jumlah barang", RED"Inputan tidak valid!\n"WHITE"Berapa banyak yang ingin kamu berikan :", "Beri", "Keluar");
+
+				if(!IsPlayerConnected(GetPVarInt(playerid, "inv_target_id"))) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX,""WHITE"Invalid", RED"Player dengan id tertuju sudah meninggalkan server!\n","Ok", "");
+
+				item_id = GetPVarInt(playerid, "inv_indexlist");
+				tambahItemPlayer(GetPVarInt(playerid, "inv_target_id"), MasterItem[item_id][itemID], jumlah);
+				
+				format(msg, sizeof(msg), WHITE"Anda "GREEN"mendapatkan "WHITE"item "BLUE"%s "WHITE"dari admin!", MasterItem[item_id][namaItem]);
+				ShowPlayerDialog(GetPVarInt(playerid, "inv_target_id"), DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendapatkan item", msg, "Ok", "");
+
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", WHITE"Anda "GREEN"berhasil "WHITE"memberikan item ke player tertuju!", "Ok", "");
+				resetPVarInventory(playerid);
+			}else{
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_ITEM:
+		{
+			if(response){
+				mysql_format(koneksi, query, sizeof(query), "SELECT jumlah FROM `user_item` WHERE id_user = '%d' AND id_item = '%d'", PlayerInfo[playerid][pID], MasterItem[listitem][itemID]);
+				mysql_tquery(koneksi, query, "cekJumlahItem", "d", playerid);
+			}else{
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_OPTION_ITEM_INVENTORY:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						SendClientMessage(playerid, COLOR_WHITE, "Under construcion!");
+					}
+					case 1:
+					{
+						ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+					}
+				}
+			}else{
+				resetPVarInventory(playerid);
 			}
 			return 1;
 		}
@@ -341,6 +452,10 @@ public OnGameModeInit()
 	printf("[MAPPING] Load semua mappingan...");
 	loadAllMapingan();
 	printf("[MAPPING] Sukses load mapping!");
+
+	printf("[ITEM] Load semua item...");
+	loadAllItem();
+	printf("[ITEM] Sukses load item!");
 
 	SetGameModeText("EL v1.0");
 	// ShowPlayerMarkers(PLAYER_MARKERS_MODE_STREAMED);
