@@ -1,9 +1,9 @@
-/*
+/**************************************************************************************************
 	ETERNITY LEGEND SCRIPT
 
 	MAJOR MINUS :
 	- Setiap item harus memiliki model_id yang unique, jika ingin menggunakan DIALOG_PREVIEW_MODEL
-*/
+***************************************************************************************************/
 
 #include <a_samp>
 #include <pengaturan> // Pengaturan server disini letak pas dibawah a_samp
@@ -204,7 +204,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_PILIH_SKIN:
 		{
 			if(response){
-				ShowPlayerDialog(playerid, DIALOG_OPTION_SKIN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", GREEN"Pakai Skin\n"LIGHT_BLUE"Beritahu Item\n"BLUE"Info Item, "Ok", "Keluar");
+				ShowPlayerDialog(playerid, DIALOG_OPTION_SKIN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", GREEN"Pakai Skin\n"LIGHT_BLUE"Beritahu Item\n"BLUE"Info Item", "Ok", "Keluar");
 
 				new id_skin = strval(inputtext);
 				SetPVarInt(playerid, "inv_model", id_skin);
@@ -350,7 +350,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				mysql_format(koneksi, query, sizeof(query), "SELECT jumlah FROM `user_item` WHERE id_user = '%d' AND id_item = '%d'", PlayerInfo[playerid][pID], MasterItem[listitem][itemID]);
-				mysql_tquery(koneksi, query, "cekJumlahItem", "d", playerid);
+				mysql_tquery(koneksi, query, "cekJumlahItem", "dd", playerid, listitem);
 			}else{
 				resetPVarInventory(playerid);
 			}
@@ -362,7 +362,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						SendClientMessage(playerid, COLOR_WHITE, "Under construcion!");
+						updatePlayerCurrentPhone(playerid, GetPVarInt(playerid, "inv_indexlist"));
+						resetPVarInventory(playerid);
 					}
 					case 1:
 					{

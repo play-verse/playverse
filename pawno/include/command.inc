@@ -42,7 +42,7 @@ CMD:spawn(playerid, params[]){
 }
 
 CMD:inventory(playerid, params[]){
-    ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", "Barang\nSkin", "Pilih", "Batal");
+    ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", "Item\nSkin", "Pilih", "Batal");
     return 1;
 }
 
@@ -83,6 +83,6 @@ CMD:giveitem(playerid, params[]){
     return 1;
 }
 
-// CMD:ephone(playerid, params[]){
-//     return 1;
-// }
+CMD:pm(playerid, params[]){
+    return 1;
+}

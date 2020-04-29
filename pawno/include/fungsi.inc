@@ -13,6 +13,12 @@ public isRegistered(playerid)
 
 		cache_get_value_name_int(0, "jenis_kelamin", PlayerInfo[playerid][jenisKelamin]);
 
+		// Equiped phone
+		cache_get_value_name_int(0, "use_phone", PlayerInfo[playerid][ePhone]);
+		
+		cache_get_value_name(0, "nomor_handphone", temp_value);
+		format(PlayerInfo[playerid][nomorHP], 12, "%s", temp_value);
+
 		cache_get_value_name(0, "uang", temp_value);
 		PlayerInfo[playerid][uang] = strval(temp_value);
 		// Reset dulu uangnya, saat berhasil login baru beri uang
@@ -116,6 +122,54 @@ public spawnPemain(playerid)
 	return 1;
 }
 
+forward updatePlayerCurrentPhone(playerid, listitem);
+public updatePlayerCurrentPhone(playerid, listitem){
+	mysql_format(koneksi, query, sizeof(query), "SELECT a.use_phone, b.id_user_item, c.nama_item FROM `user` a LEFT JOIN `user_item` b ON b.id_user = a.id LEFT JOIN `item` c ON a.use_phone = c.id_item WHERE a.id = '%d'", PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, query, "checkIfPhoneExist", "dd", playerid, listitem);
+	return 1;
+}
+
+forward checkIfPhoneExist(playerid, listitem);
+public checkIfPhoneExist(playerid, listitem){
+	if(cache_num_rows()){
+		new id_phone, id_user_item, itemid = MasterItem[listitem][itemID], old_nama_item[100], pesan[256];
+		cache_get_value_name_int(0, "use_phone", id_phone);
+		cache_get_value_name_int(0, "id_user_item", id_user_item);
+		cache_get_value_name(0, "nama_item", old_nama_item);
+
+		if(id_user_item == 0){
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Invalid item", WHITE"Anda tidak memiliki item yang dimaksud!", "Ok", "");
+			return 1;
+		}
+		else if(id_phone == itemid)
+		{
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Invalid item", WHITE"Anda sudah menggunakan item tersebut!", "Ok", "");
+			return 1;
+		}
+		
+		
+		format(pesan, sizeof(pesan), WHITE"Anda berhasil menggunakan "GREEN"%s "WHITE"!\n", MasterItem[listitem][namaItem]);
+		
+		if(id_phone != 0){
+			// Lakukan pengembalian barang yang sudah terpasang
+			tambahItemPlayer(playerid, id_phone, 1);
+			format(msg, sizeof(msg), "Barang anda "BLUE"%s "WHITE"sudah dikembalikan ke inventory, silahkan cek kembali!", old_nama_item);
+			strcat(pesan, msg);
+		}
+		// Lakukan pengurangan barang yang akan dipakai
+		tambahItemPlayer(playerid, itemid, -1);
+
+		// Set item terequip
+		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET use_phone = '%d' WHERE id = '%d'",itemid, PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, query);
+
+		// Set player variabel
+		PlayerInfo[playerid][ePhone] = itemid;
+
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", pesan, "Ok", "");
+	}
+	return 1;
+}
 
 
 forward updatePlayerCurrentSkin(playerid, skinid);
@@ -167,7 +221,7 @@ public tampilInventoryBarangPlayer(playerid){
 	idx = (rows > 0 ? 0 : -1);
 
 	for(new i = 0; i < MAX_MS_ITEM; i++){
-		format(subString, sizeof(subString), "%i\t%s~n~", MasterItem[i][modelID], MasterItem[i][namaItem]);
+		format(subString, sizeof(subString), "%i(90.0, 0.0, 0.0, 1.0)\t%s~n~", MasterItem[i][modelID], MasterItem[i][namaItem]);
 		strcat(string, subString);
 
 		if(idx != -1 && idx < rows){
@@ -191,19 +245,6 @@ public tampilInventoryBarangPlayer(playerid){
 		}
     }
 	ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_PREVIEW_MODEL, "~w~Pilih barang anda :", string, "~w~Pilih", "Keluar");
-
-
-	// if(cache_get_row_count(rows)){
-	// 	for(new i = 0; i < rows; i++){
-	// 		cache_get_value_name_int(i, "id_model", id_model);
-	// 		cache_get_value_name(i, "nama_item", nama_item);
-	// 		format(subString, sizeof(subString), "%i\t%s\n", id_model, nama_item);
-	// 		strcat(string, subString);
-	// 	}
-	// 	ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_PREVIEW_MODEL, "~w~Pilih barang anda :", string, "~w~Pilih", "Keluar");
-	// }else{
-	// 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Barang Kosong", WHITE"Tidak terdapat barang pada akun anda!", "Ok", "");
-	// }
 	return 1; // For deleteing cache tquery
 }
 
