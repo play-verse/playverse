@@ -83,6 +83,7 @@ CMD:giveitem(playerid, params[]){
     return 1;
 }
 
-CMD:pm(playerid, params[]){
+CMD:infosaya(playerid, params[]){
+    tampilkanTextDrawMyInfo(playerid);
     return 1;
 }

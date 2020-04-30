@@ -307,7 +307,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				SetPVarInt(playerid, "inv_indexlist", listitem);
 
-				ShowPlayerDialog(playerid, DIALOG_PILIH_PLAYER_FOR_ITEM, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",WHITE"Masukan ID player yang akan kamu tampilkan item.","Beri","Keluar");
+				ShowPlayerDialog(playerid, DIALOG_PILIH_PLAYER_FOR_ITEM, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",WHITE"Masukan ID player yang akan kamu beri item.","Beri","Keluar");
 			}
 			return 1;
 		}
@@ -370,6 +370,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
 					}
+					case 2:
+					{
+						// Tampilkan Textdraw
+						new string[500];
+						GetPVarString(playerid, "inv_keterangan", string, sizeof(string));
+						tampilkanTextDrawShowItem(playerid, GetPVarInt(playerid, "inv_model"), GetPVarInt(playerid, "inv_jumlah"), string, PlayerInfo[playerid][pPlayerName]);
+
+						resetPVarInventory(playerid);
+					}
 				}
 			}else{
 				resetPVarInventory(playerid);
@@ -390,8 +399,21 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
         CancelSelectTextDraw(playerid);
 		hideTextDrawShowItem(playerid);
         return 1;
-    }
+    }else if(playertextid == myInfo[playerid][7]){
+		CancelSelectTextDraw(playerid);
+		hideTextDrawMyInfo(playerid);
+		return 1;
+	}
     return 0;
+}
+
+public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
+{
+    if(newkeys == KEY_SUBMISSION)
+    {
+        SelectTextDraw(playerid, 0xFF4040AA);
+    }
+    return 1;
 }
 
 public OnPlayerSpawn(playerid)

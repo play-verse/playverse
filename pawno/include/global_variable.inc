@@ -49,6 +49,7 @@ new total_vehicles_from_files=0;
     Textdraw Variable For Player
 */
 new PlayerText:showItem[MAX_PLAYERS][6];
+new PlayerText:myInfo[MAX_PLAYERS][8];
 
 /*
     SERVER VAR

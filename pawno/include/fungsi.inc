@@ -221,7 +221,7 @@ public tampilInventoryBarangPlayer(playerid){
 	idx = (rows > 0 ? 0 : -1);
 
 	for(new i = 0; i < MAX_MS_ITEM; i++){
-		format(subString, sizeof(subString), "%i\t%s~n~", MasterItem[i][modelID], MasterItem[i][namaItem]);
+		format(subString, sizeof(subString), "%i(95.0, 173.0, 39.0)\t%s~n~", MasterItem[i][modelID], MasterItem[i][namaItem]);
 		strcat(string, subString);
 
 		if(idx != -1 && idx < rows){
