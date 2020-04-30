@@ -61,6 +61,7 @@ public OnPlayerConnect(playerid)
 public OnPlayerDisconnect(playerid, reason){
 	resetPVarInventory(playerid);
 	updateOnPlayerDisconnect(playerid);
+	resetPlayerVariable(playerid);
 	return 1;
 }
 
@@ -294,6 +295,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(valid){
 					mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET nomor_handphone = '%e' WHERE id = '%d'", nomor_hp, PlayerInfo[playerid][pID]);
 					mysql_tquery(koneksi, query);
+
+					format(PlayerInfo[playerid][nomorHP], 12, "%s", nomor_hp);
 
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendaftarkan nomor HP", WHITE"Anda "GREEN"berhasil "WHITE"mendaftarkan nomor HP!", "Ok", "");
 				}else{

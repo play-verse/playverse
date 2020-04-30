@@ -52,6 +52,7 @@
 /**********
 *	DEFINED FUNCTION
 ***********/
+// Ketimpa oleh include dibawah"nya
 #if !defined isnull
 	// modif isnull dengan pengecekan "NULL" untuk counter NULL database field
     #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))) || !strcmp(%1, "NULL"))

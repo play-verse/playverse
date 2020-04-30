@@ -28,6 +28,7 @@ enum pInfo
     ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
     nomorHP[12], // Berisi 62 + 4 kode
 
+    reply, // -1 kalau gaada
     lastGlobalChat
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];

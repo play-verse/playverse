@@ -242,7 +242,7 @@ loadTextDrawPemain(playerid){
     PlayerTextDrawSetPreviewRot(playerid, myInfo[playerid][1], 0.000000, 0.000000, 0.000000, 1.000000);
     PlayerTextDrawSetPreviewVehCol(playerid, myInfo[playerid][1], 1, 1);
 
-    myInfo[playerid][2] = CreatePlayerTextDraw(playerid, 146.000000, 83.000000, "My Info");
+    myInfo[playerid][2] = CreatePlayerTextDraw(playerid, 146.000000, 83.000000, "Informasi saya");
     PlayerTextDrawFont(playerid, myInfo[playerid][2], 1);
     PlayerTextDrawLetterSize(playerid, myInfo[playerid][2], 0.600000, 2.000000);
     PlayerTextDrawTextSize(playerid, myInfo[playerid][2], 400.000000, 17.000000);

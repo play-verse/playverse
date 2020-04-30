@@ -4,7 +4,7 @@ public isRegistered(playerid)
 	if(cache_num_rows()) // IsRegistered
 	{
 		// Untuk string harus disimpan dlu ke variable, gabisa langsung masuk enum
-		new temp_value[256];
+		new temp_value[256], bool:is_null;
 		cache_get_value_name_int(0, "id", PlayerInfo[playerid][pID]);
 		cache_get_value_name_int(0, "current_skin", PlayerInfo[playerid][skinID]);
 		cache_get_value_name(0, "password", temp_value);
@@ -16,8 +16,15 @@ public isRegistered(playerid)
 		// Equiped phone
 		cache_get_value_name_int(0, "use_phone", PlayerInfo[playerid][ePhone]);
 		
-		cache_get_value_name(0, "nomor_handphone", temp_value);
-		format(PlayerInfo[playerid][nomorHP], 12, "%s", temp_value);
+		cache_is_value_name_null(0, "nomor_handphone", is_null);
+
+		if(is_null){
+			// EOS = End Of String - '\0' sama
+			PlayerInfo[playerid][nomorHP][0] = EOS;
+		}else{
+			cache_get_value_name(0, "nomor_handphone", temp_value);
+			format(PlayerInfo[playerid][nomorHP], 12, "%s", temp_value);
+		}
 
 		cache_get_value_name(0, "uang", temp_value);
 		PlayerInfo[playerid][uang] = strval(temp_value);
@@ -60,6 +67,7 @@ public isRegistered(playerid)
 
 resetPlayerVariable(playerid){
 	PlayerInfo[playerid][lastGlobalChat] = 0;
+	PlayerInfo[playerid][reply] = -1;
 }
 
 resetPVarInventory(playerid){
