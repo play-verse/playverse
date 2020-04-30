@@ -16,12 +16,14 @@ CMD:kick(playerid, params[]){
 
 CMD:bc(playerid, params[]){
     new pesan[256];
+    if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
+    if(isnull(PlayerInfo[playerid][nomorHP])) return error_command(playerid, "Maaf anda harus memiliki nomor hp yang sudah terdaftar untuk dpt menggunakan fitur ini.");
 	if(sscanf(params, "s[256]", pesan)) return error_syntax(playerid, "/bc [pesan]");
     if(gettime() - PlayerInfo[playerid][lastGlobalChat] < (5 * 60)){
-        format(msg, sizeof(msg), "Anda hanya dapat mengirim pesan broadcast 5 menit sekali, anda harus menunggu %d detik lagi!", 5 * 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
+        format(msg, sizeof(msg), "Anda hanya dapat mengirim pesan broadcast 2 menit sekali, anda harus menunggu %d detik lagi!", 2 * 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
         return error_command(playerid, msg);
     }
-    format(msg, sizeof(msg), WHITE"["BLUE"BC"WHITE"] ["GREY"%d"WHITE"] %s "WHITE": %s", playerid, PlayerInfo[playerid][pPlayerName], pesan);
+    format(msg, sizeof(msg), "**("BLUE"+%s"WHITE") [%d]%s : %s", PlayerInfo[playerid][nomorHP], playerid, PlayerInfo[playerid][pPlayerName], pesan);
     SendClientMessageToAll(COLOR_WHITE, msg);
     PlayerInfo[playerid][lastGlobalChat] = gettime();
     return 1;
@@ -85,5 +87,24 @@ CMD:giveitem(playerid, params[]){
 
 CMD:infosaya(playerid, params[]){
     tampilkanTextDrawMyInfo(playerid);
+    return 1;
+}
+
+CMD:pm(playerid, params[]){
+    new string[256], pesan[200], target_id;
+    if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
+    if(isnull(PlayerInfo[playerid][nomorHP])) return error_command(playerid, "Maaf anda harus memiliki nomor hp yang sudah terdaftar untuk dpt menggunakan fitur ini.");
+    if(sscanf(params, "us[200]", target_id, pesan)) return error_syntax(playerid, "/pm [playerid] [pesan]");
+    if(!IsPlayerConnected(target_id)) return error_command(playerid, "Maaf pemain dengan id tersebut tidak ada / tidak terkoneksi!");
+    if(playerid == target_id) return error_command(playerid, "Maaf anda tidak dapat mengirim pesan kepada diri sendiri!");
+    if(PlayerInfo[target_id][ePhone] == 0) return error_command(playerid, "Maaf pemain yang anda tuju harus menggunakan ponsel terlebih dahulu agar dapat menerima pm.");
+    if(isnull(PlayerInfo[target_id][nomorHP])) return error_command(playerid, "Maaf pemain yang anda tuju harus memiliki nomor HP yang sudah terdaftar.");
+
+
+    format(string, sizeof(string), "**[PM] (%d)%s : %s", PlayerInfo[playerid][pPlayerName], pesan);
+    SendClientMessage(target_id, COLOR_YELLOW, string);
+
+    format(string, sizeof(string), ">>[PM] (%d)%s : %s", PlayerInfo[target_id][pPlayerName], pesan);
+    SendClientMessage(playerid, COLOR_ORANGE, string);
     return 1;
 }

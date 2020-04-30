@@ -53,5 +53,6 @@
 *	DEFINED FUNCTION
 ***********/
 #if !defined isnull
-    #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))))
+	// modif isnull dengan pengecekan "NULL" untuk counter NULL database field
+    #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))) || !strcmp(%1, "NULL"))
 #endif
