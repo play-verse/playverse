@@ -22,6 +22,7 @@
 	INCLUDE INCLUDE BUATAN DIBAWAH
 */
 #include <global_variable> // variable disini
+#include <textdraw> // Textdraw Function Loader
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
 
