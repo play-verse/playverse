@@ -426,8 +426,6 @@ public OnPlayerSpawn(playerid)
 	return 1;
 }
 
-//----------------------------------------------------------
-
 public OnPlayerDeath(playerid, killerid, reason)
 {
 	new random_spawn = random(sizeof(SPAWN_POINT));
@@ -437,8 +435,6 @@ public OnPlayerDeath(playerid, killerid, reason)
 	SetPlayerInterior(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR]);
    	return 1;
 }
-
-//----------------------------------------------------------
 
 public OnPlayerRequestClass(playerid, classid)
 {
@@ -548,8 +544,10 @@ public OnPlayerText(playerid, text[]){
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
 	ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000);
+	// Wiki Samp - OnPlayerText
+	// Return 1 - Mengirimkan pesan default
+	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan
+	return 0; // ignore the default text and send the custom one
 }
-
-//----------------------------------------------------------
 
 #include <command>
