@@ -134,3 +134,7 @@ CMD:r(playerid, params[]){
     SendClientMessage(playerid, COLOR_ORANGE, string);
     return 1;
 }
+CMD:killme(playerid, params[]){
+    SetPlayerHealth(playerid, 0.0);
+    return 1;
+}

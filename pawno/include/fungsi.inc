@@ -65,9 +65,11 @@ public isRegistered(playerid)
 
 }
 
+// Hanya digunakan saat Disconnect dan Connect
 resetPlayerVariable(playerid){
 	PlayerInfo[playerid][lastGlobalChat] = 0;
 	PlayerInfo[playerid][reply] = -1;
+	PlayerInfo[playerid][sudahLogin] = false;
 }
 
 resetPVarInventory(playerid){
@@ -92,10 +94,14 @@ public registerUser(playerid)
 	PlayerInfo[playerid][skinID] = registerInfo[playerid][freeSkinID];
     cache_delete(result);
 
+	PlayerInfo[playerid][sudahLogin] = true;
+
 	ResetPlayerMoney(playerid);
 	GivePlayerMoney(playerid, 100);
 
-	tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID]);
+	tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID], true);
+
+	SpawnPlayer(playerid);
 	return 1;
 }
 
@@ -106,8 +112,13 @@ dialogEmail(playerid){
 forward spawnPemain(playerid);
 public spawnPemain(playerid)
 {
-	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0)){
-		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
+	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
+
+		Streamer_UpdateEx(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_vw], PlayerInfo[playerid][last_int], -1, 1000, 1);
+		
+		SetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
+
+		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
 		SetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
 
 		SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][last_vw]);
@@ -121,12 +132,16 @@ public spawnPemain(playerid)
 		PlayerInfo[playerid][last_int] = 0;
 	}else{
 		new random_spawn = random(sizeof(SPAWN_POINT));
-		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+
+		Streamer_UpdateEx(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], -1, 1000, 1);
+
+		SetPlayerPos(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z]);
+		SetPlayerFacingAngle(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_A]);
+		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
 
 		SetPlayerVirtualWorld(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_VW]);
 		SetPlayerInterior(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR]);
 	}
-	SpawnPlayer(playerid);
 	return 1;
 }
 
@@ -192,15 +207,21 @@ public checkIfSkinExist(playerid, skinid){
 	if(cache_num_rows()){
 		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET current_skin = '%d' WHERE id = '%d'",skinid, PlayerInfo[playerid][pID]);
 		mysql_tquery(koneksi, query);
+		PlayerInfo[playerid][skinID] = skinid;
 	}
 	return 1;
 }
 
-forward tambahSkinPlayer(playerid, skinid);
-public tambahSkinPlayer(playerid, skinid)
+forward tambahSkinPlayer(playerid, skinid, bool:langsung_gunakan);
+public tambahSkinPlayer(playerid, skinid, bool:langsung_gunakan)
 {
 	mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user_skin` (id_user, id_skin) VALUES('%d', '%d')", PlayerInfo[playerid][pID], skinid);
-	mysql_tquery(koneksi, query);
+
+	if(langsung_gunakan){
+		mysql_tquery(koneksi, query, "updatePlayerCurrentSkin", "dd", playerid, skinid);
+	}else{
+		mysql_tquery(koneksi, query);
+	}
 	return 1;
 }
 

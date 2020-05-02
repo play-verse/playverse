@@ -114,14 +114,17 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SHA256_PassHash(inputtext, PlayerInfo[playerid][pPlayerName], hash, 64);
 				if(sama(hash, PlayerInfo[playerid][pPassword]))
 				{
+					PlayerInfo[playerid][sudahLogin] = true;
+
 					mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `jumlah_login` = `jumlah_login` + 1 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
-					mysql_tquery(koneksi, query, "spawnPemain", "d", playerid);
+					mysql_tquery(koneksi, query);
 
 					PlayerInfo[playerid][loginKe]++;
 					format(msg, sizeof(msg), "~r~Selamat ~y~datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %d ~w~!", PlayerInfo[playerid][loginKe]);
 					GameTextForPlayer(playerid, msg, 4000, 3);
 
 					GivePlayerMoney(playerid, PlayerInfo[playerid][uang]);
+					SpawnPlayer(playerid);
 					return 1;
 				}
 				else
@@ -177,8 +180,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				registerInfo[playerid][freeSkinID] = (registerInfo[playerid][jenisKelamin] == 0) ? SKIN_MALE_GRATIS[listitem] : SKIN_FEMALE_GRATIS[listitem];
 				registerUser(playerid);
-
-				spawnPemain(playerid);
 				return 1;
 			}else{
 				Kick(playerid);
@@ -219,7 +220,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new id_skin = (PlayerInfo[playerid][jenisKelamin] == 0) ? SKIN_MALE_GRATIS[listitem] : SKIN_FEMALE_GRATIS[listitem];
 
-				tambahSkinPlayer(playerid, id_skin);
+				tambahSkinPlayer(playerid, id_skin, false);
 
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendapatkan skin", GREEN"Anda berhasil mendapatkan skin!\n"WHITE"Silahkan buka inventory untuk melihatnya.", "Ok", "");
 			}
@@ -422,35 +423,24 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 public OnPlayerSpawn(playerid)
 {
 	if(IsPlayerNPC(playerid)) return 1;
-	SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
+	spawnPemain(playerid);
 	return 1;
 }
 
 public OnPlayerDeath(playerid, killerid, reason)
 {
-	new random_spawn = random(sizeof(SPAWN_POINT));
-	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
-
-	SetPlayerVirtualWorld(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_VW]);
-	SetPlayerInterior(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR]);
    	return 1;
 }
 
 public OnPlayerRequestClass(playerid, classid)
 {
 	if(IsPlayerNPC(playerid)) return 1;
+	SetSpawnInfo(playerid, NO_TEAM, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	SpawnPlayer(playerid);
 	return 1;
 }
 
 public OnPlayerRequestSpawn(playerid){
-	if(PlayerInfo[playerid][loginKe] == 1){
-		PlayerInfo[playerid][skinID] = GetPlayerSkin(playerid);
-		format(msg, sizeof(msg), "PID : %d\nSkin ID : %d", PlayerInfo[playerid][pID], PlayerInfo[playerid][skinID]);
-		print(msg);
-		tambahSkinPlayer(playerid, PlayerInfo[playerid][skinID]);
-		updatePlayerCurrentSkin(playerid, PlayerInfo[playerid][skinID]);
-		return 1;
-	}
 	return 1;
 }
 
@@ -535,6 +525,11 @@ public OnPlayerUpdate(playerid)
 	    return 0;
 	}
 
+	return 1;
+}
+
+public OnPlayerStateChange(playerid, newstate, oldstate){
+	printf("old state %d new state %d", oldstate, newstate);
 	return 1;
 }
 
