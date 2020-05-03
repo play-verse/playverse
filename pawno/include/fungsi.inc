@@ -67,6 +67,9 @@ public isRegistered(playerid)
 
 // Hanya digunakan saat Disconnect dan Connect
 resetPlayerVariable(playerid){
+	if(cache_is_valid(PlayerInfo[playerid][kotakPesan])) cache_delete(PlayerInfo[playerid][kotakPesan]);
+	PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;
+
 	PlayerInfo[playerid][pID] = -1;
     PlayerInfo[playerid][pPlayerName][0] = EOS;
     PlayerInfo[playerid][skinID] = -1;
@@ -207,6 +210,89 @@ public checkIfPhoneExist(playerid, listitem){
 	return 1;
 }
 
+forward cekPesanTerkirim(playerid);
+public cekPesanTerkirim(playerid){
+	new banyak_pesan;
+	cache_get_value_name_int(0, "banyak_pesan", banyak_pesan);
+	if(banyak_pesan >= MAX_SMS_PER_PLAYER){
+		format(msg, sizeof(msg), WHITE"Anda telah mencapai batas maksimal pesan yang dapat dikirim yaitu "YELLOW"%d "WHITE"per "RED"%d"WHITE".\nSilahkan hapus terlebih dahulu "YELLOW"kotak terkirim "WHITE"anda!", banyak_pesan, MAX_SMS_PER_PLAYER);
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Maksimum limit pesan", msg, "Ok", "");
+		return 1;
+	}	
+
+	ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_NOMOR, DIALOG_STYLE_INPUT, WHITE"Nomor HP penerima", WHITE"Masukan nomor HP penerima dengan lengkap :", "Ok", "Batal");
+	return 1;
+}
+
+forward cekNomorPenerima(playerid);
+public cekNomorPenerima(playerid){
+	new banyak_pesan, id_penerima;
+	cache_get_value_name_int(0, "banyak_pesan", banyak_pesan);
+	cache_get_value_name_int(0, "id", id_penerima);
+	if(id_penerima && id_penerima != PlayerInfo[playerid][pID]){
+		if(banyak_pesan >= MAX_SMS_PER_PLAYER){
+			format(msg, sizeof(msg), WHITE"Penerima telah mencapai batas maksimal pesan yang dapat diterima yaitu "YELLOW"%d "WHITE"per "RED"%d"WHITE".\nAnda hanya dapat mengirim saat penerima sudah menghapus "YELLOW"kotak masuknya "WHITE"dan menyisihkan tempat untuk pesan anda!", banyak_pesan, MAX_SMS_PER_PLAYER);
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Maksimum limit pesan", msg, "Ok", "");
+			return 1;
+		}
+		SetPVarInt(playerid, "sms_id_penerima", id_penerima);
+		ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_PESAN, DIALOG_STYLE_INPUT, WHITE"Pesan yang akan dikirim", WHITE"Masukan pesan yang ingin anda kirimkan :", "Ok", "Batal");
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_NOMOR, DIALOG_STYLE_INPUT, WHITE"Nomor HP penerima", RED"Nomor HP yang anda masukan tidak ditemukan!\nPastikan nomor tersebut aktif dan akurat, pastikan juga anda tidak memasukan nomor anda sendiri!\n"WHITE"Masukan nomor HP penerima dengan lengkap :", "Ok", "Batal");
+		return 1;
+	}
+	return 1;
+}
+
+forward lihatPesanMasuk(playerid);
+public lihatPesanMasuk(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		new subString[60], id_sms, nomor[16], tanggal[35];
+		new string[MAX_SMS_PER_PLAYER * 60] = "Kode SMS\tPengirim\tTanggal Waktu\n";
+		for(new i = 0; i < rows; i++){
+			cache_get_value_name(i, "nomor_handphone", nomor);
+			cache_get_value_name(i, "tanggal_dikirim", tanggal);
+			cache_get_value_name_int(i, "id_sms", id_sms);
+
+			format(subString, sizeof(subString), "%i\t%s\t%s\n", id_sms, nomor, tanggal);
+			strcat(string, subString);
+		}
+		ShowPlayerDialog(playerid, DIALOG_KOTAK_MASUK, DIALOG_STYLE_TABLIST_HEADERS, "Kotak Masuk :", string, "Pilih", "Keluar");
+
+		PlayerInfo[playerid][kotakPesan] = cache_save();
+		return 1;
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"Kotak Masuk Kosong", WHITE"Saat ini kotak masuk anda kosong!\nSilahkan cek kembali saat kotak masuk berisi, ya.", "Ok", "");
+	}
+	return 1;
+}
+
+forward lihatPesanTerkirim(playerid);
+public lihatPesanTerkirim(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		new subString[60], id_sms, nomor[16], tanggal[35];
+		new string[MAX_SMS_PER_PLAYER * 60] = "Kode SMS\tPenerima\tTanggal Waktu\n";
+		for(new i = 0; i < rows; i++){
+			cache_get_value_name(i, "nomor_handphone", nomor);
+			cache_get_value_name(i, "tanggal_dikirim", tanggal);
+			cache_get_value_name_int(i, "id_sms", id_sms);
+
+			format(subString, sizeof(subString), "%i\t%s\t%s\n", id_sms, nomor, tanggal);
+			strcat(string, subString);
+		}
+		ShowPlayerDialog(playerid, DIALOG_KOTAK_TERKIRIM, DIALOG_STYLE_TABLIST_HEADERS, "Kotak Terkirim :", string, "Pilih", "Keluar");
+
+		PlayerInfo[playerid][kotakPesan] = cache_save();
+		return 1;
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"Kotak Terkirim Kosong", WHITE"Saat ini kotak terkirim anda kosong!\nSilahkan cek kembali saat kotak terkirim berisi, ya.", "Ok", "");
+	}
+	return 1;
+}
 
 forward updatePlayerCurrentSkin(playerid, skinid);
 public updatePlayerCurrentSkin(playerid, skinid){
@@ -299,7 +385,6 @@ public cekJumlahItem(playerid, model_id){
 			SetPVarInt(playerid, "inv_jumlah", jumlah);
 
 			getKeteranganByIdItem(itemid, keterangan);
-			printf("Keterangan %s", keterangan);
 			SetPVarString(playerid, "inv_keterangan", keterangan);
 
 			ShowPlayerDialog(playerid, DIALOG_OPTION_ITEM_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", GREEN"Pakai Item\n"LIGHT_BLUE"Beritahu Item\n"BLUE"Info Item", "Ok", "Keluar");
@@ -312,6 +397,16 @@ public cekJumlahItem(playerid, model_id){
 		resetPVarInventory(playerid);
 	}
 	return 1;
+}
+
+tampilkanKotakMasuk(playerid){
+	mysql_format(koneksi, query, sizeof(query), "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_pengirim = b.id WHERE a.id_user_penerima = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, query, "lihatPesanMasuk", "d", playerid);
+}
+
+tampilkanKotakTerkirim(playerid){
+	mysql_format(koneksi, query, sizeof(query), "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_penerima = b.id WHERE a.id_user_pengirim = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, query, "lihatPesanTerkirim", "d", playerid);
 }
 
 updateOnPlayerDisconnect(playerid){

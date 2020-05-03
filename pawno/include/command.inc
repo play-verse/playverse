@@ -144,11 +144,40 @@ CMD:r(playerid, params[]){
     return 1;
 }
 
-// CMD:ephone(playerid, params[]){
+CMD:ephone(playerid, params[]){
+    if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
+    
+    new string[500];
 
-//     ShowPlayerDialog(playerid, DIALOG_MENU_EPHONE, DIALOG_STYLE_LIST, "", info[], button1[], button2[])
-//     return 1;
-// }
+    // Switch berdasarkan id item
+    switch(PlayerInfo[playerid][ePhone])
+    {
+        case 1:
+        {
+            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim");
+        }
+        case 2: 
+        {
+            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim\nATM M-Banking");
+        }
+        case 3:
+        {
+            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim\nATM M-Banking\nSharelock");
+        }
+        case 4:
+        {            
+            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim\nATM M-Banking\nSharelock\nOnline Marketplace");
+        }
+        default:
+        {
+            // Worst case
+            return error_command(playerid, "Maaf terjadi kesalahan pada akun anda, silahkan mengirimkan report ke pada administrator!");
+        }
+    }
+ 
+    ShowPlayerDialog(playerid, DIALOG_MENU_EPHONE, DIALOG_STYLE_LIST, WHITE"ePhone menu :", string, "Pilih", "Batal");
+    return 1;
+}
 
 CMD:killme(playerid, params[]){
     SetPlayerHealth(playerid, 0.0);

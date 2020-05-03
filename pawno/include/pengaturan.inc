@@ -22,6 +22,10 @@
 
 #define MAX_SERVER_ITEM 4 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
 
+
+#define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
+// Harus menghapus riwayat pesan untuk dapat mengirim lagi
+
 /*
 	DIALOG ID
  */
@@ -47,6 +51,12 @@
 #define DIALOG_ADMIN_GIVE_ITEM 18
 #define DIALOG_PILIH_JUMLAH_ITEM 19
 #define DIALOG_MENU_EPHONE 20
+#define DIALOG_SMS_MASUKAN_NOMOR 21
+#define DIALOG_SMS_MASUKAN_PESAN 22
+#define DIALOG_KOTAK_MASUK 23
+#define DIALOG_KOTAK_TERKIRIM 24
+#define DIALOG_OPSI_KOTAK_MASUK 25
+#define DIALOG_OPSI_KOTAK_TERKIRIM 26
 
 
 /**********

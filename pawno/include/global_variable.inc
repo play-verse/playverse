@@ -29,6 +29,7 @@ enum pInfo
     nomorHP[12], // Berisi 62 + 4 kode
 
     bool:sudahLogin,
+    Cache:kotakPesan,
     reply, // -1 kalau gaada
     lastGlobalChat
 }

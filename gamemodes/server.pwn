@@ -62,9 +62,16 @@ public OnPlayerConnect(playerid)
 }
 
 public OnPlayerDisconnect(playerid, reason){
+	DeletePVar(playerid, "sms_list_pesan");
+	DeletePVar(playerid, "sms_id_pesan");
+	
+	// Delete PVar dialog SMS
+	DeletePVar(playerid, "sms_id_penerima");
+
 	resetPVarInventory(playerid);
 	updateOnPlayerDisconnect(playerid);
 	resetPlayerVariable(playerid);
+	
 	return 1;
 }
 
@@ -399,6 +406,185 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_MENU_EPHONE:
+		{
+			if(response){
+				switch(listitem){
+					// Kirim Pesan
+					case 0:
+					{
+						mysql_format(koneksi, query, sizeof(query), "SELECT COUNT(*) AS banyak_pesan FROM `sms` WHERE `id_user_pengirim` = '%d' AND `id_pemilik_pesan` = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, query, "cekPesanTerkirim", "d", playerid);
+						return 1;
+					}
+					// Kotak Masuk
+					case 1:
+					{
+						tampilkanKotakMasuk(playerid);
+					}
+					// Kotak Terkirim
+					case 2:
+					{
+						tampilkanKotakTerkirim(playerid);
+					}
+					default:
+						return 1;
+				}
+			}
+			return 1;
+		}
+		case DIALOG_SMS_MASUKAN_NOMOR:
+		{
+			if(response){
+				if(strlen(inputtext) == 6 && inputtext[0] == '6' && inputtext[1] == '2'){
+					mysql_format(koneksi, query, sizeof(query), "select a.id, COUNT(b.pesan) AS banyak_pesan from `user` a left join sms b on b.id_user_penerima = a.id WHERE a.nomor_handphone = '%e'", inputtext);
+					mysql_tquery(koneksi, query, "cekNomorPenerima", "d", playerid);
+				}else{
+					ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_NOMOR, DIALOG_STYLE_INPUT, WHITE"Nomor HP penerima", RED"Nomor HP yang anda masukan invalid!\n"YELLOW"Pastikan nomor HP terdiri dari 6 angka dan diawali dengan 62.\n\n"WHITE"Masukan nomor HP penerima dengan lengkap :", "Ok", "Batal");
+				}
+			}
+			return 1;
+		}
+		case DIALOG_SMS_MASUKAN_PESAN:
+		{
+			if(response){
+				if(isnull(inputtext)){
+					ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_PESAN, DIALOG_STYLE_INPUT, WHITE"Pesan yang akan dikirim", RED"Pesan tidak boleh kosong!\n"WHITE"Masukan pesan yang ingin anda kirimkan :", "Ok", "Batal");
+				}else{
+					new id_user_penerima = GetPVarInt(playerid, "sms_id_penerima");
+					mysql_format(koneksi, query, sizeof(query), "INSERT INTO `sms`(id_user_pengirim, id_user_penerima, pesan, tanggal_dikirim, id_pemilik_pesan) VALUES('%d', '%d', '%e', NOW(), '%d'), ('%d', '%d', '%e', NOW(), '%d')", PlayerInfo[playerid][pID], id_user_penerima, inputtext, PlayerInfo[playerid][pID], PlayerInfo[playerid][pID], id_user_penerima, inputtext, id_user_penerima);
+					mysql_tquery(koneksi, query);
+
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mengirimkan SMS", GREEN"Anda berhasil mengirimkan SMS!\n"WHITE"Silahkan buka "YELLOW"kotak terkirim "WHITE"untuk melihat kembali SMS yang anda kirim.", "Ok", "");
+
+					// Notifikasi SMS
+					foreach(new i : Player){
+						if(PlayerInfo[i][pID] == id_user_penerima){
+							format(msg, sizeof(msg), ORANGE"[SMS] "WHITE"Pesan baru masuk dari nomor "BLUE"+%s "WHITE"silahkan cek pada kotak masuk anda.", PlayerInfo[playerid][nomorHP]);
+							SendClientMessage(i, -1, msg);
+							break;
+						}
+					}
+					DeletePVar(playerid, "sms_id_penerima");
+				}
+			}else{
+				DeletePVar(playerid, "sms_id_penerima");
+			}
+			return 1;
+		}
+		case DIALOG_KOTAK_TERKIRIM:
+		{
+			if(response){
+				SetPVarInt(playerid, "sms_id_list_pesan", listitem);
+				SetPVarInt(playerid, "sms_id_pesan", strval(inputtext));
+				ShowPlayerDialog(playerid, DIALOG_OPSI_KOTAK_TERKIRIM, DIALOG_STYLE_LIST, "Opsi kotak terkirim :","Baca Pesan\nHapus Pesan", "Pilih", "Keluar");
+			}else{
+				cache_delete(PlayerInfo[playerid][kotakPesan]);
+				PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;
+			}
+			return 1;
+		}
+		case DIALOG_OPSI_KOTAK_TERKIRIM:
+		{
+			if(response){
+				new id_listpesan = GetPVarInt(playerid, "sms_id_list_pesan"), id_pesan = GetPVarInt(playerid, "sms_id_pesan");
+				switch(listitem){
+					case 0:
+					{
+						new string[1000], nomor_penerima[16], pesan[500];
+						cache_set_active(PlayerInfo[playerid][kotakPesan]);
+
+						cache_get_value_name(id_listpesan, "pesan", pesan);
+						cache_get_value_name(id_listpesan, "nomor_handphone", nomor_penerima);
+
+						format(string, sizeof(string), WHITE"Penerima : "YELLOW"%s"WHITE"\n\nPesan : \n%s", nomor_penerima, pesan);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Pesan terkirim", string, "Tutup", "");
+
+						DeletePVar(playerid, "sms_list_pesan");
+						DeletePVar(playerid, "sms_id_pesan");
+						cache_delete(PlayerInfo[playerid][kotakPesan]);
+						PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;
+					}
+					case 1:
+					{
+						mysql_format(koneksi, query, sizeof(query), "DELETE FROM `sms` WHERE `id_sms` = '%d' AND `id_user_pengirim` = '%d' AND `id_pemilik_pesan` = '%d'", id_pesan, PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, query);
+
+						SendClientMessage(playerid, COLOR_GREEN, "[SMS] "YELLOW"Pesan pada kotak terkirim berhasil dihapus!");
+
+						DeletePVar(playerid, "sms_list_pesan");
+						DeletePVar(playerid, "sms_id_pesan");
+						cache_delete(PlayerInfo[playerid][kotakPesan]);
+						PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;	
+
+						tampilkanKotakTerkirim(playerid);		
+					}
+				}
+			}else{
+				DeletePVar(playerid, "sms_list_pesan");
+				DeletePVar(playerid, "sms_id_pesan");
+				cache_delete(PlayerInfo[playerid][kotakPesan]);
+				PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;
+			}
+			return 1;
+		}
+		case DIALOG_KOTAK_MASUK:
+		{
+			if(response){
+				SetPVarInt(playerid, "sms_id_list_pesan", listitem);
+				SetPVarInt(playerid, "sms_id_pesan", strval(inputtext));
+				ShowPlayerDialog(playerid, DIALOG_OPSI_KOTAK_MASUK, DIALOG_STYLE_LIST, "Opsi kotak masuk :","Baca Pesan\nHapus Pesan", "Pilih", "Keluar");
+			}else{
+				cache_delete(PlayerInfo[playerid][kotakPesan]);
+				PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;
+			}
+			return 1;
+		}
+		case DIALOG_OPSI_KOTAK_MASUK:
+		{
+			if(response){
+				new id_listpesan = GetPVarInt(playerid, "sms_id_list_pesan"), id_pesan = GetPVarInt(playerid, "sms_id_pesan");
+				switch(listitem){
+					case 0:
+					{
+						new string[1000], nomor_penerima[16], pesan[500];
+						cache_set_active(PlayerInfo[playerid][kotakPesan]);
+
+						cache_get_value_name(id_listpesan, "pesan", pesan);
+						cache_get_value_name(id_listpesan, "nomor_handphone", nomor_penerima);
+
+						format(string, sizeof(string), WHITE"Pengirim : "YELLOW"%s"WHITE"\n\nPesan : \n%s", nomor_penerima, pesan);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Pesan masuk", string, "Tutup", "");
+
+						DeletePVar(playerid, "sms_list_pesan");
+						DeletePVar(playerid, "sms_id_pesan");
+						cache_delete(PlayerInfo[playerid][kotakPesan]);
+						PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;
+					}
+					case 1:
+					{
+						mysql_format(koneksi, query, sizeof(query), "DELETE FROM `sms` WHERE `id_sms` = '%d' AND `id_user_penerima` = '%d' AND `id_pemilik_pesan` = '%d'", id_pesan, PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, query);
+
+						SendClientMessage(playerid, COLOR_GREEN, "[SMS] "YELLOW"Pesan pada kotak masuk berhasil dihapus!");
+
+						DeletePVar(playerid, "sms_list_pesan");
+						DeletePVar(playerid, "sms_id_pesan");
+						cache_delete(PlayerInfo[playerid][kotakPesan]);
+						PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;	
+
+						tampilkanKotakMasuk(playerid);		
+					}
+				}
+			}else{
+				DeletePVar(playerid, "sms_list_pesan");
+				DeletePVar(playerid, "sms_id_pesan");
+				cache_delete(PlayerInfo[playerid][kotakPesan]);
+				PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;
+			}
+			return 1;
+		}
+
     }
 
 	// Wiki-SAMP OnDialogResponse should return 0
