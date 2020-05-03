@@ -11,7 +11,7 @@
  Target Server Version : 100408
  File Encoding         : 65001
 
- Date: 03/05/2020 21:48:38
+ Date: 04/05/2020 01:07:35
 */
 
 SET NAMES utf8mb4;
@@ -36,6 +36,25 @@ INSERT INTO `item` VALUES (1, 'ePhone 1', 18874, 'Dapat digunakan untuk PM, BC, 
 INSERT INTO `item` VALUES (2, 'ePhone 2', 18872, 'Dapat digunakan untuk PM, BC, SMS, Shareloc.');
 INSERT INTO `item` VALUES (3, 'ePhone 3', 18870, 'Dapat digunakan untuk PM, BC, SMS, Shareloc, ATM-Banking.');
 INSERT INTO `item` VALUES (4, 'ePhone 4', 18867, 'Dapat digunakan untuk PM, BC, SMS, Shareloc, ATM-Banking, Marketplace.');
+
+-- ----------------------------
+-- Table structure for sms
+-- ----------------------------
+DROP TABLE IF EXISTS `sms`;
+CREATE TABLE `sms`  (
+  `id_sms` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_user_pengirim` bigint(20) UNSIGNED NOT NULL,
+  `id_user_penerima` bigint(20) UNSIGNED NOT NULL,
+  `id_pemilik_pesan` bigint(20) UNSIGNED NULL DEFAULT NULL,
+  `pesan` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
+  `tanggal_dikirim` datetime(0) NULL DEFAULT NULL,
+  PRIMARY KEY (`id_sms`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sms
+-- ----------------------------
+INSERT INTO `sms` VALUES (3, 22, 24, 22, 'LASD LAJSDLKAJSLKAJ DAS KJQW \\nakj LKDSJ ASKLDJ ASD ', '2020-05-04 00:44:23');
 
 -- ----------------------------
 -- Table structure for user
@@ -66,9 +85,9 @@ CREATE TABLE `user`  (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 125, 46, '2020-04-24 21:12:03', '0', 0, 'nathan@gmail.com', 0, '835.376709', '-1895.104736', '12.867188', '269.074280', '0', '0', '621234', 4);
+INSERT INTO `user` VALUES (22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 125, 54, '2020-04-24 21:12:03', '0', 0, 'nathan@gmail.com', 0, '353.140198', '-1705.725830', '6.661900', '87.649994', '0', '0', '621234', 4);
 INSERT INTO `user` VALUES (23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', '100', 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0);
-INSERT INTO `user` VALUES (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 21, 27, '2020-04-30 15:31:48', '0', 0, 'natan@gmail.com', 0, '156.119431', '-1926.437134', '3.773438', '344.008118', '0', '0', NULL, 0);
+INSERT INTO `user` VALUES (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 21, 30, '2020-04-30 15:31:48', '0', 0, 'natan@gmail.com', 0, '571.158936', '-1788.398193', '7.116771', '42.649998', '0', '0', '629876', 1);
 INSERT INTO `user` VALUES (25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', '0', 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, 0);
 INSERT INTO `user` VALUES (26, 'cosinec', '4673452E1D20E8417166B9FF852DC48246F1D1D24FD11076976A3DCB4307675B', 298, 3, '2020-05-03 16:56:12', '0', 1, 'nathan@gmail.com', 0, '188.238831', '-1935.149414', '-0.552782', '273.730988', '0', '0', NULL, 0);
 
@@ -83,7 +102,7 @@ CREATE TABLE `user_item`  (
   `jumlah` int(255) NULL DEFAULT 1,
   PRIMARY KEY (`id_user_item`) USING BTREE,
   UNIQUE INDEX `id_item`(`id_item`, `id_user`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 30 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of user_item
@@ -96,6 +115,7 @@ INSERT INTO `user_item` VALUES (10, 1, 22, 3);
 INSERT INTO `user_item` VALUES (17, 2, 22, 1);
 INSERT INTO `user_item` VALUES (26, 1, 23, 8);
 INSERT INTO `user_item` VALUES (27, 1, 25, 2);
+INSERT INTO `user_item` VALUES (30, 1, 24, 0);
 
 -- ----------------------------
 -- Table structure for user_skin
