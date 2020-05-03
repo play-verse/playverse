@@ -6,13 +6,17 @@ tampilkanTextDrawMyInfo(playerid){
     new string[256],
         str_jenis_kelamin[50],
         str_ephone[50],
-        str_nomor_hp[31];
+        str_nomor_hp[31],
+		nama_item[256];
 
     if(PlayerInfo[playerid][jenisKelamin] == 0) format(str_jenis_kelamin, 50, "~b~Laki-laki");
     else format(str_jenis_kelamin, 50, "~r~Perempuan");
 
     if(PlayerInfo[playerid][ePhone] == 0) format(str_ephone, 50, "~r~Tidak ada");
-    else format(str_ephone, 50, "~g~%s", MasterItem[PlayerInfo[playerid][ePhone]-1][namaItem]);
+    else {
+		getNamaByIdItem(PlayerInfo[playerid][ePhone], nama_item);
+		format(str_ephone, 50, "~g~%s", nama_item);
+	}
 
     if(isnull(PlayerInfo[playerid][nomorHP])) format(str_nomor_hp, 30, "~r~Tidak ada");
     else format(str_nomor_hp, 30, "~g~%s", PlayerInfo[playerid][nomorHP]);

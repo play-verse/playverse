@@ -74,12 +74,21 @@ CMD:giveitem(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
 
     new subString[45];
-    static string[MAX_MS_ITEM * 45];
+    static string[MAX_SERVER_ITEM * 45];
+
     if(string[0] == EOS){
-        for(new i = 0; i < MAX_MS_ITEM; i++){
-            format(subString, sizeof(subString), "%i\t%s\n", MasterItem[i][modelID], MasterItem[i][namaItem]);
+        new Cache:result, rows, model_id, nama_item[256];
+        result = mysql_query(koneksi, "SELECT * FROM `item`");
+        cache_get_row_count(rows);
+
+        for(new i = 0; i < rows; i++){
+            cache_get_value_name_int(i, "model_id", model_id);
+            cache_get_value_name(i, "nama_item", nama_item);
+
+            format(subString, sizeof(subString), "%i\t%s\n", model_id, nama_item);
             strcat(string, subString);
         }
+        cache_delete(result);
     }
 	ShowPlayerDialog(playerid, DIALOG_ADMIN_GIVE_ITEM, DIALOG_STYLE_PREVIEW_MODEL, "~w~Pilih item yang ingin diberi :", string, "~w~Pilih", "Keluar");
     return 1;
@@ -134,6 +143,13 @@ CMD:r(playerid, params[]){
     SendClientMessage(playerid, COLOR_ORANGE, string);
     return 1;
 }
+
+// CMD:ephone(playerid, params[]){
+
+//     ShowPlayerDialog(playerid, DIALOG_MENU_EPHONE, DIALOG_STYLE_LIST, "", info[], button1[], button2[])
+//     return 1;
+// }
+
 CMD:killme(playerid, params[]){
     SetPlayerHealth(playerid, 0.0);
     return 1;

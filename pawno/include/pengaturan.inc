@@ -20,7 +20,7 @@
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 50
 
-#define MAX_MS_ITEM 4 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
+#define MAX_SERVER_ITEM 4 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
 
 /*
 	DIALOG ID

@@ -166,7 +166,9 @@ public updatePlayerCurrentPhone(playerid, listitem){
 forward checkIfPhoneExist(playerid, listitem);
 public checkIfPhoneExist(playerid, listitem){
 	if(cache_num_rows()){
-		new id_phone, id_user_item, itemid = MasterItem[listitem][itemID], old_nama_item[100], pesan[256];
+		new id_phone, id_user_item, itemid = getIDbyModelItem(listitem), old_nama_item[100], pesan[256], nama_item[256];
+		getNamaByIdItem(itemid, nama_item);
+
 		cache_get_value_name_int(0, "use_phone", id_phone);
 		cache_get_value_name_int(0, "id_user_item", id_user_item);
 		cache_get_value_name(0, "nama_item", old_nama_item);
@@ -182,7 +184,7 @@ public checkIfPhoneExist(playerid, listitem){
 		}
 		
 		
-		format(pesan, sizeof(pesan), WHITE"Anda berhasil menggunakan "GREEN"%s "WHITE"!\n", MasterItem[listitem][namaItem]);
+		format(pesan, sizeof(pesan), WHITE"Anda berhasil menggunakan "GREEN"%s "WHITE"!\n", nama_item);
 		
 		if(id_phone != 0){
 			// Lakukan pengembalian barang yang sudah terpasang
@@ -254,58 +256,51 @@ public tampilInventorySkinPlayer(playerid){
 
 forward tampilInventoryBarangPlayer(playerid);
 public tampilInventoryBarangPlayer(playerid){
-	new rows, subString[64], id_item, jumlah, idx, bool:stored = false;
-	new string[MAX_MS_ITEM * 64];
-	
+	new rows, subString[64], jumlah, model_id, nama_item[100];
 	cache_get_row_count(rows);
-	idx = (rows > 0 ? 0 : -1);
+	new string[MAX_SERVER_ITEM * 64 + 5];
+	if(rows){
+		for(new i = 0; i < rows; i++){
 
-	for(new i = 0; i < MAX_MS_ITEM; i++){
-		format(subString, sizeof(subString), "%i(95.0, 173.0, 39.0)\t%s~n~", MasterItem[i][modelID], MasterItem[i][namaItem]);
-		strcat(string, subString);
+			cache_get_value_name_int(i, "model_id", model_id);
+			cache_get_value_name_int(i, "jumlah", jumlah);
+			cache_get_value_name(i, "nama_item", nama_item);
 
-		if(idx != -1 && idx < rows){
-			if(stored == false){
-				cache_get_value_name_int(idx, "id_item", id_item);
-				cache_get_value_name_int(idx, "jumlah", jumlah);
-				stored = true;
-			}
-		}
-		if(idx != -1 && MasterItem[i][itemID] == id_item){
-			format(subString, sizeof(subString), "~g~%i\n", jumlah);
-			strcat(string, subString);
-
-			stored = false;
-			idx++;
-
-			if(idx >= rows) idx = -1;
-		}else{
-			format(subString, sizeof(subString), "~r~0\n");
+			format(subString, sizeof(subString), "%i\t%s~n~~g~%i\n", model_id, nama_item,jumlah);
 			strcat(string, subString);
 		}
-    }
-	ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_PREVIEW_MODEL, "~w~Pilih barang anda :", string, "~w~Pilih", "Keluar");
+		ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_PREVIEW_MODEL, "~w~Pilih barang anda :", string, "~w~Pilih", "Keluar");
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item "RED"kosong", WHITE"Maaf saat ini inventory item anda tidak berisi apapun!\n"YELLOW"Anda bisa mendapatkan item dari bekerja, berbelanja, ataupun saling bertukar item kepada player lain!", "Oke", "");
+	}
+
 	return 1; // For deleteing cache tquery
 }
 
 forward tambahItemPlayer(playerid, itemid, jumlah);
 public tambahItemPlayer(playerid, itemid, jumlah){
-	mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user_item` (id_user, id_item, jumlah) VALUES('%d', '%d', '%d') ON DUPLICATE KEY UPDATE `jumlah` = `jumlah` + '%d'", PlayerInfo[playerid][pID], itemid, jumlah, jumlah);
+	// mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user_item` (id_user, id_item, jumlah) VALUES('%d', '%d', '%d') ON DUPLICATE KEY UPDATE `jumlah` = `jumlah` + '%d'", PlayerInfo[playerid][pID], itemid, jumlah, jumlah);
+
+	// Pakai trigger procedure
+	mysql_format(koneksi, query, sizeof(query), "CALL tambah_item(%d, %d, %d)", PlayerInfo[playerid][pID], itemid, jumlah);
 	mysql_tquery(koneksi, query);
 	return 1;
 }
 
-forward cekJumlahItem(playerid, listitem);
-public cekJumlahItem(playerid, listitem){
+forward cekJumlahItem(playerid, model_id);
+public cekJumlahItem(playerid, model_id){
 	if(cache_num_rows()){
-		new jumlah;
+		new jumlah, keterangan[500], itemid = getIDbyModelItem(model_id);
 		cache_get_value_name_int(0, "jumlah", jumlah);
 
 		if(jumlah > 0){
-			SetPVarInt(playerid, "inv_indexlist", listitem);
-			SetPVarInt(playerid, "inv_model", MasterItem[listitem][modelID]);
+			SetPVarInt(playerid, "inv_indexlist", model_id);
+			SetPVarInt(playerid, "inv_model", model_id);
 			SetPVarInt(playerid, "inv_jumlah", jumlah);
-			SetPVarString(playerid, "inv_keterangan", MasterItem[listitem][keteranganItem]);
+
+			getKeteranganByIdItem(itemid, keterangan);
+			printf("Keterangan %s", keterangan);
+			SetPVarString(playerid, "inv_keterangan", keterangan);
 
 			ShowPlayerDialog(playerid, DIALOG_OPTION_ITEM_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", GREEN"Pakai Item\n"LIGHT_BLUE"Beritahu Item\n"BLUE"Info Item", "Ok", "Keluar");
 		}else{
@@ -343,19 +338,27 @@ loadAllItem(){
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `item`");
 	cache_get_row_count(row);
-	if(row != MAX_MS_ITEM){
-		printf("[ERROR] Size item pada database tidak sama dengan defined variable MAX_MS_ITEM, ganti terlebih dahulu!\nInfo : [defined] = %d, [database] = %d", MAX_MS_ITEM, row);
-		SendRconCommand("exit");
-	}
 	while(idx < row){
+		// iIt = Id Item > Menyimpan model id item
+		// mIt = Model Item > Menyimpan id item
+		// nIt = Nama Item > Menyimpan nama item diget dari id item
+		// kIt = Keterangan Item > Menyimpan keterangan Item diget dari id item
 		cache_get_value_name_int(idx, "id_item", id_item);
 		cache_get_value_name_int(idx, "model_id", model_id);
 		cache_get_value_name(idx, "nama_item", nama_item);
 		cache_get_value_name(idx, "keterangan", keterangan_item);
-		MasterItem[idx][itemID] = id_item;
-		MasterItem[idx][modelID] = model_id;
-		format(MasterItem[idx][namaItem], 256, "%s", nama_item);
-		format(MasterItem[idx][keteranganItem], 500, "%s", keterangan_item);
+
+		format(msg, sizeof(msg), "iIt_%d", id_item);
+		SetSVarInt(msg, model_id);
+
+		format(msg, sizeof(msg), "mIt_%d", model_id);
+		SetSVarInt(msg, id_item);
+
+		format(msg, sizeof(msg), "nIt_%d", id_item);
+		SetSVarString(msg, nama_item);
+
+		format(msg, sizeof(msg), "kIt_%d", id_item);
+		SetSVarString(msg, keterangan_item);
 		idx++;
 	}
 	cache_delete(result);

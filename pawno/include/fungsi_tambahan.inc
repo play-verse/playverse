@@ -16,6 +16,33 @@ error_command(playerid, const message[]){
     return SendClientMessage(playerid, COLOR_WHITE, pesan);
 }
 
+getModelByIdItem(id_item){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
+    return GetSVarInt(nama_variabel);
+}
+
+getIDbyModelItem(id_model){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "mIt_%d", id_model);
+    return GetSVarInt(nama_variabel);
+}
+
+getKeteranganByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "kIt_%d", id_item);
+    GetSVarString(nama_variabel, destinasi, len);
+    printf("Keternagan 2 %s", destinasi);
+}
+
+getNamaByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "nIt_%d", id_item);
+    GetSVarString(nama_variabel, destinasi, len);
+    printf("Nama 2 %s", destinasi);
+}
+
+
 stock ProxDetector(Float:radi, playerid, string[], color)
 {
     new Float:x, Float:y, Float:z;
