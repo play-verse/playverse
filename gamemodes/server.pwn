@@ -29,9 +29,12 @@
 #include "../include/gl_common.inc"
 
 /**
-	Unused params
+	Unused params is here
  */
-#pragma unused PlayerRainbowColors
+
+/**
+	End Unused Params
+ */
 
 public OnPlayerConnect(playerid)
 {
@@ -435,13 +438,20 @@ public OnPlayerDeath(playerid, killerid, reason)
 public OnPlayerRequestClass(playerid, classid)
 {
 	if(IsPlayerNPC(playerid)) return 1;
-	SetSpawnInfo(playerid, NO_TEAM, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-	SpawnPlayer(playerid);
-	return 1;
+	if(PlayerInfo[playerid][sudahLogin]) {
+		SpawnPlayer(playerid);
+		return 1;
+	}
+	// Interpolate Camera untuk login
+	// Spawn di request class dihilangin
+	// SetSpawnInfo(playerid, NO_TEAM, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	// SpawnPlayer(playerid);
+	return 0;
 }
 
 public OnPlayerRequestSpawn(playerid){
-	return 1;
+	if(PlayerInfo[playerid][sudahLogin]) return 1;
+	return 0;
 }
 
 /*
@@ -529,7 +539,6 @@ public OnPlayerUpdate(playerid)
 }
 
 public OnPlayerStateChange(playerid, newstate, oldstate){
-	printf("old state %d new state %d", oldstate, newstate);
 	return 1;
 }
 

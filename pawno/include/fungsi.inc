@@ -48,7 +48,7 @@ public isRegistered(playerid)
 		// Pindahkan player
 		SetSpawnInfo(playerid, 0, 0, 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
 		SetPlayerVirtualWorld(playerid, playerid);
-		SpawnPlayer(playerid);
+		// SpawnPlayer(playerid);
 
         ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD,WHITE"Login",WHITE"Masukan Password untuk login ke akun!","Login","Keluar");
 	}
@@ -57,7 +57,7 @@ public isRegistered(playerid)
 		// Spawn player
 		SetSpawnInfo(playerid, 0, 0,2093.7747,-1806.4586,13.5499,87.6500, 0, 0, 0, 0, 0, 0);
 		SetPlayerVirtualWorld(playerid, playerid);
-		SpawnPlayer(playerid);
+		// SpawnPlayer(playerid);
 
         ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD,""WHITE"SILAHKAN DAFTAR",""WHITE"{FFFFFF}Kamu {FF0000}belum {FFFFFF}terdaftar di server","Daftar","Keluar");
 	}
@@ -67,6 +67,17 @@ public isRegistered(playerid)
 
 // Hanya digunakan saat Disconnect dan Connect
 resetPlayerVariable(playerid){
+	PlayerInfo[playerid][pID] = -1;
+    PlayerInfo[playerid][pPlayerName][0] = EOS;
+    PlayerInfo[playerid][skinID] = -1;
+    PlayerInfo[playerid][pPassword][0] = EOS;
+    PlayerInfo[playerid][loginKe] = -1;
+    PlayerInfo[playerid][uang] = 0;
+    PlayerInfo[playerid][jenisKelamin] = -1;
+
+    PlayerInfo[playerid][ePhone] = 0;
+    PlayerInfo[playerid][nomorHP][0] = EOS;
+
 	PlayerInfo[playerid][lastGlobalChat] = 0;
 	PlayerInfo[playerid][reply] = -1;
 	PlayerInfo[playerid][sudahLogin] = false;
