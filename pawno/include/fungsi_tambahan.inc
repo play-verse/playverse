@@ -42,6 +42,26 @@ getNamaByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     printf("Nama 2 %s", destinasi);
 }
 
+cekAllowNama(const nama[]){
+    new count_underscore = 0;
+    if(nama[0] == '_' || nama[strlen(nama) - 1] == '_') return 0;
+    for (new i, j = strlen(nama); i != j; i++)
+    {
+        switch (nama[i])
+        {
+            case 'A' .. 'Z', 'a' .. 'z': continue;
+            case '_': count_underscore++;
+            default: return 0;
+        }
+    }
+    return count_underscore <= 1;
+}
+
+forward keluarkanPlayer(playerid);
+public keluarkanPlayer(playerid){
+    Kick(playerid);
+    return 1;
+}
 
 stock ProxDetector(Float:radi, playerid, string[], color)
 {

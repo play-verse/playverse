@@ -67,3 +67,5 @@
 	// modif isnull dengan pengecekan "NULL" untuk counter NULL database field
     #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))) || !strcmp(%1, "NULL"))
 #endif
+
+#define KickEx(%0) SetTimerEx("keluarkanPlayer", 1, 0, "d", %0) 

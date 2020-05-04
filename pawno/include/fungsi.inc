@@ -54,6 +54,16 @@ public isRegistered(playerid)
 	}
 	else
 	{
+		// Cek Nama Format Nama
+		if(!cekAllowNama(PlayerInfo[playerid][pPlayerName])){
+			// Sendclient messagenya sengaja dipisah agar pengeksekusiannya terstruktur dan tidak didahului oleh perintah Kick dikarenakan jika satu Sendclientmessage dengan string yang panjang, rendernya juga lama.
+			SendClientMessage(playerid, COLOR_RED, "Nama yang anda gunakan tidak mengikuti rules server!");
+			SendClientMessage(playerid, COLOR_YELLOW, "Nama hanya dapat berisi huruf dan _ (underscore), nama juga harus terdiri dari minimal 3 karakter.");
+			SendClientMessage(playerid, COLOR_YELLOW, "Nama tidak dapat diawali dan diakhiri underscore!");
+			KickEx(playerid);
+			return 1;
+		}
+
 		// Spawn player
 		SetSpawnInfo(playerid, 0, 0,2093.7747,-1806.4586,13.5499,87.6500, 0, 0, 0, 0, 0, 0);
 		SetPlayerVirtualWorld(playerid, playerid);

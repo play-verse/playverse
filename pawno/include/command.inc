@@ -7,7 +7,7 @@ CMD:kick(playerid, params[]){
 
     format(msg, sizeof(msg),  RED"[KICK] "WHITE"Anda telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", pesan);
     SendClientMessage(target_id, COLOR_WHITE, msg);
-    Kick(target_id);
+    KickEx(target_id);
 
     format(msg, sizeof(msg), ORANGE"[ADMIN] "RED"%s "WHITE"telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", PlayerInfo[target_id][pPlayerName], pesan);
     SendClientMessageToAll(COLOR_WHITE, msg);
