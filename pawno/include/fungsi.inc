@@ -94,6 +94,7 @@ resetPlayerVariable(playerid){
 	PlayerInfo[playerid][lastGlobalChat] = 0;
 	PlayerInfo[playerid][reply] = -1;
 	PlayerInfo[playerid][sudahLogin] = false;
+	PlayerInfo[playerid][sudahSpawn] = false;
 }
 
 resetPVarInventory(playerid){
@@ -125,7 +126,7 @@ public registerUser(playerid)
 
 	tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID], true);
 
-	SpawnPlayer(playerid);
+	spawnPemain(playerid);
 	return 1;
 }
 
@@ -136,13 +137,18 @@ dialogEmail(playerid){
 forward spawnPemain(playerid);
 public spawnPemain(playerid)
 {
+	if(PlayerInfo[playerid][sudahSpawn]) return 1;
+	
+	SpawnPlayer(playerid);
 	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
-
 		Streamer_UpdateEx(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_vw], PlayerInfo[playerid][last_int], -1, 1000, 1);
 		
 		SetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
+		print("disini a 1");
 
 		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
+		print("disini a 2");
+
 		SetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
 
 		SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][last_vw]);
@@ -154,17 +160,19 @@ public spawnPemain(playerid)
 		PlayerInfo[playerid][last_a] = 0;
 		PlayerInfo[playerid][last_vw] = 0;
 		PlayerInfo[playerid][last_int] = 0;
+		PlayerInfo[playerid][sudahSpawn] = true;
 	}else{
 		new random_spawn = random(sizeof(SPAWN_POINT));
-
 		Streamer_UpdateEx(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], -1, 1000, 1);
 
 		SetPlayerPos(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z]);
+
 		SetPlayerFacingAngle(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_A]);
 		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
 
 		SetPlayerVirtualWorld(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_VW]);
 		SetPlayerInterior(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR]);
+		PlayerInfo[playerid][sudahSpawn] = true;
 	}
 	return 1;
 }

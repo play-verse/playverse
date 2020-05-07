@@ -16,11 +16,11 @@ error_command(playerid, const message[]){
     return SendClientMessage(playerid, COLOR_WHITE, pesan);
 }
 
-getModelByIdItem(id_item){
-    new nama_variabel[50];
-    format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
-    return GetSVarInt(nama_variabel);
-}
+// getModelByIdItem(id_item){
+//     new nama_variabel[50];
+//     format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
+//     return GetSVarInt(nama_variabel);
+// }
 
 getIDbyModelItem(id_model){
     new nama_variabel[50];

@@ -94,6 +94,14 @@ CMD:giveitem(playerid, params[]){
     return 1;
 }
 
+CMD:givemoney(playerid, params[]){
+    new amount, target_id;
+    if(!IsPlayerAdmin(playerid)) return 0;
+    if(sscanf(params, "ud", target_id, amount)) return error_syntax(playerid, "/givemoney [id] [jumlah]");
+    GivePlayerMoney(target_id, amount);
+    return 1;
+}
+
 CMD:infosaya(playerid, params[]){
     tampilkanTextDrawMyInfo(playerid);
     return 1;
