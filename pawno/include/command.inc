@@ -70,6 +70,15 @@ CMD:daftarnomor(playerid, params[]){
     return 1;
 }
 
+CMD:pindahpos(playerid, params[]){
+    new Float:x, Float:y, Float:z, Float:a, int, vw;
+    if(!IsPlayerAdmin(playerid)) return 0;
+    if(sscanf(params, "ffffdd", x, y, z, a, int, vw)) return error_syntax(playerid, "/pindahpos [x] [y] [z] [a] [int] [vw]");
+
+    pindahkanPemain(playerid, x, y, z, a, int, vw, true);	
+    return 1;
+}
+
 CMD:giveitem(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
 

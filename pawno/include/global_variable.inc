@@ -82,3 +82,13 @@ new const SPAWN_POINT[][SPAWN_POINT_INFO] = {
     {154.0393, -1942.6648, 3.7734, 359.4115, 0, 0},
     {299.0191, -2026.3314, 1.4131, 1.1118, 0, 0}
 };
+
+/**
+    CHECKPOINT VARIABEL
+ */
+new CP_tempatFoto;
+
+/**
+    PICKUP VARIABEL
+ */
+new PU_tempatFoto[2];

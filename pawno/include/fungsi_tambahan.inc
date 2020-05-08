@@ -16,6 +16,22 @@ error_command(playerid, const message[]){
     return SendClientMessage(playerid, COLOR_WHITE, pesan);
 }
 
+buatPickupDanLabel(modelid, Float:x, Float:y, Float:z, const text[]){
+    CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
+    return CreateDynamicPickup(modelid, 1, x, y, z);
+}
+
+pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:preload_dynamic_map = false){
+    if(preload_dynamic_map){
+        Streamer_UpdateEx(playerid, x, y, z, vw, int, -1, 1000, 1);
+    }
+        
+    SetPlayerPos(playerid, x, y, z);
+    SetPlayerFacingAngle(playerid, a);
+    SetPlayerInterior(playerid, int);
+    SetPlayerVirtualWorld(playerid, vw);
+}
+
 // getModelByIdItem(id_item){
 //     new nama_variabel[50];
 //     format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
@@ -32,15 +48,20 @@ getKeteranganByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     new nama_variabel[50];
     format(nama_variabel, sizeof(nama_variabel), "kIt_%d", id_item);
     GetSVarString(nama_variabel, destinasi, len);
-    printf("Keternagan 2 %s", destinasi);
 }
 
 getNamaByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     new nama_variabel[50];
     format(nama_variabel, sizeof(nama_variabel), "nIt_%d", id_item);
     GetSVarString(nama_variabel, destinasi, len);
-    printf("Nama 2 %s", destinasi);
 }
+
+getFungsiByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "fIt_%d", id_item);
+    GetSVarString(nama_variabel, destinasi, len);
+}
+
 
 cekAllowNama(const nama[]){
     new count_underscore = 0;

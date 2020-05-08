@@ -141,18 +141,9 @@ public spawnPemain(playerid)
 	
 	SpawnPlayer(playerid);
 	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
-		Streamer_UpdateEx(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_vw], PlayerInfo[playerid][last_int], -1, 1000, 1);
-		
-		SetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
-		print("disini a 1");
+		pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
 
 		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
-		print("disini a 2");
-
-		SetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
-
-		SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][last_vw]);
-		SetPlayerInterior(playerid, PlayerInfo[playerid][last_int]);
 
 		PlayerInfo[playerid][last_x] = 0;
 		PlayerInfo[playerid][last_y] = 0;
@@ -163,15 +154,10 @@ public spawnPemain(playerid)
 		PlayerInfo[playerid][sudahSpawn] = true;
 	}else{
 		new random_spawn = random(sizeof(SPAWN_POINT));
-		Streamer_UpdateEx(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], -1, 1000, 1);
+		pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
 
-		SetPlayerPos(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z]);
-
-		SetPlayerFacingAngle(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_A]);
 		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
 
-		SetPlayerVirtualWorld(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_VW]);
-		SetPlayerInterior(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR]);
 		PlayerInfo[playerid][sudahSpawn] = true;
 	}
 	return 1;
@@ -417,6 +403,28 @@ public cekJumlahItem(playerid, model_id){
 	return 1;
 }
 
+/*
+	ITEM USE TRIGGER
+*/
+forward itemTidakDapatDipakai(playerid);
+public itemTidakDapatDipakai(playerid){
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"Item tidak dapat dipakai", WHITE"Maaf item yang anda pilih bukan merupakan jenis item yang dapat digunakan.\nAnda dapat memilih item lain yang dapat digunakan.", "Ok", "");
+
+	resetPVarInventory(playerid);
+	return 1;
+}
+
+forward pakaiHpFromInven(playerid);
+public pakaiHpFromInven(playerid){
+	updatePlayerCurrentPhone(playerid, GetPVarInt(playerid, "inv_indexlist"));
+	resetPVarInventory(playerid);
+	return 1;
+}
+
+/**
+	END ITEM TRIGGER
+ */
+
 tampilkanKotakMasuk(playerid){
 	mysql_format(koneksi, query, sizeof(query), "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_pengirim = b.id WHERE a.id_user_penerima = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, query, "lihatPesanMasuk", "d", playerid);
@@ -447,7 +455,7 @@ updateOnPlayerDisconnect(playerid){
 }
 
 loadAllItem(){
-	new id_item, model_id, nama_item[256], keterangan_item[500];
+	new id_item, model_id, nama_item[256], keterangan_item[500], fungsi[101], bool:is_null;
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `item`");
 	cache_get_row_count(row);
@@ -461,6 +469,10 @@ loadAllItem(){
 		cache_get_value_name(idx, "nama_item", nama_item);
 		cache_get_value_name(idx, "keterangan", keterangan_item);
 
+		// Simpan value is null
+		cache_is_value_name_null(idx, "fungsi", is_null);
+		if(!is_null) cache_get_value_name(idx, "fungsi", fungsi);
+
 		format(msg, sizeof(msg), "iIt_%d", id_item);
 		SetSVarInt(msg, model_id);
 
@@ -472,6 +484,11 @@ loadAllItem(){
 
 		format(msg, sizeof(msg), "kIt_%d", id_item);
 		SetSVarString(msg, keterangan_item);
+
+		format(msg, sizeof(msg), "fIt_%d", id_item);
+		if(is_null) SetSVarString(msg, "itemTidakDapatDipakai");
+		else SetSVarString(msg, fungsi);
+
 		idx++;
 	}
 	cache_delete(result);
