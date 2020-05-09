@@ -523,3 +523,101 @@ loadAllItem(){
 	}
 	cache_delete(result);
 }
+
+getOwnerHouse(ownerid){
+	new Cache:result, nama[MAX_PLAYER_NAME];
+	mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE `id` = '%d'", ownerid);
+	result = mysql_query(koneksi, query);
+	if(cache_num_rows())
+	{
+		cache_get_value_name(0, "nama", nama);
+	}
+	cache_delete(result);
+	return nama;
+}
+
+loadAllHouse(){
+	new houseId, userId, houseLevel, houseHarga, houseJual, hX[256], hY[256], hZ[256];
+	new Cache:result, row, idx = 0;
+	result = mysql_query(koneksi, "SELECT * FROM `house`");
+	cache_get_row_count(row);
+	while(idx < row){
+		cache_get_value_name_int(idx, "id_house", houseId);
+		cache_get_value_name_int(idx, "id_user", userId);
+		cache_get_value_name_int(idx, "level", houseLevel);
+		cache_get_value_name_int(idx, "harga", houseHarga);
+		cache_get_value_name_int(idx, "jual", houseJual);
+		cache_get_value_name(idx, "icon_x", hX);
+		cache_get_value_name(idx, "icon_y", hY);
+		cache_get_value_name(idx, "icon_z", hZ);
+
+		createHouse(houseId, userId, houseLevel, houseHarga, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));
+
+		idx++;
+	}
+	cache_delete(result);
+}
+
+unloadAllHouse(){
+	new i, p;
+	for(i = 0; i < MAX_HOUSES; i++){
+		if(housePickup[i] != -1){
+			DestroyPickup(i);
+			p = housePickup[i];
+			Delete3DTextLabel(houseTextInfo[p]);
+			housePickup[i] = -1;
+			houseInfo[p][hID] = -1;
+			houseInfo[p][hOwner] = -1;
+			houseInfo[p][hLevel] = 1;
+			houseInfo[p][hJual] = 1;
+		}
+	}
+}
+
+reloadHouseLabel(houseId){
+	new text_info[256], ownerName[MAX_PLAYER_NAME], houseLevel, houseHarga, beliRate;
+	houseLevel = houseInfo[houseId][hLevel],
+	houseHarga = houseInfo[houseId][hHarga];
+	beliRate = houseLevel*houseLevel*houseHarga;
+	Delete3DTextLabel(houseTextInfo[houseId]);
+	houseTextInfo[houseId] = Text3D:INVALID_3DTEXT_ID;
+	format(ownerName, 256, "%s", getOwnerHouse(houseInfo[houseId][hOwner]));
+	if(houseInfo[houseId][hJual] == 1){
+		if(houseInfo[houseId][hOwner] != -1){
+			format(text_info, 256, WHITE"["GREEN"House"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d"WHITE, houseInfo[houseId][hID], ownerName, beliRate);
+		}else{
+			format(text_info, 256, WHITE"["GREEN"House"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d"WHITE, houseInfo[houseId][hID], beliRate);
+		}
+	}else{
+		if(houseInfo[houseId][hOwner] != -1){
+			format(text_info, 256, WHITE"["GREEN"House"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d"WHITE, houseInfo[houseId][hID], ownerName, beliRate);
+		}else{
+			format(text_info, 256, WHITE"["GREEN"House"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d"WHITE, houseInfo[houseId][hID], beliRate);
+		}
+	}
+    houseTextInfo[houseId] = Create3DTextLabel(text_info, 0x88EE88FF, houseInfo[houseId][icon_x], houseInfo[houseId][icon_y], houseInfo[houseId][icon_z]+0.75, 20.0, 0, 1);
+}
+
+createHouse(houseId, ownerId, houseLevel, houseHarga, houseJual, Float:hX, Float:hY, Float:hZ)
+{
+	if(houseId < MAX_HOUSES ){
+		new Id = CreatePickup(1273 ,23, hX, hY, hZ, 0);
+		housePickup[Id] = houseId;
+		houseInfo[houseId][hID] 	= houseId;
+		houseInfo[houseId][hOwner] 	= ownerId;
+		houseInfo[houseId][hLevel] 	= houseLevel;
+		houseInfo[houseId][hHarga] 	= houseHarga;
+		houseInfo[houseId][hJual] = houseJual;
+		houseInfo[houseId][icon_x] 	= hX;
+		houseInfo[houseId][icon_y] 	= hY;
+		houseInfo[houseId][icon_z] 	= hZ;
+		
+		reloadHouseLabel(houseId);
+	}
+	else print("Rumah mencapai limit!");
+}
+
+resetAllHouse(){
+	unloadAllHouse();
+	loadAllHouse();
+}

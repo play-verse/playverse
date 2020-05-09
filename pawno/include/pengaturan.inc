@@ -26,6 +26,9 @@
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
 
+#define MAX_HOUSES 1000 // Maksimal rumah yang dapat dibuat
+#define MAX_HOUSES_LEVEL 3 // Maksimal level rumah
+
 /*
 	DIALOG ID
  */
@@ -62,6 +65,15 @@
 #define DIALOG_BELI_BARANG_MARKET 29
 #define DIALOG_JUMLAH_BARANG_MARKET 30
 #define DIALOG_KONFIRMASI_BARANG_MARKET 31
+
+#define DIALOG_ADMIN_RUMAH 29
+#define DIALOG_LEVEL_RUMAH 30
+#define DIALOG_HARGA_RUMAH 31
+#define DIALOG_RESET_RUMAH 32
+#define DIALOG_HAPUS_RUMAH 33
+#define DIALOG_HAPUS_RUMAH_ID 34
+#define DIALOG_HAPUS_RUMAH_ALL 35
+#define DIALOG_INFO_RUMAH 36
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR

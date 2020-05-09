@@ -23,9 +23,6 @@
 */
 #include <global_variable> // variable disini
 #include <textdraw> // Textdraw Function Loader
-#include <pickup> // Pickup Function Loader
-#include <map_icon> // Map Icon Function Loader
-#include <checkpoint> // CP Function Loader
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
 
@@ -41,8 +38,6 @@
 
 public OnPlayerConnect(playerid)
 {
-	resetPlayerVariable(playerid);
-	
 	removeBangunanUntukMapping(playerid);
 	loadTextDrawPemain(playerid);
 	/*
@@ -55,6 +50,7 @@ public OnPlayerConnect(playerid)
 	*/
 	SetPlayerColor(playerid, COLOR_WHITE);
 	
+	resetPlayerVariable(playerid);
 
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
@@ -138,7 +134,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					GameTextForPlayer(playerid, msg, 4000, 3);
 
 					GivePlayerMoney(playerid, PlayerInfo[playerid][uang]);
-					spawnPemain(playerid);
+					SpawnPlayer(playerid);
 					return 1;
 				}
 				else
@@ -388,11 +384,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						new model_id = GetPVarInt(playerid, "inv_indexlist");
-						new id_item = getIDbyModelItem(model_id);
-						new fungsi[101];
-						getFungsiByIdItem(id_item, fungsi);
-						CallRemoteFunction(fungsi, "d", playerid);
+						updatePlayerCurrentPhone(playerid, GetPVarInt(playerid, "inv_indexlist"));
+						resetPVarInventory(playerid);
 					}
 					case 1:
 					{
@@ -444,7 +437,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				if(strlen(inputtext) == 6 && inputtext[0] == '6' && inputtext[1] == '2'){
-					mysql_format(koneksi, query, sizeof(query), "select a.id, COUNT(b.pesan) AS banyak_pesan from `user` a left join sms b on b.id_user_penerima = a.id WHERE a.nomor_handphone = '%e' GROUP BY a.id", inputtext);
+					mysql_format(koneksi, query, sizeof(query), "select a.id, COUNT(b.pesan) AS banyak_pesan from `user` a left join sms b on b.id_user_penerima = a.id WHERE a.nomor_handphone = '%e'", inputtext);
 					mysql_tquery(koneksi, query, "cekNomorPenerima", "d", playerid);
 				}else{
 					ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_NOMOR, DIALOG_STYLE_INPUT, WHITE"Nomor HP penerima", RED"Nomor HP yang anda masukan invalid!\n"YELLOW"Pastikan nomor HP terdiri dari 6 angka dan diawali dengan 62.\n\n"WHITE"Masukan nomor HP penerima dengan lengkap :", "Ok", "Batal");
@@ -591,37 +584,258 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_TEMPAT_FOTO:
+		case DIALOG_ADMIN_RUMAH:
 		{
 			if(response){
-				new banyak_foto;
-				if(sscanf(inputtext, "i", banyak_foto)) return ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", RED"Inputan anda tidak valid, harap input bilangan bulat!\n"WHITE"Berapa banyak foto yang ingin anda cetak ?", "Cetak", "Batal");
-
-				if(banyak_foto < 1 || banyak_foto > 1000) return ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", RED"Inputan anda tidak valid, harap input bilangan bulat!\n"WHITE"Berapa banyak foto yang ingin anda cetak ?", "Cetak", "Batal");
-
-				SetPVarInt(playerid, "foto_jumlahFoto", banyak_foto);
-				format(msg, sizeof(msg), "Anda akan mencetak foto sebanyak "GREEN"%d "WHITE"dengan harga "YELLOW"%d.\nApakah anda yakin?", banyak_foto, banyak_foto * 15);
-				ShowPlayerDialog(playerid, DIALOG_BAYAR_FOTO, DIALOG_STYLE_MSGBOX, "Bayar dan cetak", msg, "Bayar", "Batal");
-				return 1;
+				switch(listitem){
+					case 0:
+					{
+						ShowPlayerDialog(playerid, DIALOG_LEVEL_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", WHITE"Silahkan masukan Level Rumah [1-3]\n:", "Lanjut", "Batal");
+					}
+					case 1:
+					{
+						ShowPlayerDialog(playerid, DIALOG_RESET_RUMAH, DIALOG_STYLE_INPUT, "Reset Rumah", WHITE"Apakah anda yakin mereset semua rumah?\nKetik 'RESET' dan lanjut jika setuju\n:", "Lanjut", "Batal");
+					}
+					case 2:
+					{
+						ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH, DIALOG_STYLE_LIST, WHITE"Hapus Rumah :", "Hapus Rumah ID\nHapus Semua Rumah", "Pilih", "Batal");
+					}
+				}
 			}
 			return 1;
 		}
-		case DIALOG_BAYAR_FOTO:
+		case DIALOG_LEVEL_RUMAH:
 		{
 			if(response){
-				new jumlah = GetPVarInt(playerid, "foto_jumlahFoto"); 
-				new harga = jumlah * 15;
-				if(GetPlayerMoney(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
+				if(isnumeric(inputtext)){
+					if(strval(inputtext) >= 1 && strval(inputtext) <= MAX_HOUSES_LEVEL){
+						new level_rumah = strval(inputtext);
+						SetPVarInt(playerid, "level_rumah", level_rumah);
+						ShowPlayerDialog(playerid, DIALOG_HARGA_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", WHITE"Masukan harga rumah\n:", "Lanjut", "Batal");
+					}else{
+						new pmsg[256];
+						format(pmsg, sizeof(pmsg), RED"Anda harus memasukan level kurang dari %d\n:", MAX_HOUSES_LEVEL);
+						ShowPlayerDialog(playerid, DIALOG_LEVEL_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", pmsg, "Lanjut", "Batal");
+					}
+				}else{
+					ShowPlayerDialog(playerid, DIALOG_LEVEL_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", RED"Anda harus memasukan berupa angka\n:", "Lanjut", "Batal");
+				}	
+			}
+			return 1;
+		}
+		case DIALOG_HARGA_RUMAH:
+		{
+			if(response){
+				if(isnumeric(inputtext)){
+					if(strval(inputtext) >= 1){
+						new Cache:result, Float:me_x, Float:me_y, Float:me_z;
+						new level_rumah = GetPVarInt(playerid, "level_rumah");
+						GetPlayerPos(playerid, me_x, me_y, me_z);
 
-				// 5 adalah id item untuk pas foto
-				tambahItemPlayer(playerid, 5, jumlah);
-				GivePlayerMoney(playerid, -harga);
+						mysql_format(koneksi, query, sizeof(query), "INSERT INTO `house` (level, harga, icon_x, icon_y, icon_z) VALUES ('%d', '%d', '%f', '%f', '%f')", level_rumah, strval(inputtext), me_x, me_y, me_z);
+						result = mysql_query(koneksi, query);
+						new id = cache_insert_id();
 
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli foto", WHITE"Anda berhasil membeli foto, foto anda sudah masuk inventory.\nSilahkan cek pada inventory anda.", "Ok", "");
-				DeletePVar(playerid, "foto_jumlahFoto");
-				return 1;
+						createHouse(id, -1, level_rumah, strval(inputtext), 1, me_x, me_y, me_z);
+						SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membuat rumah!");
+					    
+					    DeletePVar(playerid, "level_rumah");
+					    cache_delete(result);
+					}else{
+						ShowPlayerDialog(playerid, DIALOG_HARGA_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", RED"Anda harus memasukan harga lebih dari 1\n:", "Lanjut", "Batal");
+					}
+				}else{
+					ShowPlayerDialog(playerid, DIALOG_HARGA_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", RED"Anda harus memasukan berupa angka\n:", "Lanjut", "Batal");
+				}
 			}else{
-				DeletePVar(playerid, "foto_jumlahFoto");
+				DeletePVar(playerid, "level_rumah");
+			}
+			return 1;
+		}
+		case DIALOG_RESET_RUMAH:
+		{
+			if(response){
+				if(strcmp("RESET", inputtext, true) == 0){
+					resetAllHouse();
+					mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `id_user` = -1, `level` = 1, `jual` = 1");
+					mysql_query(koneksi, query);
+					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil mereset semua rumah!");
+				}else{
+					ShowPlayerDialog(playerid, DIALOG_RESET_RUMAH, DIALOG_STYLE_INPUT, "Reset Rumah", RED"Anda harus memasukan 'RESET' untuk setuju\n:", "Lanjut", "Batal");
+				}
+			}
+			return 1;
+		}
+		case DIALOG_HAPUS_RUMAH:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", WHITE"Masukan ID Rumah yang ingin dihapus\n:", "Lanjut", "Batal");
+					}
+					case 1:
+					{
+						ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ALL, DIALOG_STYLE_INPUT, "Hapus Rumah", WHITE"Apakah anda yakin untuk menghapus semua rumah? Ketik 'HAPUS' untuk setuju\n:", "Lanjut", "Batal");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_HAPUS_RUMAH_ID:
+		{
+			if(response){
+				if(isnumeric(inputtext)){
+					new id = strval(inputtext);
+					mysql_format(koneksi, query, sizeof(query), "DELETE FROM `house` WHERE `id_house` = '%d'", id);
+					mysql_query(koneksi, query);
+					for(new i = 0; i < MAX_HOUSES; i++){
+						if(housePickup[i] == id){
+							DestroyPickup(i);
+							housePickup[i] = -1;
+							Delete3DTextLabel(houseTextInfo[id]);
+							SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil menghapus rumah!");
+							goto label_hapus_rumah_id;
+						}else{
+							error_command(playerid, "Maaf ID Rumah tidak ada!");
+							goto label_hapus_rumah_id;
+						}
+					}
+				}else{
+					ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"Anda harus memasukan berupa angka\n:", "Lanjut", "Batal");
+				}
+				label_hapus_rumah_id:
+			}
+			return 1;
+		}
+		case DIALOG_HAPUS_RUMAH_ALL:
+		{
+			if(response){
+				if(strcmp("HAPUS", inputtext, true) == 0){
+					for(new i = 0; i < MAX_HOUSES; i++){
+						if(housePickup[i] != -1){
+							DestroyPickup(i);
+							new p = housePickup[i];
+							housePickup[i] = -1;
+							houseInfo[p][hLevel] = 0;
+							houseInfo[p][hHarga] = 0;
+							houseInfo[p][hOwner] = -1;
+							Delete3DTextLabel(houseTextInfo[p]);
+							mysql_format(koneksi, query, sizeof(query), "DELETE FROM `house` WHERE `id_house` = '%d'", p);
+							mysql_query(koneksi, query);
+						}
+					}
+					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil menghapus semua rumah!");
+				}else{
+					ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ALL, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"Anda harus memasukan 'RESET' untuk setuju\n:", "Lanjut", "Batal");
+				}
+			}
+			return 1;
+		}
+		case DIALOG_INFO_RUMAH:
+		{
+			if(response){
+				new infoRumah[128], pmsg[256];
+				GetPVarString(playerid, "info_rumah", infoRumah, 128);
+				new id = housePickup[lastHousePickup[playerid]];
+				if(strcmp(infoRumah, "batal_jual") == 0){
+					switch(listitem){
+						case 0:
+						{
+							houseInfo[id][hJual] = 0;
+							mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `hJual` = 0 WHERE `id_house` = '%d'", id);
+							mysql_query(koneksi, query);
+						 	reloadHouseLabel(id);
+							SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Rumah anda batal untuk dijual!");
+							DeletePVar(playerid, "info_rumah");
+						}
+						case 1:
+						{
+							goto label_upgrade_rumah;
+						}
+						case 2:
+						{
+							goto label_masuk_rumah;
+						}
+					}
+				}else if(strcmp(infoRumah, "jual_rumah") == 0){
+					switch(listitem){
+						case 0:
+						{
+							houseInfo[id][hJual] = 1;
+							mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `hJual` = 1 WHERE `id_house` = '%d'", id);
+							mysql_query(koneksi, query);
+						 	reloadHouseLabel(id);
+							SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Rumah anda berhasil untuk dijual!");
+							DeletePVar(playerid, "info_rumah");
+						}
+						case 1:
+						{
+							label_upgrade_rumah:
+							if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
+								new houseLevel, houseHarga, upgradeRate;
+								houseLevel = houseInfo[id][hLevel],
+								houseHarga = houseInfo[id][hHarga];
+								upgradeRate = houseLevel*houseLevel*houseHarga;
+								if(PlayerInfo[playerid][uang] < upgradeRate) return error_command(playerid, "Maaf uang anda tidak cukup!");
+								GivePlayerMoney(playerid, -upgradeRate);
+							    PlayerInfo[playerid][uang] = PlayerInfo[playerid][uang]-upgradeRate;
+							    houseInfo[id][hLevel] = houseLevel+1;
+							    mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
+							    mysql_tquery(koneksi, query);
+							    reloadHouseLabel(id);
+							    format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil upgrade rumah ke level ("YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hLevel], upgradeRate);
+							    SendClientMessage(playerid, COLOR_WHITE, pmsg);
+								DeletePVar(playerid, "info_rumah");
+							} else error_command(playerid, "Maaf level rumah anda sudah maksimal!");
+						}
+						case 2:
+						{
+							goto label_masuk_rumah;
+						}
+					}
+				}else if(strcmp(infoRumah, "beli_rumah") == 0){
+					switch(listitem){
+						case 0:
+						{
+							new ownerName[256], houseLevel, houseHarga, beliRate;
+							houseLevel = houseInfo[id][hLevel],
+							houseHarga = houseInfo[id][hHarga];
+							beliRate = houseLevel*houseLevel*houseHarga;
+							if(PlayerInfo[playerid][uang] < houseInfo[id][hHarga]) return error_command(playerid, "Maaf uang anda tidak cukup!");
+							if(houseInfo[id][hOwner] != -1){
+								
+								format(ownerName, 256, "%s", getOwnerHouse(houseInfo[id][hOwner]));
+								new ownerId = GetPlayerIdFromName(ownerName);
+								if(ownerId != INVALID_PLAYER_ID){
+									GivePlayerMoney(ownerId, beliRate);
+									PlayerInfo[ownerId][uang] = PlayerInfo[ownerId][uang]+beliRate;
+								}else{
+									mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
+				   			 		mysql_tquery(koneksi, query);
+								}
+							}
+							GivePlayerMoney(playerid, -beliRate);
+						    PlayerInfo[playerid][uang] = PlayerInfo[playerid][uang]-beliRate;
+						    houseInfo[id][hOwner] = PlayerInfo[playerid][pID];
+						    houseInfo[id][hJual] = 0;
+						    mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `id_user` = '%d', `jual` = 0 WHERE `id_house` = '%d'", PlayerInfo[playerid][pID], id);
+						    mysql_tquery(koneksi, query);
+						    reloadHouseLabel(id);
+						    format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil membeli rumah (id:"YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hID], beliRate);
+						    SendClientMessage(playerid, COLOR_WHITE, pmsg);
+							DeletePVar(playerid, "info_rumah");
+						}
+						case 1:
+						{
+							goto label_masuk_rumah;
+						}
+					}
+				}else if(strcmp(infoRumah, "masuk_rumah") == 0){
+					label_masuk_rumah:
+					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda masuk rumah!");
+					DeletePVar(playerid, "info_rumah");
+				}
 			}
 			return 1;
 		}
@@ -677,7 +891,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		}
 
     }
-
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
 }
@@ -710,15 +923,23 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 public OnPlayerSpawn(playerid)
 {
 	if(IsPlayerNPC(playerid)) return 1;
-
-	// Player akan terspawn kembali jika belum terspawn
 	spawnPemain(playerid);
+	return 1;
+}
+
+public OnPlayerPickUpPickup(playerid, pickupid)
+{
+	lastHousePickup[playerid] = pickupid;
+	new pmsg[256];
+	if(housePickup[pickupid]){
+		format(pmsg, 256, "* Rumah: Ketik /inforumah untuk melihat info tentang rumah");
+    	SendClientMessage(playerid, 0xFF55BBFF, pmsg);
+	}
 	return 1;
 }
 
 public OnPlayerDeath(playerid, killerid, reason)
 {
-	PlayerInfo[playerid][sudahSpawn] = false;
    	return 1;
 }
 
@@ -726,7 +947,7 @@ public OnPlayerRequestClass(playerid, classid)
 {
 	if(IsPlayerNPC(playerid)) return 1;
 	if(PlayerInfo[playerid][sudahLogin]) {
-		spawnPemain(playerid);
+		SpawnPlayer(playerid);
 		return 1;
 	}
 	// Interpolate Camera untuk login
@@ -748,7 +969,6 @@ main( ) { }
 
 public OnGameModeInit()
 {
-	mysql_log();
 	koneksi = mysql_connect(HOST, USER, PASS, DB);
 	errno = mysql_errno(koneksi);
 	if(errno != 0){
@@ -760,6 +980,10 @@ public OnGameModeInit()
 		printf("[SUCCESS] Berhasil Koneksi ke database!");
 	}
 
+	printf("[HOUSE] Load semua house...");
+	loadAllHouse();
+	printf("[HOUSE] Sukses load house!");
+
 	printf("[MAPPING] Load semua mappingan...");
 	loadAllMapingan();
 	printf("[MAPPING] Sukses load mapping!");
@@ -767,18 +991,6 @@ public OnGameModeInit()
 	printf("[ITEM] Load semua item...");
 	loadAllItem();
 	printf("[ITEM] Sukses load item!");
-
-	printf("[PICKUP] Load semua pickup...");
-	loadAllPickup();
-	printf("[PICKUP] Sukses load pickup!");
-
-	printf("[CHECKPOINT] Load semua checkpoint...");
-	loadAllCP();
-	printf("[CHECKPOINT] Sukses load checkpoint!");
-
-	printf("[MAP ICON] Load semua map icon...");
-	loadAllMapIcon();
-	printf("[MAP ICON] Sukses load map icon!");
 
 	SetGameModeText("EL v1.0");
 	// ShowPlayerMarkers(PLAYER_MARKERS_MODE_STREAMED);
@@ -812,6 +1024,7 @@ public OnGameModeInit()
 }
 
 public OnGameModeExit(){
+	unloadAllHouse();
 	mysql_close(koneksi);
 	return 1;
 }

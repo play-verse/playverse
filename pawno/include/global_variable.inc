@@ -49,6 +49,28 @@ new registerInfo[MAX_PLAYERS][rInfo];
 new msg[256];
 new total_vehicles_from_files=0;
 
+/*
+    GLOBAL VARIABLE FOR HOUSE VAR
+*/
+enum hInfo
+{
+    hID,
+    hOwner,
+    hJual,
+    hHarga,
+    hLevel,
+
+    // Position
+    Float:icon_x,
+    Float:icon_y,
+    Float:icon_z,
+    Float:last_a
+}
+new houseInfo[MAX_HOUSES][hInfo];
+new lastHousePickup[MAX_PLAYERS] = {-1};
+new Text3D:houseTextInfo[MAX_HOUSES];
+new housePickup[MAX_HOUSES] = {-1};
+
 /**
     Textdraw Variable For Player
 */

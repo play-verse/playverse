@@ -200,3 +200,53 @@ CMD:killme(playerid, params[]){
     SetPlayerHealth(playerid, 0.0);
     return 1;
 }
+
+CMD:arumah(playerid, params[]){
+    if(!IsPlayerAdmin(playerid)) return 0;
+    if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada diluar Interior atau Virtual World 0!");
+    ShowPlayerDialog(playerid, DIALOG_ADMIN_RUMAH, DIALOG_STYLE_LIST, WHITE"House Sytem :", "Buat Rumah\nReset Rumah\nHapus Rumah", "Pilih", "Batal");
+    return 1;
+}
+CMD:inforumah(playerid, params[]){
+    if(lastHousePickup[playerid] == -1) return error_command(playerid, "Maaf anda tidak berada di ikon rumah!");
+    new string[256],
+    id = housePickup[lastHousePickup[playerid]],
+    Float:x,
+    Float:y,
+    Float:z;
+    x = houseInfo[id][icon_x];
+    y = houseInfo[id][icon_y];
+    z = houseInfo[id][icon_z];
+    if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Maaf anda tidak berada di ikon rumah!");
+    if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
+        new houseLevel, houseHarga, upgradeRate;
+        houseLevel = houseInfo[id][hLevel],
+        houseHarga = houseInfo[id][hHarga];
+        upgradeRate = houseLevel*2*houseHarga;
+        if(houseInfo[id][hJual] == 1){
+            SetPVarString(playerid, "info_rumah", "batal_jual");
+            if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
+                format(string, sizeof(string), "Batal Jual Rumah\nUpgrade Rumah (%d)\nMasuk Rumah", upgradeRate);
+            }else{
+                format(string, sizeof(string), "Batal Jual Rumah\nUpgrade Rumah\nMasuk Rumah"); 
+            }
+        }else{
+            SetPVarString(playerid, "info_rumah", "jual_rumah");
+            if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
+                format(string, sizeof(string), "Jual Rumah\nUpgrade Rumah (%d)\nMasuk Rumah", upgradeRate);
+            }else{
+                format(string, sizeof(string), "Jual Rumah\nUpgrade Rumah\nMasuk Rumah");
+            }
+        }
+    }else{
+        if(houseInfo[id][hJual] == 1){
+            SetPVarString(playerid, "info_rumah", "beli_rumah");
+            format(string, sizeof(string), "Beli Rumah\nMasuk Rumah");
+        }else{
+            SetPVarString(playerid, "info_rumah", "masuk_rumah");
+            format(string, sizeof(string), "Masuk Rumah");
+        }
+    }
+    ShowPlayerDialog(playerid, DIALOG_INFO_RUMAH, DIALOG_STYLE_LIST, WHITE"Info Rumah :", string, "Pilih", "Batal");
+    return 1;
+}
