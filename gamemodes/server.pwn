@@ -24,6 +24,7 @@
 #include <global_variable> // variable disini
 #include <textdraw> // Textdraw Function Loader
 #include <pickup> // Pickup Function Loader
+#include <map_icon> // Map Icon Function Loader
 #include <checkpoint> // CP Function Loader
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
@@ -893,6 +894,40 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_TEMPAT_FOTO:
+		{
+			if(response){
+				new banyak_foto;
+				if(sscanf(inputtext, "i", banyak_foto)) return ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", RED"Inputan anda tidak valid, harap input bilangan bulat!\n"WHITE"Berapa banyak foto yang ingin anda cetak ?", "Cetak", "Batal");
+
+				if(banyak_foto < 1 || banyak_foto > 1000) return ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", RED"Inputan anda tidak valid, harap input bilangan bulat!\n"WHITE"Berapa banyak foto yang ingin anda cetak ?", "Cetak", "Batal");
+
+				SetPVarInt(playerid, "foto_jumlahFoto", banyak_foto);
+				format(msg, sizeof(msg), "Anda akan mencetak foto sebanyak "GREEN"%d "WHITE"dengan harga "YELLOW"%d.\nApakah anda yakin?", banyak_foto, banyak_foto * 15);
+				ShowPlayerDialog(playerid, DIALOG_BAYAR_FOTO, DIALOG_STYLE_MSGBOX, "Bayar dan cetak", msg, "Bayar", "Batal");
+				return 1;
+			}
+			return 1;
+		}
+		case DIALOG_BAYAR_FOTO:
+		{
+			if(response){
+				new jumlah = GetPVarInt(playerid, "foto_jumlahFoto"); 
+				new harga = jumlah * 15;
+				if(GetPlayerMoney(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
+
+				// 5 adalah id item untuk pas foto
+				tambahItemPlayer(playerid, 5, jumlah);
+				GivePlayerMoney(playerid, -harga);
+
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli foto", WHITE"Anda berhasil membeli foto, foto anda sudah masuk inventory.\nSilahkan cek pada inventory anda.", "Ok", "");
+				DeletePVar(playerid, "foto_jumlahFoto");
+				return 1;
+			}else{
+				DeletePVar(playerid, "foto_jumlahFoto");
+			}
+			return 1;
+		}
 
     }
 	// Wiki-SAMP OnDialogResponse should return 0
@@ -944,6 +979,7 @@ public OnPlayerPickUpPickup(playerid, pickupid)
 
 public OnPlayerDeath(playerid, killerid, reason)
 {
+	PlayerInfo[playerid][sudahSpawn] = false;
    	return 1;
 }
 
@@ -1003,6 +1039,10 @@ public OnGameModeInit()
 	printf("[CHECKPOINT] Load semua checkpoint...");
 	loadAllCP();
 	printf("[CHECKPOINT] Sukses load checkpoint!");
+
+	printf("[MAP ICON] Load semua map icon...");
+	loadAllMapIcon();
+	printf("[MAP ICON] Sukses load map icon!");
 
 
 	SetGameModeText("EL v1.0");
