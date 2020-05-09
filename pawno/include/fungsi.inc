@@ -138,12 +138,14 @@ forward spawnPemain(playerid);
 public spawnPemain(playerid)
 {
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
+	PlayerInfo[playerid][sudahSpawn] = true;
 	
 	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
 		
-		Streamer_UpdateEx(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
 		SpawnPlayer(playerid);
+		
+		Streamer_UpdateEx(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], -1, -1, -1, 1000, 1);
 
 		SetPlayerInterior(playerid,  PlayerInfo[playerid][last_int]);
 		SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][last_vw]);
@@ -157,20 +159,18 @@ public spawnPemain(playerid)
 		PlayerInfo[playerid][last_a] = 0;
 		PlayerInfo[playerid][last_vw] = 0;
 		PlayerInfo[playerid][last_int] = 0;
-		PlayerInfo[playerid][sudahSpawn] = true;
 	}else{
 		new random_spawn = random(sizeof(SPAWN_POINT));
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
 		
-		Streamer_UpdateEx(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z]);
 		SpawnPlayer(playerid);
+
+		Streamer_UpdateEx(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], -1, -1, -1, 1000, 1);
 
 		SetPlayerInterior(playerid,  SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR]);
 		SetPlayerVirtualWorld(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_VW]);
 		// pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
 		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
-
-		PlayerInfo[playerid][sudahSpawn] = true;
 	}
 	return 1;
 }
