@@ -69,7 +69,6 @@ new const SKIN_MALE_GRATIS[] = {
     60, 68, 67, 72, 73, 98, 101, 125, 142, 143, 170, 179, 183, 184
 };
 
-
 enum SPAWN_POINT_INFO {
     Float:SPAWN_POINT_X,
     Float:SPAWN_POINT_Y,
@@ -84,11 +83,27 @@ new const SPAWN_POINT[][SPAWN_POINT_INFO] = {
 };
 
 /**
+    MARKET DIALOG
+ */
+enum INFO_BARANG_MARKET {
+    idModelBarang,
+    namaBarang[100],
+    hargaBarang
+}
+
+new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
+    {2059, "Materai", 5} // Materai
+};
+
+
+/**
     CHECKPOINT VARIABEL
  */
-new CP_tempatFoto;
+new CP_tempatFoto,
+    CP_spotBarangMarket[4];
 
 /**
     PICKUP VARIABEL
  */
-new PU_tempatFoto[2];
+new PU_tempatFoto[2],
+    PU_miniMarket[1][2];

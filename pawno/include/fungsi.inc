@@ -46,8 +46,8 @@ public isRegistered(playerid)
 		PlayerInfo[playerid][last_vw] = strval(temp_value);
 
 		// Pindahkan player
-		SetSpawnInfo(playerid, 0, 0, 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
-		SetPlayerVirtualWorld(playerid, playerid);
+		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
+		SetPlayerVirtualWorld(playerid, playerid + 100);
 		// SpawnPlayer(playerid);
 
         ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD,WHITE"Login",WHITE"Masukan Password untuk login ke akun!","Login","Keluar");
@@ -65,8 +65,8 @@ public isRegistered(playerid)
 		}
 
 		// Spawn player
-		SetSpawnInfo(playerid, 0, 0,2093.7747,-1806.4586,13.5499,87.6500, 0, 0, 0, 0, 0, 0);
-		SetPlayerVirtualWorld(playerid, playerid);
+		SetSpawnInfo(playerid, 0, 0, 2093.7747,-1806.4586,13.5499,87.6500, 0, 0, 0, 0, 0, 0);
+		SetPlayerVirtualWorld(playerid, playerid + 100);
 		// SpawnPlayer(playerid);
 
         ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD,""WHITE"SILAHKAN DAFTAR",""WHITE"{FFFFFF}Kamu {FF0000}belum {FFFFFF}terdaftar di server","Daftar","Keluar");
@@ -139,11 +139,17 @@ public spawnPemain(playerid)
 {
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	
-	SpawnPlayer(playerid);
 	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
-		pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
+		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
+		
+		Streamer_UpdateEx(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
+		SpawnPlayer(playerid);
+
+		SetPlayerInterior(playerid,  PlayerInfo[playerid][last_int]);
+		SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][last_vw]);
 
 		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
+		// pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
 
 		PlayerInfo[playerid][last_x] = 0;
 		PlayerInfo[playerid][last_y] = 0;
@@ -154,8 +160,14 @@ public spawnPemain(playerid)
 		PlayerInfo[playerid][sudahSpawn] = true;
 	}else{
 		new random_spawn = random(sizeof(SPAWN_POINT));
-		pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
+		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+		
+		Streamer_UpdateEx(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z]);
+		SpawnPlayer(playerid);
 
+		SetPlayerInterior(playerid,  SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR]);
+		SetPlayerVirtualWorld(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_VW]);
+		// pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
 		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
 
 		PlayerInfo[playerid][sudahSpawn] = true;
@@ -421,6 +433,20 @@ public pakaiHpFromInven(playerid){
 	return 1;
 }
 
+showDialogBeliBarang(playerid){
+	new subString[45];
+    static string[sizeof(BARANG_MARKET) * 45];
+
+    if(string[0] == EOS){
+		for(new i = 0; i < sizeof(BARANG_MARKET); i++){
+			format(subString, sizeof(subString), "%i\t%s~n~~g~$%d\n", BARANG_MARKET[i][idModelBarang], BARANG_MARKET[i][namaBarang], BARANG_MARKET[i][hargaBarang]);
+            strcat(string, subString);
+		}
+	}
+	ShowPlayerDialog(playerid, DIALOG_BELI_BARANG_MARKET, DIALOG_STYLE_PREVIEW_MODEL, "Beli Barang", string, "Beli", "Batal");
+	return 1;
+}
+
 /**
 	END ITEM TRIGGER
  */
@@ -440,10 +466,14 @@ updateOnPlayerDisconnect(playerid){
 
 	// Position
 	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw;
-	GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
-	GetPlayerFacingAngle(playerid, last_spawn_info_a);
-	last_spawn_info_vw = GetPlayerVirtualWorld(playerid);
-	last_spawn_info_int = GetPlayerInterior(playerid);
+	if(PlayerInfo[playerid][sudahSpawn]){
+		GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
+		GetPlayerFacingAngle(playerid, last_spawn_info_a);
+		last_spawn_info_vw = GetPlayerVirtualWorld(playerid);
+		last_spawn_info_int = GetPlayerInterior(playerid);		
+	}else{
+		last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a, last_spawn_info_int = last_spawn_info_vw = 0;
+	}
 
 	// Uang
 	new str_uang[100];

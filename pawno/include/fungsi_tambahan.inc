@@ -21,6 +21,11 @@ buatPickupDanLabel(modelid, Float:x, Float:y, Float:z, const text[]){
     return CreateDynamicPickup(modelid, 1, x, y, z);
 }
 
+buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran){
+    CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
+    return CreateDynamicCP(x, y, z, ukuran);
+}
+
 pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:preload_dynamic_map = false){
     if(preload_dynamic_map){
         Streamer_UpdateEx(playerid, x, y, z, vw, int, -1, 1000, 1);

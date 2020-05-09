@@ -73,7 +73,7 @@ public OnPlayerDisconnect(playerid, reason){
 	DeletePVar(playerid, "sms_id_penerima");
 
 	resetPVarInventory(playerid);
-	updateOnPlayerDisconnect(playerid);
+	if(PlayerInfo[playerid][sudahLogin]) updateOnPlayerDisconnect(playerid);
 	resetPlayerVariable(playerid);
 	
 	return 1;
@@ -625,6 +625,56 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_BELI_BARANG_MARKET:
+		{
+			if(response){
+				SetPVarInt(playerid, "bBarang_index", listitem);
+				ShowPlayerDialog(playerid, DIALOG_JUMLAH_BARANG_MARKET, DIALOG_STYLE_INPUT, "Jumlah barang yang ingin dibeli", "Silahkan input jumlah barang yang ingin dibeli.", "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_JUMLAH_BARANG_MARKET:
+		{
+			if(response){
+				new banyak_barang;
+				if(sscanf(inputtext, "i", banyak_barang)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_BARANG_MARKET, DIALOG_STYLE_INPUT, "Jumlah barang yang ingin dibeli", RED"Inputan anda tidak valid.\n"WHITE"Silahkan input jumlah barang yang ingin dibeli.", "Beli", "Batal");
+
+				if(banyak_barang < 1 || banyak_barang > 1000) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_BARANG_MARKET, DIALOG_STYLE_INPUT, "Jumlah barang yang ingin dibeli", RED"Inputan anda tidak valid.\nMinimal pembelian 1 dan maksimal pembelian 999.\n"WHITE"Silahkan input jumlah barang yang ingin dibeli.", "Beli", "Batal");
+
+				new index_barang = GetPVarInt(playerid, "bBarang_index");
+				SetPVarInt(playerid, "bBarang_jumlah", banyak_barang);
+				
+				format(msg, sizeof(msg), "Anda akan membeli barang "YELLOW"%s "WHITE"sebanyak "YELLOW"%d "WHITE"dengan total harga "GREEN"%d"WHITE".\nApakah anda yakin?", BARANG_MARKET[index_barang][namaBarang], banyak_barang, BARANG_MARKET[index_barang][hargaBarang] * banyak_barang);
+				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BARANG_MARKET, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", msg, "Beli", "Batal");
+			}
+			else{
+				DeletePVar(playerid, "bBarang_index");
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BARANG_MARKET:
+		{
+			if(response){
+				new index_barang = GetPVarInt(playerid, "bBarang_index");
+				new jumlah = GetPVarInt(playerid, "bBarang_jumlah"); 
+				new harga = jumlah * BARANG_MARKET[index_barang][hargaBarang];
+				if(GetPlayerMoney(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi.", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
+
+				tambahItemPlayer(playerid, getIDbyModelItem(BARANG_MARKET[index_barang][idModelBarang]), jumlah);
+				GivePlayerMoney(playerid, -harga);
+
+				format(msg, sizeof(msg), "Anda berhasil membeli "YELLOW"%s"WHITE".\nSebanyak "YELLOW"%d"WHITE" dengan harga "GREEN"%d", BARANG_MARKET[index_barang][namaBarang], jumlah, harga);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli barang", msg, "Ok", "");
+
+				DeletePVar(playerid, "bBarang_index");
+				DeletePVar(playerid, "bBarang_jumlah");
+			}
+			else{
+				DeletePVar(playerid, "bBarang_index");
+				DeletePVar(playerid, "bBarang_jumlah");
+			}
+			return 1;
+		}
 
     }
 
@@ -808,8 +858,17 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	if(pickupid == PU_tempatFoto[ENTER_PICKUP]){
 		pindahkanPemain(playerid, -203.9351, -25.4899, 1002.2734, 330.6535, 16, 0, false);
 		return 1;
-	}else if(pickupid == PU_tempatFoto[EXIT_PICKUP]){
+	}
+	else if(pickupid == PU_tempatFoto[EXIT_PICKUP]){
 		pindahkanPemain(playerid, 1112.2352, -1372.2939, 13.9844, 178.5421, 0, 0, false);
+		return 1;
+	}
+	else if(pickupid == PU_miniMarket[0][ENTER_PICKUP]){
+		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, 0, false);
+		return 1;
+	}
+	else if(pickupid == PU_miniMarket[0][EXIT_PICKUP]){
+		pindahkanPemain(playerid, 1353.8392, -1757.3990, 13.5078, 269.0087, 0, 0, false);
 		return 1;
 	}
 	return 1;
@@ -818,6 +877,9 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 public OnPlayerEnterDynamicCP(playerid, checkpointid){
 	if(checkpointid == CP_tempatFoto){
 		ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", WHITE"Berapa banyak foto yang ingin anda cetak ?", "Cetak", "Batal");
+		return 1;
+	}else if(checkpointid == CP_spotBarangMarket[0] || checkpointid == CP_spotBarangMarket[1] || checkpointid == CP_spotBarangMarket[2] || checkpointid == CP_spotBarangMarket[3]){
+		showDialogBeliBarang(playerid);
 		return 1;
 	}
 	return 1;
