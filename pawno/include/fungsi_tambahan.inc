@@ -96,3 +96,20 @@ stock ProxDetector(Float:radi, playerid, string[], color)
         }
     }
 }
+
+stock GetPlayerIdFromName(playername[])
+{
+  for(new i = 0; i <= MAX_PLAYERS; i++)
+  {
+    if(IsPlayerConnected(i))
+    {
+      new playername2[MAX_PLAYER_NAME];
+      GetPlayerName(i, playername2, sizeof(playername2));
+      if(strcmp(playername2, playername, true, strlen(playername)) == 0)
+      {
+        return i;
+      }
+    }
+  }
+  return INVALID_PLAYER_ID;
+}
