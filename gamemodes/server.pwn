@@ -137,7 +137,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					GameTextForPlayer(playerid, msg, 4000, 3);
 
 					GivePlayerMoney(playerid, PlayerInfo[playerid][uang]);
-					SpawnPlayer(playerid);
+					spawnPemain(playerid);
 					return 1;
 				}
 				else
@@ -442,7 +442,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				if(strlen(inputtext) == 6 && inputtext[0] == '6' && inputtext[1] == '2'){
-					mysql_format(koneksi, query, sizeof(query), "select a.id, COUNT(b.pesan) AS banyak_pesan from `user` a left join sms b on b.id_user_penerima = a.id WHERE a.nomor_handphone = '%e'", inputtext);
+ 					mysql_format(koneksi, query, sizeof(query), "select a.id, COUNT(b.pesan) AS banyak_pesan from `user` a left join sms b on b.id_user_penerima = a.id WHERE a.nomor_handphone = '%e' GROUP BY a.id", inputtext);		
 					mysql_tquery(koneksi, query, "cekNomorPenerima", "d", playerid);
 				}else{
 					ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_NOMOR, DIALOG_STYLE_INPUT, WHITE"Nomor HP penerima", RED"Nomor HP yang anda masukan invalid!\n"YELLOW"Pastikan nomor HP terdiri dari 6 angka dan diawali dengan 62.\n\n"WHITE"Masukan nomor HP penerima dengan lengkap :", "Ok", "Batal");
@@ -987,7 +987,7 @@ public OnPlayerRequestClass(playerid, classid)
 {
 	if(IsPlayerNPC(playerid)) return 1;
 	if(PlayerInfo[playerid][sudahLogin]) {
-		SpawnPlayer(playerid);
+		spawnPemain(playerid);
 		return 1;
 	}
 	// Interpolate Camera untuk login
