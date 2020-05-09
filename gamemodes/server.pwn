@@ -23,6 +23,8 @@
 */
 #include <global_variable> // variable disini
 #include <textdraw> // Textdraw Function Loader
+#include <pickup> // Pickup Function Loader
+#include <checkpoint> // CP Function Loader
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
 
@@ -384,8 +386,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						updatePlayerCurrentPhone(playerid, GetPVarInt(playerid, "inv_indexlist"));
-						resetPVarInventory(playerid);
+						new id_item = getIDbyModelItem(GetPVarInt(playerid, "inv_indexlist"));
+						new fungsi[101];
+						getFungsiByIdItem(id_item, fungsi);
+						CallRemoteFunction(fungsi, "d", playerid);
 					}
 					case 1:
 					{
@@ -991,6 +995,15 @@ public OnGameModeInit()
 	printf("[ITEM] Load semua item...");
 	loadAllItem();
 	printf("[ITEM] Sukses load item!");
+
+	printf("[PICKUP] Load semua pickup...");
+	loadAllPickup();
+	printf("[PICKUP] Sukses load pickup!");
+
+	printf("[CHECKPOINT] Load semua checkpoint...");
+	loadAllCP();
+	printf("[CHECKPOINT] Sukses load checkpoint!");
+
 
 	SetGameModeText("EL v1.0");
 	// ShowPlayerMarkers(PLAYER_MARKERS_MODE_STREAMED);
