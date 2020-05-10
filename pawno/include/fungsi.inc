@@ -26,10 +26,7 @@ public isRegistered(playerid)
 			format(PlayerInfo[playerid][nomorHP], 12, "%s", temp_value);
 		}
 
-		cache_get_value_name(0, "uang", temp_value);
-		PlayerInfo[playerid][uang] = strval(temp_value);
-		// Reset dulu uangnya, saat berhasil login baru beri uang
-		ResetPlayerMoney(playerid);
+		cache_get_value_name_int(0, "uang", PlayerInfo[playerid][uang]);
 
 		// Get Player Position
 		cache_get_value_name(0, "last_x", temp_value);
@@ -112,7 +109,7 @@ public registerUser(playerid)
 	SHA256_PassHash(registerInfo[playerid][registerPassword], PlayerInfo[playerid][pPlayerName], EncryptedPassword, 64);
 
 	new Cache:result;
-	mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user` (`nama`, `password`, `jumlah_login`, `join_date`, `jenis_kelamin`, `email`, `account_status`, `current_skin`, `uang`) VALUES ('%e', '%e', '1', NOW(), '%d', '%e', '0', '%d', '100')", PlayerInfo[playerid][pPlayerName], EncryptedPassword, registerInfo[playerid][jenisKelamin], registerInfo[playerid][email], registerInfo[playerid][freeSkinID]);
+	mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user` (`nama`, `password`, `jumlah_login`, `join_date`, `jenis_kelamin`, `email`, `account_status`, `current_skin`) VALUES ('%e', '%e', '1', NOW(), '%d', '%e', '0', '%d')", PlayerInfo[playerid][pPlayerName], EncryptedPassword, registerInfo[playerid][jenisKelamin], registerInfo[playerid][email], registerInfo[playerid][freeSkinID]);
 	result = mysql_query(koneksi, query);
 	PlayerInfo[playerid][pID] = cache_insert_id();
 	PlayerInfo[playerid][loginKe] = 1;
@@ -121,8 +118,7 @@ public registerUser(playerid)
 
 	PlayerInfo[playerid][sudahLogin] = true;
 
-	ResetPlayerMoney(playerid);
-	GivePlayerMoney(playerid, 100);
+	setUangPlayer(playerid, 100);
 
 	tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID], true);
 
@@ -137,6 +133,7 @@ dialogEmail(playerid){
 forward spawnPemain(playerid);
 public spawnPemain(playerid)
 {
+	print("Fungsi Spawn");
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	PlayerInfo[playerid][sudahSpawn] = true;
 	
@@ -145,13 +142,10 @@ public spawnPemain(playerid)
 		
 		SpawnPlayer(playerid);
 		
-		Streamer_UpdateEx(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], -1, -1, -1, 1000, 1);
+		pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
 
-		SetPlayerInterior(playerid,  PlayerInfo[playerid][last_int]);
-		SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][last_vw]);
-
-		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
-		// pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
+		TogglePlayerControllable(playerid, 0);
+    	SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
 
 		PlayerInfo[playerid][last_x] = 0;
 		PlayerInfo[playerid][last_y] = 0;
@@ -159,20 +153,27 @@ public spawnPemain(playerid)
 		PlayerInfo[playerid][last_a] = 0;
 		PlayerInfo[playerid][last_vw] = 0;
 		PlayerInfo[playerid][last_int] = 0;
+		print("End Fungsi Spawn");
 	}else{
 		new random_spawn = random(sizeof(SPAWN_POINT));
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
 		
 		SpawnPlayer(playerid);
 
-		Streamer_UpdateEx(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], -1, -1, -1, 1000, 1);
+		pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
 
-		SetPlayerInterior(playerid,  SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR]);
-		SetPlayerVirtualWorld(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_VW]);
-		// pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
-		SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
+		TogglePlayerControllable(playerid, 0);
+    	SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
+
+		print("End Fungsi Spawn");
 	}
 	return 1;
+}
+
+forward GantiSkinSaatSpawn(playerid);
+public GantiSkinSaatSpawn(playerid){
+	TogglePlayerControllable(playerid, 1);
+	SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
 }
 
 forward updatePlayerCurrentPhone(playerid, listitem);
@@ -475,11 +476,7 @@ updateOnPlayerDisconnect(playerid){
 		last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a, last_spawn_info_int = last_spawn_info_vw = 0;
 	}
 
-	// Uang
-	new str_uang[100];
-	valstr(str_uang, GetPlayerMoney(playerid));
-
-	mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', uang = '%s' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, str_uang, PlayerInfo[playerid][pID]);
+	mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, query);
 	return 1;
 }

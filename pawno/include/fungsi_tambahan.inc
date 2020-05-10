@@ -67,6 +67,57 @@ getFungsiByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     GetSVarString(nama_variabel, destinasi, len);
 }
 
+getUangPlayer(playerid, bool:useDb = false)
+{
+    if(useDb){
+        new jumlah_uang, Cache:result;
+        mysql_format(koneksi, query, sizeof(query), "SELECT `uang` FROM `user` WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
+        result = mysql_query(koneksi, "SELECT `uang` FROM `user` WHERE id = '%d'");    
+        cache_get_value_name_int(0, "uang", jumlah_uang);
+        cache_delete(result);
+        return jumlah_uang;
+    }else
+        return PlayerInfo[playerid][uang];
+}
+
+givePlayerUang(playerid, jumlah, bool:simpanDb = true){
+    new stringUang[50];
+    PlayerInfo[playerid][uang] += jumlah;
+
+    if(simpanDb){
+        mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
+        mysql_tquery(koneksi, query);
+    }
+
+    valstr(stringUang, PlayerInfo[playerid][uang]);
+    PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
+}
+
+// -- Uncomment fungsi jika ingin menggunakan
+// resetUangPlayer(playerid, bool:simpanDb = true){
+//     PlayerInfo[playerid][uang] = 0;
+
+//     if(simpanDb){
+//         mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = '0' WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
+//         mysql_tquery(koneksi, query);
+//     }
+
+//     PlayerTextDrawSetString(playerid, RadarUang[playerid][1], "0");
+// }
+
+setUangPlayer(playerid, jumlah, bool:simpanDb = true){
+    new stringUang[50];
+    PlayerInfo[playerid][uang] = jumlah;
+    valstr(stringUang, PlayerInfo[playerid][uang]);
+
+    if(simpanDb){
+        mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
+        mysql_tquery(koneksi, query);
+    }
+
+    PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
+}
+
 
 cekAllowNama(const nama[]){
     new count_underscore = 0;

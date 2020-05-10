@@ -76,6 +76,7 @@ new housePickup[MAX_HOUSES] = {-1};
 */
 new PlayerText:showItem[MAX_PLAYERS][6];
 new PlayerText:myInfo[MAX_PLAYERS][8];
+new PlayerText:RadarUang[MAX_PLAYERS][2];
 
 /*
     SERVER VAR

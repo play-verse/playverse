@@ -14,7 +14,6 @@
 #include <a_mysql>
 #include <zcmd>
 #include <YSI_Data\y_iterate>
-#include <moneyhax>
 #include <core>
 #include <float>
 #include <PreviewModelDialog>
@@ -55,6 +54,8 @@ public OnPlayerConnect(playerid)
 	
 	resetPlayerVariable(playerid);
 
+	tampilkanTextDrawUang(playerid);
+
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
 	PlayerInfo[playerid][pPlayerName] = nama;
@@ -74,7 +75,7 @@ public OnPlayerDisconnect(playerid, reason){
 	resetPVarInventory(playerid);
 	if(PlayerInfo[playerid][sudahLogin]) updateOnPlayerDisconnect(playerid);
 	resetPlayerVariable(playerid);
-	
+	hideTextDrawUang(playerid);
 	return 1;
 }
 
@@ -136,7 +137,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(msg, sizeof(msg), "~r~Selamat ~y~datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %d ~w~!", PlayerInfo[playerid][loginKe]);
 					GameTextForPlayer(playerid, msg, 4000, 3);
 
-					GivePlayerMoney(playerid, PlayerInfo[playerid][uang]);
+					givePlayerUang(playerid, PlayerInfo[playerid][uang]);
+					print("Spawn Called in Login Success");
 					spawnPemain(playerid);
 					return 1;
 				}
@@ -782,9 +784,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								houseLevel = houseInfo[id][hLevel],
 								houseHarga = houseInfo[id][hHarga];
 								upgradeRate = houseLevel*houseLevel*houseHarga;
-								if(PlayerInfo[playerid][uang] < upgradeRate) return error_command(playerid, "Maaf uang anda tidak cukup!");
-								GivePlayerMoney(playerid, -upgradeRate);
-							    PlayerInfo[playerid][uang] = PlayerInfo[playerid][uang]-upgradeRate;
+								if(getUangPlayer(playerid) < upgradeRate) return error_command(playerid, "Maaf uang anda tidak cukup!");
+								givePlayerUang(playerid, -upgradeRate);
+							    
 							    houseInfo[id][hLevel] = houseLevel+1;
 							    mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
 							    mysql_tquery(koneksi, query);
@@ -813,15 +815,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								format(ownerName, 256, "%s", getOwnerHouse(houseInfo[id][hOwner]));
 								new ownerId = GetPlayerIdFromName(ownerName);
 								if(ownerId != INVALID_PLAYER_ID){
-									GivePlayerMoney(ownerId, beliRate);
-									PlayerInfo[ownerId][uang] = PlayerInfo[ownerId][uang]+beliRate;
+									givePlayerUang(ownerId, beliRate);
 								}else{
 									mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
 				   			 		mysql_tquery(koneksi, query);
 								}
 							}
-							GivePlayerMoney(playerid, -beliRate);
-						    PlayerInfo[playerid][uang] = PlayerInfo[playerid][uang]-beliRate;
+							givePlayerUang(playerid, -beliRate);
+
 						    houseInfo[id][hOwner] = PlayerInfo[playerid][pID];
 						    houseInfo[id][hJual] = 0;
 						    mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `id_user` = '%d', `jual` = 0 WHERE `id_house` = '%d'", PlayerInfo[playerid][pID], id);
@@ -877,10 +878,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new index_barang = GetPVarInt(playerid, "bBarang_index");
 				new jumlah = GetPVarInt(playerid, "bBarang_jumlah"); 
 				new harga = jumlah * BARANG_MARKET[index_barang][hargaBarang];
-				if(GetPlayerMoney(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi.", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
+				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi.", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
 
 				tambahItemPlayer(playerid, getIDbyModelItem(BARANG_MARKET[index_barang][idModelBarang]), jumlah);
-				GivePlayerMoney(playerid, -harga);
+				givePlayerUang(playerid, -harga);
 
 				format(msg, sizeof(msg), "Anda berhasil membeli "YELLOW"%s"WHITE".\nSebanyak "YELLOW"%d"WHITE" dengan harga "GREEN"%d", BARANG_MARKET[index_barang][namaBarang], jumlah, harga);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli barang", msg, "Ok", "");
@@ -914,11 +915,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new jumlah = GetPVarInt(playerid, "foto_jumlahFoto"); 
 				new harga = jumlah * 15;
-				if(GetPlayerMoney(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
+				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
 
 				// 5 adalah id item untuk pas foto
 				tambahItemPlayer(playerid, 5, jumlah);
-				GivePlayerMoney(playerid, -harga);
+				givePlayerUang(playerid, -harga);
 
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli foto", WHITE"Anda berhasil membeli foto, foto anda sudah masuk inventory.\nSilahkan cek pada inventory anda.", "Ok", "");
 				DeletePVar(playerid, "foto_jumlahFoto");
@@ -962,6 +963,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 public OnPlayerSpawn(playerid)
 {
 	if(IsPlayerNPC(playerid)) return 1;
+	print("Spawn Called");
 	spawnPemain(playerid);
 	return 1;
 }
@@ -980,13 +982,19 @@ public OnPlayerPickUpPickup(playerid, pickupid)
 public OnPlayerDeath(playerid, killerid, reason)
 {
 	PlayerInfo[playerid][sudahSpawn] = false;
+	
+	new random_spawn = random(sizeof(SPAWN_POINT));
+	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+
    	return 1;
 }
 
 public OnPlayerRequestClass(playerid, classid)
 {
 	if(IsPlayerNPC(playerid)) return 1;
+	print("Request Class Fungsi");
 	if(PlayerInfo[playerid][sudahLogin]) {
+		print("Request Class Called");
 		spawnPemain(playerid);
 		return 1;
 	}
