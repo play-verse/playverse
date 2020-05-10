@@ -241,9 +241,23 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new id_skin = (PlayerInfo[playerid][jenisKelamin] == 0) ? SKIN_MALE_GRATIS[listitem] : SKIN_FEMALE_GRATIS[listitem];
 
-				tambahSkinPlayer(playerid, id_skin, false);
+				SetPVarInt(playerid, "skinNormal_idx", id_skin);
 
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendapatkan skin", GREEN"Anda berhasil mendapatkan skin!\n"WHITE"Silahkan buka inventory untuk melihatnya.", "Ok", "");
+				ShowPlayerDialog(playerid, DIALOG_CONFIRM_BELI_SKIN_NORMAL, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", WHITE"Anda yakin ingin membeli skin ini?\nSkin normal memiliki harga "GREEN"2500"WHITE".", "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_CONFIRM_BELI_SKIN_NORMAL:
+		{
+			if(response){
+				new id_skin = GetPVarInt(playerid, "skinNormal_idx");
+				DeletePVar(playerid, "skinNormal_idx");
+				if(getUangPlayer(playerid) < 2500) return dialogMsgUangTdkCukup(playerid);
+				givePlayerUang(playerid, -2500);
+				tambahSkinPlayer(playerid, id_skin, false);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil ", GREEN"Anda berhasil mendapatkan skin!\n"WHITE"Silahkan buka inventory untuk melihatnya.", "Ok", "");
+			}else{
+				DeletePVar(playerid, "skinNormal_idx");
 			}
 			return 1;
 		}
@@ -929,6 +943,49 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_REFRESH_SKIN:
+		{
+			if(response){
+				if(GetPlayerSkin(playerid) == PlayerInfo[playerid][skinID]) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Skin sudah terpakai", WHITE"Maaf anda sudah menggunakan skin yang tertuju, silahkan pilih skin lain untuk mendapatkan perubahan!", "Ok", "");
+
+				ClearAnimations(playerid);
+				TogglePlayerControllable(playerid, 0);
+				SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
+				TogglePlayerControllable(playerid, 1);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mengganti skin!", WHITE"Anda berhasil mengganti skin anda!", "Ok", "");
+			}
+			return 1;
+		}
+		case DIALOG_TANYA_INGIN_BELI_SKIN:
+		{
+			if(response){
+				new subString[16];
+				new len = ((PlayerInfo[playerid][jenisKelamin] == 0) ? sizeof(SKIN_MALE_GRATIS) : sizeof(SKIN_FEMALE_GRATIS));
+				static stringMale[500], stringFemale[500];
+
+				// Laki-laki
+				if(PlayerInfo[playerid][jenisKelamin] == 0){
+					if(stringMale[0] == EOS){
+						for (new i = 0; i < len; i++) {
+							format(subString, sizeof(subString), "%i\n", SKIN_MALE_GRATIS[i]);
+							strcat(stringMale, subString);
+						} 
+					}
+					ShowPlayerDialog(playerid, DIALOG_BELI_SKIN, DIALOG_STYLE_PREVIEW_MODEL, "Pilih skin yang anda inginkan", stringMale, "Pilih", "Keluar");
+				}
+				// Perempuan
+				else{
+					if(stringFemale[0] == EOS){
+						for (new i = 0; i < len; i++) {
+							format(subString, sizeof(subString), "%i\n", SKIN_FEMALE_GRATIS[i]);
+							strcat(stringFemale, subString);
+						} 
+					}
+					ShowPlayerDialog(playerid, DIALOG_BELI_SKIN, DIALOG_STYLE_PREVIEW_MODEL, "Pilih skin yang anda inginkan", stringFemale, "Pilih", "Keluar");
+				}
+			}
+			return 1;
+		}
 
     }
 	// Wiki-SAMP OnDialogResponse should return 0
@@ -974,7 +1031,7 @@ public OnPlayerPickUpPickup(playerid, pickupid)
 	new pmsg[256];
 	if(housePickup[pickupid]){
 		format(pmsg, 256, "* Rumah: Ketik /inforumah untuk melihat info tentang rumah");
-    	SendClientMessage(playerid, 0xFF55BBFF, pmsg);
+		SendClientMessage(playerid, 0xFF55BBFF, pmsg);
 	}
 	return 1;
 }
@@ -986,7 +1043,7 @@ public OnPlayerDeath(playerid, killerid, reason)
 	new random_spawn = random(sizeof(SPAWN_POINT));
 	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
 
-   	return 1;
+	return 1;
 }
 
 public OnPlayerRequestClass(playerid, classid)
@@ -1105,8 +1162,8 @@ public OnPlayerUpdate(playerid)
 	
 	// Don't allow minigun
 	if(GetPlayerWeapon(playerid) == WEAPON_MINIGUN) {
-	    Kick(playerid);
-	    return 0;
+		Kick(playerid);
+		return 0;
 	}
 
 	return 1;
@@ -1130,7 +1187,7 @@ public OnPlayerText(playerid, text[]){
 
 public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	if(pickupid == PU_tempatFoto[ENTER_PICKUP]){
-		pindahkanPemain(playerid, -203.9351, -25.4899, 1002.2734, 330.6535, 16, 0, false);
+		pindahkanPemain(playerid, -203.9351, -25.4899, 1002.2734, 330.6535, 16, pickupid, false);
 		return 1;
 	}
 	else if(pickupid == PU_tempatFoto[EXIT_PICKUP]){
@@ -1138,11 +1195,19 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		return 1;
 	}
 	else if(pickupid == PU_miniMarket[0][ENTER_PICKUP]){
-		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, 0, false);
+		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, pickupid, false);
 		return 1;
 	}
 	else if(pickupid == PU_miniMarket[0][EXIT_PICKUP]){
 		pindahkanPemain(playerid, 1353.8392, -1757.3990, 13.5078, 269.0087, 0, 0, false);
+		return 1;
+	}
+	else if(pickupid == PU_tempatBaju[0][ENTER_PICKUP]){
+		pindahkanPemain(playerid, 161.3910, -93.1592, 1001.8047, 0.0, 18, pickupid, false);
+		return 1;
+	}
+	else if(pickupid == PU_tempatBaju[0][EXIT_PICKUP]){
+		pindahkanPemain(playerid, 500.7141, -1357.8710, 16.1328, 336.5217, 0, 0, false);
 		return 1;
 	}
 	return 1;
@@ -1155,6 +1220,11 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 	}else if(checkpointid == CP_spotBarangMarket[0] || checkpointid == CP_spotBarangMarket[1] || checkpointid == CP_spotBarangMarket[2] || checkpointid == CP_spotBarangMarket[3]){
 		showDialogBeliBarang(playerid);
 		return 1;
+	}else if(checkpointid == CP_spotGantiSkin){
+		ShowPlayerDialog(playerid, DIALOG_REFRESH_SKIN, DIALOG_STYLE_MSGBOX, "Refresh skin anda", "Apakah anda yakin ingin mensinkronisasikan kembali skin anda?\n\n"YELLOW"** Skin yang akan direfresh adalah skin yang sudah anda use pada inventory anda.\nJika anda belum memilih skin yang ingin anda gunakan, anda dapat membuka inventory\nLalu pilih skin yang ingin anda gunakan.", "Ganti", "Batal");
+		return 1;
+	}else if(checkpointid == CP_spotBeliSkin[0] || checkpointid == CP_spotBeliSkin[1] || checkpointid == CP_spotBeliSkin[2]){
+		ShowPlayerDialog(playerid, DIALOG_TANYA_INGIN_BELI_SKIN, DIALOG_STYLE_MSGBOX, WHITE"Ingin beli skin?", "Apakah anda ingin membeli "YELLOW"skin normal "WHITE"dengan harga "GREEN"2500 "WHITE"per skin?", "Beli", "Batal");
 	}
 	return 1;
 }

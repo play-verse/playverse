@@ -3,6 +3,9 @@ loadAllPickup(){
     PU_tempatFoto[EXIT_PICKUP] = buatPickupDanLabel(1318, -204.3725, -27.3480, 1002.2734, "Tempat foto dan cetak foto\n"GREEN"Pintu Keluar");
 
     // minimarket yang ada mappingan
-    PU_miniMarket[0][ENTER_PICKUP] = buatPickupDanLabel(1318, 1352.3239, -1759.2528, 13.5078, "Minimarket A\n"GREEN"Pintu Masuk");
-    PU_miniMarket[0][EXIT_PICKUP] = buatPickupDanLabel(1318, -25.8201, -188.2510, 1003.5469, "Minimarket A\n"GREEN"Pintu Keluar");
+    PU_miniMarket[0][ENTER_PICKUP] = buatPickupDanLabel(1318, 1352.3239, -1759.2528, 13.5078, "Minimarket "nama_A"\n"GREEN"Pintu Masuk");
+    PU_miniMarket[0][EXIT_PICKUP] = buatPickupDanLabel(1318, -25.8201, -188.2510, 1003.5469, "Minimarket "nama_A"\n"GREEN"Pintu Keluar");
+
+    PU_tempatBaju[0][ENTER_PICKUP] = buatPickupDanLabel(1318, 499.5623, -1360.6381, 16.3685, "Tempat baju "nama_A"\n"GREEN"Pintu Masuk");
+    PU_tempatBaju[0][EXIT_PICKUP] = buatPickupDanLabel(1318, 161.3459,-97.1099,1001.8047, "Tempat baju "nama_A"\n"GREEN"Pintu Keluar");
 }

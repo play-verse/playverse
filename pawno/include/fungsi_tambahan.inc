@@ -37,6 +37,11 @@ pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:prel
     SetPlayerVirtualWorld(playerid, vw);
 }
 
+
+dialogMsgUangTdkCukup(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf saat ini uang yang anda miliki tidak mencukupi untuk melakukan transaksi!", "Ok", "Batal");
+}
+
 // getModelByIdItem(id_item){
 //     new nama_variabel[50];
 //     format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
