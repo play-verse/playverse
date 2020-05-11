@@ -218,7 +218,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 1:
 					{
-						mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user_skin` WHERE `id_user` = '%d'", PlayerInfo[playerid][pID]);
+						mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user_skin` WHERE `id_user` = '%d' AND `jumlah` > 0", PlayerInfo[playerid][pID]);
 						mysql_tquery(koneksi, query, "tampilInventorySkinPlayer", "d", playerid);
 					}
 				}
@@ -254,7 +254,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				DeletePVar(playerid, "skinNormal_idx");
 				if(getUangPlayer(playerid) < 2500) return dialogMsgUangTdkCukup(playerid);
 				givePlayerUang(playerid, -2500);
-				tambahSkinPlayer(playerid, id_skin, false);
+				tambahSkinPlayer(playerid, id_skin, 1,false);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil ", GREEN"Anda berhasil mendapatkan skin!\n"WHITE"Silahkan buka inventory untuk melihatnya.", "Ok", "");
 			}else{
 				DeletePVar(playerid, "skinNormal_idx");
@@ -268,9 +268,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
 						new id_skin = GetPVarInt(playerid, "inv_model");
+						if(PlayerInfo[playerid][skinID] == id_skin) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Skin sudah digunakan", WHITE"Anda tidak dapat menggunakan skin yang sedang digunakan,\nAnda harus memilih skin yang berbeda dengan yang anda gunakan skrng.", "Ok", "");
 						
 						updatePlayerCurrentSkin(playerid, id_skin);
-						PlayerInfo[playerid][skinID] = id_skin;
 
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", GREEN"Anda berhasil mengganti skin anda!\n"WHITE"Silahkan ke kamar ganti terdekat atau spawn ulang untuk mendapatkan efeknya.", "Ok", "");
 					}

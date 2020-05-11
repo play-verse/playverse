@@ -120,7 +120,7 @@ public registerUser(playerid)
 
 	setUangPlayer(playerid, 100);
 
-	tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID], true);
+	tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID], 1, true);
 
 	spawnPemain(playerid);
 	return 1;
@@ -323,36 +323,31 @@ public checkIfSkinExist(playerid, skinid){
 	if(cache_num_rows()){
 		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET current_skin = '%d' WHERE id = '%d'",skinid, PlayerInfo[playerid][pID]);
 		mysql_tquery(koneksi, query);
+
+		// Kembalikan skin yang sama
+		tambahSkinPlayer(playerid, PlayerInfo[playerid][skinID], 1, false);
+
+		// Kurangkan setelah teruse
+		tambahSkinPlayer(playerid, skinid, -1, false);
 		PlayerInfo[playerid][skinID] = skinid;
-	}
-	return 1;
-}
 
-forward tambahSkinPlayer(playerid, skinid, bool:langsung_gunakan);
-public tambahSkinPlayer(playerid, skinid, bool:langsung_gunakan)
-{
-	mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user_skin` (id_user, id_skin) VALUES('%d', '%d')", PlayerInfo[playerid][pID], skinid);
-
-	if(langsung_gunakan){
-		mysql_tquery(koneksi, query, "updatePlayerCurrentSkin", "dd", playerid, skinid);
-	}else{
-		mysql_tquery(koneksi, query);
 	}
 	return 1;
 }
 
 forward tampilInventorySkinPlayer(playerid);
 public tampilInventorySkinPlayer(playerid){
-	new rows, string[500], subString[16], id_skin;
+	new rows, string[500], subString[20], id_skin, jumlah;
 	if(cache_get_row_count(rows)){
 		for(new i = 0; i < rows; i++){
+			cache_get_value_name_int(i, "jumlah", jumlah);
 			cache_get_value_name_int(i, "id_skin", id_skin);
-			format(subString, sizeof(subString), "%i\n", id_skin);
+			format(subString, sizeof(subString), "%i\t~g~%i\n", id_skin, jumlah);
 			strcat(string, subString);
 		}
 		ShowPlayerDialog(playerid, DIALOG_PILIH_SKIN, DIALOG_STYLE_PREVIEW_MODEL, "~w~Pilih skin anda :", string, "~w~Pilih", "Keluar");
 	}else{
-		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Invalid", WHITE"Tidak terdapat skin pada akun anda!\nAnda dapat menghubungi administrator untuk info lebih lanjut!", "Ok", "");
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak terdapat skin", WHITE"Tidak terdapat skin pada inventory anda.", "Ok", "");
 	}
 	return 1; // For deleteing cache tquery
 }
@@ -364,7 +359,6 @@ public tampilInventoryBarangPlayer(playerid){
 	new string[MAX_SERVER_ITEM * 64 + 5];
 	if(rows){
 		for(new i = 0; i < rows; i++){
-
 			cache_get_value_name_int(i, "model_id", model_id);
 			cache_get_value_name_int(i, "jumlah", jumlah);
 			cache_get_value_name(i, "nama_item", nama_item);
@@ -387,6 +381,18 @@ public tambahItemPlayer(playerid, itemid, jumlah){
 	// Pakai trigger procedure
 	mysql_format(koneksi, query, sizeof(query), "CALL tambah_item(%d, %d, %d)", PlayerInfo[playerid][pID], itemid, jumlah);
 	mysql_tquery(koneksi, query);
+	return 1;
+}
+
+forward tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan);
+public tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan){
+	// Pakai trigger procedure
+	mysql_format(koneksi, query, sizeof(query), "CALL tambah_skin(%d, %d, %d)", PlayerInfo[playerid][pID], skinid, jumlah);
+	if(langsung_gunakan){
+		mysql_tquery(koneksi, query, "updatePlayerCurrentSkin", "dd", playerid, skinid);
+	}else{
+		mysql_tquery(koneksi, query);
+	}
 	return 1;
 }
 
