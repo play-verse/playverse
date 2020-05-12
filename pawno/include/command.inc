@@ -210,10 +210,11 @@ CMD:arumah(playerid, params[]){
 CMD:inforumah(playerid, params[]){
     if(lastHousePickup[playerid] == -1) return error_command(playerid, "Maaf anda tidak berada di ikon rumah!");
     new string[256],
-    id = housePickup[lastHousePickup[playerid]],
+    id,
     Float:x,
     Float:y,
     Float:z;
+    id = houseId[lastHousePickup[playerid]];
     x = houseInfo[id][icon_x];
     y = houseInfo[id][icon_y];
     z = houseInfo[id][icon_z];
@@ -222,29 +223,77 @@ CMD:inforumah(playerid, params[]){
         new houseLevel, houseHarga, upgradeRate;
         houseLevel = houseInfo[id][hLevel],
         houseHarga = houseInfo[id][hHarga];
-        upgradeRate = houseLevel*2*houseHarga;
+        upgradeRate = houseLevel*houseLevel*houseHarga;
         if(houseInfo[id][hJual] == 1){
             SetPVarString(playerid, "info_rumah", "batal_jual");
             if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
-                format(string, sizeof(string), "Batal Jual Rumah\nUpgrade Rumah (%d)\nMasuk Rumah", upgradeRate);
+                if(houseInfo[id][hKunci] == 1){
+                    if(PlayerInfo[playerid][sHouse] == id){
+                        format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nBatal Spawn Disini\nMasuk Rumah", upgradeRate);
+                    }else{
+                        format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nSpawn Disini\nMasuk Rumah", upgradeRate);
+                    }
+                }else{
+                    if(PlayerInfo[playerid][sHouse] == id){
+                        format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nBatal Spawn Disini\nMasuk Rumah", upgradeRate);
+                    }else{
+                        format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nSpawn Disini\nMasuk Rumah", upgradeRate);
+                    }
+                }
             }else{
-                format(string, sizeof(string), "Batal Jual Rumah\nUpgrade Rumah\nMasuk Rumah"); 
+                if(houseInfo[id][hKunci] == 1){
+                    if(PlayerInfo[playerid][sHouse] == id){
+                        format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nBatal Spawn Disini\nMasuk Rumah");
+                    }else{
+                        format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nSpawn Disini\nMasuk Rumah");
+                    }
+                }else{
+                    if(PlayerInfo[playerid][sHouse] == id){
+                        format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nBatal Spawn Disini\nMasuk Rumah");
+                    }else{
+                        format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nSpawn Disini\nMasuk Rumah");
+                    }
+                }
             }
         }else{
             SetPVarString(playerid, "info_rumah", "jual_rumah");
             if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
-                format(string, sizeof(string), "Jual Rumah\nUpgrade Rumah (%d)\nMasuk Rumah", upgradeRate);
+                if(houseInfo[id][hKunci] == 1){
+                    if(PlayerInfo[playerid][sHouse] == id){
+                        format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nBatal Spawn Disini\nMasuk Rumah", upgradeRate);
+                    }else{
+                        format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nSpawn Disini\nMasuk Rumah", upgradeRate);
+                    }
+                }else{
+                    if(PlayerInfo[playerid][sHouse] == id){
+                        format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nBatal Spawn Disini\nMasuk Rumah", upgradeRate);
+                    }else{
+                        format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nSpawn Disini\nMasuk Rumah", upgradeRate);
+                    }
+                }
             }else{
-                format(string, sizeof(string), "Jual Rumah\nUpgrade Rumah\nMasuk Rumah");
+                if(houseInfo[id][hKunci] == 1){
+                    if(PlayerInfo[playerid][sHouse] == id){
+                        format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nBatal Spawn Disini\nMasuk Rumah");
+                    }else{
+                        format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nSpawn Disini\nMasuk Rumah");
+                    }
+                }else{
+                    if(PlayerInfo[playerid][sHouse] == id){
+                        format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nBatal Spawn Disini\nMasuk Rumah");
+                    }else{
+                        format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nSpawn Disini\nMasuk Rumah");
+                    }
+                }
             }
         }
     }else{
         if(houseInfo[id][hJual] == 1){
             SetPVarString(playerid, "info_rumah", "beli_rumah");
-            format(string, sizeof(string), "Beli Rumah\nMasuk Rumah");
+            format(string, sizeof(string), "Tentang Rumah\nBeli Rumah\nMasuk Rumah");
         }else{
             SetPVarString(playerid, "info_rumah", "masuk_rumah");
-            format(string, sizeof(string), "Masuk Rumah");
+            format(string, sizeof(string), "Tentang Rumah\nMasuk Rumah");
         }
     }
     ShowPlayerDialog(playerid, DIALOG_INFO_RUMAH, DIALOG_STYLE_LIST, WHITE"Info Rumah :", string, "Pilih", "Batal");

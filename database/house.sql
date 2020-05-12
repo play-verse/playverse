@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 09, 2020 at 10:41 AM
+-- Generation Time: May 12, 2020 at 10:00 AM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.2
 
@@ -33,6 +33,7 @@ CREATE TABLE `house` (
   `id_user` int(20) NOT NULL DEFAULT -1,
   `level` int(11) NOT NULL DEFAULT 1,
   `harga` int(20) NOT NULL,
+  `kunci` int(11) NOT NULL DEFAULT 1,
   `jual` int(11) NOT NULL DEFAULT 1,
   `icon_x` varchar(255) NOT NULL,
   `icon_y` varchar(255) NOT NULL,

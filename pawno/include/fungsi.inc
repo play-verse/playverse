@@ -15,7 +15,7 @@ public isRegistered(playerid)
 
 		// Equiped phone
 		cache_get_value_name_int(0, "use_phone", PlayerInfo[playerid][ePhone]);
-		
+		cache_get_value_name_int(0, "save_house", PlayerInfo[playerid][sHouse]);
 		cache_is_value_name_null(0, "nomor_handphone", is_null);
 
 		if(is_null){
@@ -84,6 +84,7 @@ resetPlayerVariable(playerid){
     PlayerInfo[playerid][loginKe] = -1;
     PlayerInfo[playerid][uang] = 0;
     PlayerInfo[playerid][jenisKelamin] = -1;
+    PlayerInfo[playerid][sHouse] = 0;
 
     PlayerInfo[playerid][ePhone] = 0;
     PlayerInfo[playerid][nomorHP][0] = EOS;
@@ -136,13 +137,13 @@ public spawnPemain(playerid)
 	print("Fungsi Spawn");
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	PlayerInfo[playerid][sudahSpawn] = true;
-	
-	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
-		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
-		
+	new house_Id = PlayerInfo[playerid][sHouse];
+	if(house_Id != 0){
+		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, 0, 0, 0, 0);
+			
 		SpawnPlayer(playerid);
 		
-		pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
+		pindahkanPemain(playerid, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, true);
 
 		TogglePlayerControllable(playerid, 0);
     	SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
@@ -155,17 +156,35 @@ public spawnPemain(playerid)
 		PlayerInfo[playerid][last_int] = 0;
 		print("End Fungsi Spawn");
 	}else{
-		new random_spawn = random(sizeof(SPAWN_POINT));
-		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
-		
-		SpawnPlayer(playerid);
+		if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
+			SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
+			
+			SpawnPlayer(playerid);
 
-		pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
+			pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
 
-		TogglePlayerControllable(playerid, 0);
-    	SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
+			TogglePlayerControllable(playerid, 0);
+			SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
+			
+			PlayerInfo[playerid][last_x] = 0;
+			PlayerInfo[playerid][last_y] = 0;
+			PlayerInfo[playerid][last_z] = 0;
+			PlayerInfo[playerid][last_a] = 0;
+			PlayerInfo[playerid][last_vw] = 0;
+			PlayerInfo[playerid][last_int] = 0;
+		}else{
+			new random_spawn = random(sizeof(SPAWN_POINT));
+			SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+			
+			SpawnPlayer(playerid);
 
-		print("End Fungsi Spawn");
+			pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
+
+			TogglePlayerControllable(playerid, 0);
+			SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
+
+			print("End Fungsi Spawn");
+		}
 	}
 	return 1;
 }
@@ -527,34 +546,23 @@ loadAllItem(){
 	cache_delete(result);
 }
 
-getOwnerHouse(ownerid){
-	new Cache:result, nama[MAX_PLAYER_NAME];
-	mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE `id` = '%d'", ownerid);
-	result = mysql_query(koneksi, query);
-	if(cache_num_rows())
-	{
-		cache_get_value_name(0, "nama", nama);
-	}
-	cache_delete(result);
-	return nama;
-}
-
 loadAllHouse(){
-	new houseId, userId, houseLevel, houseHarga, houseJual, hX[256], hY[256], hZ[256];
+	new house_Id, userId, houseLevel, houseHarga, houseKunci, houseJual, hX[256], hY[256], hZ[256];
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `house`");
 	cache_get_row_count(row);
 	while(idx < row){
-		cache_get_value_name_int(idx, "id_house", houseId);
+		cache_get_value_name_int(idx, "id_house", house_Id);
 		cache_get_value_name_int(idx, "id_user", userId);
 		cache_get_value_name_int(idx, "level", houseLevel);
 		cache_get_value_name_int(idx, "harga", houseHarga);
+		cache_get_value_name_int(idx, "kunci", houseKunci);
 		cache_get_value_name_int(idx, "jual", houseJual);
 		cache_get_value_name(idx, "icon_x", hX);
 		cache_get_value_name(idx, "icon_y", hY);
 		cache_get_value_name(idx, "icon_z", hZ);
 
-		createHouse(houseId, userId, houseLevel, houseHarga, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));
+		createHouse(house_Id, userId, houseLevel, houseHarga, houseKunci, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));
 
 		idx++;
 	}
@@ -562,65 +570,86 @@ loadAllHouse(){
 }
 
 unloadAllHouse(){
-	new i, p;
-	for(i = 0; i < MAX_HOUSES; i++){
+	for(new i = 0; i < MAX_HOUSES; i++){
 		if(housePickup[i] != -1){
-			DestroyPickup(i);
-			p = housePickup[i];
-			Delete3DTextLabel(houseTextInfo[p]);
+			DestroyDynamicPickup(housePickup[i]);
+			DestroyDynamic3DTextLabel(houseTextInfo[i]);
+			houseInfo[i][hID] = -1;
+			houseInfo[i][hOwner] = -1;
+			houseInfo[i][hLevel] = 0;
+			houseInfo[i][hHarga] = 0;
+			houseInfo[i][hKunci] = 1;
+			houseInfo[i][hJual] = 0;
+			houseInfo[i][icon_x] = 0;
+			houseInfo[i][icon_y] = 0;
+			houseInfo[i][icon_z] = 0;
+			houseId[housePickup[i]] = -1;
 			housePickup[i] = -1;
-			houseInfo[p][hID] = -1;
-			houseInfo[p][hOwner] = -1;
-			houseInfo[p][hLevel] = 1;
-			houseInfo[p][hJual] = 1;
 		}
 	}
-}
-
-reloadHouseLabel(houseId){
-	new text_info[256], ownerName[MAX_PLAYER_NAME], houseLevel, houseHarga, beliRate;
-	houseLevel = houseInfo[houseId][hLevel],
-	houseHarga = houseInfo[houseId][hHarga];
-	beliRate = houseLevel*houseLevel*houseHarga;
-	Delete3DTextLabel(houseTextInfo[houseId]);
-	houseTextInfo[houseId] = Text3D:INVALID_3DTEXT_ID;
-	format(ownerName, 256, "%s", getOwnerHouse(houseInfo[houseId][hOwner]));
-	if(houseInfo[houseId][hJual] == 1){
-		if(houseInfo[houseId][hOwner] != -1){
-			format(text_info, 256, WHITE"["GREEN"House"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d"WHITE, houseInfo[houseId][hID], ownerName, beliRate);
-		}else{
-			format(text_info, 256, WHITE"["GREEN"House"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d"WHITE, houseInfo[houseId][hID], beliRate);
-		}
-	}else{
-		if(houseInfo[houseId][hOwner] != -1){
-			format(text_info, 256, WHITE"["GREEN"House"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d"WHITE, houseInfo[houseId][hID], ownerName, beliRate);
-		}else{
-			format(text_info, 256, WHITE"["GREEN"House"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d"WHITE, houseInfo[houseId][hID], beliRate);
-		}
-	}
-    houseTextInfo[houseId] = Create3DTextLabel(text_info, 0x88EE88FF, houseInfo[houseId][icon_x], houseInfo[houseId][icon_y], houseInfo[houseId][icon_z]+0.75, 20.0, 0, 1);
-}
-
-createHouse(houseId, ownerId, houseLevel, houseHarga, houseJual, Float:hX, Float:hY, Float:hZ)
-{
-	if(houseId < MAX_HOUSES ){
-		new Id = CreatePickup(1273 ,23, hX, hY, hZ, 0);
-		housePickup[Id] = houseId;
-		houseInfo[houseId][hID] 	= houseId;
-		houseInfo[houseId][hOwner] 	= ownerId;
-		houseInfo[houseId][hLevel] 	= houseLevel;
-		houseInfo[houseId][hHarga] 	= houseHarga;
-		houseInfo[houseId][hJual] = houseJual;
-		houseInfo[houseId][icon_x] 	= hX;
-		houseInfo[houseId][icon_y] 	= hY;
-		houseInfo[houseId][icon_z] 	= hZ;
-		
-		reloadHouseLabel(houseId);
-	}
-	else print("Rumah mencapai limit!");
 }
 
 resetAllHouse(){
 	unloadAllHouse();
 	loadAllHouse();
+}
+
+createHouse(house_Id, ownerId, houseLevel, houseHarga, houseKunci, houseJual, Float:hX, Float:hY, Float:hZ)
+{
+	if(house_Id < MAX_HOUSES ){
+		new Id = CreateDynamicPickup(1273, 1, hX, hY, hZ);
+		housePickup[house_Id] = Id;
+		houseId[Id] = house_Id;
+		houseInfo[house_Id][hID] = house_Id;
+		houseInfo[house_Id][hOwner] = ownerId;
+		houseInfo[house_Id][hLevel] = houseLevel;
+		houseInfo[house_Id][hHarga] = houseHarga;
+		houseInfo[house_Id][hKunci] = houseKunci;
+		houseInfo[house_Id][hJual] = houseJual;
+		houseInfo[house_Id][icon_x] = hX;
+		houseInfo[house_Id][icon_y] = hY;
+		houseInfo[house_Id][icon_z] = hZ;
+		reloadHouseLabel(house_Id);
+	}else{
+		print("Rumah mencapai limit!");
+	}
+}
+
+reloadHouseLabel(house_Id){
+	if(IsValidDynamic3DTextLabel(houseTextInfo[house_Id])){
+		DestroyDynamic3DTextLabel(houseTextInfo[house_Id]);
+	}
+	new text_info[256], ownerName[MAX_PLAYER_NAME], houseLevel, houseHarga, beliRate;
+	houseLevel = houseInfo[house_Id][hLevel];
+	houseHarga = houseInfo[house_Id][hHarga];
+	beliRate = houseLevel*houseLevel*houseHarga;
+	houseTextInfo[house_Id] = Text3D:INVALID_3DTEXT_ID;
+	if(houseInfo[house_Id][hOwner] != -1){
+		format(ownerName, 256, "%s", getOwnerHouse(houseInfo[house_Id][hOwner]));
+	}
+	if(houseInfo[house_Id][hJual] == 1){
+		if(houseInfo[house_Id][hOwner] != -1){
+			format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], ownerName, beliRate);
+		}else{
+			format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], beliRate);
+		}
+	}else{
+		if(houseInfo[house_Id][hOwner] != -1){
+			format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], ownerName, beliRate);
+		}else{
+			format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], beliRate);
+		}
+	}
+    houseTextInfo[house_Id] = CreateDynamic3DTextLabel(text_info, COLOR_WHITE, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z]+0.75, 20);
+}
+
+getOwnerHouse(ownerid){
+	new Cache:result, nama[MAX_PLAYER_NAME];
+	mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE `id` = '%d'", ownerid);
+	result = mysql_query(koneksi, query);
+	if(cache_num_rows()){
+		cache_get_value_name(0, "nama", nama);
+	}
+	cache_delete(result);
+	return nama;
 }
