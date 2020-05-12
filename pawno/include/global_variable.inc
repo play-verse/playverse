@@ -26,6 +26,7 @@ enum pInfo
 
     // Equiped Item
     ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
+    sHouse, // Berisi ID Rumah, untuk spawn dirumah jika tidak 0
     nomorHP[12], // Berisi 62 + 4 kode
 
     bool:sudahSpawn,
@@ -56,8 +57,9 @@ enum hInfo
 {
     hID,
     hOwner,
-    hJual,
     hHarga,
+    hKunci,
+    hJual,
     hLevel,
 
     // Position
@@ -70,6 +72,8 @@ new houseInfo[MAX_HOUSES][hInfo];
 new lastHousePickup[MAX_PLAYERS] = {-1};
 new Text3D:houseTextInfo[MAX_HOUSES];
 new housePickup[MAX_HOUSES] = {-1};
+new houseId[MAX_HOUSES] = {-1};
+new houseNotif[MAX_PLAYERS];
 
 /**
     Textdraw Variable For Player
