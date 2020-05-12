@@ -30,6 +30,11 @@
 
 #include "../include/gl_common.inc"
 
+// Uncomment untuk mengaktifkan debug mode player
+// Comment untuk menonaktifkan
+#define DEBUG_MODE_FOR_PLAYER true
+
+
 /**
 	Unused params is here
  */
@@ -40,6 +45,11 @@
 
 public OnPlayerConnect(playerid)
 {
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerConnect terpanggil (%d - %s)", playerid, nama_temp);
+	#endif
 	removeBangunanUntukMapping(playerid);
 	loadTextDrawPemain(playerid);
 	/*
@@ -66,6 +76,11 @@ public OnPlayerConnect(playerid)
 }
 
 public OnPlayerDisconnect(playerid, reason){
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerDisconnect terpanggil (%d - %s)", playerid, nama_temp);
+	#endif	
 	DeletePVar(playerid, "sms_list_pesan");
 	DeletePVar(playerid, "sms_id_pesan");
 	
@@ -137,7 +152,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(msg, sizeof(msg), "~r~Selamat ~y~datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %d ~w~!", PlayerInfo[playerid][loginKe]);
 					GameTextForPlayer(playerid, msg, 4000, 3);
 
-					givePlayerUang(playerid, PlayerInfo[playerid][uang]);
+					// Give player uang tanpa menambahkan di database - maka diset false
+					givePlayerUang(playerid, PlayerInfo[playerid][uang], false);
 					print("Spawn Called in Login Success");
 					spawnPemain(playerid);
 					return 1;
@@ -1019,8 +1035,12 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 
 public OnPlayerSpawn(playerid)
 {
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerSpawn terpanggil (%d - %s)", playerid, nama_temp);
+	#endif	
 	if(IsPlayerNPC(playerid)) return 1;
-	print("Spawn Called");
 	spawnPemain(playerid);
 	return 1;
 }
@@ -1038,6 +1058,12 @@ public OnPlayerPickUpPickup(playerid, pickupid)
 
 public OnPlayerDeath(playerid, killerid, reason)
 {
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerDeath terpanggil (%d - %s)", playerid, nama_temp);
+	#endif
+
 	PlayerInfo[playerid][sudahSpawn] = false;
 	
 	new random_spawn = random(sizeof(SPAWN_POINT));
@@ -1048,6 +1074,12 @@ public OnPlayerDeath(playerid, killerid, reason)
 
 public OnPlayerRequestClass(playerid, classid)
 {
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerRequestClass terpanggil (%d - %s)", playerid, nama_temp);
+	#endif
+
 	if(IsPlayerNPC(playerid)) return 1;
 	print("Request Class Fungsi");
 	if(PlayerInfo[playerid][sudahLogin]) {
@@ -1063,6 +1095,11 @@ public OnPlayerRequestClass(playerid, classid)
 }
 
 public OnPlayerRequestSpawn(playerid){
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerRequestSpawn terpanggil (%d - %s)", playerid, nama_temp);
+	#endif	
 	if(PlayerInfo[playerid][sudahLogin]) return 1;
 	return 0;
 }
