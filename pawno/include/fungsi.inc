@@ -114,6 +114,7 @@ public registerUser(playerid)
 	result = mysql_query(koneksi, query);
 	PlayerInfo[playerid][pID] = cache_insert_id();
 	PlayerInfo[playerid][loginKe] = 1;
+	PlayerInfo[playerid][jenisKelamin] = registerInfo[playerid][jenisKelamin];
 	PlayerInfo[playerid][skinID] = registerInfo[playerid][freeSkinID];
     cache_delete(result);
 
