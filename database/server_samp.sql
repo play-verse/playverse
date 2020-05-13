@@ -11,7 +11,7 @@
  Target Server Version : 100408
  File Encoding         : 65001
 
- Date: 11/05/2020 23:33:44
+ Date: 13/05/2020 14:35:57
 */
 
 SET NAMES utf8mb4;
@@ -26,6 +26,7 @@ CREATE TABLE `house`  (
   `id_user` int(20) NOT NULL DEFAULT -1,
   `level` int(11) NOT NULL DEFAULT 1,
   `harga` int(20) NOT NULL,
+  `kunci` int(11) NOT NULL DEFAULT 1,
   `jual` int(11) NOT NULL DEFAULT 1,
   `icon_x` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `icon_y` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -36,7 +37,7 @@ CREATE TABLE `house`  (
 -- ----------------------------
 -- Records of house
 -- ----------------------------
-INSERT INTO `house` VALUES (1, 24, 3, 10000, 0, '841.189392', '-1471.353149', '14.312580');
+INSERT INTO `house` VALUES (1, 24, 3, 10000, 1, 0, '841.189392', '-1471.353149', '14.312580');
 
 -- ----------------------------
 -- Table structure for item
@@ -103,18 +104,20 @@ CREATE TABLE `user`  (
   `last_vw` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Letak Virtual World',
   `nomor_handphone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Nomor HP Player, 1 player hanya 1 nomor HP',
   `use_phone` bigint(20) UNSIGNED NULL DEFAULT 0 COMMENT 'Berisi id_item (handphone) bukan id_user_item',
+  `save_house` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 28 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 29 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 125, 55, '2020-04-24 21:12:03', 0, 0, 'nathan@gmail.com', 0, '220.573135', '-1890.626953', '3.699802', '31.708591', '0', '0', '621234', 4);
-INSERT INTO `user` VALUES (23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', 100, 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0);
-INSERT INTO `user` VALUES (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 76, '2020-04-30 15:31:48', 175040, 0, 'natan@gmail.com', 0, '501.013092', '-1354.233643', '16.132813', '190.002869', '0', '0', '629876', 1);
-INSERT INTO `user` VALUES (25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', 0, 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, 0);
-INSERT INTO `user` VALUES (26, 'cosinec', '4673452E1D20E8417166B9FF852DC48246F1D1D24FD11076976A3DCB4307675B', 298, 3, '2020-05-03 16:56:12', 0, 1, 'nathan@gmail.com', 0, '188.238831', '-1935.149414', '-0.552782', '273.730988', '0', '0', NULL, 0);
-INSERT INTO `user` VALUES (27, 'cosiozo', 'EEF3ABEA0977171744D9AC2BF8A4761A389F8C55136BDC00B02E9E49524340B1', 9, 1, '2020-05-10 16:59:42', 100, 1, 'asd2@gmail.com', 0, '285.288879', '-1863.428467', '2.890330', '309.904419', '0', '0', NULL, 0);
+INSERT INTO `user` VALUES (22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 125, 55, '2020-04-24 21:12:03', 0, 0, 'nathan@gmail.com', 0, '220.573135', '-1890.626953', '3.699802', '31.708591', '0', '0', '621234', 4, 0);
+INSERT INTO `user` VALUES (23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', 100, 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0);
+INSERT INTO `user` VALUES (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 76, '2020-04-30 15:31:48', 175040, 0, 'natan@gmail.com', 0, '501.013092', '-1354.233643', '16.132813', '190.002869', '0', '0', '629876', 1, 0);
+INSERT INTO `user` VALUES (25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', 0, 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, 0, 0);
+INSERT INTO `user` VALUES (26, 'cosinec', '4673452E1D20E8417166B9FF852DC48246F1D1D24FD11076976A3DCB4307675B', 298, 3, '2020-05-03 16:56:12', 0, 1, 'nathan@gmail.com', 0, '188.238831', '-1935.149414', '-0.552782', '273.730988', '0', '0', NULL, 0, 0);
+INSERT INTO `user` VALUES (27, 'cosiozo', 'EEF3ABEA0977171744D9AC2BF8A4761A389F8C55136BDC00B02E9E49524340B1', 9, 1, '2020-05-10 16:59:42', 100, 1, 'asd2@gmail.com', 0, '285.288879', '-1863.428467', '2.890330', '309.904419', '0', '0', NULL, 0, 0);
+INSERT INTO `user` VALUES (28, 'cosine_xx', 'FE1F21653A573338CC45562B2F50BD5F0F4B5DBC7AE9E67DD7702A3FEA265DB2', 25, 3, '2020-05-13 14:14:19', 100, 0, 'natan@gmail.com', 0, '597.599731', '-1747.577515', '37.244843', '312.951660', '0', '0', NULL, 0, 0);
 
 -- ----------------------------
 -- Table structure for user_item
@@ -155,7 +158,7 @@ CREATE TABLE `user_skin`  (
   `id_skin` int(20) NOT NULL,
   `jumlah` int(10) NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 41 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 42 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of user_skin
@@ -170,6 +173,7 @@ INSERT INTO `user_skin` VALUES (37, 27, 9, 1);
 INSERT INTO `user_skin` VALUES (38, 24, 73, 1);
 INSERT INTO `user_skin` VALUES (39, 24, 17, 1);
 INSERT INTO `user_skin` VALUES (40, 24, 19, 6);
+INSERT INTO `user_skin` VALUES (41, 28, 25, 1);
 
 -- ----------------------------
 -- Procedure structure for tambah_item
