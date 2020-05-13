@@ -14,7 +14,6 @@
 #include <a_mysql>
 #include <zcmd>
 #include <YSI_Data\y_iterate>
-#include <moneyhax>
 #include <core>
 #include <float>
 #include <PreviewModelDialog>
@@ -31,6 +30,11 @@
 
 #include "../include/gl_common.inc"
 
+// Uncomment untuk mengaktifkan debug mode player
+// Comment untuk menonaktifkan
+#define DEBUG_MODE_FOR_PLAYER true
+
+
 /**
 	Unused params is here
  */
@@ -41,6 +45,11 @@
 
 public OnPlayerConnect(playerid)
 {
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerConnect terpanggil (%d - %s)", playerid, nama_temp);
+	#endif
 	removeBangunanUntukMapping(playerid);
 	loadTextDrawPemain(playerid);
 	/*
@@ -55,6 +64,8 @@ public OnPlayerConnect(playerid)
 	
 	resetPlayerVariable(playerid);
 
+	tampilkanTextDrawUang(playerid);
+
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
 	PlayerInfo[playerid][pPlayerName] = nama;
@@ -65,6 +76,11 @@ public OnPlayerConnect(playerid)
 }
 
 public OnPlayerDisconnect(playerid, reason){
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerDisconnect terpanggil (%d - %s)", playerid, nama_temp);
+	#endif	
 	DeletePVar(playerid, "sms_list_pesan");
 	DeletePVar(playerid, "sms_id_pesan");
 	
@@ -74,7 +90,7 @@ public OnPlayerDisconnect(playerid, reason){
 	resetPVarInventory(playerid);
 	if(PlayerInfo[playerid][sudahLogin]) updateOnPlayerDisconnect(playerid);
 	resetPlayerVariable(playerid);
-	
+	hideTextDrawUang(playerid);
 	return 1;
 }
 
@@ -136,7 +152,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(msg, sizeof(msg), "~r~Selamat ~y~datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %d ~w~!", PlayerInfo[playerid][loginKe]);
 					GameTextForPlayer(playerid, msg, 4000, 3);
 
-					GivePlayerMoney(playerid, PlayerInfo[playerid][uang]);
+					// Give player uang tanpa menambahkan di database - maka diset false
+					givePlayerUang(playerid, PlayerInfo[playerid][uang], false);
+					print("Spawn Called in Login Success");
 					spawnPemain(playerid);
 					return 1;
 				}
@@ -216,7 +234,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 1:
 					{
-						mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user_skin` WHERE `id_user` = '%d'", PlayerInfo[playerid][pID]);
+						mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user_skin` WHERE `id_user` = '%d' AND `jumlah` > 0", PlayerInfo[playerid][pID]);
 						mysql_tquery(koneksi, query, "tampilInventorySkinPlayer", "d", playerid);
 					}
 				}
@@ -239,9 +257,23 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new id_skin = (PlayerInfo[playerid][jenisKelamin] == 0) ? SKIN_MALE_GRATIS[listitem] : SKIN_FEMALE_GRATIS[listitem];
 
-				tambahSkinPlayer(playerid, id_skin, false);
+				SetPVarInt(playerid, "skinNormal_idx", id_skin);
 
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendapatkan skin", GREEN"Anda berhasil mendapatkan skin!\n"WHITE"Silahkan buka inventory untuk melihatnya.", "Ok", "");
+				ShowPlayerDialog(playerid, DIALOG_CONFIRM_BELI_SKIN_NORMAL, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", WHITE"Anda yakin ingin membeli skin ini?\nSkin normal memiliki harga "GREEN"2500"WHITE".", "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_CONFIRM_BELI_SKIN_NORMAL:
+		{
+			if(response){
+				new id_skin = GetPVarInt(playerid, "skinNormal_idx");
+				DeletePVar(playerid, "skinNormal_idx");
+				if(getUangPlayer(playerid) < 2500) return dialogMsgUangTdkCukup(playerid);
+				givePlayerUang(playerid, -2500);
+				tambahSkinPlayer(playerid, id_skin, 1,false);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil ", GREEN"Anda berhasil mendapatkan skin!\n"WHITE"Silahkan buka inventory untuk melihatnya.", "Ok", "");
+			}else{
+				DeletePVar(playerid, "skinNormal_idx");
 			}
 			return 1;
 		}
@@ -252,9 +284,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
 						new id_skin = GetPVarInt(playerid, "inv_model");
+						if(PlayerInfo[playerid][skinID] == id_skin) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Skin sudah digunakan", WHITE"Anda tidak dapat menggunakan skin yang sedang digunakan,\nAnda harus memilih skin yang berbeda dengan yang anda gunakan skrng.", "Ok", "");
 						
 						updatePlayerCurrentSkin(playerid, id_skin);
-						PlayerInfo[playerid][skinID] = id_skin;
 
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", GREEN"Anda berhasil mengganti skin anda!\n"WHITE"Silahkan ke kamar ganti terdekat atau spawn ulang untuk mendapatkan efeknya.", "Ok", "");
 					}
@@ -661,14 +693,37 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_RESET_RUMAH, DIALOG_STYLE_INPUT, "Reset Rumah", RED"Input tidak boleh kosong!\n"WHITE"Silahkan ketik "GREEN"RESET"WHITE" untuk setuju.\n", "Lanjut", "Batal");
 
 				if(!sama("RESET", inputtext)) return ShowPlayerDialog(playerid, DIALOG_RESET_RUMAH, DIALOG_STYLE_INPUT, "Reset Rumah", RED"Input tidak valid!\n"WHITE"Anda harus mengetik "GREEN"RESET"WHITE" untuk setuju.\n", "Lanjut", "Batal");
+				
+				for(new i = 0; i < MAX_HOUSES; i++){
+					if(houseInfo[i][hOwner] != -1){
+						new ownerName[256], beliRate = getHousePrice(i, "beli");
+						format(ownerName, 256, "%s", getOwnerHouse(houseInfo[i][hOwner]));
+						new ownerId = GetPlayerIdFromName(ownerName);
+						if(ownerId != INVALID_PLAYER_ID){
+							givePlayerUang(ownerId, beliRate);
+						}else{
+							mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[i][hOwner]);
+		   			 		mysql_tquery(koneksi, query);
+						}
 
-				mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `id_user` = -1, `level` = 1, `jual` = 1");
+						DestroyDynamicPickup(housePickup[i]);
+						DestroyDynamic3DTextLabel(houseTextInfo[i]);
+						houseInfo[i][hID] = -1;
+						houseInfo[i][hOwner] = -1;
+						houseInfo[i][hLevel] = 1;
+						houseInfo[i][hKunci] = 1;
+						houseInfo[i][hJual] = 0;
+						houseId[housePickup[i]] = -1;
+						housePickup[i] = -1;
+					}
+				}
+
+				mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `id_user` = -1, `level` = 1, `kunci` = 1, `jual` = 1");
 				mysql_query(koneksi, query);
-
 				mysql_query(koneksi, "UPDATE `user` SET `save_house` = 0");
 
-				resetAllHouse();
-				
+				loadAllHouse();
+
 				SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil mereset semua rumah!");
 			}
 			return 1;
@@ -696,10 +751,31 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.\n", "Lanjut", "Batal");
 
-				new Cache:result, pmsg[256], id = strval(inputtext);
+				new Cache:result, pmsg[256], userId, id = strval(inputtext);
 				mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `house` WHERE `id_house` = '%d'", id);
 				result = mysql_query(koneksi, query);
 				if(cache_num_rows()){
+				 	new beliRate = getHousePrice(id, "beli");
+					cache_get_value_name_int(0, "id_user", userId);
+					
+					mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, userId);
+					mysql_query(koneksi, query);
+					
+					if(houseInfo[id][hOwner] != -1){
+						new ownerName[256];
+						format(ownerName, 256, "%s", getOwnerHouse(houseInfo[id][hOwner]));
+						new ownerId = GetPlayerIdFromName(ownerName);
+						if(ownerId != INVALID_PLAYER_ID){
+							givePlayerUang(ownerId, beliRate);
+						}else{
+							mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
+		   			 		mysql_tquery(koneksi, query);
+
+		   			 		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
+							mysql_query(koneksi, query);
+						}
+					}
+
 					DestroyDynamicPickup(housePickup[id]);
 					DestroyDynamic3DTextLabel(houseTextInfo[id]);
 					houseId[housePickup[id]] = -1;
@@ -716,10 +792,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 					mysql_format(koneksi, query, sizeof(query), "DELETE FROM `house` WHERE `id_house` = '%d'", id);
 					mysql_query(koneksi, query);
-
-					mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
-					mysql_query(koneksi, query);
-
 					format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda berhasil menghapus rumah (id:"YELLOW"%d"WHITE")!", id);
 				    SendClientMessage(playerid, COLOR_WHITE, pmsg);
 				}else{
@@ -736,7 +808,33 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				if(!sama("HAPUS", inputtext)) return ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ALL, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"Input tidak valid!\n"WHITE"Anda harus mengetik "GREEN"HAPUS"WHITE" untuk setuju.\n", "Lanjut", "Batal");
 
-				unloadAllHouse();
+				for(new i = 0; i < MAX_HOUSES; i++){
+					if(houseInfo[i][hOwner] != -1){
+						new ownerName[256], beliRate = getHousePrice(i, "beli");
+						format(ownerName, 256, "%s", getOwnerHouse(houseInfo[i][hOwner]));
+						new ownerId = GetPlayerIdFromName(ownerName);
+						if(ownerId != INVALID_PLAYER_ID){
+							givePlayerUang(ownerId, beliRate);
+						}else{
+							mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[i][hOwner]);
+		   			 		mysql_tquery(koneksi, query);
+						}
+
+						DestroyDynamicPickup(housePickup[i]);
+						DestroyDynamic3DTextLabel(houseTextInfo[i]);
+						houseInfo[i][hID] = -1;
+						houseInfo[i][hOwner] = -1;
+						houseInfo[i][hLevel] = 0;
+						houseInfo[i][hHarga] = 0;
+						houseInfo[i][hKunci] = 1;
+						houseInfo[i][hJual] = 0;
+						houseInfo[i][icon_x] = 0;
+						houseInfo[i][icon_y] = 0;
+						houseInfo[i][icon_z] = 0;
+						houseId[housePickup[i]] = -1;
+						housePickup[i] = -1;
+					}
+				}
 
 				mysql_query(koneksi, "UPDATE `user` SET `save_house` = 0");
 				mysql_query(koneksi, "TRUNCATE TABLE `house`");
@@ -748,11 +846,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				new infoRumah[128], pmsg[256], id, ownerName[256], houseLevel, houseHarga, beliRate;
-				id = houseId[lastHousePickup[playerid]];
 				GetPVarString(playerid, "info_rumah", infoRumah, 128);
+				id = houseId[lastHousePickup[playerid]];
 				houseLevel = houseInfo[id][hLevel],
 				houseHarga = houseInfo[id][hHarga];
-				beliRate = houseLevel*houseLevel*houseHarga;
+				beliRate = getHousePrice(id, "beli");
 				if(houseInfo[id][hOwner] != -1){
 					format(ownerName, 256, "%s", getOwnerHouse(houseInfo[id][hOwner]));
 				}else{
@@ -807,16 +905,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						case 2:
 						{
-							label_upgrade_rumah:
+							label_upgrade_rumah:							    
 							if(houseLevel < MAX_HOUSES_LEVEL){
-								if(PlayerInfo[playerid][uang] < beliRate) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
-								GivePlayerMoney(playerid, -beliRate);
-							    PlayerInfo[playerid][uang] = PlayerInfo[playerid][uang]-beliRate;
+								if(getUangPlayer(playerid) < beliRate) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
+								new upgradeRate = getHousePrice(id, "upgrade");
+								givePlayerUang(playerid, -upgradeRate);
 							    houseInfo[id][hLevel] = houseLevel+1;
-							    mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `level` = '%d'", houseLevel);
+							    mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
 							    mysql_tquery(koneksi, query);
 							    reloadHouseLabel(id);
-							    format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil upgrade rumah ke level ("YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseLevel+1, beliRate);
+							    format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil upgrade rumah ke level ("YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hLevel], upgradeRate);
 							    SendClientMessage(playerid, COLOR_WHITE, pmsg);
 							}else{
 								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf level rumah anda sudah maksimal!");
@@ -830,12 +928,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								houseInfo[id][hKunci] = 0;
 								mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `kunci` = '%d'", houseInfo[id][hKunci]);
 							    mysql_tquery(koneksi, query);
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membuka kunci rumah.");
+								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membuka kunci rumah!");
 							}else{
 								houseInfo[id][hKunci] = 1;
 								mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `kunci` = '%d'", houseInfo[id][hKunci]);
 							    mysql_tquery(koneksi, query);
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil mengunci rumah.");
+								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil mengunci rumah!");
 							}
 							DeletePVar(playerid, "info_rumah");
 						}
@@ -847,12 +945,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								PlayerInfo[playerid][sHouse] = 0;
 								mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `save_house` = 0 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
 							    mysql_tquery(koneksi, query);
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membatalkan spawn disini.");
+								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membatalkan spawn disini!");
 							}else{
 								PlayerInfo[playerid][sHouse] = id;
 								mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `save_house` = '%d' WHERE `id` = '%d'", id, PlayerInfo[playerid][pID]);
 							    mysql_tquery(koneksi, query);
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil menyimpan spawn disini.");
+								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil menyimpan spawn disini!");
 							}
 							DeletePVar(playerid, "info_rumah");
 						}
@@ -873,8 +971,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(houseInfo[id][hOwner] != -1){
 								new ownerId = GetPlayerIdFromName(ownerName);
 								if(ownerId != INVALID_PLAYER_ID){
-									GivePlayerMoney(ownerId, beliRate);
-									PlayerInfo[ownerId][uang] = PlayerInfo[ownerId][uang]+beliRate;
+									givePlayerUang(ownerId, beliRate);
 								}else{
 									mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
 				   			 		mysql_tquery(koneksi, query);
@@ -883,8 +980,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									mysql_query(koneksi, query);
 								}
 							}
-							GivePlayerMoney(playerid, -beliRate);
-						    PlayerInfo[playerid][uang] = PlayerInfo[playerid][uang]-beliRate;
+							givePlayerUang(playerid, -beliRate);
+
 						    houseInfo[id][hOwner] = PlayerInfo[playerid][pID];
 						    houseInfo[id][hJual] = 0;
 						    mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `id_user` = '%d', `jual` = 0 WHERE `id_house` = '%d'", PlayerInfo[playerid][pID], id);
@@ -923,10 +1020,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							label_masuk_rumah:
 							if(houseInfo[id][hKunci] != 1){
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah.");
+								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
 							}else{
 								if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
-									SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah.");
+									SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
 								}else{
 									SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf rumah terkunci dan tidak dapat masuk!");
 								}
@@ -980,10 +1077,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new index_barang = GetPVarInt(playerid, "bBarang_index");
 				new jumlah = GetPVarInt(playerid, "bBarang_jumlah"); 
 				new harga = jumlah * BARANG_MARKET[index_barang][hargaBarang];
-				if(GetPlayerMoney(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi.", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
+				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi.", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
 
 				tambahItemPlayer(playerid, getIDbyModelItem(BARANG_MARKET[index_barang][idModelBarang]), jumlah);
-				GivePlayerMoney(playerid, -harga);
+				givePlayerUang(playerid, -harga);
 
 				format(msg, sizeof(msg), "Anda berhasil membeli "YELLOW"%s"WHITE".\nSebanyak "YELLOW"%d"WHITE" dengan harga "GREEN"%d", BARANG_MARKET[index_barang][namaBarang], jumlah, harga);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli barang", msg, "Ok", "");
@@ -1017,17 +1114,60 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new jumlah = GetPVarInt(playerid, "foto_jumlahFoto"); 
 				new harga = jumlah * 15;
-				if(GetPlayerMoney(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
+				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
 
 				// 5 adalah id item untuk pas foto
 				tambahItemPlayer(playerid, 5, jumlah);
-				GivePlayerMoney(playerid, -harga);
+				givePlayerUang(playerid, -harga);
 
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli foto", WHITE"Anda berhasil membeli foto, foto anda sudah masuk inventory.\nSilahkan cek pada inventory anda.", "Ok", "");
 				DeletePVar(playerid, "foto_jumlahFoto");
 				return 1;
 			}else{
 				DeletePVar(playerid, "foto_jumlahFoto");
+			}
+			return 1;
+		}
+		case DIALOG_REFRESH_SKIN:
+		{
+			if(response){
+				if(GetPlayerSkin(playerid) == PlayerInfo[playerid][skinID]) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Skin sudah terpakai", WHITE"Maaf anda sudah menggunakan skin yang tertuju, silahkan pilih skin lain untuk mendapatkan perubahan!", "Ok", "");
+
+				ClearAnimations(playerid);
+				TogglePlayerControllable(playerid, 0);
+				SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
+				TogglePlayerControllable(playerid, 1);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mengganti skin!", WHITE"Anda berhasil mengganti skin anda!", "Ok", "");
+			}
+			return 1;
+		}
+		case DIALOG_TANYA_INGIN_BELI_SKIN:
+		{
+			if(response){
+				new subString[16];
+				new len = ((PlayerInfo[playerid][jenisKelamin] == 0) ? sizeof(SKIN_MALE_GRATIS) : sizeof(SKIN_FEMALE_GRATIS));
+				static stringMale[500], stringFemale[500];
+
+				// Laki-laki
+				if(PlayerInfo[playerid][jenisKelamin] == 0){
+					if(stringMale[0] == EOS){
+						for (new i = 0; i < len; i++) {
+							format(subString, sizeof(subString), "%i\n", SKIN_MALE_GRATIS[i]);
+							strcat(stringMale, subString);
+						} 
+					}
+					ShowPlayerDialog(playerid, DIALOG_BELI_SKIN, DIALOG_STYLE_PREVIEW_MODEL, "Pilih skin yang anda inginkan", stringMale, "Pilih", "Keluar");
+				}
+				// Perempuan
+				else{
+					if(stringFemale[0] == EOS){
+						for (new i = 0; i < len; i++) {
+							format(subString, sizeof(subString), "%i\n", SKIN_FEMALE_GRATIS[i]);
+							strcat(stringFemale, subString);
+						} 
+					}
+					ShowPlayerDialog(playerid, DIALOG_BELI_SKIN, DIALOG_STYLE_PREVIEW_MODEL, "Pilih skin yang anda inginkan", stringFemale, "Pilih", "Keluar");
+				}
 			}
 			return 1;
 		}
@@ -1064,6 +1204,11 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 
 public OnPlayerSpawn(playerid)
 {
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerSpawn terpanggil (%d - %s)", playerid, nama_temp);
+	#endif	
 	if(IsPlayerNPC(playerid)) return 1;
 	houseNotif[playerid] = -1;
 	spawnPemain(playerid);
@@ -1072,14 +1217,32 @@ public OnPlayerSpawn(playerid)
 
 public OnPlayerDeath(playerid, killerid, reason)
 {
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerDeath terpanggil (%d - %s)", playerid, nama_temp);
+	#endif
+
 	PlayerInfo[playerid][sudahSpawn] = false;
-   	return 1;
+	
+	new random_spawn = random(sizeof(SPAWN_POINT));
+	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+
+	return 1;
 }
 
 public OnPlayerRequestClass(playerid, classid)
 {
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerRequestClass terpanggil (%d - %s)", playerid, nama_temp);
+	#endif
+
 	if(IsPlayerNPC(playerid)) return 1;
+	print("Request Class Fungsi");
 	if(PlayerInfo[playerid][sudahLogin]) {
+		print("Request Class Called");
 		spawnPemain(playerid);
 		return 1;
 	}
@@ -1091,6 +1254,11 @@ public OnPlayerRequestClass(playerid, classid)
 }
 
 public OnPlayerRequestSpawn(playerid){
+	#if DEBUG_MODE_FOR_PLAYER == true
+		new nama_temp[MAX_PLAYER_NAME];
+		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
+		printf("OnPlayerRequestSpawn terpanggil (%d - %s)", playerid, nama_temp);
+	#endif	
 	if(PlayerInfo[playerid][sudahLogin]) return 1;
 	return 0;
 }
@@ -1190,8 +1358,8 @@ public OnPlayerUpdate(playerid)
 	
 	// Don't allow minigun
 	if(GetPlayerWeapon(playerid) == WEAPON_MINIGUN) {
-	    Kick(playerid);
-	    return 0;
+		Kick(playerid);
+		return 0;
 	}
 
 	return 1;
@@ -1215,7 +1383,7 @@ public OnPlayerText(playerid, text[]){
 
 public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	if(pickupid == PU_tempatFoto[ENTER_PICKUP]){
-		pindahkanPemain(playerid, -203.9351, -25.4899, 1002.2734, 330.6535, 16, 0, false);
+		pindahkanPemain(playerid, -203.9351, -25.4899, 1002.2734, 330.6535, 16, pickupid, false);
 		return 1;
 	}
 	else if(pickupid == PU_tempatFoto[EXIT_PICKUP]){
@@ -1223,11 +1391,19 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		return 1;
 	}
 	else if(pickupid == PU_miniMarket[0][ENTER_PICKUP]){
-		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, 0, false);
+		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, pickupid, false);
 		return 1;
 	}
 	else if(pickupid == PU_miniMarket[0][EXIT_PICKUP]){
 		pindahkanPemain(playerid, 1353.8392, -1757.3990, 13.5078, 269.0087, 0, 0, false);
+		return 1;
+	}
+	else if(pickupid == PU_tempatBaju[0][ENTER_PICKUP]){
+		pindahkanPemain(playerid, 161.3910, -93.1592, 1001.8047, 0.0, 18, pickupid, false);
+		return 1;
+	}
+	else if(pickupid == PU_tempatBaju[0][EXIT_PICKUP]){
+		pindahkanPemain(playerid, 500.7141, -1357.8710, 16.1328, 336.5217, 0, 0, false);
 		return 1;
 	}
 	else if(pickupid == housePickup[houseId[pickupid]]){
@@ -1250,6 +1426,11 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 	}else if(checkpointid == CP_spotBarangMarket[0] || checkpointid == CP_spotBarangMarket[1] || checkpointid == CP_spotBarangMarket[2] || checkpointid == CP_spotBarangMarket[3]){
 		showDialogBeliBarang(playerid);
 		return 1;
+	}else if(checkpointid == CP_spotGantiSkin){
+		ShowPlayerDialog(playerid, DIALOG_REFRESH_SKIN, DIALOG_STYLE_MSGBOX, "Refresh skin anda", "Apakah anda yakin ingin mensinkronisasikan kembali skin anda?\n\n"YELLOW"** Skin yang akan direfresh adalah skin yang sudah anda use pada inventory anda.\nJika anda belum memilih skin yang ingin anda gunakan, anda dapat membuka inventory\nLalu pilih skin yang ingin anda gunakan.", "Ganti", "Batal");
+		return 1;
+	}else if(checkpointid == CP_spotBeliSkin[0] || checkpointid == CP_spotBeliSkin[1] || checkpointid == CP_spotBeliSkin[2]){
+		ShowPlayerDialog(playerid, DIALOG_TANYA_INGIN_BELI_SKIN, DIALOG_STYLE_MSGBOX, WHITE"Ingin beli skin?", "Apakah anda ingin membeli "YELLOW"skin normal "WHITE"dengan harga "GREEN"2500 "WHITE"per skin?", "Beli", "Batal");
 	}
 	return 1;
 }

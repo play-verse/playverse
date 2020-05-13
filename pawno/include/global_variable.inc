@@ -80,6 +80,7 @@ new houseNotif[MAX_PLAYERS];
 */
 new PlayerText:showItem[MAX_PLAYERS][6];
 new PlayerText:myInfo[MAX_PLAYERS][8];
+new PlayerText:RadarUang[MAX_PLAYERS][2];
 
 /*
     SERVER VAR
@@ -126,10 +127,13 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
     CHECKPOINT VARIABEL
  */
 new CP_tempatFoto,
-    CP_spotBarangMarket[4];
+    CP_spotBarangMarket[4],
+    CP_spotGantiSkin,
+    CP_spotBeliSkin[3];
 
 /**
     PICKUP VARIABEL
  */
 new PU_tempatFoto[2],
-    PU_miniMarket[1][2];
+    PU_miniMarket[1][2],
+    PU_tempatBaju[1][2];

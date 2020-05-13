@@ -22,7 +22,6 @@
 
 #define MAX_SERVER_ITEM 4 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
 
-
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
 
@@ -70,13 +69,21 @@
 #define DIALOG_HAPUS_RUMAH_ID 34
 #define DIALOG_HAPUS_RUMAH_ALL 35
 #define DIALOG_INFO_RUMAH 36
-#define DIALOG_BELI_BARANG_MARKET 37
-#define DIALOG_JUMLAH_BARANG_MARKET 38
-#define DIALOG_KONFIRMASI_BARANG_MARKET 39
-#define DIALOG_TENTANG_RUMAH 40
+#define DIALOG_TENTANG_RUMAH 37
+#define DIALOG_BELI_BARANG_MARKET 38
+#define DIALOG_JUMLAH_BARANG_MARKET 39
+#define DIALOG_KONFIRMASI_BARANG_MARKET 40
+#define DIALOG_REFRESH_SKIN 41
+#define DIALOG_CONFIRM_BELI_SKIN_NORMAL 42
+#define DIALOG_TANYA_INGIN_BELI_SKIN 43
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR
+
+#define nama_A "Apple"
+#define nama_B "Blueberry"
+#define nama_C "Cherry"
+#define nama_D "Durian"
 
 /**********
 *	DEFINED FUNCTION

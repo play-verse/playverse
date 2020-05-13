@@ -107,7 +107,7 @@ CMD:givemoney(playerid, params[]){
     new amount, target_id;
     if(!IsPlayerAdmin(playerid)) return 0;
     if(sscanf(params, "ud", target_id, amount)) return error_syntax(playerid, "/givemoney [id] [jumlah]");
-    GivePlayerMoney(target_id, amount);
+    givePlayerUang(target_id, amount);
     return 1;
 }
 
@@ -220,10 +220,7 @@ CMD:inforumah(playerid, params[]){
     z = houseInfo[id][icon_z];
     if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Maaf anda tidak berada di ikon rumah!");
     if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
-        new houseLevel, houseHarga, upgradeRate;
-        houseLevel = houseInfo[id][hLevel],
-        houseHarga = houseInfo[id][hHarga];
-        upgradeRate = houseLevel*houseLevel*houseHarga;
+        new upgradeRate = getHousePrice(id, "upgrade");
         if(houseInfo[id][hJual] == 1){
             SetPVarString(playerid, "info_rumah", "batal_jual");
             if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
