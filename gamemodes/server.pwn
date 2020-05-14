@@ -152,8 +152,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(msg, sizeof(msg), "~r~Selamat ~y~datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %d ~w~!", PlayerInfo[playerid][loginKe]);
 					GameTextForPlayer(playerid, msg, 4000, 3);
 
-					// Give player uang tanpa menambahkan di database - maka diset false
-					givePlayerUang(playerid, PlayerInfo[playerid][uang], false);
+					// Set player uang tanpa menambahkan di database - maka diset false untuk parameter terakhir
+					setUangPlayer(playerid, PlayerInfo[playerid][uang], false);
 					print("Spawn Called in Login Success");
 					spawnPemain(playerid);
 					return 1;
