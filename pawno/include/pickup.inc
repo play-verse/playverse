@@ -8,4 +8,11 @@ loadAllPickup(){
 
     PU_tempatBaju[0][ENTER_PICKUP] = buatPickupDanLabel(1318, 499.5623, -1360.6381, 16.3685, "Tempat baju "nama_A"\n"GREEN"Pintu Masuk");
     PU_tempatBaju[0][EXIT_PICKUP] = buatPickupDanLabel(1318, 161.3459,-97.1099,1001.8047, "Tempat baju "nama_A"\n"GREEN"Pintu Keluar");
+
+    // City Hall
+    PU_cityHallMasuk[0] = buatPickupDanLabel(1318, 1479.5580,-1786.4991,15.4566, "Kantor Pemerintah Los Santos\n"GREEN"Pintu Masuk");
+    PU_cityHallMasuk[1] = buatPickupDanLabel(1318, 1486.2665,-1786.4990,15.4566, "Kantor Pemerintah Los Santos\n"GREEN"Pintu Masuk");
+    PU_cityHallMasuk[2] = buatPickupDanLabel(1318, 1472.9707,-1786.4982,15.4566, "Kantor Pemerintah Los Santos\n"GREEN"Pintu Masuk");
+
+    PU_cityHallKeluar = buatPickupDanLabel(1318, -501.1548,286.2194,2001.0950, "Kantor Pemerintah Los Santos\n"GREEN"Pintu Keluar");
 }

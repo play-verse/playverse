@@ -139,6 +139,40 @@ cekAllowNama(const nama[]){
     return count_underscore <= 1;
 }
 
+// Dimana array terdiri dari 2 dimensi
+// 0 - ID Barang
+// 1 - Jumlah dibutuhkan
+cekKetersediaanMassiveItem(playerid, const barang_barang[][], const fungsi_callback[], banyak_barang = sizeof(barang_barang)){
+    new kondisi[256] = "", sub_kondisi[50];
+    new i = banyak_barang;
+    while(i--){
+        format(sub_kondisi, sizeof(kondisi), "(id_item='%d'AND jumlah>='%d')", barang_barang[i][0], barang_barang[i][1]);
+        if(!isnull(kondisi)) {
+            strcat(kondisi, "OR");
+        }
+        strcat(kondisi, sub_kondisi);
+    }
+    mysql_format(koneksi, query, sizeof(query), "SELECT COUNT(*) AS hasil FROM `user_item` WHERE id_user = '%d' AND (%s)", PlayerInfo[playerid][pID], kondisi);
+    // Pada fungsi harus ada parameter untuk menampung banyak item
+    if(!isnull(fungsi_callback)) mysql_tquery(koneksi, query, "isItemCukup", "iis", playerid, banyak_barang, fungsi_callback);
+}
+
+cekKetersediaanItem(playerid, id_item, jumlah, const fungsi_callback[]){
+    mysql_format(koneksi, query, sizeof(query), "SELECT COUNT(*) AS hasil FROM user_item WHERE id_user = '%d' AND id_item = '%d' AND jumlah >= '%d'", PlayerInfo[playerid][pID], id_item, jumlah);
+    mysql_tquery(koneksi, query, "isItemCukup", "iis", playerid, 1, fungsi_callback);
+}
+
+forward isItemCukup(playerid, syarat, const fungsi_callback[]);
+public isItemCukup(playerid, syarat, const fungsi_callback[]){
+    new hasil;
+    cache_get_value_name_int(0, "hasil", hasil);
+    if(hasil == syarat)
+        CallRemoteFunction(fungsi_callback, "ii", playerid, 1);
+    else
+        CallRemoteFunction(fungsi_callback, "ii", playerid, 0);
+    return 1;
+}
+
 forward keluarkanPlayer(playerid);
 public keluarkanPlayer(playerid){
     Kick(playerid);

@@ -25,6 +25,7 @@
 #include <pickup> // Pickup Function Loader
 #include <map_icon> // Map Icon Function Loader
 #include <checkpoint> // CP Function Loader
+#include <dialog> // Function Dialog Loader
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
 
@@ -1171,6 +1172,54 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_RESPSIONIS_PEMERINTAH:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						showDialogRespsionisKTP(playerid);
+						return 1;
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_RESPSIONIS_PILIH_KTP:
+		{
+			if(response){
+				switch(listitem){
+					// Buat KTP
+					case 0:
+					{
+						print("BUAT KTP");
+						// Eksekusi fungsi pengecekan, 
+						// yang akan langsung mengeksekusi pembuatan jika memungkinkan
+						getSudahBuatKTP(playerid, "cekSudahPunyaKTP");
+					}
+					// Ambil KTP yang sudah selesai
+					case 1:
+					{
+						getSudahBuatKTP(playerid, "cekSudahBisaAmbilKTP", false);						
+					}
+				}
+			}else
+				showDialogResepsionis(playerid);
+			return 1;
+		}
+		case DIALOG_CONFIRM_BUAT_KTP:
+		{
+			if(response){
+				if(getUangPlayer(playerid) < 100) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Gagal membuat KTP", WHITE"Maaf uang yang diperlukan tidak mencukupi.", "Ok", "");
+
+				new const barang_barang[2][2] = {
+					{5, 4},
+					{6, 2}
+				};
+				cekKetersediaanMassiveItem(playerid, barang_barang, "cekKetersediaanItemBuatKTP");
+			}
+			return 1;
+		}
 
     }
 	// Wiki-SAMP OnDialogResponse should return 0
@@ -1415,6 +1464,13 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 			format(pmsg, 256, "[RUMAH]"WHITE" Ketik "GREEN"/inforumah"WHITE" untuk melihat info tentang rumah.");
 	    	SendClientMessage(playerid, COLOR_GREEN, pmsg);
 		}
+	}else if(pickupid == PU_cityHallMasuk[0] || pickupid == PU_cityHallMasuk[1] || pickupid == PU_cityHallMasuk[2]){
+		pindahkanPemain(playerid, -501.2855,289.1127,2001.0950, 357.5606, 1, 1, true);
+		return 1;
+	}else if(pickupid == PU_cityHallKeluar){
+		new rand_idx = random(sizeof(SPAWN_POINT_OUT_CH));
+		pindahkanPemain(playerid, SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_X],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Y],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Z],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_A], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_INTERIOR], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_VW], false);
+		return 1;
 	}
 	return 1;
 }
@@ -1431,6 +1487,10 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		return 1;
 	}else if(checkpointid == CP_spotBeliSkin[0] || checkpointid == CP_spotBeliSkin[1] || checkpointid == CP_spotBeliSkin[2]){
 		ShowPlayerDialog(playerid, DIALOG_TANYA_INGIN_BELI_SKIN, DIALOG_STYLE_MSGBOX, WHITE"Ingin beli skin?", "Apakah anda ingin membeli "YELLOW"skin normal "WHITE"dengan harga "GREEN"2500 "WHITE"per skin?", "Beli", "Batal");
+		return 1;
+	}else if(checkpointid == CP_resepsionisCityHall){
+		showDialogResepsionis(playerid);
+		return 1;
 	}
 	return 1;
 }
