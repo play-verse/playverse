@@ -114,6 +114,7 @@ public registerUser(playerid)
 	result = mysql_query(koneksi, query);
 	PlayerInfo[playerid][pID] = cache_insert_id();
 	PlayerInfo[playerid][loginKe] = 1;
+	PlayerInfo[playerid][jenisKelamin] = registerInfo[playerid][jenisKelamin];
 	PlayerInfo[playerid][skinID] = registerInfo[playerid][freeSkinID];
     cache_delete(result);
 
@@ -134,7 +135,6 @@ dialogEmail(playerid){
 forward spawnPemain(playerid);
 public spawnPemain(playerid)
 {
-	print("Fungsi Spawn");
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	PlayerInfo[playerid][sudahSpawn] = true;
 	new house_Id = PlayerInfo[playerid][sHouse];
@@ -154,7 +154,6 @@ public spawnPemain(playerid)
 		PlayerInfo[playerid][last_a] = 0;
 		PlayerInfo[playerid][last_vw] = 0;
 		PlayerInfo[playerid][last_int] = 0;
-		print("End Fungsi Spawn");
 	}else{
 		if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
 			SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
@@ -183,7 +182,6 @@ public spawnPemain(playerid)
 			TogglePlayerControllable(playerid, 0);
 			SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
 
-			print("End Fungsi Spawn");
 		}
 	}
 	return 1;
@@ -459,6 +457,96 @@ public pakaiHpFromInven(playerid){
 	return 1;
 }
 
+// KTP
+
+forward cekKetersediaanItemBuatKTP(playerid, cukup);
+public cekKetersediaanItemBuatKTP(playerid, cukup){
+    new hasil;
+    cache_get_value_name_int(0, "hasil", hasil);
+    if(cukup){
+		// Proses pembuatan KTP dalam menit
+		tambahItemPlayer(playerid, 5, -4);
+		tambahItemPlayer(playerid, 6, -2);
+		givePlayerUang(playerid, -100);
+
+		prosesPembuatanKTP(playerid, 30);
+
+        ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat KTP", "Berhasil membuat KTP, "YELLOW"pembuatan KTP akan memakan waktu sekitar 30 menit real-time."WHITE"\nAnda dapat mengeceknya dan mengambilnya pada resepsionis kembali, setelah sudah 30 menit berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Pemerintah Lost Santos", "Ok", "");
+    }else{
+        ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat KTP", WHITE"Maaf item yang diperlukan tidak mencukupi.", "Ok", "");
+	}
+    return 1;
+}
+
+forward isBisaBuatKTP(playerid, tidak_bisa);
+public isBisaBuatKTP(playerid, tidak_bisa){
+	if(tidak_bisa){
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Anda telah memiliki KTP", WHITE"Maaf anda telah memiliki KTP, anda tidak dapat membuatnya lagi.", "Ok", "");
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_CONFIRM_BUAT_KTP, DIALOG_STYLE_MSGBOX, "Buat KTP", WHITE"Anda harus memiliki "GREEN"100 "WHITE"Rupiah, "YELLOW"4 "WHITE"pas foto, "GREEN"2 "WHITE"Materai.\nApakah anda yakin sudah memiliki semua material yang dibutuhkan?", "Buat", "Batal");
+	}
+}
+
+getSudahBuatKTP(playerid, const fungsi_callback[], bool:cek_untuk_buat = true)
+{
+	if(cek_untuk_buat) {
+		mysql_format(koneksi, query, sizeof(query), "SELECT tanggal_ambil FROM pengambilan_ktp WHERE id_user = '%d' AND tanggal_ambil > NOW()", PlayerInfo[playerid][pID]);
+	}else{
+		mysql_format(koneksi, query, sizeof(query), "SELECT tanggal_ambil, (CASE WHEN tanggal_ambil <= NOW() THEN 1 ELSE 0 END) AS hasil FROM `pengambilan_ktp` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+	}
+	mysql_tquery(koneksi, query, fungsi_callback, "i", playerid);
+}
+
+hapusSetelahPengambilanKTP(playerid){
+	mysql_format(koneksi, query, sizeof(query), "DELETE FROM pengambilan_ktp WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, query);
+}
+
+forward cekSudahBisaAmbilKTP(playerid);
+public cekSudahBisaAmbilKTP(playerid){
+	new sudah_selesai, tanggal_pengambilan[50];
+	if(cache_num_rows()){
+		cache_get_value_name_int(0, "hasil", sudah_selesai);
+		if(sudah_selesai){
+			hapusSetelahPengambilanKTP(playerid);
+			
+			tambahItemPlayer(playerid, 7, 1);
+
+			format(msg, sizeof(msg), WHITE"Anda berhasil mendapatkan KTP yang sudah anda proses selama beberapa waktu.\nSilahkan gunakan data diri dan KTP anda dengan sebaik mungkin.\n"ORANGE"\nPemberian informasi data diri kepada orang lain, dapat menyebabkan hal yang tidak diinginkan.");
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"KTP sudah selesai", msg, "Ok", "");
+		}else{
+			cache_get_value_name(0, "tanggal_ambil", tanggal_pengambilan);
+			format(msg, sizeof(msg), WHITE"KTP anda sedang dalam proses pembuatan, silahkan kembali pada tanggal :\n"YELLOW"%s\n"WHITE"Pengambilan KTP dapat anda lakukan di tempat resepsionis dengan memilih menu "GREEN"Ambil KTP "WHITE"\nAnda akan otomatis mendapatkan kartu anda pada saat itu juga.", tanggal_pengambilan);
+
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"KTP sedang diproses", msg, "Ok", "");			
+		}
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Maaf KTP tidak ditemukan", WHITE"Maaf KTP atas nama anda tidak ditemukan, anda harus membuatnya terlebih dahulu. \nMaka setelah anda membuatnya, anda dapat mengambilnya disini.", "Ok", "");
+	}
+	return 1;
+}
+
+forward cekSudahPunyaKTP(playerid);
+public cekSudahPunyaKTP(playerid){
+	new tanggal_pengambilan[50];
+	if(cache_num_rows()){
+		cache_get_value_name(0, "tanggal_ambil", tanggal_pengambilan);
+		format(msg, sizeof(msg), WHITE"KTP anda sedang dalam proses pembuatan, silahkan kembali pada tanggal :\n"YELLOW"%s\n"WHITE"Pengambilan KTP dapat anda lakukan di tempat resepsionis dengan memilih menu "GREEN"Ambil KTP "WHITE"\nAnda akan otomatis mendapatkan kartu anda pada saat itu juga.", tanggal_pengambilan);
+
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"KTP sedang diproses", msg, "Ok", "");
+	}else{
+		// ID KTP = 7
+		cekKetersediaanItem(playerid, 7, 1, "isBisaBuatKTP");
+	}
+	return 1;
+}
+
+prosesPembuatanKTP(playerid, interval_menit){
+	// Interval dalam menit
+	mysql_format(koneksi, query, sizeof(query), "INSERT INTO pengambilan_ktp(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
+	mysql_tquery(koneksi, query);
+}
+
 showDialogBeliBarang(playerid){
 	new subString[45];
     static string[sizeof(BARANG_MARKET) * 45];
@@ -552,6 +640,8 @@ loadAllHouse(){
 	result = mysql_query(koneksi, "SELECT * FROM `house`");
 	cache_get_row_count(row);
 	while(idx < row){
+		result = cache_save();
+		printf("id = %d", idx);
 		cache_get_value_name_int(idx, "id_house", house_Id);
 		cache_get_value_name_int(idx, "id_user", userId);
 		cache_get_value_name_int(idx, "level", houseLevel);
@@ -563,7 +653,8 @@ loadAllHouse(){
 		cache_get_value_name(idx, "icon_z", hZ);
 
 		createHouse(house_Id, userId, houseLevel, houseHarga, houseKunci, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));
-
+		cache_set_active(result);
+		printf("fetch id = %d", house_Id);
 		idx++;
 	}
 	cache_delete(result);
