@@ -641,7 +641,6 @@ loadAllHouse(){
 	cache_get_row_count(row);
 	while(idx < row){
 		result = cache_save();
-		printf("id = %d", idx);
 		cache_get_value_name_int(idx, "id_house", house_Id);
 		cache_get_value_name_int(idx, "id_user", userId);
 		cache_get_value_name_int(idx, "level", houseLevel);
@@ -651,10 +650,8 @@ loadAllHouse(){
 		cache_get_value_name(idx, "icon_x", hX);
 		cache_get_value_name(idx, "icon_y", hY);
 		cache_get_value_name(idx, "icon_z", hZ);
-
 		createHouse(house_Id, userId, houseLevel, houseHarga, houseKunci, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));
 		cache_set_active(result);
-		printf("fetch id = %d", house_Id);
 		idx++;
 	}
 	cache_delete(result);
