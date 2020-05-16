@@ -135,7 +135,6 @@ dialogEmail(playerid){
 forward spawnPemain(playerid);
 public spawnPemain(playerid)
 {
-	print("Fungsi Spawn");
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	PlayerInfo[playerid][sudahSpawn] = true;
 	new house_Id = PlayerInfo[playerid][sHouse];
@@ -155,7 +154,6 @@ public spawnPemain(playerid)
 		PlayerInfo[playerid][last_a] = 0;
 		PlayerInfo[playerid][last_vw] = 0;
 		PlayerInfo[playerid][last_int] = 0;
-		print("End Fungsi Spawn");
 	}else{
 		if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
 			SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
@@ -184,7 +182,6 @@ public spawnPemain(playerid)
 			TogglePlayerControllable(playerid, 0);
 			SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
 
-			print("End Fungsi Spawn");
 		}
 	}
 	return 1;

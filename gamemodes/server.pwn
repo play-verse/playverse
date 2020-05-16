@@ -46,11 +46,6 @@
 
 public OnPlayerConnect(playerid)
 {
-	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerConnect terpanggil (%d - %s)", playerid, nama_temp);
-	#endif
 	removeBangunanUntukMapping(playerid);
 	loadTextDrawPemain(playerid);
 	/*
@@ -70,6 +65,11 @@ public OnPlayerConnect(playerid)
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
 	PlayerInfo[playerid][pPlayerName] = nama;
+
+	#if DEBUG_MODE_FOR_PLAYER == true
+		printf("OnPlayerConnect terpanggil (%d - %s)", playerid, nama);
+	#endif
+
     mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE `nama` = '%e'", PlayerInfo[playerid][pPlayerName]);
 	mysql_tquery(koneksi, query, "isRegistered", "d", playerid);
 
@@ -78,9 +78,7 @@ public OnPlayerConnect(playerid)
 
 public OnPlayerDisconnect(playerid, reason){
 	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerDisconnect terpanggil (%d - %s)", playerid, nama_temp);
+		printf("OnPlayerDisconnect terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif	
 	DeletePVar(playerid, "sms_list_pesan");
 	DeletePVar(playerid, "sms_id_pesan");
@@ -1192,7 +1190,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					// Buat KTP
 					case 0:
 					{
-						print("BUAT KTP");
 						// Eksekusi fungsi pengecekan, 
 						// yang akan langsung mengeksekusi pembuatan jika memungkinkan
 						getSudahBuatKTP(playerid, "cekSudahPunyaKTP");
@@ -1254,9 +1251,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 public OnPlayerSpawn(playerid)
 {
 	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerSpawn terpanggil (%d - %s)", playerid, nama_temp);
+		printf("OnPlayerSpawn terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif	
 	if(IsPlayerNPC(playerid)) return 1;
 	houseNotif[playerid] = -1;
@@ -1267,9 +1262,7 @@ public OnPlayerSpawn(playerid)
 public OnPlayerDeath(playerid, killerid, reason)
 {
 	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerDeath terpanggil (%d - %s)", playerid, nama_temp);
+		printf("OnPlayerDeath terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif
 
 	PlayerInfo[playerid][sudahSpawn] = false;
@@ -1283,9 +1276,7 @@ public OnPlayerDeath(playerid, killerid, reason)
 public OnPlayerRequestClass(playerid, classid)
 {
 	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerRequestClass terpanggil (%d - %s)", playerid, nama_temp);
+		printf("OnPlayerRequestClass terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif
 
 	if(IsPlayerNPC(playerid)) return 1;
@@ -1304,9 +1295,7 @@ public OnPlayerRequestClass(playerid, classid)
 
 public OnPlayerRequestSpawn(playerid){
 	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerRequestSpawn terpanggil (%d - %s)", playerid, nama_temp);
+		printf("OnPlayerRequestSpawn terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif	
 	if(PlayerInfo[playerid][sudahLogin]) return 1;
 	return 0;
@@ -1423,7 +1412,7 @@ public OnPlayerText(playerid, text[]){
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
-	ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000);
+	ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 1000);
 	// Wiki Samp - OnPlayerText
 	// Return 1 - Mengirimkan pesan default
 	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan
