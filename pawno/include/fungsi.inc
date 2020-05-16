@@ -650,7 +650,6 @@ loadAllHouse(){
 		cache_get_value_name(idx, "icon_x", hX);
 		cache_get_value_name(idx, "icon_y", hY);
 		cache_get_value_name(idx, "icon_z", hZ);
-
 		createHouse(house_Id, userId, houseLevel, houseHarga, houseKunci, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));
 		cache_set_active(result);
 		idx++;
