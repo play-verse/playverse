@@ -109,6 +109,12 @@ new const SPAWN_POINT[][SPAWN_POINT_INFO] = {
     {299.0191, -2026.3314, 1.4131, 1.1118, 0, 0}
 };
 
+new const SPAWN_POINT_OUT_CH[][SPAWN_POINT_INFO] = {
+    {1472.6016,-1784.5383,15.4500,4.1420, 0, 0},
+    {1479.5529,-1784.4342,15.4631,1.3221, 0, 0},
+    {1486.7635,-1784.4592,15.4578,4.4554, 0, 0}
+};
+
 /**
     MARKET DIALOG
  */
@@ -129,11 +135,14 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
 new CP_tempatFoto,
     CP_spotBarangMarket[4],
     CP_spotGantiSkin,
-    CP_spotBeliSkin[3];
+    CP_spotBeliSkin[3],
+    CP_resepsionisCityHall;
 
 /**
     PICKUP VARIABEL
  */
 new PU_tempatFoto[2],
     PU_miniMarket[1][2],
-    PU_tempatBaju[1][2];
+    PU_tempatBaju[1][2],
+    PU_cityHallMasuk[3],
+    PU_cityHallKeluar;

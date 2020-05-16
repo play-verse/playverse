@@ -5,14 +5,11 @@
 /*
 	Connection Database
  */
-//#define HOST "37.59.45.199" // 127.0.0.1 / sa-mp.me / 37.59.45.199
-//#define USER "190633" // root / 190633
-//#define DB  "190633" // root / 190633
-//#define PASS "$612&vK1efTp0Q1P7" // kosong / $612&vK1efTp0Q1P7
-#define HOST "127.0.0.1" // 127.0.0.1 / sa-mp.me
-#define USER "root" // root / 190633
-#define DB  "server_samp" // 190633
-#define PASS "" // kosong / $612&vK1efTp0Q1P7
+// Sekarang pakai mysql.ini config file - disitu atur koneksi infonya	
+// #define HOST "127.0.0.1"
+// #define USER "root"
+// #define DB  "server_samp" 
+// #define PASS "" 
 
 /*
 	DEFINITION SETTING
@@ -76,6 +73,10 @@
 #define DIALOG_REFRESH_SKIN 41
 #define DIALOG_CONFIRM_BELI_SKIN_NORMAL 42
 #define DIALOG_TANYA_INGIN_BELI_SKIN 43
+#define DIALOG_RESPSIONIS_PEMERINTAH 44
+#define DIALOG_RESPSIONIS_PILIH_KTP 45
+#define DIALOG_CONFIRM_BUAT_KTP 46
+
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR
