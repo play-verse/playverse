@@ -30,8 +30,11 @@ pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:prel
     if(preload_dynamic_map){
         Streamer_UpdateEx(playerid, x, y, z, vw, int, -1, 1000, 1);
     }
-        
-    SetPlayerPos(playerid, x, y, z);
+    if(preload_dynamic_map){
+        SetPlayerPos(playerid, x, y, z + 0.5);
+    }else{
+        SetPlayerPos(playerid, x, y, z);
+    }
     SetPlayerFacingAngle(playerid, a);
     SetPlayerInterior(playerid, int);
     SetPlayerVirtualWorld(playerid, vw);

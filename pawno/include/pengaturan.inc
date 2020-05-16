@@ -5,14 +5,11 @@
 /*
 	Connection Database
  */
-//#define HOST "37.59.45.199" // 127.0.0.1 / sa-mp.me / 37.59.45.199
-//#define USER "190633" // root / 190633
-//#define DB  "190633" // root / 190633
-//#define PASS "$612&vK1efTp0Q1P7" // kosong / $612&vK1efTp0Q1P7
-#define HOST "127.0.0.1" // 127.0.0.1 / sa-mp.me
-#define USER "root" // root / 190633
-#define DB  "server_samp" // 190633
-#define PASS "" // kosong / $612&vK1efTp0Q1P7
+// Sekarang pakai mysql.ini config file - disitu atur koneksi infonya	
+// #define HOST "127.0.0.1"
+// #define USER "root"
+// #define DB  "server_samp" 
+// #define PASS "" 
 
 /*
 	DEFINITION SETTING

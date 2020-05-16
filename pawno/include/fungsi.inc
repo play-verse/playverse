@@ -468,8 +468,8 @@ public cekKetersediaanItemBuatKTP(playerid, cukup){
     cache_get_value_name_int(0, "hasil", hasil);
     if(cukup){
 		// Proses pembuatan KTP dalam menit
-		tambahItemPlayer(playerid, 5, 4);
-		tambahItemPlayer(playerid, 6, 2);
+		tambahItemPlayer(playerid, 5, -4);
+		tambahItemPlayer(playerid, 6, -2);
 		givePlayerUang(playerid, -100);
 
 		prosesPembuatanKTP(playerid, 30);

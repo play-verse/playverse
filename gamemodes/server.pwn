@@ -1319,7 +1319,7 @@ main( ) { }
 
 public OnGameModeInit()
 {
-	koneksi = mysql_connect(HOST, USER, PASS, DB);
+	koneksi = mysql_connect_file();
 	errno = mysql_errno(koneksi);
 	if(errno != 0){
 		new error[100];
@@ -1469,7 +1469,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		return 1;
 	}else if(pickupid == PU_cityHallKeluar){
 		new rand_idx = random(sizeof(SPAWN_POINT_OUT_CH));
-		pindahkanPemain(playerid, SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_X],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Y],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Z],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_A], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_INTERIOR], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_VW], false);
+		pindahkanPemain(playerid, SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_X],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Y],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Z],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_A], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_INTERIOR], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_VW], true);
 		return 1;
 	}
 	return 1;
