@@ -86,6 +86,12 @@
 #define nama_C "Cherry"
 #define nama_D "Durian"
 
+
+// Uncomment untuk mengaktifkan debug mode player
+// Comment untuk menonaktifkan
+#define DEBUG_MODE_FOR_PLAYER true
+#define DEBUG_SERVER_LOAD true
+
 /**********
 *	DEFINED FUNCTION
 ***********/

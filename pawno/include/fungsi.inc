@@ -629,6 +629,10 @@ loadAllItem(){
 		if(is_null) SetSVarString(msg, "itemTidakDapatDipakai");
 		else SetSVarString(msg, fungsi);
 
+		#if DEBUG_SERVER_LOAD == true
+			printf("Item terload #%d - %s", id_item, nama_item);
+		#endif
+
 		idx++;
 	}
 	cache_delete(result);
