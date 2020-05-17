@@ -630,7 +630,7 @@ loadAllItem(){
 		else SetSVarString(msg, fungsi);
 
 		#if DEBUG_SERVER_LOAD == true
-			printf("Item terload #%d - %s", id_item, nama_item);
+			printf("Item load id(%d) - %s", id_item, nama_item);
 		#endif
 
 		idx++;
@@ -656,6 +656,11 @@ loadAllHouse(){
 		cache_get_value_name(idx, "icon_z", hZ);
 		createHouse(house_Id, userId, houseLevel, houseHarga, houseKunci, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));
 		cache_set_active(result);
+		
+		#if DEBUG_SERVER_LOAD == true
+			printf("House load id(%d)", house_Id);
+		#endif
+
 		idx++;
 	}
 	cache_delete(result);
