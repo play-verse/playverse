@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 -- phpMyAdmin SQL Dump
 -- version 5.0.1
 -- https://www.phpmyadmin.net/
@@ -35,6 +36,8 @@ CREATE TABLE `house` (
 =======
 =======
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+>>>>>>> master
 /*
  Navicat Premium Data Transfer
 
@@ -49,10 +52,14 @@ CREATE TABLE `house` (
  File Encoding         : 65001
 
 <<<<<<< HEAD
+<<<<<<< HEAD
  Date: 13/05/2020 14:35:57
 =======
  Date: 15/05/2020 23:58:11
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+ Date: 15/05/2020 23:58:11
+>>>>>>> master
 */
 
 SET NAMES utf8mb4;
@@ -65,14 +72,18 @@ DROP TABLE IF EXISTS `house`;
 CREATE TABLE `house`  (
   `id_house` int(20) NOT NULL AUTO_INCREMENT,
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+>>>>>>> master
   `id_user` int(20) NOT NULL DEFAULT -1,
   `level` int(11) NOT NULL DEFAULT 1,
   `harga` int(20) NOT NULL,
   `kunci` int(11) NOT NULL DEFAULT 1,
   `jual` int(11) NOT NULL DEFAULT 1,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   `icon_x` varchar(255) NOT NULL,
@@ -117,6 +128,8 @@ CREATE TABLE `sms` (
 =======
 =======
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+>>>>>>> master
   `icon_x` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `icon_y` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `icon_z` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -140,10 +153,14 @@ CREATE TABLE `item`  (
   `fungsi` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Berisi public function yang akan di trigger saat pemilihan use item, pada item tersebut.',
   PRIMARY KEY (`id_item`) USING BTREE
 <<<<<<< HEAD
+<<<<<<< HEAD
 ) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 =======
 ) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+>>>>>>> master
 
 -- ----------------------------
 -- Records of item
@@ -155,7 +172,10 @@ INSERT INTO `item` VALUES (4, 'ePhone 4', 18867, 'Dapat digunakan untuk PM, BC, 
 INSERT INTO `item` VALUES (5, 'Pas Foto', 2281, 'Pas Foto untuk keperluan administrasi.', NULL);
 INSERT INTO `item` VALUES (6, 'Materai', 2059, 'Materai untuk keperluan administrasi.', NULL);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> master
 INSERT INTO `item` VALUES (7, 'KTP', 1581, 'KTP sebagai identitas kewarganegaraan.', NULL);
 
 -- ----------------------------
@@ -169,7 +189,10 @@ CREATE TABLE `pengambilan_ktp`  (
   `tanggal_ambil` datetime(0) NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+<<<<<<< HEAD
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+>>>>>>> master
 
 -- ----------------------------
 -- Table structure for sms
@@ -178,9 +201,12 @@ DROP TABLE IF EXISTS `sms`;
 CREATE TABLE `sms`  (
   `id_sms` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+>>>>>>> master
   `id_user_pengirim` bigint(20) UNSIGNED NOT NULL,
   `id_user_penerima` bigint(20) UNSIGNED NOT NULL,
   `id_pemilik_pesan` bigint(20) UNSIGNED NULL DEFAULT NULL,
@@ -204,6 +230,7 @@ CREATE TABLE `user`  (
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Password pemain hash pakai SHA-256',
   `current_skin` int(10) NULL DEFAULT NULL COMMENT 'ID Skin yang sedang dipakai',
   `jumlah_login` int(50) NOT NULL DEFAULT 1 COMMENT 'Mencatat banyak player login',
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   `join_date` datetime DEFAULT NULL COMMENT 'Tanggal Player Register',
@@ -233,6 +260,8 @@ CREATE TABLE `user_item` (
 =======
 =======
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+>>>>>>> master
   `join_date` datetime(0) NULL DEFAULT NULL COMMENT 'Tanggal Player Register',
   `uang` bigint(50) NULL DEFAULT 0 COMMENT 'Jumlah Uang Player',
   `jenis_kelamin` smallint(1) NULL DEFAULT NULL COMMENT '0 - Laki dan 1 - Perempuan',
@@ -256,10 +285,14 @@ CREATE TABLE `user_item` (
 INSERT INTO `user` VALUES (22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 125, 55, '2020-04-24 21:12:03', 0, 0, 'nathan@gmail.com', 0, '220.573135', '-1890.626953', '3.699802', '31.708591', '0', '0', '621234', 4, 0);
 INSERT INTO `user` VALUES (23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', 100, 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0);
 <<<<<<< HEAD
+<<<<<<< HEAD
 INSERT INTO `user` VALUES (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 76, '2020-04-30 15:31:48', 175040, 0, 'natan@gmail.com', 0, '501.013092', '-1354.233643', '16.132813', '190.002869', '0', '0', '629876', 1, 0);
 =======
 INSERT INTO `user` VALUES (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 89, '2020-04-30 15:31:48', 174940, 0, 'natan@gmail.com', 0, '-504.271484', '294.641937', '2001.085938', '102.864273', '1', '1', '629876', 1, 0);
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+INSERT INTO `user` VALUES (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 89, '2020-04-30 15:31:48', 174940, 0, 'natan@gmail.com', 0, '-504.271484', '294.641937', '2001.085938', '102.864273', '1', '1', '629876', 1, 0);
+>>>>>>> master
 INSERT INTO `user` VALUES (25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', 0, 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, 0, 0);
 INSERT INTO `user` VALUES (26, 'cosinec', '4673452E1D20E8417166B9FF852DC48246F1D1D24FD11076976A3DCB4307675B', 298, 3, '2020-05-03 16:56:12', 0, 1, 'nathan@gmail.com', 0, '188.238831', '-1935.149414', '-0.552782', '273.730988', '0', '0', NULL, 0, 0);
 INSERT INTO `user` VALUES (27, 'cosiozo', 'EEF3ABEA0977171744D9AC2BF8A4761A389F8C55136BDC00B02E9E49524340B1', 9, 1, '2020-05-10 16:59:42', 100, 1, 'asd2@gmail.com', 0, '285.288879', '-1863.428467', '2.890330', '309.904419', '0', '0', NULL, 0, 0);
@@ -272,9 +305,12 @@ DROP TABLE IF EXISTS `user_item`;
 CREATE TABLE `user_item`  (
   `id_user_item` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+>>>>>>> master
   `id_item` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
   `jumlah` int(255) NULL DEFAULT 1,
@@ -307,6 +343,7 @@ CREATE TABLE `user_skin`  (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_user` bigint(20) UNSIGNED NOT NULL,
   `id_skin` int(20) NOT NULL,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   `jumlah` int(10) DEFAULT 0
@@ -400,6 +437,8 @@ COMMIT;
 =======
 =======
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+>>>>>>> master
   `jumlah` int(10) NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 42 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
@@ -463,6 +502,9 @@ delimiter ;
 
 SET FOREIGN_KEY_CHECKS = 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> master
 =======
 >>>>>>> ebbcaf76a104c4f63426623a451b8e9364f1f862
+=======
+>>>>>>> master

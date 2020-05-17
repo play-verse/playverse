@@ -31,11 +31,6 @@
 
 #include "../include/gl_common.inc"
 
-// Uncomment untuk mengaktifkan debug mode player
-// Comment untuk menonaktifkan
-#define DEBUG_MODE_FOR_PLAYER true
-
-
 /**
 	Unused params is here
  */
@@ -1319,10 +1314,6 @@ public OnGameModeInit()
 		printf("[SUCCESS] Berhasil Koneksi ke database!");
 	}
 
-	printf("[HOUSE] Load semua house...");
-	resetAllHouse();
-	printf("[HOUSE] Sukses load house!");
-
 	printf("[MAPPING] Load semua mappingan...");
 	loadAllMapingan();
 	printf("[MAPPING] Sukses load mapping!");
@@ -1343,6 +1334,9 @@ public OnGameModeInit()
 	loadAllMapIcon();
 	printf("[MAP ICON] Sukses load map icon!");
 
+	printf("[HOUSE] Load semua house...");
+	resetAllHouse();
+	printf("[HOUSE] Sukses load house!");
 
 	SetGameModeText("EL v1.0");
 	// ShowPlayerMarkers(PLAYER_MARKERS_MODE_STREAMED);
