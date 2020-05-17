@@ -14,4 +14,7 @@ loadAllCP(){
 
     // Spot ganti skin
     CP_spotGantiSkin = buatCPDanLabel(181.0340,-91.6368,1002.0234, "Ganti skin\n"YELLOW"Refresh skin anda disini.", 1.0);
+
+    // City Hall Respsionis
+    CP_resepsionisCityHall = buatCPDanLabel(-501.1717,294.3522,2001.0950, "Resepsionis Pemerintah Los Santos\n"BLUE"Silahkan kesini untuk melakukan pengurusan data!", 1.0);
 }

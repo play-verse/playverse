@@ -25,6 +25,7 @@
 #include <pickup> // Pickup Function Loader
 #include <map_icon> // Map Icon Function Loader
 #include <checkpoint> // CP Function Loader
+#include <dialog> // Function Dialog Loader
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
 
@@ -45,11 +46,6 @@
 
 public OnPlayerConnect(playerid)
 {
-	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerConnect terpanggil (%d - %s)", playerid, nama_temp);
-	#endif
 	removeBangunanUntukMapping(playerid);
 	loadTextDrawPemain(playerid);
 	/*
@@ -69,6 +65,11 @@ public OnPlayerConnect(playerid)
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
 	PlayerInfo[playerid][pPlayerName] = nama;
+
+	#if DEBUG_MODE_FOR_PLAYER == true
+		printf("OnPlayerConnect terpanggil (%d - %s)", playerid, nama);
+	#endif
+
     mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE `nama` = '%e'", PlayerInfo[playerid][pPlayerName]);
 	mysql_tquery(koneksi, query, "isRegistered", "d", playerid);
 
@@ -77,9 +78,7 @@ public OnPlayerConnect(playerid)
 
 public OnPlayerDisconnect(playerid, reason){
 	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerDisconnect terpanggil (%d - %s)", playerid, nama_temp);
+		printf("OnPlayerDisconnect terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif	
 	DeletePVar(playerid, "sms_list_pesan");
 	DeletePVar(playerid, "sms_id_pesan");
@@ -907,8 +906,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							label_upgrade_rumah:							    
 							if(houseLevel < MAX_HOUSES_LEVEL){
-								if(getUangPlayer(playerid) < beliRate) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
 								new upgradeRate = getHousePrice(id, "upgrade");
+								if(getUangPlayer(playerid) < upgradeRate) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
 								givePlayerUang(playerid, -upgradeRate);
 							    houseInfo[id][hLevel] = houseLevel+1;
 							    mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
@@ -1171,6 +1170,53 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_RESPSIONIS_PEMERINTAH:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						showDialogRespsionisKTP(playerid);
+						return 1;
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_RESPSIONIS_PILIH_KTP:
+		{
+			if(response){
+				switch(listitem){
+					// Buat KTP
+					case 0:
+					{
+						// Eksekusi fungsi pengecekan, 
+						// yang akan langsung mengeksekusi pembuatan jika memungkinkan
+						getSudahBuatKTP(playerid, "cekSudahPunyaKTP");
+					}
+					// Ambil KTP yang sudah selesai
+					case 1:
+					{
+						getSudahBuatKTP(playerid, "cekSudahBisaAmbilKTP", false);						
+					}
+				}
+			}else
+				showDialogResepsionis(playerid);
+			return 1;
+		}
+		case DIALOG_CONFIRM_BUAT_KTP:
+		{
+			if(response){
+				if(getUangPlayer(playerid) < 100) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Gagal membuat KTP", WHITE"Maaf uang yang diperlukan tidak mencukupi.", "Ok", "");
+
+				new const barang_barang[2][2] = {
+					{5, 4},
+					{6, 2}
+				};
+				cekKetersediaanMassiveItem(playerid, barang_barang, "cekKetersediaanItemBuatKTP");
+			}
+			return 1;
+		}
 
     }
 	// Wiki-SAMP OnDialogResponse should return 0
@@ -1205,9 +1251,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 public OnPlayerSpawn(playerid)
 {
 	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerSpawn terpanggil (%d - %s)", playerid, nama_temp);
+		printf("OnPlayerSpawn terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif	
 	if(IsPlayerNPC(playerid)) return 1;
 	houseNotif[playerid] = -1;
@@ -1218,9 +1262,7 @@ public OnPlayerSpawn(playerid)
 public OnPlayerDeath(playerid, killerid, reason)
 {
 	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerDeath terpanggil (%d - %s)", playerid, nama_temp);
+		printf("OnPlayerDeath terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif
 
 	PlayerInfo[playerid][sudahSpawn] = false;
@@ -1234,9 +1276,7 @@ public OnPlayerDeath(playerid, killerid, reason)
 public OnPlayerRequestClass(playerid, classid)
 {
 	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerRequestClass terpanggil (%d - %s)", playerid, nama_temp);
+		printf("OnPlayerRequestClass terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif
 
 	if(IsPlayerNPC(playerid)) return 1;
@@ -1255,9 +1295,7 @@ public OnPlayerRequestClass(playerid, classid)
 
 public OnPlayerRequestSpawn(playerid){
 	#if DEBUG_MODE_FOR_PLAYER == true
-		new nama_temp[MAX_PLAYER_NAME];
-		GetPlayerName(playerid, nama_temp, sizeof(nama_temp));
-		printf("OnPlayerRequestSpawn terpanggil (%d - %s)", playerid, nama_temp);
+		printf("OnPlayerRequestSpawn terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif	
 	if(PlayerInfo[playerid][sudahLogin]) return 1;
 	return 0;
@@ -1270,7 +1308,7 @@ main( ) { }
 
 public OnGameModeInit()
 {
-	koneksi = mysql_connect(HOST, USER, PASS, DB);
+	koneksi = mysql_connect_file();
 	errno = mysql_errno(koneksi);
 	if(errno != 0){
 		new error[100];
@@ -1374,7 +1412,7 @@ public OnPlayerText(playerid, text[]){
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
-	ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000);
+	ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 1000);
 	// Wiki Samp - OnPlayerText
 	// Return 1 - Mengirimkan pesan default
 	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan
@@ -1415,6 +1453,13 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 			format(pmsg, 256, "[RUMAH]"WHITE" Ketik "GREEN"/inforumah"WHITE" untuk melihat info tentang rumah.");
 	    	SendClientMessage(playerid, COLOR_GREEN, pmsg);
 		}
+	}else if(pickupid == PU_cityHallMasuk[0] || pickupid == PU_cityHallMasuk[1] || pickupid == PU_cityHallMasuk[2]){
+		pindahkanPemain(playerid, -501.2855,289.1127,2001.0950, 357.5606, 1, 1, true);
+		return 1;
+	}else if(pickupid == PU_cityHallKeluar){
+		new rand_idx = random(sizeof(SPAWN_POINT_OUT_CH));
+		pindahkanPemain(playerid, SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_X],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Y],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Z],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_A], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_INTERIOR], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_VW], true);
+		return 1;
 	}
 	return 1;
 }
@@ -1431,6 +1476,10 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		return 1;
 	}else if(checkpointid == CP_spotBeliSkin[0] || checkpointid == CP_spotBeliSkin[1] || checkpointid == CP_spotBeliSkin[2]){
 		ShowPlayerDialog(playerid, DIALOG_TANYA_INGIN_BELI_SKIN, DIALOG_STYLE_MSGBOX, WHITE"Ingin beli skin?", "Apakah anda ingin membeli "YELLOW"skin normal "WHITE"dengan harga "GREEN"2500 "WHITE"per skin?", "Beli", "Batal");
+		return 1;
+	}else if(checkpointid == CP_resepsionisCityHall){
+		showDialogResepsionis(playerid);
+		return 1;
 	}
 	return 1;
 }
