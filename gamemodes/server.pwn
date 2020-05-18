@@ -81,6 +81,9 @@ public OnPlayerDisconnect(playerid, reason){
 	// Delete PVar dialog SMS
 	DeletePVar(playerid, "sms_id_penerima");
 
+	// Regis Bank
+	DeletePVar(playerid, "regis_rekening");	
+
 	resetPVarInventory(playerid);
 	if(PlayerInfo[playerid][sudahLogin]) updateOnPlayerDisconnect(playerid);
 	resetPlayerVariable(playerid);
@@ -1094,10 +1097,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new banyak_foto;
 				if(sscanf(inputtext, "i", banyak_foto)) return ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", RED"Inputan anda tidak valid, harap input bilangan bulat!\n"WHITE"Berapa banyak foto yang ingin anda cetak ?", "Cetak", "Batal");
 
+				new harga = (GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
+
 				if(banyak_foto < 1 || banyak_foto > 1000) return ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", RED"Inputan anda tidak valid, harap input bilangan bulat!\n"WHITE"Berapa banyak foto yang ingin anda cetak ?", "Cetak", "Batal");
 
 				SetPVarInt(playerid, "foto_jumlahFoto", banyak_foto);
-				format(msg, sizeof(msg), "Anda akan mencetak foto sebanyak "GREEN"%d "WHITE"dengan harga "YELLOW"%d.\nApakah anda yakin?", banyak_foto, banyak_foto * 15);
+				format(msg, sizeof(msg), "Anda akan mencetak foto sebanyak "GREEN"%d "WHITE"dengan harga "YELLOW"%d.\nApakah anda yakin?", banyak_foto, banyak_foto * harga);
 				ShowPlayerDialog(playerid, DIALOG_BAYAR_FOTO, DIALOG_STYLE_MSGBOX, "Bayar dan cetak", msg, "Bayar", "Batal");
 				return 1;
 			}
@@ -1107,7 +1112,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				new jumlah = GetPVarInt(playerid, "foto_jumlahFoto"); 
-				new harga = jumlah * 15;
+				new harga = (GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
+				harga = jumlah * harga;
 				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
 
 				// 5 adalah id item untuk pas foto
@@ -1204,11 +1210,58 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				if(getUangPlayer(playerid) < 100) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Gagal membuat KTP", WHITE"Maaf uang yang diperlukan tidak mencukupi.", "Ok", "");
 
-				new const barang_barang[2][2] = {
+				new barang_barang[2][2] = {
 					{5, 4},
 					{6, 2}
 				};
 				cekKetersediaanMassiveItem(playerid, barang_barang, "cekKetersediaanItemBuatKTP");
+			}
+			return 1;
+		}
+		case DIALOG_TELLER_BANK:
+		{
+			if(response){
+				switch(listitem){
+					// Buat Rekening ATM
+					case 0:
+					{
+						if(!isnull(PlayerInfo[playerid][nomorRekening])) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Rekening telah ada", WHITE"Maaf anda telah memiliki rekening dan tidak dapat membuatnya lagi.", "Ok", ""); 
+				
+						cekKetersediaanItem(playerid, 7, 1, "inputNomorRekeningATMBaru");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_DAFTAR_REKENING_INPUT_NOMOR:
+		{
+			if(response){
+				new inputan;
+				if(strlen(inputtext) != 8) return ShowPlayerDialog(playerid, DIALOG_DAFTAR_REKENING_INPUT_NOMOR, DIALOG_STYLE_INPUT, "Input nomor rekening ATM baru", RED"Nomor rekening harus terdiri dari 8 digit angka 0 - 9!\n\n"WHITE"Input nomor rekening ATM yang baru:\n"WHITE"- Nomor rekening harus terdiri dari 8 karakter\n- Nomor rekening belum digunakan oleh orang lain sebelumnya", "Ok", "Kembali");
+
+				if(sscanf(inputtext, "i", inputan) || inputtext[0] == '-') return ShowPlayerDialog(playerid, DIALOG_DAFTAR_REKENING_INPUT_NOMOR, DIALOG_STYLE_INPUT, "Input nomor rekening ATM baru", RED"Nomor rekening harus terdiri dari 8 digit angka 0 - 9!\n\n"WHITE"Input nomor rekening ATM yang baru:\n"WHITE"- Nomor rekening harus terdiri dari 8 karakter\n- Nomor rekening belum digunakan oleh orang lain sebelumnya", "Ok", "Kembali");
+
+				SetPVarString(playerid, "regis_rekening", inputtext);
+
+				mysql_format(koneksi, query, sizeof(query), "SELECT COUNT(*) AS hasil FROM `user` WHERE rekening = '%e'", inputtext);
+				mysql_tquery(koneksi, query, "isRekeningAda", "i", playerid);
+			}else{
+				showDialogTellerBank(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_DAFTAR_REKENING_KONFIRMASI:
+		{
+			if(response){
+				if(getUangPlayer(playerid) < 100) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang tidak mencukupi", "Anda tidak memiliki cukup uang untuk mendaftarkan rekening baru.", "Ok", "");
+
+				new barang_barang_atm[2][2] = {
+					{5, 4},
+					{6, 2}
+				};
+				cekKetersediaanMassiveItem(playerid, barang_barang_atm, "konfirmasiPembuatanRekening");
+			}else{
+				DeletePVar(playerid, "regis_rekening");
 			}
 			return 1;
 		}
@@ -1370,6 +1423,10 @@ public OnGameModeInit()
 }
 
 public OnGameModeExit(){
+	foreach(new i : Player){
+		if(IsPlayerConnected(i) && i != INVALID_PLAYER_ID)
+			Kick(i);
+	}
 	unloadAllHouse();
 	mysql_close(koneksi);
 	return 1;
@@ -1414,16 +1471,30 @@ public OnPlayerText(playerid, text[]){
 }
 
 public OnPlayerPickUpDynamicPickup(playerid, pickupid){
-	if(pickupid == PU_tempatFoto[ENTER_PICKUP]){
-		pindahkanPemain(playerid, -203.9351, -25.4899, 1002.2734, 330.6535, 16, pickupid, false);
+	if(pickupid == PU_tempatFoto_in[0]){
+		pindahkanPemain(playerid, -203.9351, -25.4899, 1002.2734, 330.6535, 16, VW_tempatFoto_1, false);
+		return 1;
+	}else if(pickupid == PU_tempatFoto_in[1]){
+		pindahkanPemain(playerid, -203.9351, -25.4899, 1002.2734, 330.6535, 16, VW_tempatFoto_2, false);
 		return 1;
 	}
-	else if(pickupid == PU_tempatFoto[EXIT_PICKUP]){
-		pindahkanPemain(playerid, 1112.2352, -1372.2939, 13.9844, 178.5421, 0, 0, false);
+	else if(pickupid == PU_tempatFoto_out){
+		switch(GetPlayerVirtualWorld(playerid)){
+			case VW_tempatFoto_1:
+			{
+				pindahkanPemain(playerid, 1112.2352, -1372.2939, 13.9844, 178.5421, 0, 0, true);
+				return 1;
+			}
+			case VW_tempatFoto_2:
+			{
+				pindahkanPemain(playerid, 1553.7258, -1448.3143, 13.5469, 359.9397, 0, 0, false);
+				return 1;
+			}
+		}
 		return 1;
 	}
 	else if(pickupid == PU_miniMarket[0][ENTER_PICKUP]){
-		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, pickupid, false);
+		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, 1, false);
 		return 1;
 	}
 	else if(pickupid == PU_miniMarket[0][EXIT_PICKUP]){
@@ -1431,7 +1502,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		return 1;
 	}
 	else if(pickupid == PU_tempatBaju[0][ENTER_PICKUP]){
-		pindahkanPemain(playerid, 161.3910, -93.1592, 1001.8047, 0.0, 18, pickupid, false);
+		pindahkanPemain(playerid, 161.3910, -93.1592, 1001.8047, 0.0, 18, 1, false);
 		return 1;
 	}
 	else if(pickupid == PU_tempatBaju[0][EXIT_PICKUP]){
@@ -1454,13 +1525,28 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		new rand_idx = random(sizeof(SPAWN_POINT_OUT_CH));
 		pindahkanPemain(playerid, SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_X],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Y],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Z],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_A], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_INTERIOR], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_VW], true);
 		return 1;
+	}else if(pickupid == PU_bankLS[ENTER_PICKUP]){
+		pindahkanPemain(playerid, 1417.1097,-982.6887,-55.2764,180.0692, 1, 1, true);
+		return 1;
+	}else if(pickupid == PU_bankLS[EXIT_PICKUP]){
+		new rand_idx = random(sizeof(SP_OUT_BANK_LS));
+		pindahkanPemain(playerid, SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_X],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_Y],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_Z],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_A], SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_INTERIOR], SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_VW], true);
+		return 1;
 	}
 	return 1;
 }
 
 public OnPlayerEnterDynamicCP(playerid, checkpointid){
 	if(checkpointid == CP_tempatFoto){
-		ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", WHITE"Berapa banyak foto yang ingin anda cetak ?", "Cetak", "Batal");
+		new jam, menit;
+		GetPlayerTime(playerid, jam, menit);
+		if(GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2 && !(jam >= 20 || jam <= 5)) return SendClientMessage(playerid, COLOR_RED, "Maaf Tempat foto "nama_B" saat ini tutup! Silahkan kembali antara jam 20.00 hingga 05.59.");
+
+		new harga = (GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
+
+		format(msg, sizeof(msg), WHITE"Berapa banyak foto yang ingin anda cetak?\n"YELLOW"Harga 1 foto adalah "GREEN"%d", harga);
+
+		ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", msg, "Cetak", "Batal");
 		return 1;
 	}else if(checkpointid == CP_spotBarangMarket[0] || checkpointid == CP_spotBarangMarket[1] || checkpointid == CP_spotBarangMarket[2] || checkpointid == CP_spotBarangMarket[3]){
 		showDialogBeliBarang(playerid);
@@ -1473,6 +1559,9 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		return 1;
 	}else if(checkpointid == CP_resepsionisCityHall){
 		showDialogResepsionis(playerid);
+		return 1;
+	}else if(checkpointid == CP_tellerBankLS[0] || checkpointid == CP_tellerBankLS[1]){
+		showDialogTellerBank(playerid);
 		return 1;
 	}
 	return 1;

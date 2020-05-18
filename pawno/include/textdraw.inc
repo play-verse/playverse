@@ -330,7 +330,7 @@ loadTextDrawPemain(playerid){
     // End My Info
 
 	// Radar Uang
-	RadarUang[playerid][0] = CreatePlayerTextDraw(playerid, 455.000000, 80.000000, "RP.");
+	RadarUang[playerid][0] = CreatePlayerTextDraw(playerid, 455.000000, 80.000000, "$");
 	PlayerTextDrawFont(playerid, RadarUang[playerid][0], 3);
 	PlayerTextDrawLetterSize(playerid, RadarUang[playerid][0], 0.600000, 2.250000);
 	PlayerTextDrawTextSize(playerid, RadarUang[playerid][0], 610.000000, 36.500000);

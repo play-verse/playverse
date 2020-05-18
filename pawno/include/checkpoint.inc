@@ -1,5 +1,5 @@
 loadAllCP(){
-    CP_tempatFoto = buatCPDanLabel(-201.7664,-25.4403,1002.2734, "Silahkan cetak foto. disini\""GREEN"Lakukan pencetakan foto disini.", 1.0);
+    CP_tempatFoto = buatCPDanLabel(-201.7664,-25.4403,1002.2734, "Silahkan cetak foto\n"GREEN"Disini!", 1.0);
     
     // Spot pembelian di dalam market
     CP_spotBarangMarket[0] = buatCPDanLabel(-4.2324, -176.4322, 1003.5469, "Barang-barang\nBeli disini!", 1.0);
@@ -17,4 +17,8 @@ loadAllCP(){
 
     // City Hall Respsionis
     CP_resepsionisCityHall = buatCPDanLabel(-501.1717,294.3522,2001.0950, "Resepsionis Pemerintah Los Santos\n"BLUE"Silahkan kesini untuk melakukan pengurusan data!", 1.0);
+
+    // Teller Bank LS
+    CP_tellerBankLS[0] = buatCPDanLabel(1421.4474,-988.9171,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
+    CP_tellerBankLS[1] = buatCPDanLabel(1417.4258,-988.8285,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
 }

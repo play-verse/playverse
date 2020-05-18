@@ -1,5 +1,4 @@
-forward isRegistered(playerid);
-public isRegistered(playerid)
+publicFor: isRegistered(playerid)
 {
 	if(cache_num_rows()) // IsRegistered
 	{
@@ -16,14 +15,22 @@ public isRegistered(playerid)
 		// Equiped phone
 		cache_get_value_name_int(0, "use_phone", PlayerInfo[playerid][ePhone]);
 		cache_get_value_name_int(0, "save_house", PlayerInfo[playerid][sHouse]);
-		cache_is_value_name_null(0, "nomor_handphone", is_null);
 
+		cache_is_value_name_null(0, "nomor_handphone", is_null);
 		if(is_null){
 			// EOS = End Of String - '\0' sama
 			PlayerInfo[playerid][nomorHP][0] = EOS;
 		}else{
 			cache_get_value_name(0, "nomor_handphone", temp_value);
 			format(PlayerInfo[playerid][nomorHP], 12, "%s", temp_value);
+		}
+
+		cache_is_value_name_null(0, "rekening", is_null);
+		if(is_null){
+			PlayerInfo[playerid][nomorRekening][0] = EOS;
+		}else{
+			cache_get_value_name(0, "rekening", temp_value);
+			format(PlayerInfo[playerid][nomorRekening], 10, "%s", temp_value);
 		}
 
 		cache_get_value_name_int(0, "uang", PlayerInfo[playerid][uang]);
@@ -88,6 +95,7 @@ resetPlayerVariable(playerid){
 
     PlayerInfo[playerid][ePhone] = 0;
     PlayerInfo[playerid][nomorHP][0] = EOS;
+    PlayerInfo[playerid][nomorRekening][0] = EOS;
 
 	PlayerInfo[playerid][lastGlobalChat] = 0;
 	PlayerInfo[playerid][reply] = -1;
@@ -103,8 +111,7 @@ resetPVarInventory(playerid){
 	DeletePVar(playerid, "inv_target_id");
 }
 
-forward registerUser(playerid);
-public registerUser(playerid)
+publicFor: registerUser(playerid)
 {
 	new EncryptedPassword[65];
 	SHA256_PassHash(registerInfo[playerid][registerPassword], PlayerInfo[playerid][pPlayerName], EncryptedPassword, 64);
@@ -132,8 +139,7 @@ dialogEmail(playerid){
 	ShowPlayerDialog(playerid, DIALOG_INPUT_EMAIL, DIALOG_STYLE_INPUT, "Input Email anda", WHITE"Masukan email anda, kami hanya mensupport email "RED"@gmail.com\n:", "Simpan", "Keluar");
 }
 
-forward spawnPemain(playerid);
-public spawnPemain(playerid)
+publicFor: spawnPemain(playerid)
 {
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	PlayerInfo[playerid][sudahSpawn] = true;
@@ -187,21 +193,18 @@ public spawnPemain(playerid)
 	return 1;
 }
 
-forward GantiSkinSaatSpawn(playerid);
-public GantiSkinSaatSpawn(playerid){
+publicFor: GantiSkinSaatSpawn(playerid){
 	TogglePlayerControllable(playerid, 1);
 	SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
 }
 
-forward updatePlayerCurrentPhone(playerid, listitem);
-public updatePlayerCurrentPhone(playerid, listitem){
+publicFor: updatePlayerCurrentPhone(playerid, listitem){
 	mysql_format(koneksi, query, sizeof(query), "SELECT a.use_phone, b.id_user_item, c.nama_item FROM `user` a LEFT JOIN `user_item` b ON b.id_user = a.id LEFT JOIN `item` c ON a.use_phone = c.id_item WHERE a.id = '%d'", PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, query, "checkIfPhoneExist", "dd", playerid, listitem);
 	return 1;
 }
 
-forward checkIfPhoneExist(playerid, listitem);
-public checkIfPhoneExist(playerid, listitem){
+publicFor: checkIfPhoneExist(playerid, listitem){
 	if(cache_num_rows()){
 		new id_phone, id_user_item, itemid = getIDbyModelItem(listitem), old_nama_item[100], pesan[256], nama_item[256];
 		getNamaByIdItem(itemid, nama_item);
@@ -244,8 +247,7 @@ public checkIfPhoneExist(playerid, listitem){
 	return 1;
 }
 
-forward cekPesanTerkirim(playerid);
-public cekPesanTerkirim(playerid){
+publicFor: cekPesanTerkirim(playerid){
 	new banyak_pesan;
 	cache_get_value_name_int(0, "banyak_pesan", banyak_pesan);
 	if(banyak_pesan >= MAX_SMS_PER_PLAYER){
@@ -258,8 +260,7 @@ public cekPesanTerkirim(playerid){
 	return 1;
 }
 
-forward cekNomorPenerima(playerid);
-public cekNomorPenerima(playerid){
+publicFor: cekNomorPenerima(playerid){
 	new banyak_pesan, id_penerima;
 	cache_get_value_name_int(0, "banyak_pesan", banyak_pesan);
 	cache_get_value_name_int(0, "id", id_penerima);
@@ -278,8 +279,7 @@ public cekNomorPenerima(playerid){
 	return 1;
 }
 
-forward lihatPesanMasuk(playerid);
-public lihatPesanMasuk(playerid){
+publicFor: lihatPesanMasuk(playerid){
 	new rows;
 	cache_get_row_count(rows);
 	if(rows){
@@ -303,8 +303,7 @@ public lihatPesanMasuk(playerid){
 	return 1;
 }
 
-forward lihatPesanTerkirim(playerid);
-public lihatPesanTerkirim(playerid){
+publicFor: lihatPesanTerkirim(playerid){
 	new rows;
 	cache_get_row_count(rows);
 	if(rows){
@@ -328,15 +327,13 @@ public lihatPesanTerkirim(playerid){
 	return 1;
 }
 
-forward updatePlayerCurrentSkin(playerid, skinid);
-public updatePlayerCurrentSkin(playerid, skinid){
+publicFor: updatePlayerCurrentSkin(playerid, skinid){
 	mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user_skin` WHERE id_skin = '%d' AND id_user = '%d'", skinid, PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, query, "checkIfSkinExist", "dd", playerid, skinid);
 	return 1;
 }
 
-forward checkIfSkinExist(playerid, skinid);
-public checkIfSkinExist(playerid, skinid){
+publicFor: checkIfSkinExist(playerid, skinid){
 	if(cache_num_rows()){
 		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET current_skin = '%d' WHERE id = '%d'",skinid, PlayerInfo[playerid][pID]);
 		mysql_tquery(koneksi, query);
@@ -352,8 +349,7 @@ public checkIfSkinExist(playerid, skinid){
 	return 1;
 }
 
-forward tampilInventorySkinPlayer(playerid);
-public tampilInventorySkinPlayer(playerid){
+publicFor: tampilInventorySkinPlayer(playerid){
 	new rows, string[500], subString[20], id_skin, jumlah;
 	if(cache_get_row_count(rows)){
 		for(new i = 0; i < rows; i++){
@@ -369,8 +365,7 @@ public tampilInventorySkinPlayer(playerid){
 	return 1; // For deleteing cache tquery
 }
 
-forward tampilInventoryBarangPlayer(playerid);
-public tampilInventoryBarangPlayer(playerid){
+publicFor: tampilInventoryBarangPlayer(playerid){
 	new rows, subString[64], jumlah, model_id, nama_item[100];
 	cache_get_row_count(rows);
 	new string[MAX_SERVER_ITEM * 64 + 5];
@@ -391,8 +386,7 @@ public tampilInventoryBarangPlayer(playerid){
 	return 1; // For deleteing cache tquery
 }
 
-forward tambahItemPlayer(playerid, itemid, jumlah);
-public tambahItemPlayer(playerid, itemid, jumlah){
+publicFor: tambahItemPlayer(playerid, itemid, jumlah){
 	// mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user_item` (id_user, id_item, jumlah) VALUES('%d', '%d', '%d') ON DUPLICATE KEY UPDATE `jumlah` = `jumlah` + '%d'", PlayerInfo[playerid][pID], itemid, jumlah, jumlah);
 
 	// Pakai trigger procedure
@@ -401,8 +395,7 @@ public tambahItemPlayer(playerid, itemid, jumlah){
 	return 1;
 }
 
-forward tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan);
-public tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan){
+publicFor: tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan){
 	// Pakai trigger procedure
 	mysql_format(koneksi, query, sizeof(query), "CALL tambah_skin(%d, %d, %d)", PlayerInfo[playerid][pID], skinid, jumlah);
 	if(langsung_gunakan){
@@ -413,8 +406,7 @@ public tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan){
 	return 1;
 }
 
-forward cekJumlahItem(playerid, model_id);
-public cekJumlahItem(playerid, model_id){
+publicFor: cekJumlahItem(playerid, model_id){
 	if(cache_num_rows()){
 		new jumlah, keterangan[500], itemid = getIDbyModelItem(model_id);
 		cache_get_value_name_int(0, "jumlah", jumlah);
@@ -442,16 +434,14 @@ public cekJumlahItem(playerid, model_id){
 /*
 	ITEM USE TRIGGER
 */
-forward itemTidakDapatDipakai(playerid);
-public itemTidakDapatDipakai(playerid){
+publicFor: itemTidakDapatDipakai(playerid){
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"Item tidak dapat dipakai", WHITE"Maaf item yang anda pilih bukan merupakan jenis item yang dapat digunakan.\nAnda dapat memilih item lain yang dapat digunakan.", "Ok", "");
 
 	resetPVarInventory(playerid);
 	return 1;
 }
 
-forward pakaiHpFromInven(playerid);
-public pakaiHpFromInven(playerid){
+publicFor: pakaiHpFromInven(playerid){
 	updatePlayerCurrentPhone(playerid, GetPVarInt(playerid, "inv_indexlist"));
 	resetPVarInventory(playerid);
 	return 1;
@@ -459,8 +449,7 @@ public pakaiHpFromInven(playerid){
 
 // KTP
 
-forward cekKetersediaanItemBuatKTP(playerid, cukup);
-public cekKetersediaanItemBuatKTP(playerid, cukup){
+publicFor: cekKetersediaanItemBuatKTP(playerid, cukup){
     new hasil;
     cache_get_value_name_int(0, "hasil", hasil);
     if(cukup){
@@ -478,8 +467,7 @@ public cekKetersediaanItemBuatKTP(playerid, cukup){
     return 1;
 }
 
-forward isBisaBuatKTP(playerid, tidak_bisa);
-public isBisaBuatKTP(playerid, tidak_bisa){
+publicFor: isBisaBuatKTP(playerid, tidak_bisa){
 	if(tidak_bisa){
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Anda telah memiliki KTP", WHITE"Maaf anda telah memiliki KTP, anda tidak dapat membuatnya lagi.", "Ok", "");
 	}else{
@@ -502,8 +490,46 @@ hapusSetelahPengambilanKTP(playerid){
 	mysql_tquery(koneksi, query);
 }
 
-forward cekSudahBisaAmbilKTP(playerid);
-public cekSudahBisaAmbilKTP(playerid){
+publicFor: isRekeningAda(playerid){
+	new hasil, rekening[10];
+	cache_get_value_name_int(0, "hasil", hasil);
+	if(hasil == 0){
+		GetSVarString("regis_rekening", rekening, sizeof(rekening));
+		format(msg, sizeof(msg), "Anda akan membuat rekening dengan nomor rekening "YELLOW"%s "WHITE"dengan ketentuan:\n"YELLOW"- Pembuatan rekening membutuhkan uang administrasi sebesar "GREEN"$100\n- Memiliki 2 Materai dan 4 Pas Foto", rekening);
+		ShowPlayerDialog(playerid, DIALOG_DAFTAR_REKENING_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi Pembuatan Rekening", msg, "Daftar", "Batal");
+	}else{
+		DeletePVar(playerid, "regis_rekening");
+		return ShowPlayerDialog(playerid, DIALOG_DAFTAR_REKENING_INPUT_NOMOR, DIALOG_STYLE_INPUT, "Input nomor rekening ATM baru", RED"Nomor rekening telah ada, silahkan pilih nomor rekening lain!\n\n"WHITE"Input nomor rekening ATM yang baru:\n"WHITE"- Nomor rekening harus terdiri dari 8 karakter\n- Nomor rekening belum digunakan oleh orang lain sebelumnya", "Ok", "Kembali");
+	}
+	return 1;
+}
+
+publicFor: konfirmasiPembuatanRekening(playerid, ada){
+	if(ada){
+		new rekening[10];
+
+		tambahItemPlayer(playerid, 5, -4);
+		tambahItemPlayer(playerid, 6, -2);
+		givePlayerUang(playerid, -100);
+
+		GetPVarString(playerid, "regis_rekening", rekening, sizeof(rekening));
+		// Update rekening player
+		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET rekening = '%e' WHERE id = '%d'", rekening, PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, query);
+
+		format(PlayerInfo[playerid][nomorRekening], 10, "%s", rekening);
+
+		DeletePVar(playerid, "regis_rekening");
+
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat rekening ATM", "Berhasil membuat rekening ATM, anda dapat menggunakan ATM untuk mengirim dan menerima uang dari orang lain.\n\n"YELLOW"Anda juga menggunakan eBanking jika memiliki ePhone yang mendukung.\nSetiap transaksi pada ATM dapat anda lakukan pada mesin ATM manapun.", "Ok", "");
+	}else{
+		DeletePVar(playerid, "regis_rekening");
+		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", "Anda tidak memiliki cukup item yang diperlukan untuk pembuatan rekening.", "Ok", "");
+	}
+	return 1;
+}
+
+publicFor: cekSudahBisaAmbilKTP(playerid){
 	new sudah_selesai, tanggal_pengambilan[50];
 	if(cache_num_rows()){
 		cache_get_value_name_int(0, "hasil", sudah_selesai);
@@ -526,8 +552,7 @@ public cekSudahBisaAmbilKTP(playerid){
 	return 1;
 }
 
-forward cekSudahPunyaKTP(playerid);
-public cekSudahPunyaKTP(playerid){
+publicFor: cekSudahPunyaKTP(playerid){
 	new tanggal_pengambilan[50];
 	if(cache_num_rows()){
 		cache_get_value_name(0, "tanggal_ambil", tanggal_pengambilan);
@@ -537,6 +562,15 @@ public cekSudahPunyaKTP(playerid){
 	}else{
 		// ID KTP = 7
 		cekKetersediaanItem(playerid, 7, 1, "isBisaBuatKTP");
+	}
+	return 1;
+}
+
+publicFor: inputNomorRekeningATMBaru(playerid, ada){
+	if(ada){
+		ShowPlayerDialog(playerid, DIALOG_DAFTAR_REKENING_INPUT_NOMOR, DIALOG_STYLE_INPUT, "Input nomor rekening ATM baru", "Input nomor rekening ATM yang baru:\n"WHITE"- Nomor rekening harus terdiri dari 8 karakter\n- Nomor rekening belum digunakan oleh orang lain sebelumnya", "Ok", "Kembali");
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Anda harus memiliki KTP terlebih dahulu untuk dapat mendaftarkan rekening ATM.", "Ok", "");
 	}
 	return 1;
 }

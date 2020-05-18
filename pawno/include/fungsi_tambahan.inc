@@ -1,5 +1,4 @@
-forward sama(const kata1[], const kata2[]);
-public sama(const kata1[], const kata2[]){
+publicFor: sama(const kata1[], const kata2[]){
     return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2)) ? 1 : 0;
 }
 
@@ -21,9 +20,9 @@ buatPickupDanLabel(modelid, Float:x, Float:y, Float:z, const text[]){
     return CreateDynamicPickup(modelid, 1, x, y, z);
 }
 
-buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran){
+buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, interiorid = -1){
     CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
-    return CreateDynamicCP(x, y, z, ukuran);
+    return CreateDynamicCP(x, y, z, ukuran, vw, interiorid);
 }
 
 pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:preload_dynamic_map = false){
@@ -165,8 +164,7 @@ cekKetersediaanItem(playerid, id_item, jumlah, const fungsi_callback[]){
     mysql_tquery(koneksi, query, "isItemCukup", "iis", playerid, 1, fungsi_callback);
 }
 
-forward isItemCukup(playerid, syarat, const fungsi_callback[]);
-public isItemCukup(playerid, syarat, const fungsi_callback[]){
+publicFor: isItemCukup(playerid, syarat, const fungsi_callback[]){
     new hasil;
     cache_get_value_name_int(0, "hasil", hasil);
     if(hasil == syarat)
@@ -176,8 +174,7 @@ public isItemCukup(playerid, syarat, const fungsi_callback[]){
     return 1;
 }
 
-forward keluarkanPlayer(playerid);
-public keluarkanPlayer(playerid){
+publicFor: keluarkanPlayer(playerid){
     Kick(playerid);
     return 1;
 }

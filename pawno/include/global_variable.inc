@@ -28,6 +28,7 @@ enum pInfo
     ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
     sHouse, // Berisi ID Rumah, untuk spawn dirumah jika tidak 0
     nomorHP[12], // Berisi 62 + 4 kode
+    nomorRekening[10], // Berisi 8 digit kode rekening
 
     bool:sudahSpawn,
     bool:sudahLogin,
@@ -115,6 +116,12 @@ new const SPAWN_POINT_OUT_CH[][SPAWN_POINT_INFO] = {
     {1486.7635,-1784.4592,15.4578,4.4554, 0, 0}
 };
 
+new const SP_OUT_BANK_LS[][SPAWN_POINT_INFO] = {
+    {1460.3286,-1012.4295,26.8438,181.3176, 0, 0},
+    {1482.3094,-1012.5512,26.8438,181.6309, 0, 0},
+    {1443.1084,-1012.1120,26.8438,182.5710, 0, 0}
+};
+
 /**
     MARKET DIALOG
  */
@@ -136,13 +143,22 @@ new CP_tempatFoto,
     CP_spotBarangMarket[4],
     CP_spotGantiSkin,
     CP_spotBeliSkin[3],
-    CP_resepsionisCityHall;
+    CP_resepsionisCityHall,
+    CP_tellerBankLS[2];
 
 /**
     PICKUP VARIABEL
  */
-new PU_tempatFoto[2],
+new PU_tempatFoto_in[2],
+    PU_tempatFoto_out,
     PU_miniMarket[1][2],
     PU_tempatBaju[1][2],
     PU_cityHallMasuk[3],
-    PU_cityHallKeluar;
+    PU_cityHallKeluar,
+    PU_bankLS[2];
+
+/*
+    Virtual World untuk ngebedain pickup
+*/
+#define VW_tempatFoto_1 1
+#define VW_tempatFoto_2 2

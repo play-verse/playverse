@@ -76,6 +76,9 @@
 #define DIALOG_RESPSIONIS_PEMERINTAH 44
 #define DIALOG_RESPSIONIS_PILIH_KTP 45
 #define DIALOG_CONFIRM_BUAT_KTP 46
+#define DIALOG_TELLER_BANK 47
+#define DIALOG_DAFTAR_REKENING_INPUT_NOMOR 48
+#define DIALOG_DAFTAR_REKENING_KONFIRMASI 49
 
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
@@ -100,5 +103,7 @@
 	// modif isnull dengan pengecekan "NULL" untuk counter NULL database field
     #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))) || !strcmp(%1, "NULL"))
 #endif
+
+#define publicFor:%0(%1) forward %0(%1); public %0(%1)
 
 #define KickEx(%0) SetTimerEx("keluarkanPlayer", 1, 0, "d", %0) 
