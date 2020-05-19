@@ -581,18 +581,9 @@ prosesPembuatanKTP(playerid, interval_menit){
 	mysql_tquery(koneksi, query);
 }
 
-showDialogBeliBarang(playerid){
-	new subString[45];
-    static string[sizeof(BARANG_MARKET) * 45];
-
-    if(string[0] == EOS){
-		for(new i = 0; i < sizeof(BARANG_MARKET); i++){
-			format(subString, sizeof(subString), "%i\t%s~n~~g~$%d\n", BARANG_MARKET[i][idModelBarang], BARANG_MARKET[i][namaBarang], BARANG_MARKET[i][hargaBarang]);
-            strcat(string, subString);
-		}
-	}
-	ShowPlayerDialog(playerid, DIALOG_BELI_BARANG_MARKET, DIALOG_STYLE_PREVIEW_MODEL, "Beli Barang", string, "Beli", "Batal");
-	return 1;
+addTransaksiTabungan(const rekening_penerima[], nominal, const keterangan[], const rekening_pengirim[] = ""){
+	mysql_format(koneksi, query, sizeof(query), "CALL `tambah_transaksi_atm`('%e', '%e', %d, '%e')", rekening_pengirim, rekening_penerima, nominal, keterangan);
+	mysql_tquery(koneksi, query);
 }
 
 /**

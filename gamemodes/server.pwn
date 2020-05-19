@@ -83,6 +83,7 @@ public OnPlayerDisconnect(playerid, reason){
 
 	// Regis Bank
 	DeletePVar(playerid, "regis_rekening");	
+	DeletePVar(playerid, "depo_nominal");
 
 	resetPVarInventory(playerid);
 	if(PlayerInfo[playerid][sudahLogin]) updateOnPlayerDisconnect(playerid);
@@ -1226,8 +1227,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
 						if(!isnull(PlayerInfo[playerid][nomorRekening])) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Rekening telah ada", WHITE"Maaf anda telah memiliki rekening dan tidak dapat membuatnya lagi.", "Ok", ""); 
-				
+
 						cekKetersediaanItem(playerid, 7, 1, "inputNomorRekeningATMBaru");
+						return 1;
+					}
+					case 1:
+					{
+						if(isnull(PlayerInfo[playerid][nomorRekening])) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Anda tidak memiliki rekening", WHITE"Maaf anda tidak memiliki rekening dan tidak dapat menggunakan menu ini.\nSilahkan buat rekening anda terlebih dahulu untuk dapat menabung.", "Ok", ""); 
+						
+						ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk kedalam akun bank anda.", "Deposit", "Kembali");
+						return 1;
 					}
 				}
 			}
@@ -1263,6 +1272,39 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}else{
 				DeletePVar(playerid, "regis_rekening");
 			}
+			return 1;
+		}
+		case DIALOG_DEPOSIT_UANG_TABUNGAN:
+		{
+			if(response){
+				new nominal;
+				if(sscanf(inputtext, "i", nominal)) return ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", RED"Anda harus memasukan nominal dengan benar!\n"WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk kedalam akun bank anda.", "Deposit", "Kembali");
+
+				if(nominal < 10) return ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", RED"Anda harus memasukan nominal dengan benar, minimal penabungan adalah $10.\n"WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk kedalam akun bank anda.", "Deposit", "Kembali");
+
+				if(getUangPlayer(playerid) < nominal) return ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", RED"Anda harus memasukan nominal dengan benar, nominal yang anda masukan melebihi uang anda.\n"WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk kedalam akun bank anda.", "Deposit", "Kembali");
+
+				SetPVarInt(playerid, "depo_nominal", nominal);
+				
+				format(msg, sizeof(msg), WHITE"Anda akan menyimpan uang sebesar "GREEN"$%d "WHITE"pada tabungan anda.\nApakah anda yakin?\n\n"YELLOW"Pada saat uang disimpan anda dapat melihat nominalnya pada tabungan anda atau pada website.", nominal);
+				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_DEPOSIT, DIALOG_STYLE_MSGBOX, YELLOW"Konfirmasi penyimpanan", msg, "Simpan", "Batal");
+			}else
+				showDialogTellerBank(playerid);
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_DEPOSIT:
+		{
+			if(response){
+				new nominal = GetPVarInt(playerid, "depo_nominal");
+				DeletePVar(playerid, "depo_nominal");
+				
+				givePlayerUang(playerid, -nominal);
+				addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], nominal, "Deposit tabungan");
+				
+				format(msg, sizeof(msg), WHITE"Anda berhasil menyimpan uang sebesar "GREEN"$%d "WHITE"pada tabungan anda.\nSilahkan cek tabungan anda.\n"YELLOW"Note : Setiap transaksi yang dilakukan akan otomatis tercatat pada history rekening anda.", nominal);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menyimpan ke tabungan", msg, "Ok", "");
+			}else
+				DeletePVar(playerid, "depo_nominal");
 			return 1;
 		}
 
