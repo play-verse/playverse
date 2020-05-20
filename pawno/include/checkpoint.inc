@@ -21,4 +21,7 @@ loadAllCP(){
     // Teller Bank LS
     CP_tellerBankLS[0] = buatCPDanLabel(1421.4474,-988.9171,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
     CP_tellerBankLS[1] = buatCPDanLabel(1417.4258,-988.8285,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
+
+    // CP ATM
+    CP_ATM[0] = buatCPDanLabel(1412.3097,-987.6777,-55.2764, GREEN"ATM "WHITE"tersedia", 1.0, 1, 1);
 }

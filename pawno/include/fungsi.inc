@@ -504,6 +504,92 @@ publicFor: isRekeningAda(playerid){
 	return 1;
 }
 
+publicFor: isRekeningTujuanAda(playerid, const rekening[]){
+	new result_nama[50], rekening_temp[10];
+	if(cache_num_rows()){
+		cache_get_value_name(0, "nama", result_nama);
+		SetPVarString(playerid, "tf_nama", result_nama);
+		format(rekening_temp, sizeof(rekening_temp), "%s", rekening);
+		SetPVarString(playerid, "tf_rekening", rekening_temp);
+
+		ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", "Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
+	}
+	else{
+		format(msg, sizeof(msg), RED"Nomor rekening "YELLOW"%s "RED"tidak ada.\n"WHITE"Silahkan masukan nomor rekening tujuan:\nNomor rekening harus terdiri dari 8 digit.\nPastikan anda memasukan rekening yang benar.", rekening);
+		ShowPlayerDialog(playerid, DIALOG_INPUT_REKENING_TUJUAN, DIALOG_STYLE_INPUT, "Nomor rekening tujuan", msg, "Ok", "Kembali");
+	}
+	return 1;
+}
+
+publicFor: isMencukupiTransfer(playerid){
+	new saldo, nominal = GetPVarInt(playerid, "tf_nominal");
+	if(cache_num_rows()){
+		cache_get_value_name_int(0, "saldo", saldo);
+		if(nominal > saldo){
+			ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", RED"Saldo ATM anda tidak mencukupi.\n"WHITE"Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
+			return 1;
+		}
+
+		new nama_penerima[50], rekening_penerima[10];
+		GetPVarString(playerid, "tf_nama", nama_penerima, sizeof(nama_penerima));
+		GetPVarString(playerid, "tf_rekening", rekening_penerima, sizeof(rekening_penerima));
+
+		format(msg, sizeof(msg), WHITE"Anda akan melakukan transfer dengan data berikut :\n\n"YELLOW"Nama Penerima : %s\nNo. Rek : %s\nNominal : %d\n\n"WHITE"Anda yakin ingin mengirimnya? Silahkan isi keterangan pengiriman menandakan anda setuju.", nama_penerima, rekening_penerima, nominal);
+		ShowPlayerDialog(playerid, DIALOG_TRANSFER_KONFIRMASI, DIALOG_STYLE_INPUT, "Konfirmasi Transfer", msg, "Kirim", "Batal");
+	}else
+		printf("[ERROR] #01 Error fungsi transfer (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
+	return 1;
+}
+
+publicFor: isMencukupiTarik(playerid){
+	new saldo, nominal = GetPVarInt(playerid, "wd_nominal");
+	if(cache_num_rows()){
+		cache_get_value_name_int(0, "saldo", saldo);
+		if(nominal > saldo){
+			ShowPlayerDialog(playerid, DIALOG_TARIK_UANG_NOMINAL, DIALOG_STYLE_INPUT, "Nominal penarikan uang", RED"Saldo tidak mencukupi nominal yang ingin ditarik.\n"WHITE"Silahkan masukan nominal yang ingin anda ambil :\n"YELLOW"Pastikan anda memiliki cukup saldo untuk mengambilnya.", "Tarik", "Kembali");
+			return 1;
+		}
+
+		format(msg, sizeof(msg), WHITE"Anda akan menarik uang sebesar "GREEN"%d."WHITE"\nApakah anda yakin ingin melakukan penarikan?", nominal);
+		ShowPlayerDialog(playerid, DIALOG_TARIK_UANG_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi penarikan uang", msg, "Konfirmasi", "Batal");
+	}else
+		printf("[ERROR] #02 Error fungsi penarikan (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
+	return 1;
+}
+
+publicFor: tampilSaldoPlayer(playerid){
+	new saldo;
+	if(cache_num_rows()){
+		cache_get_value_name_int(0, "saldo", saldo);
+		format(msg, sizeof(msg), WHITE"Informasi saldo anda dan Rekening anda:\n\nNama : %s\nRekening : %s\nSaldo : %d\n\nInformasi saldo dapat berubah sewaktu-waktu sesuai dengan transaksi yang terjadi setiap saatnya.\nTerimakasih telah menggunakan Layanan dari kami.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][nomorRekening], saldo);
+		ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY, DIALOG_STYLE_MSGBOX, "Informasi saldo dan Akun Bank", msg, "Kembali", "Tutup");
+	}
+	else
+		printf("[ERROR] #03 Error fungsi tampil saldo (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
+	return 1;
+}
+
+publicFor: historyATMPemain(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		new idx = 0, subString[150], string[1700] = "Pengirim/Penerima\tNominal\tTanggal\tKeterangan\n", temp_tanggal[20], rekening_temp[10], keterangan[60], nominal_temp;
+		while(idx < rows){
+			cache_get_value_name(idx, "rekening", rekening_temp);
+			cache_get_value_name(idx, "keterangan", keterangan);
+			cache_get_value_name(idx, "tanggal", temp_tanggal);
+			cache_get_value_name_int(idx, "nominal", nominal_temp);
+			format(subString, sizeof(subString), "%s\t%d\t%s\t%s\n", rekening_temp, nominal_temp, temp_tanggal, keterangan);
+			strcat(string, subString);
+			idx++;
+		}
+		ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY, DIALOG_STYLE_TABLIST_HEADERS, "Informasi History ATM", string, "Kembali", "Tutup");
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY, DIALOG_STYLE_MSGBOX, "Informasi History ATM", "Tidak ada history ATM untuk saat ini.", "Kembali", "Tutup");
+	}
+	return 1;
+}
+
 publicFor: konfirmasiPembuatanRekening(playerid, ada){
 	if(ada){
 		new rekening[10];
@@ -581,8 +667,8 @@ prosesPembuatanKTP(playerid, interval_menit){
 	mysql_tquery(koneksi, query);
 }
 
-addTransaksiTabungan(const rekening_penerima[], nominal, const keterangan[], const rekening_pengirim[] = ""){
-	mysql_format(koneksi, query, sizeof(query), "CALL `tambah_transaksi_atm`('%e', '%e', %d, '%e')", rekening_pengirim, rekening_penerima, nominal, keterangan);
+addTransaksiTabungan(const rekening_user[], nominal, const keterangan[], const rekening_pengirim_penerima[] = ""){
+	mysql_format(koneksi, query, sizeof(query), "CALL `tambah_transaksi_atm`('%e', '%e', %d, '%e')", rekening_pengirim_penerima, rekening_user, nominal, keterangan);
 	mysql_tquery(koneksi, query);
 }
 

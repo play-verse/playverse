@@ -26,6 +26,7 @@ buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, i
 }
 
 pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:preload_dynamic_map = false){
+    SetPlayerFacingAngle(playerid, a);
     if(preload_dynamic_map){
         Streamer_UpdateEx(playerid, x, y, z, vw, int, -1, 1000, 1);
     }
@@ -34,7 +35,6 @@ pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:prel
     }else{
         SetPlayerPos(playerid, x, y, z);
     }
-    SetPlayerFacingAngle(playerid, a);
     SetPlayerInterior(playerid, int);
     SetPlayerVirtualWorld(playerid, vw);
 }
@@ -72,6 +72,11 @@ getFungsiByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     new nama_variabel[50];
     format(nama_variabel, sizeof(nama_variabel), "fIt_%d", id_item);
     GetSVarString(nama_variabel, destinasi, len);
+}
+
+getSaldoPlayer(playerid, const fungsi_callback[]){
+    mysql_format(koneksi, query, sizeof(query), "SELECT IFNULL(SUM(nominal), 0) as saldo FROM `trans_atm` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+    mysql_tquery(koneksi, query, fungsi_callback, "i", playerid);
 }
 
 getUangPlayer(playerid, bool:useDb = false)

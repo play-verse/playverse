@@ -85,6 +85,11 @@ public OnPlayerDisconnect(playerid, reason){
 	DeletePVar(playerid, "regis_rekening");	
 	DeletePVar(playerid, "depo_nominal");
 
+	// ATM
+	DeletePVar(playerid, "tf_nama");
+	DeletePVar(playerid, "tf_rekening");
+	DeletePVar(playerid, "wd_nominal");
+
 	resetPVarInventory(playerid);
 	if(PlayerInfo[playerid][sudahLogin]) updateOnPlayerDisconnect(playerid);
 	resetPlayerVariable(playerid);
@@ -1307,6 +1312,135 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				DeletePVar(playerid, "depo_nominal");
 			return 1;
 		}
+		case DIALOG_ATM:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Transfer Uang
+					{
+						ShowPlayerDialog(playerid, DIALOG_INPUT_REKENING_TUJUAN, DIALOG_STYLE_INPUT, "Nomor rekening tujuan", "Silahkan masukan nomor rekening tujuan:\nNomor rekening harus terdiri dari 8 digit.\nPastikan anda memasukan rekening yang benar.", "Ok", "Kembali");
+						return 1;
+					}
+					case 1: // Penarikan Uang
+					{
+						ShowPlayerDialog(playerid, DIALOG_TARIK_UANG_NOMINAL, DIALOG_STYLE_INPUT, "Nominal penarikan uang", "Silahkan masukan nominal yang ingin anda ambil :\n"YELLOW"Pastikan anda memiliki cukup saldo untuk mengambilnya.", "Tarik", "Kembali");
+						return 1;
+					}
+					case 2: // Cek Saldo ATM
+					{
+						getSaldoPlayer(playerid, "tampilSaldoPlayer");
+						return 1;
+					}
+					case 3: // History ATM
+					{
+						mysql_format(koneksi, query, sizeof(query), "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT 10", PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, query, "historyATMPemain", "i", playerid);
+						return 1;
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_INPUT_REKENING_TUJUAN:
+		{
+			if(response){
+				new inputan;
+				if(strlen(inputtext) != 8 || sscanf(inputtext, "i", inputan) || inputtext[0] == '-') return ShowPlayerDialog(playerid, DIALOG_INPUT_REKENING_TUJUAN, DIALOG_STYLE_INPUT, "Nomor rekening tujuan", RED"Nomor rekening harus terdiri dari 8 digit angka.\n"WHITE"Silahkan masukan nomor rekening tujuan:\nNomor rekening harus terdiri dari 8 digit.\nPastikan anda memasukan rekening yang benar.", "Ok", "Kembali");
+
+				if(strcmp(inputtext, PlayerInfo[playerid][nomorRekening]) == 0) return ShowPlayerDialog(playerid, DIALOG_INPUT_REKENING_TUJUAN, DIALOG_STYLE_INPUT, "Nomor rekening tujuan", RED"Tidak dapat mengirim ke nomor rekening sendiri.\n"WHITE"Silahkan masukan nomor rekening tujuan:\nNomor rekening harus terdiri dari 8 digit.\nPastikan anda memasukan rekening yang benar.", "Ok", "Kembali");
+
+				mysql_format(koneksi, query, sizeof(query), "SELECT nama FROM `user` WHERE rekening = '%e'", inputtext);
+				mysql_tquery(koneksi, query, "isRekeningTujuanAda", "is", playerid, inputtext);
+			}else
+				showDialogATM(playerid);
+			return 1;
+		}
+		case DIALOG_TRANSFER_NOMINAL:
+		{
+			if(response){
+				new nominal;
+				if(sscanf(inputtext, "i", nominal)) return ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", RED"Nominal salah, silahkan memasukan jumlah yang benar.\n"WHITE"Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
+				if(nominal < 10) return ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", RED"Minimal nominal adalah $10.\n"WHITE"Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
+
+				SetPVarInt(playerid, "tf_nominal", nominal);
+
+				getSaldoPlayer(playerid, "isMencukupiTransfer");
+			}else{
+				DeletePVar(playerid, "tf_nama");
+				DeletePVar(playerid, "tf_rekening");
+			}				
+			return 1;
+		}
+		case DIALOG_TRANSFER_KONFIRMASI:
+		{
+			if(response){
+				new nama_penerima[50], rekening_penerima[10], nominal = GetPVarInt(playerid, "tf_nominal");
+				GetPVarString(playerid, "tf_nama", nama_penerima, sizeof(nama_penerima));
+				GetPVarString(playerid, "tf_rekening", rekening_penerima, sizeof(rekening_penerima));
+				if(strlen(inputtext) > 50){
+
+					format(msg, sizeof(msg), RED"Tidak dapat memasukan lebih dari 50 karakter.\n"WHITE"Anda akan melakukan transfer dengan data berikut :\n\n"YELLOW"Nama Penerima : %s\nNo. Rek : %s\nNominal : %d\n\n"WHITE"Anda yakin ingin mengirimnya? Silahkan isi keterangan pengiriman menandakan anda setuju.", nama_penerima, rekening_penerima, nominal);
+					return ShowPlayerDialog(playerid, DIALOG_TRANSFER_KONFIRMASI, DIALOG_STYLE_INPUT, "Konfirmasi Transfer", msg, "Kirim", "Batal");					
+				}
+
+				addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -nominal, inputtext, rekening_penerima);
+				addTransaksiTabungan(rekening_penerima, nominal, inputtext, PlayerInfo[playerid][nomorRekening]);
+
+				DeletePVar(playerid, "tf_nama");
+				DeletePVar(playerid, "tf_rekening");
+				DeletePVar(playerid, "tf_nominal");
+				
+				new tahun, bulan, hari, jam, menit, detik;
+				gettime(jam, menit, detik);
+				getdate(tahun, bulan, hari);
+				format(msg, sizeof(msg), GREEN"PENGIRIMAN SUKSES!\n\n"WHITE"Informasi transfer.\nNama Penerima\t\t: %s\nRekening Penerima\t\t: %s\nNominal\t\t\t: %d\n\nNama Pengirim\t\t: %s\nRekening Pengirim\t\t: %s\nTanggal Waktu : %d/%d/%d %02d:%02d:%02d", nama_penerima, rekening_penerima, nominal, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][nomorRekening], hari, bulan, tahun, jam, menit, detik);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Berhasil transfer duit", msg, "Ok", "");
+			}else{
+				DeletePVar(playerid, "tf_nama");
+				DeletePVar(playerid, "tf_rekening");
+				DeletePVar(playerid, "tf_nominal");
+			}
+			return 1;
+		}
+		case DIALOG_TARIK_UANG_NOMINAL:
+		{
+			if(response){
+				new nominal;
+				if(sscanf(inputtext, "i", nominal)) return ShowPlayerDialog(playerid, DIALOG_TARIK_UANG_NOMINAL, DIALOG_STYLE_INPUT, "Nominal penarikan uang", RED"Silahkan masukan nominal yang benar.\n"WHITE"Silahkan masukan nominal yang ingin anda ambil :\n"YELLOW"Pastikan anda memiliki cukup saldo untuk mengambilnya.", "Tarik", "Kembali");
+
+				if(nominal < 10) return ShowPlayerDialog(playerid, DIALOG_TARIK_UANG_NOMINAL, DIALOG_STYLE_INPUT, "Nominal penarikan uang", RED"Nominal penarikan minimal adalah $10.\n"WHITE"Silahkan masukan nominal yang ingin anda ambil :\n"YELLOW"Pastikan anda memiliki cukup saldo untuk mengambilnya.", "Tarik", "Kembali");
+
+				SetPVarInt(playerid, "wd_nominal", nominal);
+				
+				getSaldoPlayer(playerid, "isMencukupiTarik");
+			}else{
+				DeletePVar(playerid, "wd_nominal");
+				showDialogATM(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_TARIK_UANG_KONFIRMASI:
+		{
+			if(response){
+				new nominal = GetPVarInt(playerid, "wd_nominal");
+
+				addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -nominal, "Penarikan uang");
+				givePlayerUang(playerid, nominal);
+
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Berhasil melakukan penarikan", GREEN"Berhasil melakukan penarikan uang!\n"WHITE"Penarikan uang akan langsung menambahkan uang tunai anda, dan mengurangi saldo ATM anda.\nSemua transaksi pada ATM akan tercatat secara otomatis dan permanen.", "Ok", "");
+
+				DeletePVar(playerid, "wd_nominal");
+			}else
+				DeletePVar(playerid, "wd_nominal");
+			return 1;
+		}
+		case DIALOG_INFO_SALDO_HISTORY:
+		{
+			if(response){
+				showDialogATM(playerid);
+			}
+			return 1;
+		}
 
     }
 	// Wiki-SAMP OnDialogResponse should return 0
@@ -1580,8 +1714,8 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 
 public OnPlayerEnterDynamicCP(playerid, checkpointid){
 	if(checkpointid == CP_tempatFoto){
-		new jam, menit;
-		GetPlayerTime(playerid, jam, menit);
+		new jam, menit, detik;
+		gettime(jam, menit, detik);
 		if(GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2 && !(jam >= 20 || jam <= 5)) return SendClientMessage(playerid, COLOR_RED, "Maaf Tempat foto "nama_B" saat ini tutup! Silahkan kembali antara jam 20.00 hingga 05.59.");
 
 		new harga = (GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
@@ -1604,6 +1738,10 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		return 1;
 	}else if(checkpointid == CP_tellerBankLS[0] || checkpointid == CP_tellerBankLS[1]){
 		showDialogTellerBank(playerid);
+		return 1;
+	}else if(checkpointid == CP_ATM[0]){
+		if(isnull(PlayerInfo[playerid][nomorRekening])) return SendClientMessage(playerid, COLOR_RED, "[ATM] "WHITE"Anda tidak dapat menggunakan ATM jika tidak memiliki rekening");
+		showDialogATM(playerid);
 		return 1;
 	}
 	return 1;

@@ -144,7 +144,8 @@ new CP_tempatFoto,
     CP_spotGantiSkin,
     CP_spotBeliSkin[3],
     CP_resepsionisCityHall,
-    CP_tellerBankLS[2];
+    CP_tellerBankLS[2],
+    CP_ATM[1];
 
 /**
     PICKUP VARIABEL
