@@ -101,6 +101,13 @@ resetPlayerVariable(playerid){
 	PlayerInfo[playerid][reply] = -1;
 	PlayerInfo[playerid][sudahLogin] = false;
 	PlayerInfo[playerid][sudahSpawn] = false;
+
+	PlayerInfo[playerid][onSelectedTextdraw] = false;
+
+	PlayerInfo[playerid][sisaPalu] = 0;
+
+	KillTimer(PlayerAction[playerid][timerNambang]);
+	PlayerAction[playerid][sedangNambang] = false;
 }
 
 resetPVarInventory(playerid){
@@ -475,6 +482,14 @@ publicFor: isBisaBuatKTP(playerid, tidak_bisa){
 	}
 }
 
+publicFor: pakaiPaluTambang(playerid){
+	tambahItemPlayer(playerid, 8, -1);
+	PlayerInfo[playerid][sisaPalu] += 15;
+
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Palu Tambang = "GREEN"Penambahan kesempatan menambang sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan menambang anda direset jadi 0.", "Ok", "");
+	return 1;
+}
+
 getSudahBuatKTP(playerid, const fungsi_callback[], bool:cek_untuk_buat = true)
 {
 	if(cek_untuk_buat) {
@@ -658,6 +673,63 @@ publicFor: inputNomorRekeningATMBaru(playerid, ada){
 	}else{
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Anda harus memiliki KTP terlebih dahulu untuk dapat mendaftarkan rekening ATM.", "Ok", "");
 	}
+	return 1;
+}
+
+publicFor: selesaiNambang(playerid){
+	PlayerAction[playerid][sedangNambang] = false;
+	ClearAnimations(playerid);
+	TogglePlayerControllable(playerid, 1);
+	if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
+
+	PlayerInfo[playerid][sisaPalu]--;
+
+	new angka = random(15);
+	switch(angka){
+		case 1:
+		{
+			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
+			tambahItemPlayer(playerid, 10, 1);
+		}
+		case 2..3:
+		{
+			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
+			tambahItemPlayer(playerid, 9, 1);
+		}
+		case 4..6:{
+			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Perunggu"WHITE".\nPerunggu adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
+			tambahItemPlayer(playerid, 11, 1);
+		}
+		case 7..9:
+		{
+			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
+
+			tambahItemPlayer(playerid, 12, 1);
+		}
+		default:{
+			SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
+		}
+	}
+
+	
+	// new angka = random(1000000);
+	// if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
+	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
+	// 		tambahItemPlayer(playerid, 10, 1);
+	// }else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
+	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
+	// 		tambahItemPlayer(playerid, 9, 1);
+	// }else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
+	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Perunggu"WHITE".\nPerunggu adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
+	// 		tambahItemPlayer(playerid, 11, 1);
+	// }else if(angka >= 120001 && angka <= 420000){ // Kemungkinan 30%
+	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
+
+	// 		tambahItemPlayer(playerid, 12, 1);
+	// }else{
+	// 		SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
+	// }
+
 	return 1;
 }
 

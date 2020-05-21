@@ -17,13 +17,19 @@
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 50
 
-#define MAX_SERVER_ITEM 4 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
+#define MAX_SERVER_ITEM 10 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
 
 #define MAX_HOUSES 1000 // Maksimal rumah yang dapat dibuat
 #define MAX_HOUSES_LEVEL 3 // Maksimal level rumah
+
+/**
+	INDEX ATTACHED OBJECT PLAYER
+ */
+#define MINING_ATTACH_INDEX 1
+
 
 /*
 	DIALOG ID
@@ -88,6 +94,7 @@
 #define DIALOG_TARIK_UANG_NOMINAL 56
 #define DIALOG_TARIK_UANG_KONFIRMASI 57
 #define DIALOG_INFO_SALDO_HISTORY 58
+#define DIALOG_TANYA_TAMBANG 59
 
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK

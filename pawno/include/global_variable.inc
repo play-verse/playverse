@@ -30,13 +30,23 @@ enum pInfo
     nomorHP[12], // Berisi 62 + 4 kode
     nomorRekening[10], // Berisi 8 digit kode rekening
 
+    // Tambang
+    sisaPalu,
+
     bool:sudahSpawn,
     bool:sudahLogin,
     Cache:kotakPesan,
     reply, // -1 kalau gaada
+	bool:onSelectedTextdraw,
     lastGlobalChat
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
+
+enum pInfoAct {
+    timerNambang,
+    bool:sedangNambang
+}
+new PlayerAction[MAX_PLAYERS][pInfoAct];
 
 enum rInfo
 {
@@ -123,6 +133,42 @@ new const SP_OUT_BANK_LS[][SPAWN_POINT_INFO] = {
 };
 
 /**
+    TAMBANG
+ */
+enum COORD_OBJ {
+	Float:POSISI_X,
+	Float:POSISI_Y,
+	Float:POSISI_Z,
+	POSISI_INT,
+	POSISI_VW
+};
+new const POSISI_NAMBANG[][COORD_OBJ] = {
+	{575.7255,929.9250,-42.9609, 0, 0},
+	{565.1822,924.5467,-42.9609, 0, 0},
+	{542.5571,880.1495,-35.3621, 0, 0},
+	{487.5997,785.2530,-21.9707, 0, 0},
+	{500.3391,779.7797,-21.4040, 0, 0},
+	{493.7244,782.7761,-22.0686, 0, 0},
+	{606.7349,867.3848,-40.1793, 0, 0},
+	{638.0242,856.9865,-40.2213, 0, 0},
+	{637.5353,827.0684,-40.1530, 0, 0},
+	{545.4601,920.2059,-34.5900, 0, 0},
+	{594.1041,926.6013,-37.4588, 0, 0},
+	{696.3278,867.3004,-41.5850, 0, 0},
+	{558.5338,823.9658,-30.1737, 0, 0},
+	{586.0295,814.5699,-29.9435, 0, 0},
+	{585.8745,836.0759,-32.0639, 0, 0},
+	{461.7570,889.4465,-27.8676, 0, 0},
+	{464.8721,866.6505,-27.6602, 0, 0},
+    {678.4865,929.3945,-40.8417, 0, 0},
+    {693.2300,905.4773,-39.1949, 0, 0},
+    {699.5500,894.7210,-38.6479, 0, 0},
+    {694.0032,851.4238,-42.9609, 0, 0},
+    {682.1595,830.2545,-42.9609, 0, 0},
+    {501.6256,971.4416,-24.5734, 0, 0}
+};
+
+/**
     MARKET DIALOG
  */
 enum INFO_BARANG_MARKET {
@@ -132,7 +178,8 @@ enum INFO_BARANG_MARKET {
 }
 
 new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
-    {2059, "Materai", 5} // Materai
+    {2059, "Materai", 5}, // Materai
+    {19631, "Palu Tambang", 10} // Materai
 };
 
 
@@ -145,7 +192,8 @@ new CP_tempatFoto,
     CP_spotBeliSkin[3],
     CP_resepsionisCityHall,
     CP_tellerBankLS[2],
-    CP_ATM[1];
+    CP_ATM[1],
+    CP_Tambang[sizeof(POSISI_NAMBANG)];
 
 /**
     PICKUP VARIABEL

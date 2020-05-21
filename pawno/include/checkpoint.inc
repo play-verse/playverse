@@ -23,5 +23,14 @@ loadAllCP(){
     CP_tellerBankLS[1] = buatCPDanLabel(1417.4258,-988.8285,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
 
     // CP ATM
-    CP_ATM[0] = buatCPDanLabel(1412.3097,-987.6777,-55.2764, GREEN"ATM "WHITE"tersedia", 1.0, 1, 1);
+    CP_ATM[0] = buatCPDanLabel(1412.3097,-987.6777,-55.2764, GREEN"ATM tersedia", 1.0, 1, 1);
+
+    // CP Tambang
+    for(new i = 0; i < sizeof(POSISI_NAMBANG); i++){
+		CP_Tambang[i] = buatCPDanLabel(POSISI_NAMBANG[i][POSISI_X], POSISI_NAMBANG[i][POSISI_Y], POSISI_NAMBANG[i][POSISI_Z], GREEN"Tambang tersedia", 1.5, POSISI_NAMBANG[i][POSISI_VW], POSISI_NAMBANG[i][POSISI_INT]);
+    }
+    if(CP_Tambang[0] + sizeof(POSISI_NAMBANG) - 1 != CP_Tambang[sizeof(POSISI_NAMBANG) - 1]){
+        printf("[ERROR] #05 Checkpoint tambang tidak memiliki ID yang simetris.");
+        SendRconCommand("exit");
+    }
 }

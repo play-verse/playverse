@@ -49,6 +49,7 @@ tampilkanTextDrawMyInfo(playerid){
 	PlayerTextDrawShow(playerid, myInfo[playerid][7]);
 
 	SelectTextDraw(playerid, COLOR_RED);
+	PlayerInfo[playerid][onSelectedTextdraw] = true;
 	return 1;
 }
 
@@ -90,7 +91,7 @@ tampilkanTextDrawShowItem(playerid, model_id, jumlah, keterangan[], nama_pemilik
 	PlayerTextDrawShow(playerid, showItem[playerid][5]);
 
 	SelectTextDraw(playerid, COLOR_RED);
-
+	PlayerInfo[playerid][onSelectedTextdraw] = true; 
 	return 1;
 }
 

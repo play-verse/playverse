@@ -39,7 +39,7 @@ stock UpdateWorldWeather()
 
 //--------------------------------------------------
 
-new last_weather_update=0;
+// new last_weather_update=0;
 
 public UpdateTimeAndWeather()
 {
@@ -64,13 +64,13 @@ public UpdateTimeAndWeather()
 	}
 
 	/* Update weather every hour */
-	if(last_weather_update == 0) {
-	    UpdateWorldWeather();
-	}
-	last_weather_update++;
-	if(last_weather_update == 60) {
-	    last_weather_update = 0;
-	}
+	// if(last_weather_update == 0) {
+	//     UpdateWorldWeather();
+	// }
+	// last_weather_update++;
+	// if(last_weather_update == 60) {
+	//     last_weather_update = 0;
+	// }
 }
 
 //--------------------------------------------------

@@ -1441,23 +1441,56 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_TANYA_TAMBANG:
+		{
+			if(response){
+				if(PlayerAction[playerid][sedangNambang]) return error_command(playerid, "Anda sedang menambang, tunggu beberapa saat.");
+				PlayerAction[playerid][timerNambang] = SetTimerEx("selesaiNambang", 3000, 0, "i", playerid);
+				PlayerAction[playerid][sedangNambang] = true;
+				GameTextForPlayer(playerid, "~w~Sedang ~y~menambang...", 3000, 3);
+
+				SetPlayerAttachedObject(playerid, MINING_ATTACH_INDEX, 19631, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
+				TogglePlayerControllable(playerid, 0);
+				SetPlayerArmedWeapon(playerid, 0);
+				ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
+			}
+			return 1;
+		}
 
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
 }
 
+public OnPlayerClickTextDraw(playerid, Text:clickedid){
+	if(clickedid == Text:INVALID_TEXT_DRAW){
+		hideTextDrawMyInfo(playerid);
+		hideTextDrawShowItem(playerid);
+		if(PlayerInfo[playerid][onSelectedTextdraw]) CancelSelectTextDraw(playerid);
+		PlayerInfo[playerid][onSelectedTextdraw] = false;
+	}
+	return 1;
+}
 
 public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 {
-    if(playertextid == showItem[playerid][4])
-    {
-        CancelSelectTextDraw(playerid);
+	if(playertextid == PlayerText:INVALID_TEXT_DRAW){
+		hideTextDrawMyInfo(playerid);
 		hideTextDrawShowItem(playerid);
+		if(PlayerInfo[playerid][onSelectedTextdraw]) CancelSelectTextDraw(playerid);
+		PlayerInfo[playerid][onSelectedTextdraw] = false;
+		return 1;
+	}
+    else if(playertextid == showItem[playerid][4])
+    {
+		if(PlayerInfo[playerid][onSelectedTextdraw]) CancelSelectTextDraw(playerid);
+		hideTextDrawShowItem(playerid);
+		PlayerInfo[playerid][onSelectedTextdraw] = false;
         return 1;
     }else if(playertextid == myInfo[playerid][7]){
-		CancelSelectTextDraw(playerid);
+		if(PlayerInfo[playerid][onSelectedTextdraw]) CancelSelectTextDraw(playerid);
 		hideTextDrawMyInfo(playerid);
+		PlayerInfo[playerid][onSelectedTextdraw] = false;
 		return 1;
 	}
     return 0;
@@ -1479,6 +1512,14 @@ public OnPlayerSpawn(playerid)
 	#endif	
 	if(IsPlayerNPC(playerid)) return 1;
 	houseNotif[playerid] = -1;
+
+	// Tambang
+	if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
+	KillTimer(PlayerAction[playerid][timerNambang]);
+	PlayerAction[playerid][sedangNambang] = false;
+
+	PlayerInfo[playerid][onSelectedTextdraw] = false;
+
 	spawnPemain(playerid);
 	return 1;
 }
@@ -1491,6 +1532,8 @@ public OnPlayerDeath(playerid, killerid, reason)
 
 	PlayerInfo[playerid][sudahSpawn] = false;
 	
+	PlayerInfo[playerid][onSelectedTextdraw] = false;
+
 	new random_spawn = random(sizeof(SPAWN_POINT));
 	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
 
@@ -1639,7 +1682,7 @@ public OnPlayerText(playerid, text[]){
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
-	ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 1000);
+	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000);
 	// Wiki Samp - OnPlayerText
 	// Return 1 - Mengirimkan pesan default
 	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan
@@ -1743,6 +1786,10 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		if(isnull(PlayerInfo[playerid][nomorRekening])) return SendClientMessage(playerid, COLOR_RED, "[ATM] "WHITE"Anda tidak dapat menggunakan ATM jika tidak memiliki rekening");
 		showDialogATM(playerid);
 		return 1;
+	}else if(checkpointid >= CP_Tambang[0] && checkpointid <= CP_Tambang[sizeof(CP_Tambang) - 1]) {
+		if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Anda harus berjalan kaki untuk dapat menambang!");
+		if(PlayerInfo[playerid][sisaPalu] <= 0) return error_command(playerid, "Anda kehabisan kesempatan menambang, gunakan item Palu Tambang untuk menambah kesempatan anda.");
+		ShowPlayerDialog(playerid, DIALOG_TANYA_TAMBANG, DIALOG_STYLE_MSGBOX, "Ingin menambang", "Apakah anda ingin menambang?\n"YELLOW"Note : Anda membutuhkan cangkul untuk menambang.", "Ya", "Tidak");
 	}
 	return 1;
 }

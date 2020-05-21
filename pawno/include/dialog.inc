@@ -11,6 +11,10 @@ showDialogTellerBank(playerid){
     return ShowPlayerDialog(playerid, DIALOG_TELLER_BANK, DIALOG_STYLE_LIST, "Pilihan pengurusan administrasi Bank", "Buat Rekening ATM\nDeposit ke Tabungan", "Pilih", "Tutup");
 }
 
+showDialogPesan(playerid, judul_pesan[], isi_pesan[]){
+	return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, judul_pesan, isi_pesan, "Ok", "");
+}
+
 showDialogBeliBarang(playerid){
 	new subString[45];
     static string[sizeof(BARANG_MARKET) * 45];
