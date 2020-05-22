@@ -1613,8 +1613,6 @@ public OnGameModeInit()
 	SetNameTagDrawDistance(40.0);
 	EnableStuntBonusForAll(0);
 	DisableInteriorEnterExits();
-	SetWeather(2);
-	SetWorldTime(11);
 	
 	// SPECIAL
 	total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/trains.txt");
