@@ -11,7 +11,7 @@
  Target Server Version : 100408
  File Encoding         : 65001
 
- Date: 20/05/2020 23:04:20
+ Date: 21/05/2020 21:49:05
 */
 
 SET NAMES utf8mb4;
@@ -51,7 +51,7 @@ CREATE TABLE `item`  (
   `keterangan` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
   `fungsi` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Berisi public function yang akan di trigger saat pemilihan use item, pada item tersebut.',
   PRIMARY KEY (`id_item`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of item
@@ -63,6 +63,11 @@ INSERT INTO `item` VALUES (4, 'ePhone 4', 18867, 'Dapat digunakan untuk PM, BC, 
 INSERT INTO `item` VALUES (5, 'Pas Foto', 2281, 'Pas Foto untuk keperluan administrasi.', NULL);
 INSERT INTO `item` VALUES (6, 'Materai', 2059, 'Materai untuk keperluan administrasi.', NULL);
 INSERT INTO `item` VALUES (7, 'KTP', 1581, 'KTP sebagai identitas kewarganegaraan.', NULL);
+INSERT INTO `item` VALUES (8, 'Palu Tambang', 19631, 'Palu Tambang digunakan untuk menambang, 1x use item ini = 15 kali kesempatan tambang.', 'pakaiPaluTambang');
+INSERT INTO `item` VALUES (9, 'Emas', 19941, 'Emas adalah item yang langka, berguna untuk banyak hal dan memiliki nilai yang tinggi.', NULL);
+INSERT INTO `item` VALUES (10, 'Berlian', 1559, 'Berlian adalah item yang sangat langka, berguna untuk membuat item-item langka dan dapat menghasilkan banyak uang.', NULL);
+INSERT INTO `item` VALUES (11, 'Perunggu', 2936, 'Perunggu adalah item yang bagus dan diminati, berguna untuk banyak hal.', NULL);
+INSERT INTO `item` VALUES (12, 'Perak', 16134, 'Perak adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL);
 
 -- ----------------------------
 -- Table structure for pengambilan_ktp
@@ -149,7 +154,7 @@ CREATE TABLE `user`  (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 125, 73, '2020-04-24 21:12:03', 370, 0, 'nathan@gmail.com', 0, '1414.218872', '-986.193054', '-55.276352', '261.726257', '1', '1', '621234', 4, '12345678', 0);
+INSERT INTO `user` VALUES (22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 125, 89, '2020-04-24 21:12:03', 270, 0, 'nathan@gmail.com', 0, '495.579010', '786.940063', '-22.140020', '225.611832', '0', '0', '621234', 4, '12345678', 0);
 INSERT INTO `user` VALUES (23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', 100, 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0);
 INSERT INTO `user` VALUES (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 91, '2020-04-30 15:31:48', 174940, 0, 'natan@gmail.com', 0, '1519.263184', '-1696.209229', '13.292188', '109.391800', '0', '0', '629876', 1, NULL, 0);
 INSERT INTO `user` VALUES (25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', 0, 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, 0, NULL, 0);
@@ -168,7 +173,7 @@ CREATE TABLE `user_item`  (
   `jumlah` int(255) NULL DEFAULT 1,
   PRIMARY KEY (`id_user_item`) USING BTREE,
   UNIQUE INDEX `id_item`(`id_item`, `id_user`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 38 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of user_item
@@ -189,6 +194,11 @@ INSERT INTO `user_item` VALUES (34, 7, 24, 1);
 INSERT INTO `user_item` VALUES (35, 5, 22, 14);
 INSERT INTO `user_item` VALUES (36, 6, 22, 6);
 INSERT INTO `user_item` VALUES (37, 7, 22, 1);
+INSERT INTO `user_item` VALUES (38, 8, 22, 4);
+INSERT INTO `user_item` VALUES (39, 11, 22, 12);
+INSERT INTO `user_item` VALUES (40, 12, 22, 14);
+INSERT INTO `user_item` VALUES (41, 9, 22, 5);
+INSERT INTO `user_item` VALUES (42, 10, 22, 1);
 
 -- ----------------------------
 -- Table structure for user_skin
