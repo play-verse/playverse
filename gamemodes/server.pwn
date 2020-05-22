@@ -1498,10 +1498,6 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 
 public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 {
-    if(newkeys == KEY_SUBMISSION)
-    {
-        SelectTextDraw(playerid, 0xFF4040AA);
-    }
     return 1;
 }
 
