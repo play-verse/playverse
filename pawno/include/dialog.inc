@@ -8,11 +8,41 @@ showDialogRespsionisKTP(playerid){
 }
 
 showDialogTellerBank(playerid){
-    return ShowPlayerDialog(playerid, DIALOG_TELLER_BANK, DIALOG_STYLE_LIST, "Pilihan pengurusan administrasi Bank", "Buat Rekening ATM\nDeposit ke Tabungan", "Pilih", "Tutup");
+    return ShowPlayerDialog(playerid, DIALOG_TELLER_BANK, DIALOG_STYLE_LIST, "Pilihan pengurusan administrasi Bank", "Buat Rekening ATM\nDeposit ke Tabungan\nGaji", "Pilih", "Tutup");
 }
 
 showDialogPesan(playerid, judul_pesan[], isi_pesan[]){
 	return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, judul_pesan, isi_pesan, "Ok", "");
+}
+
+showDialogEPhone(playerid){
+	new string[500];
+    // Switch berdasarkan id item
+    switch(PlayerInfo[playerid][ePhone])
+    {
+        case 1:
+        {
+            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim");
+        }
+        case 2: 
+        {
+            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim\nATM M-Banking");
+        }
+        case 3:
+        {
+            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim\nATM M-Banking\nSharelock");
+        }
+        case 4:
+        {            
+            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim\nATM M-Banking\nSharelock\nOnline Marketplace");
+        }
+        default:
+        {
+            // Worst case
+            return error_command(playerid, "Maaf terjadi kesalahan pada akun anda, silahkan mengirimkan report ke pada administrator. "ORANGE"(Error Kode #007 EPhone)");
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_MENU_EPHONE, DIALOG_STYLE_LIST, WHITE"ePhone menu :", string, "Pilih", "Batal");
 }
 
 showDialogBeliBarang(playerid){
@@ -31,4 +61,8 @@ showDialogBeliBarang(playerid){
 
 showDialogATM(playerid){
 	return ShowPlayerDialog(playerid, DIALOG_ATM, DIALOG_STYLE_LIST, "Menu ATM", "Transfer Uang\nPenarikan Uang\nInfo Saldo\nHistory Rekening", "Ok", "Batal");
+}
+
+showDialogEBank(playerid){
+	return ShowPlayerDialog(playerid, DIALOG_E_BANKING_MENU, DIALOG_STYLE_LIST, WHITE"Menu E-Banking", WHITE"Info Saldo\nTransfer Uang\nHistory Rekening", "Pilih", "Batal");
 }

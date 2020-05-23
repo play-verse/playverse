@@ -15,6 +15,11 @@ error_command(playerid, const message[]){
     return SendClientMessage(playerid, COLOR_WHITE, pesan);
 }
 
+addGajiPemain(playerid, nominal){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `gaji`(id_user, nominal, tanggal, status) VALUES('%d', '%d', NOW(), '0')", PlayerInfo[playerid][pID], nominal);
+    mysql_tquery(koneksi, pQuery[playerid]);
+}
+
 buatPickupDanLabel(modelid, Float:x, Float:y, Float:z, const text[]){
     CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
     return CreateDynamicPickup(modelid, 1, x, y, z);
@@ -76,16 +81,16 @@ getFungsiByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
 }
 
 getSaldoPlayer(playerid, const fungsi_callback[]){
-    mysql_format(koneksi, query, sizeof(query), "SELECT IFNULL(SUM(nominal), 0) as saldo FROM `trans_atm` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
-    mysql_tquery(koneksi, query, fungsi_callback, "i", playerid);
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(nominal), 0) as saldo FROM `trans_atm` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+    mysql_tquery(koneksi, pQuery[playerid], fungsi_callback, "i", playerid);
 }
 
 getUangPlayer(playerid, bool:useDb = false)
 {
     if(useDb){
         new jumlah_uang, Cache:result;
-        mysql_format(koneksi, query, sizeof(query), "SELECT `uang` FROM `user` WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
-        result = mysql_query(koneksi, "SELECT `uang` FROM `user` WHERE id = '%d'");    
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT `uang` FROM `user` WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
+        result = mysql_query(koneksi, pQuery[playerid]);    
         cache_get_value_name_int(0, "uang", jumlah_uang);
         cache_delete(result);
         return jumlah_uang;
@@ -98,8 +103,8 @@ givePlayerUang(playerid, jumlah, bool:simpanDb = true){
     PlayerInfo[playerid][uang] += jumlah;
 
     if(simpanDb){
-        mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
-        mysql_tquery(koneksi, query);
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
+        mysql_tquery(koneksi, pQuery[playerid]);
     }
 
     valstr(stringUang, PlayerInfo[playerid][uang]);
@@ -124,8 +129,8 @@ setUangPlayer(playerid, jumlah, bool:simpanDb = true){
     valstr(stringUang, PlayerInfo[playerid][uang]);
 
     if(simpanDb){
-        mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
-        mysql_tquery(koneksi, query);
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
+        mysql_tquery(koneksi, pQuery[playerid]);
     }
 
     PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
@@ -160,14 +165,14 @@ cekKetersediaanMassiveItem(playerid, const barang_barang[][], const fungsi_callb
         }
         strcat(kondisi, sub_kondisi);
     }
-    mysql_format(koneksi, query, sizeof(query), "SELECT COUNT(*) AS hasil FROM `user_item` WHERE id_user = '%d' AND (%s)", PlayerInfo[playerid][pID], kondisi);
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) AS hasil FROM `user_item` WHERE id_user = '%d' AND (%s)", PlayerInfo[playerid][pID], kondisi);
     // Pada fungsi harus ada parameter untuk menampung banyak item
-    if(!isnull(fungsi_callback)) mysql_tquery(koneksi, query, "isItemCukup", "iis", playerid, banyak_barang, fungsi_callback);
+    if(!isnull(fungsi_callback)) mysql_tquery(koneksi, pQuery[playerid], "isItemCukup", "iis", playerid, banyak_barang, fungsi_callback);
 }
 
 cekKetersediaanItem(playerid, id_item, jumlah, const fungsi_callback[]){
-    mysql_format(koneksi, query, sizeof(query), "SELECT COUNT(*) AS hasil FROM user_item WHERE id_user = '%d' AND id_item = '%d' AND jumlah >= '%d'", PlayerInfo[playerid][pID], id_item, jumlah);
-    mysql_tquery(koneksi, query, "isItemCukup", "iis", playerid, 1, fungsi_callback);
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) AS hasil FROM user_item WHERE id_user = '%d' AND id_item = '%d' AND jumlah >= '%d'", PlayerInfo[playerid][pID], id_item, jumlah);
+    mysql_tquery(koneksi, pQuery[playerid], "isItemCukup", "iis", playerid, 1, fungsi_callback);
 }
 
 publicFor: isItemCukup(playerid, syarat, const fungsi_callback[]){

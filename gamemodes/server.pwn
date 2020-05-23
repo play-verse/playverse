@@ -12,6 +12,7 @@
 #include <streamer>
 #include <mapping>
 #include <a_mysql>
+#include <a_mysql_yinline>
 #include <zcmd>
 #include <YSI_Data\y_iterate>
 #include <core>
@@ -65,8 +66,8 @@ public OnPlayerConnect(playerid)
 		printf("OnPlayerConnect terpanggil (%d - %s)", playerid, nama);
 	#endif
 
-    mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE `nama` = '%e'", PlayerInfo[playerid][pPlayerName]);
-	mysql_tquery(koneksi, query, "isRegistered", "d", playerid);
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user` WHERE `nama` = '%e'", PlayerInfo[playerid][pPlayerName]);
+	mysql_tquery(koneksi, pQuery[playerid], "isRegistered", "d", playerid);
 
 	return 1;
 }
@@ -148,8 +149,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				{
 					PlayerInfo[playerid][sudahLogin] = true;
 
-					mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `jumlah_login` = `jumlah_login` + 1 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
-					mysql_tquery(koneksi, query);
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `jumlah_login` = `jumlah_login` + 1 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
+					mysql_tquery(koneksi, pQuery[playerid]);
 
 					PlayerInfo[playerid][loginKe]++;
 					format(msg, sizeof(msg), "~r~Selamat ~y~datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %d ~w~!", PlayerInfo[playerid][loginKe]);
@@ -226,19 +227,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						/**
-							OLD INVENTORY
-						 */
-						// mysql_format(koneksi, query, sizeof(query), "SELECT a.id_item, a.jumlah FROM `user_item` a WHERE a.`id_user` = '%d' ORDER BY a.id_item ASC", PlayerInfo[playerid][pID]);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT b.id_item, b.nama_item, a.jumlah FROM `user_item` a LEFT JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0", PlayerInfo[playerid][pID]);
 
-						mysql_format(koneksi, query, sizeof(query), "SELECT b.id_item, b.nama_item, a.jumlah FROM `user_item` a LEFT JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0", PlayerInfo[playerid][pID]);
-
-						mysql_tquery(koneksi, query, "tampilInventoryBarangPlayer", "d", playerid);
+						mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryBarangPlayer", "d", playerid);
 					}
 					case 1:
 					{
-						mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user_skin` WHERE `id_user` = '%d' AND `jumlah` > 0", PlayerInfo[playerid][pID]);
-						mysql_tquery(koneksi, query, "tampilInventorySkinPlayer", "d", playerid);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user_skin` WHERE `id_user` = '%d' AND `jumlah` > 0", PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid], "tampilInventorySkinPlayer", "d", playerid);
 					}
 				}
 			}
@@ -336,27 +332,23 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(!(strlen(inputtext) == 4)) return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Kode harus terdiri dari 4 angka!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
 				if(inputtext[0] == '-' || !isNumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Kode harus terdiri dari angka saja!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
 
-				new Cache:result, bool:valid;
 				new nomor_hp[16] = "62";
 				strcat(nomor_hp, inputtext);
-				mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE nomor_handphone = '%s'", nomor_hp);
-				result = mysql_query(koneksi, query);
-				if(cache_num_rows())
-					valid = false;
-				else
-					valid = true;
-				cache_delete(result);
 
-				if(valid){
-					mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET nomor_handphone = '%e' WHERE id = '%d'", nomor_hp, PlayerInfo[playerid][pID]);
-					mysql_tquery(koneksi, query);
+				inline responseCekNomorHP(){
+					if(cache_num_rows()){
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET nomor_handphone = '%e' WHERE id = '%d'", nomor_hp, PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid]);
 
-					format(PlayerInfo[playerid][nomorHP], 12, "%s", nomor_hp);
+						format(PlayerInfo[playerid][nomorHP], 12, "%s", nomor_hp);
 
-					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendaftarkan nomor HP", WHITE"Anda "GREEN"berhasil "WHITE"mendaftarkan nomor HP!", "Ok", "");
-				}else{
-					return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Nomor HP telah ada, silahkan input yang lain!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendaftarkan nomor HP", WHITE"Anda "GREEN"berhasil "WHITE"mendaftarkan nomor HP!", "Ok", "");
+					}else{
+						return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Nomor HP telah ada, silahkan input yang lain!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
+					}
 				}
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user` WHERE nomor_handphone = '%s'", nomor_hp);
+				mysql_tquery_inline(koneksi, pQuery[playerid], using inline responseCekNomorHP);
 			}
 			return 1;
 		}
@@ -408,8 +400,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_PILIH_ITEM:
 		{
 			if(response){
-				mysql_format(koneksi, query, sizeof(query), "SELECT jumlah FROM `user_item` WHERE id_user = '%d' AND id_item = '%d'", PlayerInfo[playerid][pID], strval(inputtext));
-				mysql_tquery(koneksi, query, "cekJumlahItem", "dd", playerid, strval(inputtext));
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT jumlah FROM `user_item` WHERE id_user = '%d' AND id_item = '%d'", PlayerInfo[playerid][pID], strval(inputtext));
+				mysql_tquery(koneksi, pQuery[playerid], "cekJumlahItem", "dd", playerid, strval(inputtext));
 			}else{
 				resetPVarInventory(playerid);
 			}
@@ -452,8 +444,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					// Kirim Pesan
 					case 0:
 					{
-						mysql_format(koneksi, query, sizeof(query), "SELECT COUNT(*) AS banyak_pesan FROM `sms` WHERE `id_user_pengirim` = '%d' AND `id_pemilik_pesan` = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
-						mysql_tquery(koneksi, query, "cekPesanTerkirim", "d", playerid);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) AS banyak_pesan FROM `sms` WHERE `id_user_pengirim` = '%d' AND `id_pemilik_pesan` = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid], "cekPesanTerkirim", "d", playerid);
 						return 1;
 					}
 					// Kotak Masuk
@@ -466,18 +458,88 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						tampilkanKotakTerkirim(playerid);
 					}
+					case 3:
+					{
+						if(isnull(PlayerInfo[playerid][nomorRekening])) return showDialogPesan(playerid, RED"Anda tidak memiliki ATM", WHITE"Untuk dapat mengakses ATM Banking, anda harus mempunyai rekening bank terlebih dahulu.\n"YELLOW"Anda dapat pergi ke bank untuk mengurusnya.");
+
+						showDialogEBank(playerid);
+					}
 					default:
 						return 1;
 				}
 			}
 			return 1;
 		}
+		case DIALOG_E_BANKING_MENU:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Info Saldo
+					{
+						inline responseDialog(){
+							new saldo;
+							if(cache_num_rows()){
+								cache_get_value_name_int(0, "saldo", saldo);
+								format(msg, sizeof(msg), WHITE"Informasi saldo anda dan Rekening anda:\n\nNama : %s\nRekening : %s\nSaldo : %d\n\nInformasi saldo dapat berubah sewaktu-waktu sesuai dengan transaksi yang terjadi setiap saatnya.\nTerimakasih telah menggunakan Layanan dari kami.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][nomorRekening], saldo);
+								ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY_EBANK, DIALOG_STYLE_MSGBOX, "Informasi saldo dan Akun Bank", msg, "Kembali", "Tutup");
+							}
+							else
+								printf("[ERROR] #03 Error fungsi tampil saldo (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
+						}
+
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(nominal), 0) as saldo FROM `trans_atm` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+						mysql_tquery_inline(koneksi, pQuery[playerid], using inline responseDialog);
+						return 1;
+					}
+					case 1: // Transfer Uang
+					{
+						ShowPlayerDialog(playerid, DIALOG_INPUT_REKENING_TUJUAN, DIALOG_STYLE_INPUT, "Nomor rekening tujuan", "Silahkan masukan nomor rekening tujuan:\nNomor rekening harus terdiri dari 8 digit.\nPastikan anda memasukan rekening yang benar.", "Ok", "Batal");
+						return 1;
+					}
+					case 2: // History
+					{
+						inline responseDialogHistoryATM(){
+							new rows;
+							cache_get_row_count(rows);
+							if(rows){
+								new idx = 0, subString[150], string[1700] = "Pengirim/Penerima\tNominal\tTanggal\tKeterangan\n", temp_tanggal[20], rekening_temp[10], keterangan[60], nominal_temp;
+								while(idx < rows){
+									cache_get_value_name(idx, "rekening", rekening_temp);
+									cache_get_value_name(idx, "keterangan", keterangan);
+									cache_get_value_name(idx, "tanggal", temp_tanggal);
+									cache_get_value_name_int(idx, "nominal", nominal_temp);
+									format(subString, sizeof(subString), "%s\t%d\t%s\t%s\n", rekening_temp, nominal_temp, temp_tanggal, keterangan);
+									strcat(string, subString);
+									idx++;
+								}
+								ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY_EBANK, DIALOG_STYLE_TABLIST_HEADERS, "Informasi History ATM Banking", string, "Kembali", "Tutup");
+							}else{
+								ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY_EBANK, DIALOG_STYLE_MSGBOX, "Informasi History ATM Banking", "Tidak ada history ATM untuk saat ini.", "Kembali", "Tutup");
+							}							
+						}
+
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT 10", PlayerInfo[playerid][pID]);
+						mysql_tquery_inline(koneksi, pQuery[playerid], using inline responseDialogHistoryATM);
+						return 1;
+					}
+				}
+			}else
+				showDialogEPhone(playerid);
+			return 1;
+		}
+		case DIALOG_INFO_SALDO_HISTORY_EBANK:
+		{
+			if(response){
+				showDialogEBank(playerid);
+			}			
+			return 1;
+		}
 		case DIALOG_SMS_MASUKAN_NOMOR:
 		{
 			if(response){
 				if(strlen(inputtext) == 6 && inputtext[0] == '6' && inputtext[1] == '2'){
- 					mysql_format(koneksi, query, sizeof(query), "select a.id, COUNT(b.pesan) AS banyak_pesan from `user` a left join sms b on b.id_user_penerima = a.id WHERE a.nomor_handphone = '%e' GROUP BY a.id", inputtext);		
-					mysql_tquery(koneksi, query, "cekNomorPenerima", "d", playerid);
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "select a.id, COUNT(b.pesan) AS banyak_pesan from `user` a left join sms b on b.id_user_penerima = a.id WHERE a.nomor_handphone = '%e' GROUP BY a.id", inputtext);		
+					mysql_tquery(koneksi, pQuery[playerid], "cekNomorPenerima", "d", playerid);
 				}else{
 					ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_NOMOR, DIALOG_STYLE_INPUT, WHITE"Nomor HP penerima", RED"Nomor HP yang anda masukan invalid!\n"YELLOW"Pastikan nomor HP terdiri dari 6 angka dan diawali dengan 62.\n\n"WHITE"Masukan nomor HP penerima dengan lengkap :", "Ok", "Batal");
 				}
@@ -491,8 +553,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_PESAN, DIALOG_STYLE_INPUT, WHITE"Pesan yang akan dikirim", RED"Pesan tidak boleh kosong!\n"WHITE"Masukan pesan yang ingin anda kirimkan :", "Ok", "Batal");
 				}else{
 					new id_user_penerima = GetPVarInt(playerid, "sms_id_penerima");
-					mysql_format(koneksi, query, sizeof(query), "INSERT INTO `sms`(id_user_pengirim, id_user_penerima, pesan, tanggal_dikirim, id_pemilik_pesan) VALUES('%d', '%d', '%e', NOW(), '%d'), ('%d', '%d', '%e', NOW(), '%d')", PlayerInfo[playerid][pID], id_user_penerima, inputtext, PlayerInfo[playerid][pID], PlayerInfo[playerid][pID], id_user_penerima, inputtext, id_user_penerima);
-					mysql_tquery(koneksi, query);
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `sms`(id_user_pengirim, id_user_penerima, pesan, tanggal_dikirim, id_pemilik_pesan) VALUES('%d', '%d', '%e', NOW(), '%d'), ('%d', '%d', '%e', NOW(), '%d')", PlayerInfo[playerid][pID], id_user_penerima, inputtext, PlayerInfo[playerid][pID], PlayerInfo[playerid][pID], id_user_penerima, inputtext, id_user_penerima);
+					mysql_tquery(koneksi, pQuery[playerid]);
 
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mengirimkan SMS", GREEN"Anda berhasil mengirimkan SMS!\n"WHITE"Silahkan buka "YELLOW"kotak terkirim "WHITE"untuk melihat kembali SMS yang anda kirim.", "Ok", "");
 
@@ -546,8 +608,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 1:
 					{
-						mysql_format(koneksi, query, sizeof(query), "DELETE FROM `sms` WHERE `id_sms` = '%d' AND `id_user_pengirim` = '%d' AND `id_pemilik_pesan` = '%d'", id_pesan, PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
-						mysql_tquery(koneksi, query);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `sms` WHERE `id_sms` = '%d' AND `id_user_pengirim` = '%d' AND `id_pemilik_pesan` = '%d'", id_pesan, PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid]);
 
 						SendClientMessage(playerid, COLOR_GREEN, "[SMS] "YELLOW"Pesan pada kotak terkirim berhasil dihapus!");
 
@@ -602,8 +664,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 1:
 					{
-						mysql_format(koneksi, query, sizeof(query), "DELETE FROM `sms` WHERE `id_sms` = '%d' AND `id_user_penerima` = '%d' AND `id_pemilik_pesan` = '%d'", id_pesan, PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
-						mysql_tquery(koneksi, query);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `sms` WHERE `id_sms` = '%d' AND `id_user_penerima` = '%d' AND `id_pemilik_pesan` = '%d'", id_pesan, PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid]);
 
 						SendClientMessage(playerid, COLOR_GREEN, "[SMS] "YELLOW"Pesan pada kotak masuk berhasil dihapus!");
 
@@ -675,8 +737,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new level_rumah = GetPVarInt(playerid, "level_rumah");
 				GetPlayerPos(playerid, me_x, me_y, me_z);
 
-				mysql_format(koneksi, query, sizeof(query), "INSERT INTO `house` (level, harga, icon_x, icon_y, icon_z) VALUES ('%d', '%d', '%f', '%f', '%f')", level_rumah, strval(inputtext), me_x, me_y, me_z);
-				result = mysql_query(koneksi, query);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `house` (level, harga, icon_x, icon_y, icon_z) VALUES ('%d', '%d', '%f', '%f', '%f')", level_rumah, strval(inputtext), me_x, me_y, me_z);
+				result = mysql_query(koneksi, pQuery[playerid]);
 				new id = cache_insert_id();
 
 				createHouse(id, -1, level_rumah, strval(inputtext), 1, 1, me_x, me_y, me_z);
@@ -704,8 +766,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(ownerId != INVALID_PLAYER_ID){
 							givePlayerUang(ownerId, beliRate);
 						}else{
-							mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[i][hOwner]);
-		   			 		mysql_tquery(koneksi, query);
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[i][hOwner]);
+		   			 		mysql_tquery(koneksi, pQuery[playerid]);
 						}
 
 						DestroyDynamicPickup(housePickup[i]);
@@ -720,8 +782,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 				}
 
-				mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `id_user` = -1, `level` = 1, `kunci` = 1, `jual` = 1");
-				mysql_query(koneksi, query);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `id_user` = -1, `level` = 1, `kunci` = 1, `jual` = 1");
+				mysql_query(koneksi, pQuery[playerid]);
 				mysql_query(koneksi, "UPDATE `user` SET `save_house` = 0");
 
 				loadAllHouse();
@@ -754,14 +816,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.\n", "Lanjut", "Batal");
 
 				new Cache:result, pmsg[256], userId, id = strval(inputtext);
-				mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `house` WHERE `id_house` = '%d'", id);
-				result = mysql_query(koneksi, query);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `house` WHERE `id_house` = '%d'", id);
+				result = mysql_query(koneksi, pQuery[playerid]);
 				if(cache_num_rows()){
 				 	new beliRate = getHousePrice(id, "beli");
 					cache_get_value_name_int(0, "id_user", userId);
 					
-					mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, userId);
-					mysql_query(koneksi, query);
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, userId);
+					mysql_query(koneksi, pQuery[playerid]);
 					
 					if(houseInfo[id][hOwner] != -1){
 						new ownerName[256];
@@ -770,11 +832,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(ownerId != INVALID_PLAYER_ID){
 							givePlayerUang(ownerId, beliRate);
 						}else{
-							mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
-		   			 		mysql_tquery(koneksi, query);
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
+		   			 		mysql_tquery(koneksi, pQuery[playerid]);
 
-		   			 		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
-							mysql_query(koneksi, query);
+		   			 		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
+							mysql_query(koneksi, pQuery[playerid]);
 						}
 					}
 
@@ -792,8 +854,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					houseInfo[id][icon_y] = 0;
 					houseInfo[id][icon_z] = 0;
 
-					mysql_format(koneksi, query, sizeof(query), "DELETE FROM `house` WHERE `id_house` = '%d'", id);
-					mysql_query(koneksi, query);
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `house` WHERE `id_house` = '%d'", id);
+					mysql_query(koneksi, pQuery[playerid]);
 					format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda berhasil menghapus rumah (id:"YELLOW"%d"WHITE")!", id);
 				    SendClientMessage(playerid, COLOR_WHITE, pmsg);
 				}else{
@@ -818,8 +880,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(ownerId != INVALID_PLAYER_ID){
 							givePlayerUang(ownerId, beliRate);
 						}else{
-							mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[i][hOwner]);
-		   			 		mysql_tquery(koneksi, query);
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[i][hOwner]);
+		   			 		mysql_tquery(koneksi, pQuery[playerid]);
 						}
 
 						DestroyDynamicPickup(housePickup[i]);
@@ -867,8 +929,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						case 1:
 						{
 							houseInfo[id][hJual] = 0;
-							mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `jual` = 0 WHERE `id_house` = '%d'", id);
-							mysql_query(koneksi, query);
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `jual` = 0 WHERE `id_house` = '%d'", id);
+							mysql_query(koneksi, pQuery[playerid]);
 						 	reloadHouseLabel(id);
 							SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Rumah anda batal untuk dijual!");
 							DeletePVar(playerid, "info_rumah");
@@ -899,8 +961,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						case 1:
 						{
 							houseInfo[id][hJual] = 1;
-							mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `jual` = 1 WHERE `id_house` = '%d'", id);
-							mysql_query(koneksi, query);
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `jual` = 1 WHERE `id_house` = '%d'", id);
+							mysql_query(koneksi, pQuery[playerid]);
 						 	reloadHouseLabel(id);
 							SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Rumah anda berhasil untuk dijual!");
 							DeletePVar(playerid, "info_rumah");
@@ -913,8 +975,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(getUangPlayer(playerid) < upgradeRate) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
 								givePlayerUang(playerid, -upgradeRate);
 							    houseInfo[id][hLevel] = houseLevel+1;
-							    mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
-							    mysql_tquery(koneksi, query);
+							    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
+							    mysql_tquery(koneksi, pQuery[playerid]);
 							    reloadHouseLabel(id);
 							    format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil upgrade rumah ke level ("YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hLevel], upgradeRate);
 							    SendClientMessage(playerid, COLOR_WHITE, pmsg);
@@ -928,13 +990,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							label_kunci_rumah:
 							if(houseInfo[id][hKunci] == 1){
 								houseInfo[id][hKunci] = 0;
-								mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `kunci` = '%d'", houseInfo[id][hKunci]);
-							    mysql_tquery(koneksi, query);
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `kunci` = '%d'", houseInfo[id][hKunci]);
+							    mysql_tquery(koneksi, pQuery[playerid]);
 								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membuka kunci rumah!");
 							}else{
 								houseInfo[id][hKunci] = 1;
-								mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `kunci` = '%d'", houseInfo[id][hKunci]);
-							    mysql_tquery(koneksi, query);
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `kunci` = '%d'", houseInfo[id][hKunci]);
+							    mysql_tquery(koneksi, pQuery[playerid]);
 								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil mengunci rumah!");
 							}
 							DeletePVar(playerid, "info_rumah");
@@ -945,13 +1007,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							new saveId = PlayerInfo[playerid][sHouse];
 							if(saveId == id){
 								PlayerInfo[playerid][sHouse] = 0;
-								mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `save_house` = 0 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
-							    mysql_tquery(koneksi, query);
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
+							    mysql_tquery(koneksi, pQuery[playerid]);
 								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membatalkan spawn disini!");
 							}else{
 								PlayerInfo[playerid][sHouse] = id;
-								mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `save_house` = '%d' WHERE `id` = '%d'", id, PlayerInfo[playerid][pID]);
-							    mysql_tquery(koneksi, query);
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = '%d' WHERE `id` = '%d'", id, PlayerInfo[playerid][pID]);
+							    mysql_tquery(koneksi, pQuery[playerid]);
 								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil menyimpan spawn disini!");
 							}
 							DeletePVar(playerid, "info_rumah");
@@ -975,19 +1037,19 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(ownerId != INVALID_PLAYER_ID){
 									givePlayerUang(ownerId, beliRate);
 								}else{
-									mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
-				   			 		mysql_tquery(koneksi, query);
+									mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
+				   			 		mysql_tquery(koneksi, pQuery[playerid]);
 
-				   			 		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
-									mysql_query(koneksi, query);
+				   			 		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
+									mysql_query(koneksi, pQuery[playerid]);
 								}
 							}
 							givePlayerUang(playerid, -beliRate);
 
 						    houseInfo[id][hOwner] = PlayerInfo[playerid][pID];
 						    houseInfo[id][hJual] = 0;
-						    mysql_format(koneksi, query, sizeof(query), "UPDATE `house` SET `id_user` = '%d', `jual` = 0 WHERE `id_house` = '%d'", PlayerInfo[playerid][pID], id);
-						    mysql_tquery(koneksi, query);
+						    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `id_user` = '%d', `jual` = 0 WHERE `id_house` = '%d'", PlayerInfo[playerid][pID], id);
+						    mysql_tquery(koneksi, pQuery[playerid]);
 						    reloadHouseLabel(id);
 						    format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil membeli rumah (id:"YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hID], beliRate);
 						    SendClientMessage(playerid, COLOR_WHITE, pmsg);
@@ -1242,6 +1304,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk kedalam akun bank anda.", "Deposit", "Kembali");
 						return 1;
 					}
+					case 2:
+					{
+						ShowPlayerDialog(playerid, DIALOG_MENU_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan gaji :", WHITE"Ambil Gaji\nLihat Gaji", "Pilih", "Kembali");
+						return 1;
+					}
 				}
 			}
 			return 1;
@@ -1256,8 +1323,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				SetPVarString(playerid, "regis_rekening", inputtext);
 
-				mysql_format(koneksi, query, sizeof(query), "SELECT COUNT(*) AS hasil FROM `user` WHERE rekening = '%e'", inputtext);
-				mysql_tquery(koneksi, query, "isRekeningAda", "i", playerid);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) AS hasil FROM `user` WHERE rekening = '%e'", inputtext);
+				mysql_tquery(koneksi, pQuery[playerid], "isRekeningAda", "i", playerid);
 			}else{
 				showDialogTellerBank(playerid);
 			}
@@ -1317,7 +1384,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0: // Transfer Uang
 					{
-						ShowPlayerDialog(playerid, DIALOG_INPUT_REKENING_TUJUAN, DIALOG_STYLE_INPUT, "Nomor rekening tujuan", "Silahkan masukan nomor rekening tujuan:\nNomor rekening harus terdiri dari 8 digit.\nPastikan anda memasukan rekening yang benar.", "Ok", "Kembali");
+						ShowPlayerDialog(playerid, DIALOG_INPUT_REKENING_TUJUAN, DIALOG_STYLE_INPUT, "Nomor rekening tujuan", "Silahkan masukan nomor rekening tujuan:\nNomor rekening harus terdiri dari 8 digit.\nPastikan anda memasukan rekening yang benar.", "Ok", "Batal");
 						return 1;
 					}
 					case 1: // Penarikan Uang
@@ -1332,8 +1399,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 3: // History ATM
 					{
-						mysql_format(koneksi, query, sizeof(query), "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT 10", PlayerInfo[playerid][pID]);
-						mysql_tquery(koneksi, query, "historyATMPemain", "i", playerid);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT 10", PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid], "historyATMPemain", "i", playerid);
 						return 1;
 					}
 				}
@@ -1348,10 +1415,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				if(strcmp(inputtext, PlayerInfo[playerid][nomorRekening]) == 0) return ShowPlayerDialog(playerid, DIALOG_INPUT_REKENING_TUJUAN, DIALOG_STYLE_INPUT, "Nomor rekening tujuan", RED"Tidak dapat mengirim ke nomor rekening sendiri.\n"WHITE"Silahkan masukan nomor rekening tujuan:\nNomor rekening harus terdiri dari 8 digit.\nPastikan anda memasukan rekening yang benar.", "Ok", "Kembali");
 
-				mysql_format(koneksi, query, sizeof(query), "SELECT nama FROM `user` WHERE rekening = '%e'", inputtext);
-				mysql_tquery(koneksi, query, "isRekeningTujuanAda", "is", playerid, inputtext);
-			}else
-				showDialogATM(playerid);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT nama FROM `user` WHERE rekening = '%e'", inputtext);
+				mysql_tquery(koneksi, pQuery[playerid], "isRekeningTujuanAda", "is", playerid, inputtext);
+			}
 			return 1;
 		}
 		case DIALOG_TRANSFER_NOMINAL:
@@ -1452,6 +1518,46 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				TogglePlayerControllable(playerid, 0);
 				SetPlayerArmedWeapon(playerid, 0);
 				ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
+			}
+			return 1;
+		}
+		case DIALOG_MENU_GAJI:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Ambil gaji
+					{
+						ShowPlayerDialog(playerid, DIALOG_PILIHAN_AMBIL_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan ambil gaji :", WHITE"Masukin ke saldo Bank\nAmbil Uang Kontan", "Pilih", "Batal");
+						return 1;
+					}
+					case 1: // Lihat gaji
+					{
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT nominal, tanggal FROM `gaji` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC", PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid], "showHistoryGajiPemain", "i", playerid);
+						return 1;
+					}
+				}
+			}else
+				ShowPlayerDialog(playerid, DIALOG_MENU_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan gaji :", WHITE"Ambil Gaji\nLihat Gaji", "Pilih", "Kembali");
+			return 1;
+		}
+		case DIALOG_PILIHAN_AMBIL_GAJI:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						if(isnull(PlayerInfo[playerid][nomorRekening])) return showDialogPesan(playerid, RED"Tidak memiliki akun bank", WHITE"Anda tidak memiliki akun bank untuk menampung gaji anda.\nSilahkan buat akun bank anda terlebih dahulu, atau gunakan "YELLOW"metode pengambilan gaji lain.");
+
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(nominal), 0) AS nominal FROM `gaji` WHERE id_user = '%d' AND status = '0'", PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid], "hitungGaji", "ii", playerid, 0);
+					}
+					case 1:
+					{
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(nominal), 0) AS nominal FROM `gaji` WHERE id_user = '%d' AND status = '0'", PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid], "hitungGaji", "ii", playerid, 1);
+					}
+				}
 			}
 			return 1;
 		}

@@ -124,8 +124,8 @@ publicFor: registerUser(playerid)
 	SHA256_PassHash(registerInfo[playerid][registerPassword], PlayerInfo[playerid][pPlayerName], EncryptedPassword, 64);
 
 	new Cache:result;
-	mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user` (`nama`, `password`, `jumlah_login`, `join_date`, `jenis_kelamin`, `email`, `account_status`, `current_skin`) VALUES ('%e', '%e', '1', NOW(), '%d', '%e', '0', '%d')", PlayerInfo[playerid][pPlayerName], EncryptedPassword, registerInfo[playerid][jenisKelamin], registerInfo[playerid][email], registerInfo[playerid][freeSkinID]);
-	result = mysql_query(koneksi, query);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `user` (`nama`, `password`, `jumlah_login`, `join_date`, `jenis_kelamin`, `email`, `account_status`, `current_skin`) VALUES ('%e', '%e', '1', NOW(), '%d', '%e', '0', '%d')", PlayerInfo[playerid][pPlayerName], EncryptedPassword, registerInfo[playerid][jenisKelamin], registerInfo[playerid][email], registerInfo[playerid][freeSkinID]);
+	result = mysql_query(koneksi, pQuery[playerid]);
 	PlayerInfo[playerid][pID] = cache_insert_id();
 	PlayerInfo[playerid][loginKe] = 1;
 	PlayerInfo[playerid][jenisKelamin] = registerInfo[playerid][jenisKelamin];
@@ -206,8 +206,8 @@ publicFor: GantiSkinSaatSpawn(playerid){
 }
 
 publicFor: updatePlayerCurrentPhone(playerid, listitem){
-	mysql_format(koneksi, query, sizeof(query), "SELECT a.use_phone, b.id_user_item, c.nama_item FROM `user` a LEFT JOIN `user_item` b ON b.id_user = a.id LEFT JOIN `item` c ON a.use_phone = c.id_item WHERE a.id = '%d'", PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query, "checkIfPhoneExist", "dd", playerid, listitem);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.use_phone, b.id_user_item, c.nama_item FROM `user` a LEFT JOIN `user_item` b ON b.id_user = a.id LEFT JOIN `item` c ON a.use_phone = c.id_item WHERE a.id = '%d'", PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid], "checkIfPhoneExist", "dd", playerid, listitem);
 	return 1;
 }
 
@@ -243,8 +243,8 @@ publicFor: checkIfPhoneExist(playerid, listitem){
 		tambahItemPlayer(playerid, itemid, -1);
 
 		// Set item terequip
-		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET use_phone = '%d' WHERE id = '%d'",itemid, PlayerInfo[playerid][pID]);
-		mysql_tquery(koneksi, query);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET use_phone = '%d' WHERE id = '%d'",itemid, PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
 
 		// Set player variabel
 		PlayerInfo[playerid][ePhone] = itemid;
@@ -335,15 +335,15 @@ publicFor: lihatPesanTerkirim(playerid){
 }
 
 publicFor: updatePlayerCurrentSkin(playerid, skinid){
-	mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user_skin` WHERE id_skin = '%d' AND id_user = '%d'", skinid, PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query, "checkIfSkinExist", "dd", playerid, skinid);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user_skin` WHERE id_skin = '%d' AND id_user = '%d'", skinid, PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid], "checkIfSkinExist", "dd", playerid, skinid);
 	return 1;
 }
 
 publicFor: checkIfSkinExist(playerid, skinid){
 	if(cache_num_rows()){
-		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET current_skin = '%d' WHERE id = '%d'",skinid, PlayerInfo[playerid][pID]);
-		mysql_tquery(koneksi, query);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET current_skin = '%d' WHERE id = '%d'",skinid, PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
 
 		// Kembalikan skin yang sama
 		tambahSkinPlayer(playerid, PlayerInfo[playerid][skinID], 1, false);
@@ -372,6 +372,26 @@ publicFor: tampilInventorySkinPlayer(playerid){
 	return 1; // For deleteing cache tquery
 }
 
+publicFor: hitungGaji(playerid, tipe){
+	new nominal;
+	cache_get_value_name_int(0, "nominal", nominal);
+	if(nominal > 0){
+		if(tipe == 0){ // Ambil gaji via bank
+			addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], nominal, "Pencairan gaji");
+		}else if(tipe == 1){ // Ambil gaji via kontan
+			givePlayerUang(playerid, nominal);
+		}
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `gaji` SET `status` = '1' WHERE id_user = '%d' AND status = '0'", PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
+
+		format(pDialog[playerid], sizePDialog, WHITE"Selamat anda berhasil mengambil gaji anda.\nGaji anda yang berhasil anda ambil sebesar "GREEN"$%d"WHITE".\n"YELLOW"Gaji yang sudah diterima tidak dapat claim kembali.", nominal);
+		showDialogPesan(playerid, GREEN"Berhasil mengambil gaji", pDialog[playerid]);
+	}else{
+		showDialogPesan(playerid, RED"Kotak gaji kosong", WHITE"Gaji anda saat ini sedang kosong!\nUntuk dapat mengambil gaji anda harus bekerja terlebih dahulu, kemudian anda dapat mengambil gaji disini!");
+	}
+	return 1;
+}
+
 publicFor: tampilInventoryBarangPlayer(playerid){
 	new rows, subString[64], jumlah, id_item, nama_item[100];
 	cache_get_row_count(rows);
@@ -394,21 +414,19 @@ publicFor: tampilInventoryBarangPlayer(playerid){
 }
 
 publicFor: tambahItemPlayer(playerid, itemid, jumlah){
-	// mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user_item` (id_user, id_item, jumlah) VALUES('%d', '%d', '%d') ON DUPLICATE KEY UPDATE `jumlah` = `jumlah` + '%d'", PlayerInfo[playerid][pID], itemid, jumlah, jumlah);
-
 	// Pakai trigger procedure
-	mysql_format(koneksi, query, sizeof(query), "CALL tambah_item(%d, %d, %d)", PlayerInfo[playerid][pID], itemid, jumlah);
-	mysql_tquery(koneksi, query);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "CALL tambah_item(%d, %d, %d)", PlayerInfo[playerid][pID], itemid, jumlah);
+	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }
 
 publicFor: tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan){
 	// Pakai trigger procedure
-	mysql_format(koneksi, query, sizeof(query), "CALL tambah_skin(%d, %d, %d)", PlayerInfo[playerid][pID], skinid, jumlah);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "CALL tambah_skin(%d, %d, %d)", PlayerInfo[playerid][pID], skinid, jumlah);
 	if(langsung_gunakan){
-		mysql_tquery(koneksi, query, "updatePlayerCurrentSkin", "dd", playerid, skinid);
+		mysql_tquery(koneksi, pQuery[playerid], "updatePlayerCurrentSkin", "dd", playerid, skinid);
 	}else{
-		mysql_tquery(koneksi, query);
+		mysql_tquery(koneksi, pQuery[playerid]);
 	}
 	return 1;
 }
@@ -493,16 +511,16 @@ publicFor: pakaiPaluTambang(playerid){
 getSudahBuatKTP(playerid, const fungsi_callback[], bool:cek_untuk_buat = true)
 {
 	if(cek_untuk_buat) {
-		mysql_format(koneksi, query, sizeof(query), "SELECT tanggal_ambil FROM pengambilan_ktp WHERE id_user = '%d' AND tanggal_ambil > NOW()", PlayerInfo[playerid][pID]);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil FROM pengambilan_ktp WHERE id_user = '%d' AND tanggal_ambil > NOW()", PlayerInfo[playerid][pID]);
 	}else{
-		mysql_format(koneksi, query, sizeof(query), "SELECT tanggal_ambil, (CASE WHEN tanggal_ambil <= NOW() THEN 1 ELSE 0 END) AS hasil FROM `pengambilan_ktp` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil, (CASE WHEN tanggal_ambil <= NOW() THEN 1 ELSE 0 END) AS hasil FROM `pengambilan_ktp` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 	}
-	mysql_tquery(koneksi, query, fungsi_callback, "i", playerid);
+	mysql_tquery(koneksi, pQuery[playerid], fungsi_callback, "i", playerid);
 }
 
 hapusSetelahPengambilanKTP(playerid){
-	mysql_format(koneksi, query, sizeof(query), "DELETE FROM pengambilan_ktp WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM pengambilan_ktp WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
 }
 
 publicFor: isRekeningAda(playerid){
@@ -615,8 +633,8 @@ publicFor: konfirmasiPembuatanRekening(playerid, ada){
 
 		GetPVarString(playerid, "regis_rekening", rekening, sizeof(rekening));
 		// Update rekening player
-		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET rekening = '%e' WHERE id = '%d'", rekening, PlayerInfo[playerid][pID]);
-		mysql_tquery(koneksi, query);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET rekening = '%e' WHERE id = '%d'", rekening, PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
 
 		format(PlayerInfo[playerid][nomorRekening], 10, "%s", rekening);
 
@@ -733,15 +751,35 @@ publicFor: selesaiNambang(playerid){
 	return 1;
 }
 
+publicFor: showHistoryGajiPemain(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		new tmp_tanggal[50], tmp_nominal, temp_dialog[150];
+		format(pDialog[playerid], sizePDialog, WHITE"Tanggal\t"GREEN"Nominal\n"WHITE);
+		foreach(new i : Range(0, rows)){
+			cache_get_value_name(i, "tanggal", tmp_tanggal);
+			cache_get_value_name_int(i, "nominal", tmp_nominal);
+
+			format(temp_dialog, 149, "%s\t%i\n", tmp_tanggal, tmp_nominal);
+			strcat(pDialog[playerid], temp_dialog);
+		}
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_TABLIST_HEADERS, "History Gaji Pemain", pDialog[playerid], "Tutup", "");
+	}else
+		showDialogPesan(playerid, RED"Kotak gaji kosong", WHITE"Saat ini gaji anda tidak ada yang mau diambil.");
+	return 1;
+}
+
 prosesPembuatanKTP(playerid, interval_menit){
 	// Interval dalam menit
-	mysql_format(koneksi, query, sizeof(query), "INSERT INTO pengambilan_ktp(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
-	mysql_tquery(koneksi, query);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_ktp(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
+	mysql_tquery(koneksi, pQuery[playerid]);
 }
 
 addTransaksiTabungan(const rekening_user[], nominal, const keterangan[], const rekening_pengirim_penerima[] = ""){
-	mysql_format(koneksi, query, sizeof(query), "CALL `tambah_transaksi_atm`('%e', '%e', %d, '%e')", rekening_pengirim_penerima, rekening_user, nominal, keterangan);
-	mysql_tquery(koneksi, query);
+	new tempQuery[100];
+	mysql_format(koneksi, tempQuery, 100, "CALL `tambah_transaksi_atm`('%e', '%e', %d, '%e')", rekening_pengirim_penerima, rekening_user, nominal, keterangan);
+	mysql_tquery(koneksi, tempQuery);
 }
 
 /**
@@ -749,13 +787,13 @@ addTransaksiTabungan(const rekening_user[], nominal, const keterangan[], const r
  */
 
 tampilkanKotakMasuk(playerid){
-	mysql_format(koneksi, query, sizeof(query), "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_pengirim = b.id WHERE a.id_user_penerima = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query, "lihatPesanMasuk", "d", playerid);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_pengirim = b.id WHERE a.id_user_penerima = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid], "lihatPesanMasuk", "d", playerid);
 }
 
 tampilkanKotakTerkirim(playerid){
-	mysql_format(koneksi, query, sizeof(query), "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_penerima = b.id WHERE a.id_user_pengirim = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query, "lihatPesanTerkirim", "d", playerid);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_penerima = b.id WHERE a.id_user_pengirim = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid], "lihatPesanTerkirim", "d", playerid);
 }
 
 updateOnPlayerDisconnect(playerid){
@@ -772,8 +810,8 @@ updateOnPlayerDisconnect(playerid){
 		last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a, last_spawn_info_int = last_spawn_info_vw = 0;
 	}
 
-	mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }
 
@@ -922,9 +960,9 @@ reloadHouseLabel(house_Id){
 }
 
 getOwnerHouse(ownerid){
-	new Cache:result, nama[MAX_PLAYER_NAME];
-	mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE `id` = '%d'", ownerid);
-	result = mysql_query(koneksi, query);
+	new Cache:result, nama[MAX_PLAYER_NAME], tempQuery[100];
+	mysql_format(koneksi, tempQuery, 100, "SELECT * FROM `user` WHERE `id` = '%d'", ownerid);
+	result = mysql_query(koneksi, tempQuery);
 	if(cache_num_rows()){
 		cache_get_value_name(0, "nama", nama);
 	}

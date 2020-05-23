@@ -1,11 +1,15 @@
 /*
 	GLOBAL DEFINITION VARIABLE FOR MYSQL
  */
-new MySQL:koneksi, query[400], errno;
+#define sizePQuery 500
+#define sizePDialog 1000
+new MySQL:koneksi, errno, pQuery[MAX_PLAYERS][sizePQuery];
 
 /*
     GLOBAL VARIABLE FOR PLAYER VAR
 */
+new pDialog[MAX_PLAYERS][sizePDialog];
+
 enum pInfo
 {
 	pID,
@@ -99,7 +103,7 @@ new PlayerText:RadarUang[MAX_PLAYERS][2];
 
 new const SKIN_FEMALE_GRATIS[] = {
     9, 11, 12, 13, 40, 41, 54, 55, 56, 69, 76, 141, 148, 150, 151,
-    157, 172, 190, 191, 192, 193, 194, 195, 198, 201, 211, 225, 233, 226, 298, 304
+    157, 172, 190, 191, 192, 193, 194, 195, 198, 201, 211, 225, 233, 226, 298
 };
 
 new const SKIN_MALE_GRATIS[] = {
