@@ -159,7 +159,7 @@ publicFor: spawnPemain(playerid)
 		pindahkanPemain(playerid, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, true);
 
 		TogglePlayerControllable(playerid, 0);
-    	SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
+    	SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 
 		PlayerInfo[playerid][last_x] = 0;
 		PlayerInfo[playerid][last_y] = 0;
@@ -176,7 +176,7 @@ publicFor: spawnPemain(playerid)
 			pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
 
 			TogglePlayerControllable(playerid, 0);
-			SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
+			SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 			
 			PlayerInfo[playerid][last_x] = 0;
 			PlayerInfo[playerid][last_y] = 0;
@@ -193,7 +193,7 @@ publicFor: spawnPemain(playerid)
 			pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
 
 			TogglePlayerControllable(playerid, 0);
-			SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
+			SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 
 		}
 	}
@@ -373,19 +373,19 @@ publicFor: tampilInventorySkinPlayer(playerid){
 }
 
 publicFor: tampilInventoryBarangPlayer(playerid){
-	new rows, subString[64], jumlah, model_id, nama_item[100];
+	new rows, subString[64], jumlah, id_item, nama_item[100];
 	cache_get_row_count(rows);
-	new string[MAX_SERVER_ITEM * 64 + 5];
+	new string[MAX_SERVER_ITEM * 64 + 5] = "Kode\tNama\tJumlah\n"WHITE;
 	if(rows){
 		for(new i = 0; i < rows; i++){
-			cache_get_value_name_int(i, "model_id", model_id);
+			cache_get_value_name_int(i, "id_item", id_item);
 			cache_get_value_name_int(i, "jumlah", jumlah);
 			cache_get_value_name(i, "nama_item", nama_item);
 
-			format(subString, sizeof(subString), "%i\t%s~n~~g~%i\n", model_id, nama_item,jumlah);
+			format(subString, sizeof(subString), "%i\t%s\t%i\n", id_item, nama_item,jumlah);
 			strcat(string, subString);
 		}
-		ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_PREVIEW_MODEL, "~w~Pilih barang anda :", string, "~w~Pilih", "Keluar");
+		ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_TABLIST_HEADERS, "Pilih barang anda :", string, "Pilih", "Keluar");
 	}else{
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item "RED"kosong", WHITE"Maaf saat ini inventory item anda tidak berisi apapun!\n"YELLOW"Anda bisa mendapatkan item dari bekerja, berbelanja, ataupun saling bertukar item kepada player lain!", "Oke", "");
 	}
@@ -413,14 +413,14 @@ publicFor: tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan){
 	return 1;
 }
 
-publicFor: cekJumlahItem(playerid, model_id){
+publicFor: cekJumlahItem(playerid, itemid){
 	if(cache_num_rows()){
-		new jumlah, keterangan[500], itemid = getIDbyModelItem(model_id);
+		new jumlah, keterangan[500];
 		cache_get_value_name_int(0, "jumlah", jumlah);
 
 		if(jumlah > 0){
-			SetPVarInt(playerid, "inv_indexlist", model_id);
-			SetPVarInt(playerid, "inv_model", model_id);
+			SetPVarInt(playerid, "inv_indexlist", itemid);
+			SetPVarInt(playerid, "inv_model", getModelByIdItem(itemid));
 			SetPVarInt(playerid, "inv_jumlah", jumlah);
 
 			getKeteranganByIdItem(itemid, keterangan);

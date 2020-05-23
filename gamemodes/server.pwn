@@ -231,7 +231,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						 */
 						// mysql_format(koneksi, query, sizeof(query), "SELECT a.id_item, a.jumlah FROM `user_item` a WHERE a.`id_user` = '%d' ORDER BY a.id_item ASC", PlayerInfo[playerid][pID]);
 
-						mysql_format(koneksi, query, sizeof(query), "SELECT b.model_id, b.nama_item, a.jumlah FROM `user_item` a LEFT JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0", PlayerInfo[playerid][pID]);
+						mysql_format(koneksi, query, sizeof(query), "SELECT b.id_item, b.nama_item, a.jumlah FROM `user_item` a LEFT JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0", PlayerInfo[playerid][pID]);
 
 						mysql_tquery(koneksi, query, "tampilInventoryBarangPlayer", "d", playerid);
 					}
@@ -324,7 +324,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				tampilkanTextDrawShowItem(target_id, GetPVarInt(playerid, "inv_model"), 1, string, PlayerInfo[playerid][pPlayerName]);
 
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", WHITE"Anda "GREEN"berhasil "WHITE"menampilkan info item anda ke player tertuju!", "Ok", "");
-
+				resetPVarInventory(playerid);
 			}else{
 				resetPVarInventory(playerid);
 			}
@@ -387,13 +387,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_PILIH_JUMLAH_ITEM:
 		{
 			if(response){
-				new jumlah, item_id, nama_item[256], model_id;
+				new jumlah, item_id, nama_item[256];
 				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_PILIH_JUMLAH_ITEM, DIALOG_STYLE_INPUT,""WHITE"Jumlah barang", RED"Inputan tidak valid!\n"WHITE"Berapa banyak yang ingin kamu berikan :", "Beri", "Keluar");
 
 				if(!IsPlayerConnected(GetPVarInt(playerid, "inv_target_id"))) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX,""WHITE"Invalid", RED"Player dengan id tertuju sudah meninggalkan server!\n","Ok", "");
 
-				model_id = GetPVarInt(playerid, "inv_indexlist");
-				item_id = getIDbyModelItem(model_id);
+				item_id = GetPVarInt(playerid, "inv_indexlist");
 				tambahItemPlayer(GetPVarInt(playerid, "inv_target_id"), item_id, jumlah);
 				getNamaByIdItem(item_id, nama_item);
 				format(msg, sizeof(msg), WHITE"Anda "GREEN"mendapatkan "WHITE"item "BLUE"%s "WHITE"dari admin!", nama_item);
@@ -409,7 +408,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_PILIH_ITEM:
 		{
 			if(response){
-				mysql_format(koneksi, query, sizeof(query), "SELECT jumlah FROM `user_item` WHERE id_user = '%d' AND id_item = '%d'", PlayerInfo[playerid][pID], getIDbyModelItem(strval(inputtext)));
+				mysql_format(koneksi, query, sizeof(query), "SELECT jumlah FROM `user_item` WHERE id_user = '%d' AND id_item = '%d'", PlayerInfo[playerid][pID], strval(inputtext));
 				mysql_tquery(koneksi, query, "cekJumlahItem", "dd", playerid, strval(inputtext));
 			}else{
 				resetPVarInventory(playerid);
@@ -422,7 +421,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						new id_item = getIDbyModelItem(GetPVarInt(playerid, "inv_indexlist"));
+						new id_item = GetPVarInt(playerid, "inv_indexlist");
 						new fungsi[101];
 						getFungsiByIdItem(id_item, fungsi);
 						CallRemoteFunction(fungsi, "d", playerid);

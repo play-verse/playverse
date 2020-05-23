@@ -28,7 +28,8 @@ buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, i
 pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:preload_dynamic_map = false){
     SetPlayerFacingAngle(playerid, a);
     if(preload_dynamic_map){
-        Streamer_UpdateEx(playerid, x, y, z, vw, int, -1, 1000, 1);
+        Streamer_UpdateEx(playerid, x, y, z, vw, int, -1, 2000, 1);
+        GameTextForPlayer(playerid, "~w~Sedang ~y~loading..", 1800, 3);
     }
     if(preload_dynamic_map){
         SetPlayerPos(playerid, x, y, z + 0.5);
@@ -44,11 +45,11 @@ dialogMsgUangTdkCukup(playerid){
     return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf saat ini uang yang anda miliki tidak mencukupi untuk melakukan transaksi!", "Ok", "Batal");
 }
 
-// getModelByIdItem(id_item){
-//     new nama_variabel[50];
-//     format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
-//     return GetSVarInt(nama_variabel);
-// }
+getModelByIdItem(id_item){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
+    return GetSVarInt(nama_variabel);
+}
 
 getIDbyModelItem(id_model){
     new nama_variabel[50];
