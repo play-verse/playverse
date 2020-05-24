@@ -155,6 +155,8 @@ publicFor: spawnPemain(playerid)
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	PlayerInfo[playerid][sudahSpawn] = true;
 	new house_Id = PlayerInfo[playerid][sHouse];
+	tampilkanHUDStats(playerid);
+
 	if(house_Id != 0){
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, 0, 0, 0, 0);
 			
@@ -169,7 +171,7 @@ publicFor: spawnPemain(playerid)
 			SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
 			SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 		}
-
+		
 		PlayerInfo[playerid][lastHp] = 0;
 		PlayerInfo[playerid][lastArmour] = 0;
 
@@ -221,7 +223,7 @@ publicFor: spawnPemain(playerid)
 
 publicFor: GantiSkinSaatSpawn(playerid){
 	TogglePlayerControllable(playerid, 1);
-	SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
+	ubahSkinPemain(playerid, PlayerInfo[playerid][skinID]);
 }
 
 publicFor: updatePlayerCurrentPhone(playerid, listitem){
@@ -769,6 +771,43 @@ publicFor: selesaiNambang(playerid){
 	// }
 
 	return 1;
+}
+
+publicFor: responseUpdateHari(tahun, hari){
+	new nama_hari, indo_hari[20], str_hari[80];
+	cache_get_value_name_int(0, "nama_hari", nama_hari);
+	switch(nama_hari){
+		case 2:
+		{
+			format(indo_hari, 20, "Senin");
+		}
+		case 3:
+		{
+			format(indo_hari, 20, "Selasa");
+		}
+		case 4:{
+			format(indo_hari, 20, "Rabu");
+		}
+		case 5:
+		{
+			format(indo_hari, 20, "Kamis");
+		}
+		case 6:
+		{
+			format(indo_hari, 20, "Jumat");
+		}
+		case 7:
+		{
+			format(indo_hari, 20, "Sabtu");
+		}
+		default:
+			format(indo_hari, 20, "Minggu");
+	}
+	new	temp_tahun, temp_bulan, temp_hari;
+	getdate(temp_tahun, temp_bulan, temp_hari);
+
+	format(str_hari, 80, "%s, %d/%d/%d", indo_hari, temp_hari, temp_bulan, temp_hari);
+	TextDrawSetString(TD_JamTanggal[1], str_hari);
 }
 
 publicFor: showHistoryGajiPemain(playerid){

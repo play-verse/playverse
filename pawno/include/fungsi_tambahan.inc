@@ -122,6 +122,13 @@ givePlayerUang(playerid, jumlah, bool:simpanDb = true){
 
 //     PlayerTextDrawSetString(playerid, RadarUang[playerid][1], "0");
 // }
+ubahSkinPemain(playerid, skinid){
+    // Hide dlu untuk dapat efeknya
+    PlayerTextDrawHide(playerid, HUD_Stats[playerid][0]);
+    PlayerTextDrawSetPreviewModel(playerid, HUD_Stats[playerid][0], skinid);
+    PlayerTextDrawShow(playerid, HUD_Stats[playerid][0]);
+	SetPlayerSkin(playerid, skinid);
+}
 
 setUangPlayer(playerid, jumlah, bool:simpanDb = true){
     new stringUang[50];

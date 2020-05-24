@@ -11,10 +11,12 @@
 #include <sscanf2>
 #include <streamer>
 #include <mapping>
+#include <progress2>
 #include <a_mysql>
 #include <a_mysql_yinline>
 #include <zcmd>
 #include <YSI_Data\y_iterate>
+#include <YSI_Coding\y_timers>
 #include <core>
 #include <float>
 #include <PreviewModelDialog>
@@ -57,6 +59,8 @@ public OnPlayerConnect(playerid)
 	resetPlayerVariable(playerid);
 
 	tampilkanTextDrawUang(playerid);
+	TextDrawShowForPlayer(playerid, TD_JamTanggal[0]);
+	TextDrawShowForPlayer(playerid, TD_JamTanggal[1]);
 
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
@@ -95,11 +99,9 @@ public OnPlayerDisconnect(playerid, reason){
 	if(PlayerInfo[playerid][sudahLogin]) updateOnPlayerDisconnect(playerid);
 	resetPlayerVariable(playerid);
 	hideTextDrawUang(playerid);
+	unloadTextDrawPemain(playerid);
 	return 1;
 }
-
-
-//----------------------------------------------------------
 
 public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 {
@@ -1202,7 +1204,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				ClearAnimations(playerid);
 				TogglePlayerControllable(playerid, 0);
-				SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
+				ubahSkinPemain(playerid, PlayerInfo[playerid][skinID]);
 				TogglePlayerControllable(playerid, 1);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mengganti skin!", WHITE"Anda berhasil mengganti skin anda!", "Ok", "");
 			}
@@ -1632,8 +1634,9 @@ public OnPlayerDeath(playerid, killerid, reason)
 	#endif
 
 	PlayerInfo[playerid][sudahSpawn] = false;
-	
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
+
+	hideHUDStats(playerid);
 
 	new random_spawn = random(sizeof(SPAWN_POINT));
 	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
@@ -1719,6 +1722,10 @@ public OnGameModeInit()
 	EnableStuntBonusForAll(0);
 	DisableInteriorEnterExits();
 	
+	printf("[TEXTDRAW] Load textdraw global..");
+	loadTextdrawGlobal();
+	printf("[TEXTDRAW] Sukses load textdraw!");
+
 	// SPECIAL
 	total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/trains.txt");
 	total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/pilots.txt");
@@ -1742,9 +1749,10 @@ public OnGameModeInit()
 
 public OnGameModeExit(){
 	foreach(new i : Player){
-		if(IsPlayerConnected(i) && i != INVALID_PLAYER_ID)
+		if(i != INVALID_PLAYER_ID)
 			Kick(i);
 	}
+	unloadTextdrawGlobal();
 	unloadAllHouse();
 	mysql_close(koneksi);
 	return 1;
@@ -1891,6 +1899,30 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		ShowPlayerDialog(playerid, DIALOG_TANYA_TAMBANG, DIALOG_STYLE_MSGBOX, "Ingin menambang", "Apakah anda ingin menambang?\n"YELLOW"Note : Anda membutuhkan cangkul untuk menambang.", "Ya", "Tidak");
 	}
 	return 1;
+}
+
+/**
+	TIMER TASK
+**/
+task updateWorldTime[1000]()
+{
+	new temp_jam, temp_menit, temp_detik, str_waktu[32],
+		temp_tahun, temp_bulan, temp_hari;
+	gettime(temp_jam, temp_menit, temp_detik);
+	SetWorldTime(temp_jam);
+
+	format(str_waktu,32,"%02d:%02d:%02d", temp_jam, temp_menit, temp_detik);
+	TextDrawSetString(TD_JamTanggal[0], str_waktu);
+
+	getdate(temp_tahun, temp_bulan, temp_hari);
+	if(temp_hari != last_hari){
+		last_hari = temp_hari;
+		mysql_tquery(koneksi, "SELECT DAYOFWEEK(CURRENT_DATE()) AS nama_hari", "responseUpdateHari");
+	}
+
+	foreach(new i : Player){
+		SetPlayerTime(i, temp_jam, temp_menit);
+	}
 }
 
 #include <command>
