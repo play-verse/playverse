@@ -44,10 +44,14 @@ publicFor: isRegistered(playerid)
 		PlayerInfo[playerid][last_z] = floatstr(temp_value);
 		cache_get_value_name(0, "last_a", temp_value);
 		PlayerInfo[playerid][last_a] = floatstr(temp_value);
+		
 		cache_get_value_name(0, "last_int", temp_value);
 		PlayerInfo[playerid][last_int] = strval(temp_value);
 		cache_get_value_name(0, "last_vw", temp_value);
 		PlayerInfo[playerid][last_vw] = strval(temp_value);
+
+		cache_get_value_name_float(0, "last_hp", PlayerInfo[playerid][lastHp]);
+		cache_get_value_name_float(0, "last_armour", PlayerInfo[playerid][lastArmour]);
 
 		// Pindahkan player
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
@@ -159,7 +163,15 @@ publicFor: spawnPemain(playerid)
 		pindahkanPemain(playerid, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, true);
 
 		TogglePlayerControllable(playerid, 0);
-    	SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
+		SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
+
+		if(PlayerInfo[playerid][lastHp] > 0) {
+			SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
+			SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+		}
+
+		PlayerInfo[playerid][lastHp] = 0;
+		PlayerInfo[playerid][lastArmour] = 0;
 
 		PlayerInfo[playerid][last_x] = 0;
 		PlayerInfo[playerid][last_y] = 0;
@@ -178,6 +190,14 @@ publicFor: spawnPemain(playerid)
 			TogglePlayerControllable(playerid, 0);
 			SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 			
+			if(PlayerInfo[playerid][lastHp] > 0) {
+				SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
+				SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+			}
+
+			PlayerInfo[playerid][lastHp] = 0;
+			PlayerInfo[playerid][lastArmour] = 0;
+
 			PlayerInfo[playerid][last_x] = 0;
 			PlayerInfo[playerid][last_y] = 0;
 			PlayerInfo[playerid][last_z] = 0;
@@ -194,7 +214,6 @@ publicFor: spawnPemain(playerid)
 
 			TogglePlayerControllable(playerid, 0);
 			SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
-
 		}
 	}
 	return 1;
@@ -702,6 +721,7 @@ publicFor: selesaiNambang(playerid){
 
 	PlayerInfo[playerid][sisaPalu]--;
 
+	// Testing Probalities
 	new angka = random(15);
 	switch(angka){
 		case 1:
@@ -729,7 +749,7 @@ publicFor: selesaiNambang(playerid){
 		}
 	}
 
-	
+	// Real Probalities
 	// new angka = random(1000000);
 	// if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
@@ -797,20 +817,22 @@ tampilkanKotakTerkirim(playerid){
 }
 
 updateOnPlayerDisconnect(playerid){
-	// new temp_value[256];
-
 	// Position
-	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw;
+	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, Float:last_hp, Float:last_armour;
 	if(PlayerInfo[playerid][sudahSpawn]){
 		GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
 		GetPlayerFacingAngle(playerid, last_spawn_info_a);
 		last_spawn_info_vw = GetPlayerVirtualWorld(playerid);
-		last_spawn_info_int = GetPlayerInterior(playerid);		
+		last_spawn_info_int = GetPlayerInterior(playerid);
+
+		GetPlayerHealth(playerid, last_hp);
+		GetPlayerArmour(playerid, last_armour);
 	}else{
-		last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a, last_spawn_info_int = last_spawn_info_vw = 0;
+		last_hp = last_armour = last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a = 0;
+		last_spawn_info_int = last_spawn_info_vw = 0;
 	}
 
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, PlayerInfo[playerid][pID]);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }

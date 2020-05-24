@@ -20,6 +20,7 @@ enum pInfo
     uang,
     jenisKelamin, // 0 - Laki , 1 - Perempuan
 
+    // Save status
     // Position
     Float:last_x,
     Float:last_y,
@@ -27,6 +28,10 @@ enum pInfo
     Float:last_a,
     last_int,
     last_vw,
+
+    // Status
+    Float:lastHp,
+    Float:lastArmour,
 
     // Equiped Item
     ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
