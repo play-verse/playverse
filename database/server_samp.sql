@@ -11,7 +11,7 @@
  Target Server Version : 100408
  File Encoding         : 65001
 
- Date: 24/05/2020 23:34:23
+ Date: 25/05/2020 19:42:09
 */
 
 SET NAMES utf8mb4;
@@ -70,7 +70,7 @@ CREATE TABLE `item`  (
   `keterangan` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
   `fungsi` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Berisi public function yang akan di trigger saat pemilihan use item, pada item tersebut.',
   PRIMARY KEY (`id_item`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of item
@@ -87,6 +87,8 @@ INSERT INTO `item` VALUES (9, 'Emas', 19941, 'Emas adalah item yang langka, berg
 INSERT INTO `item` VALUES (10, 'Berlian', 1559, 'Berlian adalah item yang sangat langka, berguna untuk membuat item-item langka dan dapat menghasilkan banyak uang.', NULL);
 INSERT INTO `item` VALUES (11, 'Perunggu', 2936, 'Perunggu adalah item yang bagus dan diminati, berguna untuk banyak hal.', NULL);
 INSERT INTO `item` VALUES (12, 'Perak', 16134, 'Perak adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL);
+INSERT INTO `item` VALUES (13, 'Air Minum Mineral', 2647, 'Air minum mineral untuk minum', 'pakaiMinuman');
+INSERT INTO `item` VALUES (14, 'Steak', 19882, 'Steak sapi untuk makan, dapat dikonsumsi sehingga menambah status Makan', 'pakaiMakanan');
 
 -- ----------------------------
 -- Table structure for pengambilan_ktp
@@ -131,7 +133,7 @@ CREATE TABLE `trans_atm`  (
   `tanggal` datetime(0) NOT NULL COMMENT 'Berisi tanggal transaksi',
   `keterangan` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT 'Berisi keterangan dari pengirim',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 27 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of trans_atm
@@ -146,6 +148,22 @@ INSERT INTO `trans_atm` VALUES (7, 22, NULL, 400, '2020-05-23 14:51:28', 'Deposi
 INSERT INTO `trans_atm` VALUES (8, 22, NULL, 70, '2020-05-23 14:51:56', 'Deposit tabungan');
 INSERT INTO `trans_atm` VALUES (9, 22, NULL, -3000, '2020-05-23 14:52:11', 'Penarikan uang');
 INSERT INTO `trans_atm` VALUES (10, 22, NULL, 2800, '2020-05-23 21:55:28', 'Deposit tabungan');
+INSERT INTO `trans_atm` VALUES (11, 22, NULL, -20, '2020-05-25 16:01:41', 'Pembelian Air Minum Mineral sebanyak 10');
+INSERT INTO `trans_atm` VALUES (12, 22, NULL, -3000, '2020-05-25 16:06:31', 'Penarikan uang');
+INSERT INTO `trans_atm` VALUES (13, 22, NULL, -10, '2020-05-25 16:07:54', 'Pembelian Steak sebanyak 1');
+INSERT INTO `trans_atm` VALUES (14, 22, NULL, -2, '2020-05-25 16:09:06', 'Pembelian Air Minum Mineral sebanyak 1');
+INSERT INTO `trans_atm` VALUES (15, 22, NULL, -2, '2020-05-25 16:09:13', 'Pembelian Air Minum Mineral sebanyak 1');
+INSERT INTO `trans_atm` VALUES (16, 22, NULL, -2, '2020-05-25 16:09:35', 'Pembelian Air Minum Mineral sebanyak 1');
+INSERT INTO `trans_atm` VALUES (17, 22, NULL, -2, '2020-05-25 16:09:42', 'Pembelian Air Minum Mineral sebanyak 1');
+INSERT INTO `trans_atm` VALUES (18, 22, NULL, -2, '2020-05-25 16:09:48', 'Pembelian Air Minum Mineral sebanyak 1');
+INSERT INTO `trans_atm` VALUES (19, 22, NULL, -2, '2020-05-25 16:09:56', 'Pembelian Air Minum Mineral sebanyak 1');
+INSERT INTO `trans_atm` VALUES (20, 22, NULL, -2, '2020-05-25 16:10:05', 'Pembelian Air Minum Mineral sebanyak 1');
+INSERT INTO `trans_atm` VALUES (21, 22, NULL, -2, '2020-05-25 16:10:11', 'Pembelian Air Minum Mineral sebanyak 1');
+INSERT INTO `trans_atm` VALUES (22, 22, NULL, -2, '2020-05-25 16:20:31', 'Pembelian Air Minum Mineral sebanyak 1');
+INSERT INTO `trans_atm` VALUES (23, 22, NULL, 0, '2020-05-25 16:24:24', 'Pembelian Steak sebanyak 0');
+INSERT INTO `trans_atm` VALUES (24, 22, NULL, 0, '2020-05-25 16:24:50', 'Pembelian Steak sebanyak 0');
+INSERT INTO `trans_atm` VALUES (25, 22, NULL, -2, '2020-05-25 16:26:34', 'Pembelian Air Minum Mineral sebanyak 1');
+INSERT INTO `trans_atm` VALUES (26, 22, NULL, -20, '2020-05-25 18:28:51', 'Pembelian Air Minum Mineral sebanyak 10');
 
 -- ----------------------------
 -- Table structure for user
@@ -174,6 +192,8 @@ CREATE TABLE `user`  (
   `save_house` int(11) NOT NULL DEFAULT 0,
   `last_hp` float NULL DEFAULT NULL COMMENT 'Berisi jumlah hp pemain',
   `last_armour` float NULL DEFAULT NULL COMMENT 'Berisi jumlah armour pemain',
+  `last_stats_makan` float NULL DEFAULT NULL COMMENT 'Berisi jumlah status makan',
+  `last_stats_minum` float NULL DEFAULT NULL COMMENT 'Berisi jumlah status minum',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `nama`(`nama`) USING BTREE,
   UNIQUE INDEX `rekening`(`rekening`) USING BTREE
@@ -182,14 +202,14 @@ CREATE TABLE `user`  (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 28, 115, '2020-04-24 21:12:03', 200, 0, 'nathan@gmail.com', 0, '1119.243286', '-1427.901611', '16.061943', '22.087805', '0', '0', '621234', 4, '12345678', 0, 85, 0);
-INSERT INTO `user` VALUES (23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', 100, 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, NULL);
-INSERT INTO `user` VALUES (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 91, '2020-04-30 15:31:48', 174940, 0, 'natan@gmail.com', 0, '1519.263184', '-1696.209229', '13.292188', '109.391800', '0', '0', '629876', 1, NULL, 0, NULL, NULL);
-INSERT INTO `user` VALUES (25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', 0, 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, 0, NULL, 0, NULL, NULL);
-INSERT INTO `user` VALUES (26, 'cosinec', '4673452E1D20E8417166B9FF852DC48246F1D1D24FD11076976A3DCB4307675B', 298, 3, '2020-05-03 16:56:12', 0, 1, 'nathan@gmail.com', 0, '188.238831', '-1935.149414', '-0.552782', '273.730988', '0', '0', NULL, 0, NULL, 0, NULL, NULL);
-INSERT INTO `user` VALUES (27, 'cosiozo', 'EEF3ABEA0977171744D9AC2BF8A4761A389F8C55136BDC00B02E9E49524340B1', 9, 1, '2020-05-10 16:59:42', 100, 1, 'asd2@gmail.com', 0, '285.288879', '-1863.428467', '2.890330', '309.904419', '0', '0', NULL, 0, NULL, 0, NULL, NULL);
-INSERT INTO `user` VALUES (28, 'cosine_xx', 'FE1F21653A573338CC45562B2F50BD5F0F4B5DBC7AE9E67DD7702A3FEA265DB2', 25, 3, '2020-05-13 14:14:19', 100, 0, 'natan@gmail.com', 0, '597.599731', '-1747.577515', '37.244843', '312.951660', '0', '0', NULL, 0, NULL, 0, NULL, NULL);
-INSERT INTO `user` VALUES (29, 'xoxo', 'FC922095F45335113D9195483EA4E2F6CBA407DAB53BF08D7F1C8B58177FD0EB', 172, 2, '2020-05-23 17:35:10', 100, 1, 'xoxo@gmail.com', 0, '329.041931', '-1804.449341', '4.580854', '307.374207', '0', '0', '621234', 0, NULL, 0, NULL, NULL);
+INSERT INTO `user` VALUES (22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 28, 128, '2020-04-24 21:12:03', 3114, 0, 'nathan@gmail.com', 0, '921.725464', '-1366.997314', '13.204487', '115.541969', '0', '0', '621234', 2, '12345678', 0, 90, 0, 320, 81.5);
+INSERT INTO `user` VALUES (23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', 100, 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 91, '2020-04-30 15:31:48', 174940, 0, 'natan@gmail.com', 0, '1519.263184', '-1696.209229', '13.292188', '109.391800', '0', '0', '629876', 1, NULL, 0, NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', 0, 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, 0, NULL, 0, NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (26, 'cosinec', '4673452E1D20E8417166B9FF852DC48246F1D1D24FD11076976A3DCB4307675B', 298, 3, '2020-05-03 16:56:12', 0, 1, 'nathan@gmail.com', 0, '188.238831', '-1935.149414', '-0.552782', '273.730988', '0', '0', NULL, 0, NULL, 0, NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (27, 'cosiozo', 'EEF3ABEA0977171744D9AC2BF8A4761A389F8C55136BDC00B02E9E49524340B1', 9, 1, '2020-05-10 16:59:42', 100, 1, 'asd2@gmail.com', 0, '285.288879', '-1863.428467', '2.890330', '309.904419', '0', '0', NULL, 0, NULL, 0, NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (28, 'cosine_xx', 'FE1F21653A573338CC45562B2F50BD5F0F4B5DBC7AE9E67DD7702A3FEA265DB2', 25, 3, '2020-05-13 14:14:19', 100, 0, 'natan@gmail.com', 0, '597.599731', '-1747.577515', '37.244843', '312.951660', '0', '0', NULL, 0, NULL, 0, NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (29, 'xoxo', 'FC922095F45335113D9195483EA4E2F6CBA407DAB53BF08D7F1C8B58177FD0EB', 172, 2, '2020-05-23 17:35:10', 100, 1, 'xoxo@gmail.com', 0, '329.041931', '-1804.449341', '4.580854', '307.374207', '0', '0', '621234', 0, NULL, 0, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for user_item
@@ -202,7 +222,7 @@ CREATE TABLE `user_item`  (
   `jumlah` int(255) NULL DEFAULT 1,
   PRIMARY KEY (`id_user_item`) USING BTREE,
   UNIQUE INDEX `id_item`(`id_item`, `id_user`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 48 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of user_item
@@ -210,9 +230,9 @@ CREATE TABLE `user_item`  (
 INSERT INTO `user_item` VALUES (1, 1, 1, 2);
 INSERT INTO `user_item` VALUES (3, 2, 1, 4);
 INSERT INTO `user_item` VALUES (7, 3, 1, 1);
-INSERT INTO `user_item` VALUES (8, 4, 22, 1);
+INSERT INTO `user_item` VALUES (8, 4, 22, 2);
 INSERT INTO `user_item` VALUES (10, 1, 22, 3);
-INSERT INTO `user_item` VALUES (17, 2, 22, 1);
+INSERT INTO `user_item` VALUES (17, 2, 22, 0);
 INSERT INTO `user_item` VALUES (26, 1, 23, 8);
 INSERT INTO `user_item` VALUES (27, 1, 25, 2);
 INSERT INTO `user_item` VALUES (30, 1, 24, 0);
@@ -228,6 +248,8 @@ INSERT INTO `user_item` VALUES (39, 11, 22, 12);
 INSERT INTO `user_item` VALUES (40, 12, 22, 14);
 INSERT INTO `user_item` VALUES (41, 9, 22, 5);
 INSERT INTO `user_item` VALUES (42, 10, 22, 1);
+INSERT INTO `user_item` VALUES (45, 14, 22, 6);
+INSERT INTO `user_item` VALUES (46, 13, 22, 10);
 
 -- ----------------------------
 -- Table structure for user_skin
