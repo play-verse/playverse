@@ -19,4 +19,9 @@ loadAllPickup(){
 
     PU_bankLS[ENTER_PICKUP] = buatPickupDanLabel(1318, 1464.5782,-1009.9889,26.8438, "Bank Los Santos\n"GREEN"Pintu Masuk");
     PU_bankLS[EXIT_PICKUP] = buatPickupDanLabel(1318, 1417.0054,-979.5762,-55.2764, "Bank Los Santos\n"GREEN"Pintu Keluar");
+
+    // Tempat Makan
+    PU_tempatMakan_in[0] = buatPickupDanLabel(1318, 928.9155,-1352.9557,13.3438, "Restoran Makanan "nama_A"\n"GREEN"Pintu Masuk");
+    PU_tempatMakan_in[1] = buatPickupDanLabel(1318, 810.4855,-1616.1713,13.5469, "Restoran Makanan "nama_B"\n"GREEN"Pintu Masuk");
+    PU_tempatMakan_out = buatPickupDanLabel(1318, 364.9624,-11.8307,1001.8516, "Restoran Makanan\n"GREEN"Pintu Keluar");
 }

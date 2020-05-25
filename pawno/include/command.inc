@@ -173,6 +173,21 @@ CMD:killme(playerid, params[]){
     return 1;
 }
 
+CMD:slap(playerid, params[]){
+    new target_id;
+    if(!IsPlayerAdmin(playerid)) return 0;
+    if(sscanf(params, "u", target_id)) return error_syntax(playerid, "/slap [playerid]");
+    if(!IsPlayerConnected(target_id)) return error_command(playerid, "Player yang dituju tidak ada!");
+
+    new Float:pos[3];
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    SetPlayerPos(target_id, pos[0], pos[1], pos[2] + 4);
+    PlayerPlaySound(target_id, 1130, pos[0], pos[1], pos[2] + 4);
+
+    SendClientMessage(target_id, COLOR_LIGHT_BLUE, "Admin: anda telah di slap oleh admin.");
+    return 1;
+}
+
 CMD:arumah(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
     if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada diluar Interior atau Virtual World 0!");

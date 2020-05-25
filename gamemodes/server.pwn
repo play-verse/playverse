@@ -418,7 +418,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						new id_item = GetPVarInt(playerid, "inv_indexlist");
 						new fungsi[101];
 						getFungsiByIdItem(id_item, fungsi);
-						CallRemoteFunction(fungsi, "d", playerid);
+						CallRemoteFunction(fungsi, "ii", playerid, id_item);
 					}
 					case 1:
 					{
@@ -1512,6 +1512,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				if(PlayerAction[playerid][sedangNambang]) return error_command(playerid, "Anda sedang menambang, tunggu beberapa saat.");
+				if(getStatusMakanPemain(playerid) <= 10) return error_command(playerid, "Anda kehabisan energi, silahkan makan terlebih dahulu untuk dapat bekerja kembali.");
 				PlayerAction[playerid][timerNambang] = SetTimerEx("selesaiNambang", 3000, 0, "i", playerid);
 				PlayerAction[playerid][sedangNambang] = true;
 				GameTextForPlayer(playerid, "~w~Sedang ~y~menambang...", 3000, 3);
@@ -1563,7 +1564,97 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_MENU_BELI_MAKAN:
+		{
+			if(response){
+				SetPVarInt(playerid, "bmakan_index", listitem);
+				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_MAKANAN, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+			}else{
+				DeletePVar(playerid, "bmakan_index");
+				DeletePVar(playerid, "bmakan_jumlah");
+			}
+			return 1;
+		}
+		case DIALOG_JUMLAH_PEMBELIAN_MAKANAN:
+		{
+			if(response){
+				new jumlah;
+				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_MAKANAN, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 
+				if(jumlah < 1 || jumlah > 100) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_MAKANAN, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 100 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+
+				SetPVarInt(playerid, "bmakan_jumlah", jumlah);
+
+				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR_MAKAN, DIALOG_STYLE_LIST, "Pilih Metode Pembayaran:", "Uang Cash\nVia E-Banking", "Beli", "Kembali");
+			}else{
+				DeletePVar(playerid, "bmakan_index");
+				DeletePVar(playerid, "bmakan_jumlah");
+
+				showDialogTempatMakan(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_METODE_BAYAR_MAKAN:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Bayar cash
+					{
+						new idx = GetPVarInt(playerid, "bmakan_index"), jumlah = GetPVarInt(playerid, "bmakan_jumlah");
+						new harga = jumlah * MENU_MAKANAN[idx][hargaMakanan];
+						DeletePVar(playerid, "bmakan_index");
+						DeletePVar(playerid, "bmakan_jumlah");
+						if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
+
+						givePlayerUang(playerid, -harga);
+						tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
+
+						format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_MAKANAN[idx][namaMakanan], jumlah, harga);
+						showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
+						return 1;
+					}
+					case 1: // Via E-Banking
+					{
+						if(isnull(PlayerInfo[playerid][nomorRekening])) {
+							DeletePVar(playerid, "bmakan_index");
+							DeletePVar(playerid, "bmakan_jumlah");
+							return showDialogPesan(playerid, RED"Tidak memiliki ATM", WHITE"Anda tidak memiliki ATM.\nSilahkan buat ATM terlebih dahulu untuk menggunakan metode ini.");
+						}
+						if(PlayerInfo[playerid][ePhone] == 0) {
+							DeletePVar(playerid, "bmakan_index");
+							DeletePVar(playerid, "bmakan_jumlah");
+							return showDialogPesan(playerid, RED"Tidak memiliki ePhone", WHITE"Anda tidak memiliki ePhone.\nSilahkan beli dan gunakan ePhone terlebih dahulu (minimal ePhone 2) untuk menggunakan metode ini.");
+						}
+						new idx = GetPVarInt(playerid, "bmakan_index"), jumlah = GetPVarInt(playerid, "bmakan_jumlah");
+						new harga = jumlah * MENU_MAKANAN[idx][hargaMakanan];
+
+						format(pDialog[playerid], sizePDialog, WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
+						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_MAKANAN_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");
+						return 1;
+					}
+				}
+			}else{
+				DeletePVar(playerid, "bmakan_index");
+				DeletePVar(playerid, "bmakan_jumlah");				
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BAYAR_MAKANAN_VIA_ATM:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "bmakan_index"), jumlah = GetPVarInt(playerid, "bmakan_jumlah");
+				new harga = jumlah * MENU_MAKANAN[idx][hargaMakanan];
+				if(strlen(inputtext) != 8 || strcmp(PlayerInfo[playerid][nomorRekening], inputtext) != 0) {
+					format(pDialog[playerid], sizePDialog, RED"Nomor rekening yang anda masukan tidak benar."WHITE"\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
+					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_MAKANAN_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");	
+				}
+				getSaldoPlayer(playerid, "pembayaranMakananATM");
+			}else{
+				DeletePVar(playerid, "bmakan_index");
+				DeletePVar(playerid, "bmakan_jumlah");				
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -1605,6 +1696,17 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 
 public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 {
+	if(PRESSED(KEY_JUMP) && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT){
+		new Float:pos[3];
+		if(getStatusMinumPemain(playerid) < 5){
+			GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+			SetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+			ClearAnimations(playerid);
+			server_message(playerid, "Anda tidak memiliki cukup energi untuk melompat.");
+		}else{
+			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - 0.5);
+		}
+	}
     return 1;
 }
 
@@ -1819,6 +1921,29 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		}
 		return 1;
 	}
+	else if(pickupid == PU_tempatMakan_in[0]){
+		pindahkanPemain(playerid, 365.5712,-8.7934,1001.8516,351.2707, 9, VW_tempatMakan_1, false);
+		return 1;
+	}
+	else if(pickupid == PU_tempatMakan_in[1]){
+		pindahkanPemain(playerid, 365.5712,-8.7934,1001.8516,351.2707, 9, VW_tempatMakan_2, false);
+		return 1;
+	}
+	else if(pickupid == PU_tempatMakan_out){
+		switch(GetPlayerVirtualWorld(playerid)){
+			case VW_tempatMakan_1:
+			{
+				pindahkanPemain(playerid, 924.8441, -1353.0880, 13.3768, 89.3053, 0, 0, true);
+				return 1;
+			}
+			case VW_tempatMakan_2:
+			{
+				pindahkanPemain(playerid, 814.8109,-1616.3394,13.6281, 245.7708, 0,0, true);
+				return 1;	
+			}
+		}
+		return 1;
+	}
 	else if(pickupid == PU_miniMarket[0][ENTER_PICKUP]){
 		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, 1, false);
 		return 1;
@@ -1897,6 +2022,9 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Anda harus berjalan kaki untuk dapat menambang!");
 		if(PlayerInfo[playerid][sisaPalu] <= 0) return error_command(playerid, "Anda kehabisan kesempatan menambang, gunakan item Palu Tambang untuk menambah kesempatan anda.");
 		ShowPlayerDialog(playerid, DIALOG_TANYA_TAMBANG, DIALOG_STYLE_MSGBOX, "Ingin menambang", "Apakah anda ingin menambang?\n"YELLOW"Note : Anda membutuhkan cangkul untuk menambang.", "Ya", "Tidak");
+	}else if(checkpointid == CP_beliMakanCepatSaji){
+		showDialogTempatMakan(playerid);
+		return 1;
 	}
 	return 1;
 }

@@ -15,6 +15,12 @@ error_command(playerid, const message[]){
     return SendClientMessage(playerid, COLOR_WHITE, pesan);
 }
 
+server_message(playerid, const message[]){
+    new pesan[200];
+    format(pesan, 200, "SERVER: "GREY"%s", message);
+    return SendClientMessage(playerid, COLOR_ORANGE, pesan);
+}
+
 addGajiPemain(playerid, nominal){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `gaji`(id_user, nominal, tanggal, status) VALUES('%d', '%d', NOW(), '0')", PlayerInfo[playerid][pID], nominal);
     mysql_tquery(koneksi, pQuery[playerid]);
@@ -34,7 +40,7 @@ pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:prel
     SetPlayerFacingAngle(playerid, a);
     if(preload_dynamic_map){
         Streamer_UpdateEx(playerid, x, y, z, vw, int, -1, 2000, 1);
-        GameTextForPlayer(playerid, "~w~Sedang ~y~loading..", 1800, 3);
+        GameTextForPlayer(playerid, "~w~Sedang ~y~loading..", 1500, 3);
     }
     if(preload_dynamic_map){
         SetPlayerPos(playerid, x, y, z + 0.5);
@@ -109,6 +115,24 @@ givePlayerUang(playerid, jumlah, bool:simpanDb = true){
 
     valstr(stringUang, PlayerInfo[playerid][uang]);
     PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
+}
+
+Float:getStatusMakanPemain(playerid){
+    return PlayerInfo[playerid][statusMakan];
+}
+
+setStatusMakanPemain(playerid, Float:jumlah){
+    PlayerInfo[playerid][statusMakan] = jumlah;
+    SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][0], jumlah);
+}
+
+Float:getStatusMinumPemain(playerid){
+    return PlayerInfo[playerid][statusMinum];
+}
+
+setStatusMinumPemain(playerid, Float:jumlah){
+    PlayerInfo[playerid][statusMinum] = jumlah;
+    SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][1], jumlah);
 }
 
 // -- Uncomment fungsi jika ingin menggunakan
@@ -210,19 +234,13 @@ stock ProxDetector(Float:radi, playerid, string[], color)
     }
 }
 
+// Ganti menggunakan foreach untuk menghindari overlooping
+// foreach Player == hanya looping pada player yang sedang online saja
 stock GetPlayerIdFromName(playername[])
 {
-  for(new i = 0; i <= MAX_PLAYERS; i++)
-  {
-    if(IsPlayerConnected(i))
-    {
-      new playername2[MAX_PLAYER_NAME];
-      GetPlayerName(i, playername2, sizeof(playername2));
-      if(strcmp(playername2, playername, true, strlen(playername)) == 0)
-      {
-        return i;
-      }
+    foreach(new i : Player){
+        if(strcmp(PlayerInfo[i][pPlayerName], playername) == 0)
+            return i;
     }
-  }
-  return INVALID_PLAYER_ID;
+    return INVALID_PLAYER_ID;
 }

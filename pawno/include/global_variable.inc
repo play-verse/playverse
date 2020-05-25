@@ -34,9 +34,15 @@ enum pInfo
     last_int,
     last_vw,
 
+    Float:last_stats_makan,
+    Float:last_stats_minum,
+
     // Status
     Float:lastHp,
     Float:lastArmour,
+
+    Float:statusMakan,
+    Float:statusMinum,
 
     // Equiped Item
     ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
@@ -201,6 +207,16 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
     {19631, "Palu Tambang", 10} // Materai
 };
 
+enum INFO_MENU_MAKANAN {
+    idItemMakanan,
+    namaMakanan[100],
+    hargaMakanan
+}
+
+new const MENU_MAKANAN[][INFO_MENU_MAKANAN] = {
+    {14, "Steak", 10},
+    {13, "Air Minum Mineral", 2}
+};
 
 /**
     CHECKPOINT VARIABEL
@@ -212,7 +228,8 @@ new CP_tempatFoto,
     CP_resepsionisCityHall,
     CP_tellerBankLS[2],
     CP_ATM[1],
-    CP_Tambang[sizeof(POSISI_NAMBANG)];
+    CP_Tambang[sizeof(POSISI_NAMBANG)],
+    CP_beliMakanCepatSaji;
 
 /**
     PICKUP VARIABEL
@@ -223,10 +240,15 @@ new PU_tempatFoto_in[2],
     PU_tempatBaju[1][2],
     PU_cityHallMasuk[3],
     PU_cityHallKeluar,
-    PU_bankLS[2];
+    PU_bankLS[2],
+    PU_tempatMakan_in[2],
+    PU_tempatMakan_out;
 
 /*
     Virtual World untuk ngebedain pickup
 */
 #define VW_tempatFoto_1 1
 #define VW_tempatFoto_2 2
+
+#define VW_tempatMakan_1 1
+#define VW_tempatMakan_2 2

@@ -68,7 +68,21 @@ hideTextDrawMyInfo(playerid){
 
 loadTextdrawGlobal(){
 	// HUD Stats
-	HUD_Stats_PB[0] = TextDrawCreate(502.000000, 344.000000, "Lapar");
+	HUD_Stats_PB[4] = TextDrawCreate(567.000000, 328.000000, "_");
+	TextDrawFont(HUD_Stats_PB[4], 1);
+	TextDrawLetterSize(HUD_Stats_PB[4], 0.600000, 13.800003);
+	TextDrawTextSize(HUD_Stats_PB[4], 178.500000, 148.500000);
+	TextDrawSetOutline(HUD_Stats_PB[4], 1);
+	TextDrawSetShadow(HUD_Stats_PB[4], 0);
+	TextDrawAlignment(HUD_Stats_PB[4], 2);
+	TextDrawColor(HUD_Stats_PB[4], -1);
+	TextDrawBackgroundColor(HUD_Stats_PB[4], 255);
+	TextDrawBoxColor(HUD_Stats_PB[4], 135);
+	TextDrawUseBox(HUD_Stats_PB[4], 1);
+	TextDrawSetProportional(HUD_Stats_PB[4], 1);
+	TextDrawSetSelectable(HUD_Stats_PB[4], 0);
+
+	HUD_Stats_PB[0] = TextDrawCreate(502.000000, 344.000000, "~w~Lapar");
 	TextDrawFont(HUD_Stats_PB[0], 1);
 	TextDrawLetterSize(HUD_Stats_PB[0], 0.400000, 1.649999);
 	TextDrawTextSize(HUD_Stats_PB[0], 400.000000, 17.000000);
@@ -96,7 +110,7 @@ loadTextdrawGlobal(){
 	TextDrawSetProportional(HUD_Stats_PB[1], 1);
 	TextDrawSetSelectable(HUD_Stats_PB[1], 0);
 
-	HUD_Stats_PB[2] = TextDrawCreate(502.000000, 391.000000, "Haus");
+	HUD_Stats_PB[2] = TextDrawCreate(502.000000, 391.000000, "~w~Haus");
 	TextDrawFont(HUD_Stats_PB[2], 1);
 	TextDrawLetterSize(HUD_Stats_PB[2], 0.400000, 1.649999);
 	TextDrawTextSize(HUD_Stats_PB[2], 400.000000, 17.000000);
@@ -123,20 +137,6 @@ loadTextdrawGlobal(){
 	TextDrawUseBox(HUD_Stats_PB[3], 1);
 	TextDrawSetProportional(HUD_Stats_PB[3], 1);
 	TextDrawSetSelectable(HUD_Stats_PB[3], 0);
-
-	HUD_Stats_PB[4] = TextDrawCreate(567.000000, 328.000000, "_");
-	TextDrawFont(HUD_Stats_PB[4], 1);
-	TextDrawLetterSize(HUD_Stats_PB[4], 0.600000, 13.800003);
-	TextDrawTextSize(HUD_Stats_PB[4], 178.500000, 148.500000);
-	TextDrawSetOutline(HUD_Stats_PB[4], 1);
-	TextDrawSetShadow(HUD_Stats_PB[4], 0);
-	TextDrawAlignment(HUD_Stats_PB[4], 2);
-	TextDrawColor(HUD_Stats_PB[4], -1);
-	TextDrawBackgroundColor(HUD_Stats_PB[4], 255);
-	TextDrawBoxColor(HUD_Stats_PB[4], 135);
-	TextDrawUseBox(HUD_Stats_PB[4], 1);
-	TextDrawSetProportional(HUD_Stats_PB[4], 1);
-	TextDrawSetSelectable(HUD_Stats_PB[4], 0);
 	// End HUD
 
 	// Global Time

@@ -25,6 +25,7 @@ loadAllCP(){
     // CP ATM
     CP_ATM[0] = buatCPDanLabel(1412.3097,-987.6777,-55.2764, GREEN"ATM tersedia", 1.0, 1, 1);
 
+    CP_beliMakanCepatSaji = buatCPDanLabel(369.9234,-6.0165,1001.8589, GREEN"Beli Makan disini!", 1.0, -1, 9);
     // CP Tambang
     for(new i = 0; i < sizeof(POSISI_NAMBANG); i++){
 		CP_Tambang[i] = buatCPDanLabel(POSISI_NAMBANG[i][POSISI_X], POSISI_NAMBANG[i][POSISI_Y], POSISI_NAMBANG[i][POSISI_Z], GREEN"Tambang tersedia", 1.5, POSISI_NAMBANG[i][POSISI_VW], POSISI_NAMBANG[i][POSISI_INT]);

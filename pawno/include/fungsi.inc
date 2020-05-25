@@ -53,6 +53,9 @@ publicFor: isRegistered(playerid)
 		cache_get_value_name_float(0, "last_hp", PlayerInfo[playerid][lastHp]);
 		cache_get_value_name_float(0, "last_armour", PlayerInfo[playerid][lastArmour]);
 
+		cache_get_value_name_float(0, "last_stats_makan", PlayerInfo[playerid][last_stats_makan]);
+		cache_get_value_name_float(0, "last_stats_minum", PlayerInfo[playerid][last_stats_minum]);
+
 		// Pindahkan player
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
 		SetPlayerVirtualWorld(playerid, playerid + 100);
@@ -110,6 +113,17 @@ resetPlayerVariable(playerid){
 
 	PlayerInfo[playerid][sisaPalu] = 0;
 
+	PlayerInfo[playerid][last_x] = 0;
+	PlayerInfo[playerid][last_y] = 0;
+	PlayerInfo[playerid][last_z] = 0;
+	PlayerInfo[playerid][last_a] = 0;
+	
+	PlayerInfo[playerid][last_int] = 0;
+	PlayerInfo[playerid][last_vw] = 0;
+
+	PlayerInfo[playerid][lastHp] = 0;
+	PlayerInfo[playerid][lastArmour] = 0;
+
 	KillTimer(PlayerAction[playerid][timerNambang]);
 	PlayerAction[playerid][sedangNambang] = false;
 }
@@ -157,6 +171,18 @@ publicFor: spawnPemain(playerid)
 	new house_Id = PlayerInfo[playerid][sHouse];
 	tampilkanHUDStats(playerid);
 
+	if(PlayerInfo[playerid][last_stats_makan] == 0 && PlayerInfo[playerid][last_stats_minum] == 0){
+		setStatusMakanPemain(playerid, 80);
+		setStatusMinumPemain(playerid, 80);
+	}else{
+		setStatusMakanPemain(playerid, PlayerInfo[playerid][last_stats_makan]);
+		setStatusMinumPemain(playerid, PlayerInfo[playerid][last_stats_minum]);
+
+		PlayerInfo[playerid][last_stats_makan] = 0;
+		PlayerInfo[playerid][last_stats_minum] = 0;
+	}
+	
+
 	if(house_Id != 0){
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, 0, 0, 0, 0);
 			
@@ -169,7 +195,7 @@ publicFor: spawnPemain(playerid)
 
 		if(PlayerInfo[playerid][lastHp] > 0) {
 			SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
-			SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+			if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 		}
 		
 		PlayerInfo[playerid][lastHp] = 0;
@@ -194,7 +220,7 @@ publicFor: spawnPemain(playerid)
 			
 			if(PlayerInfo[playerid][lastHp] > 0) {
 				SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
-				SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+				if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 			}
 
 			PlayerInfo[playerid][lastHp] = 0;
@@ -226,15 +252,15 @@ publicFor: GantiSkinSaatSpawn(playerid){
 	ubahSkinPemain(playerid, PlayerInfo[playerid][skinID]);
 }
 
-publicFor: updatePlayerCurrentPhone(playerid, listitem){
+publicFor: updatePlayerCurrentPhone(playerid, iditem){
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.use_phone, b.id_user_item, c.nama_item FROM `user` a LEFT JOIN `user_item` b ON b.id_user = a.id LEFT JOIN `item` c ON a.use_phone = c.id_item WHERE a.id = '%d'", PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, pQuery[playerid], "checkIfPhoneExist", "dd", playerid, listitem);
+	mysql_tquery(koneksi, pQuery[playerid], "checkIfPhoneExist", "dd", playerid, iditem);
 	return 1;
 }
 
-publicFor: checkIfPhoneExist(playerid, listitem){
+publicFor: checkIfPhoneExist(playerid, itemid){
 	if(cache_num_rows()){
-		new id_phone, id_user_item, itemid = getIDbyModelItem(listitem), old_nama_item[100], pesan[256], nama_item[256];
+		new id_phone, id_user_item, old_nama_item[100], pesan[256], nama_item[256];
 		getNamaByIdItem(itemid, nama_item);
 
 		cache_get_value_name_int(0, "use_phone", id_phone);
@@ -487,8 +513,8 @@ publicFor: itemTidakDapatDipakai(playerid){
 	return 1;
 }
 
-publicFor: pakaiHpFromInven(playerid){
-	updatePlayerCurrentPhone(playerid, GetPVarInt(playerid, "inv_indexlist"));
+publicFor: pakaiHpFromInven(playerid, itemid){
+	updatePlayerCurrentPhone(playerid, itemid);
 	resetPVarInventory(playerid);
 	return 1;
 }
@@ -723,26 +749,32 @@ publicFor: selesaiNambang(playerid){
 
 	PlayerInfo[playerid][sisaPalu]--;
 
+	setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 1.5);
+
 	// Testing Probalities
 	new angka = random(15);
 	switch(angka){
 		case 1:
 		{
 			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
+			ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 			tambahItemPlayer(playerid, 10, 1);
 		}
 		case 2..3:
 		{
 			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
+			ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 			tambahItemPlayer(playerid, 9, 1);
 		}
 		case 4..6:{
 			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Perunggu"WHITE".\nPerunggu adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
+			ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 			tambahItemPlayer(playerid, 11, 1);
 		}
 		case 7..9:
 		{
 			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
+			ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 
 			tambahItemPlayer(playerid, 12, 1);
 		}
@@ -756,16 +788,20 @@ publicFor: selesaiNambang(playerid){
 	// if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
 	// 		tambahItemPlayer(playerid, 10, 1);
+	//		ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 	// }else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
 	// 		tambahItemPlayer(playerid, 9, 1);
+	//		ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 	// }else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Perunggu"WHITE".\nPerunggu adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
 	// 		tambahItemPlayer(playerid, 11, 1);
+	//		ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 	// }else if(angka >= 120001 && angka <= 420000){ // Kemungkinan 30%
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
 
 	// 		tambahItemPlayer(playerid, 12, 1);
+	//		ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 	// }else{
 	// 		SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
 	// }
@@ -829,6 +865,51 @@ publicFor: showHistoryGajiPemain(playerid){
 	return 1;
 }
 
+publicFor: pembayaranMakananATM(playerid){	
+	new idx = GetPVarInt(playerid, "bmakan_index"), jumlah = GetPVarInt(playerid, "bmakan_jumlah");
+	new harga = jumlah * MENU_MAKANAN[idx][hargaMakanan];
+	DeletePVar(playerid, "bmakan_index");
+	DeletePVar(playerid, "bmakan_jumlah");				
+
+	new saldo;
+	cache_get_value_name_int(0, "saldo", saldo);
+	if(saldo > harga){
+		new string_keterangan[100];
+		format(string_keterangan, 100, "Pembelian %s sebanyak %d", MENU_MAKANAN[idx][namaMakanan], jumlah);
+		addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -harga, string_keterangan);
+		tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
+		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_MAKANAN[idx][namaMakanan], jumlah, harga);
+		showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
+	}else{
+		showDialogPesan(playerid, RED"Saldo anda tidak mencukupi", WHITE"Maaf saldo yang terdapat pada ATM anda tidak mencukupi.\nSilahkan gunakan metode lain.");
+	}
+	return 1;
+}
+
+publicFor: pakaiMakanan(playerid, itemid){
+	switch(itemid){
+		case 14: // Steak
+		{
+			tambahItemPlayer(playerid, itemid, -1);
+			ApplyAnimation(playerid, "FOOD", "EAT_Burger", 4.1, 0, 1, 1, 0, 0, 1);
+			setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) + 80);
+		}
+	}
+	return 1;
+}
+
+publicFor: pakaiMinuman(playerid, itemid){
+	switch(itemid){
+		case 13: // Air minum mineral
+		{
+			tambahItemPlayer(playerid, itemid, -1);
+			ApplyAnimation(playerid, "BAR", "dnk_stndM_loop", 4.1, 0, 1, 1, 0, 0, 1);
+			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) + 5);
+		}
+	}
+	return 1;
+}
+
 prosesPembuatanKTP(playerid, interval_menit){
 	// Interval dalam menit
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_ktp(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
@@ -857,7 +938,7 @@ tampilkanKotakTerkirim(playerid){
 
 updateOnPlayerDisconnect(playerid){
 	// Position
-	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, Float:last_hp, Float:last_armour;
+	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, Float:last_hp, Float:last_armour, Float:temp_stats_makan, Float:temp_stats_minum;
 	if(PlayerInfo[playerid][sudahSpawn]){
 		GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
 		GetPlayerFacingAngle(playerid, last_spawn_info_a);
@@ -866,12 +947,16 @@ updateOnPlayerDisconnect(playerid){
 
 		GetPlayerHealth(playerid, last_hp);
 		GetPlayerArmour(playerid, last_armour);
+
+		temp_stats_makan = getStatusMakanPemain(playerid);
+		temp_stats_minum = getStatusMinumPemain(playerid);
 	}else{
-		last_hp = last_armour = last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a = 0;
+		// Reset nilai jadi 0 semua
+		last_hp = last_armour = last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a = temp_stats_makan = temp_stats_minum = 0;
 		last_spawn_info_int = last_spawn_info_vw = 0;
 	}
 
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, PlayerInfo[playerid][pID]);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }

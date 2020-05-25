@@ -99,6 +99,10 @@
 #define DIALOG_PILIHAN_AMBIL_GAJI 61
 #define DIALOG_E_BANKING_MENU 62
 #define DIALOG_INFO_SALDO_HISTORY_EBANK 63
+#define DIALOG_MENU_BELI_MAKAN 64
+#define DIALOG_JUMLAH_PEMBELIAN_MAKANAN 65
+#define DIALOG_METODE_BAYAR_MAKAN 66
+#define DIALOG_KONFIRMASI_BAYAR_MAKANAN_VIA_ATM 67
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR
@@ -122,6 +126,9 @@
 	// modif isnull dengan pengecekan "NULL" untuk counter NULL database field
     #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))) || !strcmp(%1, "NULL"))
 #endif
+
+#define PRESSED(%0) \
+	(((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
 
 #define publicFor:%0(%1) forward %0(%1); public %0(%1)
 

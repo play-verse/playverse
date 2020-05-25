@@ -66,3 +66,15 @@ showDialogATM(playerid){
 showDialogEBank(playerid){
 	return ShowPlayerDialog(playerid, DIALOG_E_BANKING_MENU, DIALOG_STYLE_LIST, WHITE"Menu E-Banking", WHITE"Info Saldo\nTransfer Uang\nHistory Rekening", "Pilih", "Batal");
 }
+
+showDialogTempatMakan(playerid){
+    static str_daftar_makanan[sizeof(MENU_MAKANAN) * 100 + 100], subString[100];
+    if(str_daftar_makanan[0] == EOS){
+        strcat(str_daftar_makanan, WHITE"Nama\tHarga\n");
+        for(new i = 0; i < sizeof(MENU_MAKANAN); i++){
+            format(subString, 100, WHITE"%s\t"GREEN"$%d\n", MENU_MAKANAN[i][namaMakanan], MENU_MAKANAN[i][hargaMakanan]);
+            strcat(str_daftar_makanan, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_MAKAN, DIALOG_STYLE_TABLIST_HEADERS, "Menu hidangan.", str_daftar_makanan, "Pilih", "Batal");
+}
