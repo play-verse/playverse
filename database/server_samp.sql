@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 26, 2020 at 07:16 AM
+-- Generation Time: May 26, 2020 at 09:41 AM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.10
 
@@ -80,7 +80,8 @@ CREATE TABLE `gaji` (
 
 INSERT INTO `gaji` (`id_gaji`, `id_user`, `nominal`, `tanggal`, `status`) VALUES
 (1, 22, 1000, '2020-05-23 14:24:15', 1),
-(2, 22, 50, '2020-05-23 14:24:32', 1);
+(2, 22, 50, '2020-05-23 14:24:32', 1),
+(3, 22, 100, '2020-05-26 13:09:48', 1);
 
 -- --------------------------------------------------------
 
@@ -169,6 +170,13 @@ CREATE TABLE `pengambilan_sim` (
   `tanggal_ambil` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
+--
+-- Dumping data for table `pengambilan_sim`
+--
+
+INSERT INTO `pengambilan_sim` (`id`, `id_user`, `tanggal_buat`, `tanggal_ambil`) VALUES
+(1, 22, '2020-05-26 12:54:01', '2020-05-26 13:24:01');
+
 -- --------------------------------------------------------
 
 --
@@ -236,7 +244,11 @@ INSERT INTO `trans_atm` (`id`, `id_user`, `id_pengirim_penerima`, `nominal`, `ta
 (23, 22, NULL, 0, '2020-05-25 16:24:24', 'Pembelian Steak sebanyak 0'),
 (24, 22, NULL, 0, '2020-05-25 16:24:50', 'Pembelian Steak sebanyak 0'),
 (25, 22, NULL, -2, '2020-05-25 16:26:34', 'Pembelian Air Minum Mineral sebanyak 1'),
-(26, 22, NULL, -20, '2020-05-25 18:28:51', 'Pembelian Air Minum Mineral sebanyak 10');
+(26, 22, NULL, -20, '2020-05-25 18:28:51', 'Pembelian Air Minum Mineral sebanyak 10'),
+(27, 22, NULL, 2000, '2020-05-26 13:12:46', 'Deposit tabungan'),
+(28, 22, NULL, 1000, '2020-05-26 14:15:57', 'Deposit tabungan'),
+(29, 22, NULL, -100, '2020-05-26 14:16:05', 'Penarikan uang'),
+(30, 22, NULL, -1000, '2020-05-26 14:16:14', 'Penarikan uang');
 
 -- --------------------------------------------------------
 
@@ -276,7 +288,7 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `nama`, `password`, `current_skin`, `jumlah_login`, `join_date`, `uang`, `jenis_kelamin`, `email`, `account_status`, `last_x`, `last_y`, `last_z`, `last_a`, `last_int`, `last_vw`, `nomor_handphone`, `use_phone`, `rekening`, `save_house`, `last_hp`, `last_armour`, `last_stats_makan`, `last_stats_minum`) VALUES
-(22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 28, 128, '2020-04-24 21:12:03', 3114, 0, 'nathan@gmail.com', 0, '921.725464', '-1366.997314', '13.204487', '115.541969', '0', '0', '621234', 2, '12345678', 0, 90, 0, 320, 81.5),
+(22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 28, 132, '2020-04-24 21:12:03', 1212, 0, 'nathan@gmail.com', 0, '1064.278442', '-1341.301270', '12.961114', '25.894300', '0', '0', '621234', 4, '12345678', 0, 90, 0, 320, 67.5),
 (23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', 100, 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL),
 (24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 91, '2020-04-30 15:31:48', 174940, 0, 'natan@gmail.com', 0, '1519.263184', '-1696.209229', '13.292188', '109.391800', '0', '0', '629876', 1, NULL, 0, NULL, NULL, NULL, NULL),
 (25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', 0, 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, 0, NULL, 0, NULL, NULL, NULL, NULL),
@@ -306,9 +318,9 @@ INSERT INTO `user_item` (`id_user_item`, `id_item`, `id_user`, `jumlah`) VALUES
 (1, 1, 1, 2),
 (3, 2, 1, 4),
 (7, 3, 1, 1),
-(8, 4, 22, 2),
+(8, 4, 22, 1),
 (10, 1, 22, 3),
-(17, 2, 22, 0),
+(17, 2, 22, 1),
 (26, 1, 23, 8),
 (27, 1, 25, 2),
 (30, 1, 24, 0),
@@ -325,7 +337,7 @@ INSERT INTO `user_item` (`id_user_item`, `id_item`, `id_user`, `jumlah`) VALUES
 (41, 9, 22, 5),
 (42, 10, 22, 1),
 (45, 14, 22, 6),
-(46, 13, 22, 10);
+(46, 13, 22, 8);
 
 -- --------------------------------------------------------
 
@@ -433,7 +445,7 @@ ALTER TABLE `user_skin`
 -- AUTO_INCREMENT for table `gaji`
 --
 ALTER TABLE `gaji`
-  MODIFY `id_gaji` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_gaji` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `house`
@@ -454,6 +466,12 @@ ALTER TABLE `pengambilan_ktp`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `pengambilan_sim`
+--
+ALTER TABLE `pengambilan_sim`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `sms`
 --
 ALTER TABLE `sms`
@@ -463,7 +481,7 @@ ALTER TABLE `sms`
 -- AUTO_INCREMENT for table `trans_atm`
 --
 ALTER TABLE `trans_atm`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `user`
