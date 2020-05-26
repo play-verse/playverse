@@ -2372,8 +2372,8 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 			if(poinSim[playerid] <= 80){
 				givePlayerUang(playerid, -100);
 				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
-				format(msg, sizeof(msg), WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan mencoba kembali ketika anda sudah siap.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal Praktik SIM", msg, "Ok", "");
+				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan mencoba kembali ketika anda sudah siap.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal Praktik SIM", pDialog[playerid], "Ok", "");
 				DisablePlayerRaceCheckpoint(playerid);
 				SetVehicleToRespawn(vehicleIdSIM[playerid]);
 				testSim[playerid] = 0;
@@ -2383,8 +2383,8 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 				prosesPembuatanSIM(playerid, 30);
 				givePlayerUang(playerid, -100);
 				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
-				format(msg, sizeof(msg), WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan tunggu sekitar 30 menit real-time."WHITE"\nAnda dapat mengecek dan mengambilnya di tempat Registrasi sebelumnya, setelah sudah 30 menit berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Praktik SIM", msg, "Ok", "");
+				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan tunggu sekitar 30 menit real-time."WHITE"\nAnda dapat mengecek dan mengambilnya di tempat Registrasi sebelumnya, setelah sudah 30 menit berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Praktik SIM", pDialog[playerid], "Ok", "");
 				DisablePlayerRaceCheckpoint(playerid);
 				SetVehicleToRespawn(vehicleIdSIM[playerid]);
 				testSim[playerid] = 0;
