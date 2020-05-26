@@ -86,20 +86,21 @@ CMD:giveitem(playerid, params[]){
     static string[MAX_SERVER_ITEM * 45];
 
     if(string[0] == EOS){
-        new Cache:result, rows, model_id, nama_item[256];
+        format(string, sizeof(string), "Kode\tNama\n"WHITE);
+        new Cache:result, rows, id_item, nama_item[256];
         result = mysql_query(koneksi, "SELECT * FROM `item`");
         cache_get_row_count(rows);
 
         for(new i = 0; i < rows; i++){
-            cache_get_value_name_int(i, "model_id", model_id);
+            cache_get_value_name_int(i, "id_item", id_item);
             cache_get_value_name(i, "nama_item", nama_item);
 
-            format(subString, sizeof(subString), "%i\t%s\n", model_id, nama_item);
+            format(subString, sizeof(subString), "%i\t%s\n", id_item, nama_item);
             strcat(string, subString);
         }
         cache_delete(result);
     }
-	ShowPlayerDialog(playerid, DIALOG_ADMIN_GIVE_ITEM, DIALOG_STYLE_PREVIEW_MODEL, "~w~Pilih item yang ingin diberi :", string, "~w~Pilih", "Keluar");
+	ShowPlayerDialog(playerid, DIALOG_ADMIN_GIVE_ITEM, DIALOG_STYLE_TABLIST_HEADERS, "Pilih item yang ingin diberi :", string, "Pilih", "Keluar");
     return 1;
 }
 
@@ -163,36 +164,7 @@ CMD:r(playerid, params[]){
 
 CMD:ephone(playerid, params[]){
     if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
-    
-    new string[500];
-
-    // Switch berdasarkan id item
-    switch(PlayerInfo[playerid][ePhone])
-    {
-        case 1:
-        {
-            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim");
-        }
-        case 2: 
-        {
-            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim\nATM M-Banking");
-        }
-        case 3:
-        {
-            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim\nATM M-Banking\nSharelock");
-        }
-        case 4:
-        {            
-            format(string, sizeof(string), "Kirim Pesan\nPesan Masuk\nPesan Terkirim\nATM M-Banking\nSharelock\nOnline Marketplace");
-        }
-        default:
-        {
-            // Worst case
-            return error_command(playerid, "Maaf terjadi kesalahan pada akun anda, silahkan mengirimkan report ke pada administrator!");
-        }
-    }
- 
-    ShowPlayerDialog(playerid, DIALOG_MENU_EPHONE, DIALOG_STYLE_LIST, WHITE"ePhone menu :", string, "Pilih", "Batal");
+    showDialogEPhone(playerid);
     return 1;
 }
 

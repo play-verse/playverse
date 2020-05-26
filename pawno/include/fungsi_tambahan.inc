@@ -1,5 +1,4 @@
-forward sama(const kata1[], const kata2[]);
-public sama(const kata1[], const kata2[]){
+publicFor: sama(const kata1[], const kata2[]){
     return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2)) ? 1 : 0;
 }
 
@@ -16,26 +15,32 @@ error_command(playerid, const message[]){
     return SendClientMessage(playerid, COLOR_WHITE, pesan);
 }
 
+addGajiPemain(playerid, nominal){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `gaji`(id_user, nominal, tanggal, status) VALUES('%d', '%d', NOW(), '0')", PlayerInfo[playerid][pID], nominal);
+    mysql_tquery(koneksi, pQuery[playerid]);
+}
+
 buatPickupDanLabel(modelid, Float:x, Float:y, Float:z, const text[]){
     CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
     return CreateDynamicPickup(modelid, 1, x, y, z);
 }
 
-buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran){
+buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, interiorid = -1){
     CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
-    return CreateDynamicCP(x, y, z, ukuran);
+    return CreateDynamicCP(x, y, z, ukuran, vw, interiorid, -1, 20.0);
 }
 
 pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:preload_dynamic_map = false){
+    SetPlayerFacingAngle(playerid, a);
     if(preload_dynamic_map){
-        Streamer_UpdateEx(playerid, x, y, z, vw, int, -1, 1000, 1);
+        Streamer_UpdateEx(playerid, x, y, z, vw, int, -1, 2000, 1);
+        GameTextForPlayer(playerid, "~w~Sedang ~y~loading..", 1800, 3);
     }
     if(preload_dynamic_map){
         SetPlayerPos(playerid, x, y, z + 0.5);
     }else{
         SetPlayerPos(playerid, x, y, z);
     }
-    SetPlayerFacingAngle(playerid, a);
     SetPlayerInterior(playerid, int);
     SetPlayerVirtualWorld(playerid, vw);
 }
@@ -45,11 +50,11 @@ dialogMsgUangTdkCukup(playerid){
     return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf saat ini uang yang anda miliki tidak mencukupi untuk melakukan transaksi!", "Ok", "Batal");
 }
 
-// getModelByIdItem(id_item){
-//     new nama_variabel[50];
-//     format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
-//     return GetSVarInt(nama_variabel);
-// }
+getModelByIdItem(id_item){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
+    return GetSVarInt(nama_variabel);
+}
 
 getIDbyModelItem(id_model){
     new nama_variabel[50];
@@ -75,12 +80,17 @@ getFungsiByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     GetSVarString(nama_variabel, destinasi, len);
 }
 
+getSaldoPlayer(playerid, const fungsi_callback[]){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(nominal), 0) as saldo FROM `trans_atm` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+    mysql_tquery(koneksi, pQuery[playerid], fungsi_callback, "i", playerid);
+}
+
 getUangPlayer(playerid, bool:useDb = false)
 {
     if(useDb){
         new jumlah_uang, Cache:result;
-        mysql_format(koneksi, query, sizeof(query), "SELECT `uang` FROM `user` WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
-        result = mysql_query(koneksi, "SELECT `uang` FROM `user` WHERE id = '%d'");    
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT `uang` FROM `user` WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
+        result = mysql_query(koneksi, pQuery[playerid]);    
         cache_get_value_name_int(0, "uang", jumlah_uang);
         cache_delete(result);
         return jumlah_uang;
@@ -93,8 +103,8 @@ givePlayerUang(playerid, jumlah, bool:simpanDb = true){
     PlayerInfo[playerid][uang] += jumlah;
 
     if(simpanDb){
-        mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
-        mysql_tquery(koneksi, query);
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
+        mysql_tquery(koneksi, pQuery[playerid]);
     }
 
     valstr(stringUang, PlayerInfo[playerid][uang]);
@@ -119,8 +129,8 @@ setUangPlayer(playerid, jumlah, bool:simpanDb = true){
     valstr(stringUang, PlayerInfo[playerid][uang]);
 
     if(simpanDb){
-        mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET `uang` = '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
-        mysql_tquery(koneksi, query);
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
+        mysql_tquery(koneksi, pQuery[playerid]);
     }
 
     PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
@@ -155,18 +165,17 @@ cekKetersediaanMassiveItem(playerid, const barang_barang[][], const fungsi_callb
         }
         strcat(kondisi, sub_kondisi);
     }
-    mysql_format(koneksi, query, sizeof(query), "SELECT COUNT(*) AS hasil FROM `user_item` WHERE id_user = '%d' AND (%s)", PlayerInfo[playerid][pID], kondisi);
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) AS hasil FROM `user_item` WHERE id_user = '%d' AND (%s)", PlayerInfo[playerid][pID], kondisi);
     // Pada fungsi harus ada parameter untuk menampung banyak item
-    if(!isnull(fungsi_callback)) mysql_tquery(koneksi, query, "isItemCukup", "iis", playerid, banyak_barang, fungsi_callback);
+    if(!isnull(fungsi_callback)) mysql_tquery(koneksi, pQuery[playerid], "isItemCukup", "iis", playerid, banyak_barang, fungsi_callback);
 }
 
 cekKetersediaanItem(playerid, id_item, jumlah, const fungsi_callback[]){
-    mysql_format(koneksi, query, sizeof(query), "SELECT COUNT(*) AS hasil FROM user_item WHERE id_user = '%d' AND id_item = '%d' AND jumlah >= '%d'", PlayerInfo[playerid][pID], id_item, jumlah);
-    mysql_tquery(koneksi, query, "isItemCukup", "iis", playerid, 1, fungsi_callback);
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) AS hasil FROM user_item WHERE id_user = '%d' AND id_item = '%d' AND jumlah >= '%d'", PlayerInfo[playerid][pID], id_item, jumlah);
+    mysql_tquery(koneksi, pQuery[playerid], "isItemCukup", "iis", playerid, 1, fungsi_callback);
 }
 
-forward isItemCukup(playerid, syarat, const fungsi_callback[]);
-public isItemCukup(playerid, syarat, const fungsi_callback[]){
+publicFor: isItemCukup(playerid, syarat, const fungsi_callback[]){
     new hasil;
     cache_get_value_name_int(0, "hasil", hasil);
     if(hasil == syarat)
@@ -176,8 +185,7 @@ public isItemCukup(playerid, syarat, const fungsi_callback[]){
     return 1;
 }
 
-forward keluarkanPlayer(playerid);
-public keluarkanPlayer(playerid){
+publicFor: keluarkanPlayer(playerid){
     Kick(playerid);
     return 1;
 }
@@ -210,4 +218,19 @@ stock GetPlayerIdFromName(playername[])
     }
   }
   return INVALID_PLAYER_ID;
+}
+
+stock GetVehicleSpeed(vehicleid) //Credits someone on SAMP Forums forgot the name
+{
+    new Float:x, Float:y, Float:z, vel;
+    GetVehicleVelocity(vehicleid, x, y, z);
+    vel = floatround(floatsqroot(x*x+y*y+z*z)*180); // KM/H
+    //vel = floatround(floatsqroot(x*x+y*y+z*z)*180/1.60934); // M/H
+    return vel;
+}
+
+Float:VehicleHealth(vehicleid){
+  new Float:health;
+  GetVehicleHealth(vehicleid, health);
+  return health;
 }

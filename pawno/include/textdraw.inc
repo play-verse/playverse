@@ -49,6 +49,7 @@ tampilkanTextDrawMyInfo(playerid){
 	PlayerTextDrawShow(playerid, myInfo[playerid][7]);
 
 	SelectTextDraw(playerid, COLOR_RED);
+	PlayerInfo[playerid][onSelectedTextdraw] = true;
 	return 1;
 }
 
@@ -90,7 +91,7 @@ tampilkanTextDrawShowItem(playerid, model_id, jumlah, keterangan[], nama_pemilik
 	PlayerTextDrawShow(playerid, showItem[playerid][5]);
 
 	SelectTextDraw(playerid, COLOR_RED);
-
+	PlayerInfo[playerid][onSelectedTextdraw] = true; 
 	return 1;
 }
 
@@ -330,7 +331,7 @@ loadTextDrawPemain(playerid){
     // End My Info
 
 	// Radar Uang
-	RadarUang[playerid][0] = CreatePlayerTextDraw(playerid, 455.000000, 80.000000, "RP.");
+	RadarUang[playerid][0] = CreatePlayerTextDraw(playerid, 455.000000, 80.000000, "$");
 	PlayerTextDrawFont(playerid, RadarUang[playerid][0], 3);
 	PlayerTextDrawLetterSize(playerid, RadarUang[playerid][0], 0.600000, 2.250000);
 	PlayerTextDrawTextSize(playerid, RadarUang[playerid][0], 610.000000, 36.500000);
@@ -359,4 +360,18 @@ loadTextDrawPemain(playerid){
 	PlayerTextDrawSetSelectable(playerid, RadarUang[playerid][1], 0);
 
 	// End Radar Uang
+}
+
+LoadSpeedoTextDraws(playerid){
+    SpeedoTextDraws[playerid] = CreatePlayerTextDraw(playerid, 320.0, 400.0, "Speed: 0 KmpH");
+    PlayerTextDrawFont(playerid, SpeedoTextDraws[playerid], 1);
+    PlayerTextDrawLetterSize(playerid, SpeedoTextDraws[playerid], 0.258332, 1.750000);
+    PlayerTextDrawTextSize(playerid, SpeedoTextDraws[playerid], 16.500000, 90.500000);
+    PlayerTextDrawSetOutline(playerid, SpeedoTextDraws[playerid], 1);
+    PlayerTextDrawSetShadow(playerid, SpeedoTextDraws[playerid], 0);
+    PlayerTextDrawAlignment(playerid, SpeedoTextDraws[playerid], 2);
+    PlayerTextDrawColor(playerid, SpeedoTextDraws[playerid], -1);
+    PlayerTextDrawBoxColor(playerid, SpeedoTextDraws[playerid], 200);
+    PlayerTextDrawUseBox(playerid, SpeedoTextDraws[playerid], 1);
+    PlayerTextDrawSetProportional(playerid, SpeedoTextDraws[playerid], 1);
 }
