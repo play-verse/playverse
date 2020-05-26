@@ -874,7 +874,7 @@ publicFor: cekSudahBisaAmbilSIM(playerid){
 		if(sudah_selesai){
 			hapusSetelahPengambilanSIM(playerid);
 			
-			tambahItemPlayer(playerid, 13, 1);
+			tambahItemPlayer(playerid, 15, 1);
 
 			format(msg, sizeof(msg), WHITE"Anda berhasil mendapatkan SIM yang sudah anda proses selama beberapa waktu.\nSilahkan berkendara dengan sebaik mungkin.\n"ORANGE"\nMelakukan pelanggaran lalu lintas akan mendapat tindakan tegas.");
 			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"SIM sudah selesai", msg, "Ok", "");
