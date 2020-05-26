@@ -1,5 +1,35 @@
 #include <a_samp>
+#include <pengaturan> // Pengaturan server disini letak pas dibawah a_samp
+#include <streamer>
+#include <progress2>
 
+#include <zcmd>
+#include <colors> // https://forum.sa-mp.com/showthread.php?t=573049
+#include <YSI_Data\y_iterate>
+#include <a_mysql>
+#include <sscanf2>
+#include <global_variable> // variable disini
+#include <dialog> // Function Dialog Loader
+#include <fungsi> // Fungsi disini
+#include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
+
+
+
+#include <core>
+#include <float>
+#include <PreviewModelDialog>
+/*
+	INCLUDE INCLUDE BUATAN DIBAWAH
+*/
+#include <../include/gl_common.inc>
+#include <mapping> // Mappingan loader
+#include <textdraw> // Textdraw Function Loader
+#include <pickup> // Pickup Function Loader
+#include <map_icon> // Map Icon Function Loader
+#include <checkpoint> // CP Function Loader
+
+#include <YSI_Coding\y_timers>
+#include <YSI_Coding\y_inline>
 forward OneSecTimer();
 
 new lasttick = 0;

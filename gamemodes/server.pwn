@@ -10,13 +10,16 @@
 #include <colors> // https://forum.sa-mp.com/showthread.php?t=573049
 #include <sscanf2>
 #include <streamer>
-#include <mapping>
 #include <progress2>
+
 #include <a_mysql>
-#include <a_mysql_yinline>
 #include <zcmd>
+
+#define YSI_NO_HEAP_MALLOC
 #include <YSI_Data\y_iterate>
 #include <YSI_Coding\y_timers>
+#include <YSI_Coding\y_inline>
+
 #include <core>
 #include <float>
 #include <PreviewModelDialog>
@@ -24,6 +27,7 @@
 	INCLUDE INCLUDE BUATAN DIBAWAH
 */
 #include <global_variable> // variable disini
+#include <mapping> // Mappingan loader
 #include <textdraw> // Textdraw Function Loader
 #include <pickup> // Pickup Function Loader
 #include <map_icon> // Map Icon Function Loader
@@ -32,7 +36,7 @@
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
 
-#include "../include/gl_common.inc"
+#include <../include/gl_common.inc>
 
 /**
 	Unused params is here
@@ -343,7 +347,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				strcat(nomor_hp, inputtext);
 
 				inline responseCekNomorHP(){
-					if(cache_num_rows()){
+					if(!cache_num_rows()){
 						mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET nomor_handphone = '%e' WHERE id = '%d'", nomor_hp, PlayerInfo[playerid][pID]);
 						mysql_tquery(koneksi, pQuery[playerid]);
 
@@ -354,8 +358,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Nomor HP telah ada, silahkan input yang lain!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
 					}
 				}
-				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user` WHERE nomor_handphone = '%s'", nomor_hp);
-				mysql_tquery_inline(koneksi, pQuery[playerid], using inline responseCekNomorHP);
+				MySQL_TQueryInline(koneksi, using inline responseCekNomorHP, "SELECT * FROM `user` WHERE nomor_handphone = '%s'", nomor_hp);
 			}
 			return 1;
 		}
@@ -494,8 +497,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								printf("[ERROR] #03 Error fungsi tampil saldo (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
 						}
 
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(nominal), 0) as saldo FROM `trans_atm` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
-						mysql_tquery_inline(koneksi, pQuery[playerid], using inline responseDialog);
+						MySQL_TQueryInline(koneksi, using inline responseDialog, "SELECT IFNULL(SUM(nominal), 0) as saldo FROM `trans_atm` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 						return 1;
 					}
 					case 1: // Transfer Uang
@@ -525,8 +527,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}							
 						}
 
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT 10", PlayerInfo[playerid][pID]);
-						mysql_tquery_inline(koneksi, pQuery[playerid], using inline responseDialogHistoryATM);
+						MySQL_TQueryInline(koneksi, using inline responseDialogHistoryATM, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT 10", PlayerInfo[playerid][pID]);
 						return 1;
 					}
 				}
@@ -545,6 +546,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				if(strlen(inputtext) == 6 && inputtext[0] == '6' && inputtext[1] == '2'){
+					if(strcmp(inputtext, PlayerInfo[playerid][nomorHP]) == 0) return ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_NOMOR, DIALOG_STYLE_INPUT, WHITE"Nomor HP penerima", RED"Tidak dapat memasukan nomor HP sendiri!\n"YELLOW"Pastikan nomor HP terdiri dari 6 angka dan diawali dengan 62.\n\n"WHITE"Masukan nomor HP penerima dengan lengkap :", "Ok", "Batal");
+
 					mysql_format(koneksi, pQuery[playerid], sizePQuery, "select a.id, COUNT(b.pesan) AS banyak_pesan from `user` a left join sms b on b.id_user_penerima = a.id WHERE a.nomor_handphone = '%e' GROUP BY a.id", inputtext);		
 					mysql_tquery(koneksi, pQuery[playerid], "cekNomorPenerima", "d", playerid);
 				}else{

@@ -1,0 +1,20 @@
+{
+	"gamemodes": [
+		"server"
+	],
+	"filterscripts": [
+		"gl_actions",
+		"vspawner"
+	],
+	"plugins": [
+		"crashdetect",
+		"mysql",
+		"pawn-memory",
+		"sscanf",
+		"streamer"
+	],
+	"rcon_password": "kodokhijau99",
+	"port": 7777,
+	"hostname": "[EL] Eternity Legend - Alpha Version",
+	"maxplayers": 32
+}

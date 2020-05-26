@@ -1,0 +1,9 @@
+{
+	"user": "nathanramli",
+	"repo": "tested_fs",
+	"entry": "test.pwn",
+	"output": "test.amx",
+	"dependencies": [
+		"sampctl/samp-stdlib"
+	]
+}
