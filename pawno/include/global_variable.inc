@@ -111,7 +111,7 @@ new houseNotif[MAX_PLAYERS];
 */
 new PlayerText:showItem[MAX_PLAYERS][6];
 new PlayerText:myInfo[MAX_PLAYERS][8];
-new PlayerText:RadarUang[MAX_PLAYERS][2];
+// new PlayerText:RadarUang[MAX_PLAYERS][2];
 
 new Text:HUD_Stats_PB[5];
 new PlayerText:HUD_Stats[MAX_PLAYERS][1];

@@ -2,6 +2,11 @@ publicFor: sama(const kata1[], const kata2[]){
     return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2)) ? 1 : 0;
 }
 
+stock SetPlayerMoney(playerid, jumlah){
+    ResetPlayerMoney(playerid);
+    GivePlayerMoney(playerid, jumlah);
+}
+
 error_syntax(playerid, const syntax[]){
     new pesan[256] = "[{FF0000}Invalid{FFFFFF}] {FF0000}Gunakan {FFFFFF}: ";
 
@@ -93,6 +98,9 @@ getSaldoPlayer(playerid, const fungsi_callback[]){
 
 getUangPlayer(playerid, bool:useDb = false)
 {
+    if(GetPlayerMoney(playerid) != PlayerInfo[playerid][uang])
+        SetPlayerMoney(playerid, PlayerInfo[playerid][uang]);
+
     if(useDb){
         new jumlah_uang, Cache:result;
         mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT `uang` FROM `user` WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
@@ -100,12 +108,12 @@ getUangPlayer(playerid, bool:useDb = false)
         cache_get_value_name_int(0, "uang", jumlah_uang);
         cache_delete(result);
         return jumlah_uang;
-    }else
+    }else{
         return PlayerInfo[playerid][uang];
+    }
 }
 
 givePlayerUang(playerid, jumlah, bool:simpanDb = true){
-    new stringUang[50];
     PlayerInfo[playerid][uang] += jumlah;
 
     if(simpanDb){
@@ -113,8 +121,14 @@ givePlayerUang(playerid, jumlah, bool:simpanDb = true){
         mysql_tquery(koneksi, pQuery[playerid]);
     }
 
-    valstr(stringUang, PlayerInfo[playerid][uang]);
-    PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
+    // Hanya tampilan untuk default
+    // Money bawaan tidak ada efek sama sekali karena tidak akan menjadi acuan
+    // Melainkan menggunakan variabel untuk pengecekan
+    SetPlayerMoney(playerid, PlayerInfo[playerid][uang]);
+
+    // new stringUang[50];
+    // valstr(stringUang, PlayerInfo[playerid][uang]);
+    // PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
 }
 
 Float:getStatusMakanPemain(playerid){
@@ -144,7 +158,8 @@ setStatusMinumPemain(playerid, Float:jumlah){
 //         mysql_tquery(koneksi, query);
 //     }
 
-//     PlayerTextDrawSetString(playerid, RadarUang[playerid][1], "0");
+//    ResetPlayerMoney(playerid);
+//     // PlayerTextDrawSetString(playerid, RadarUang[playerid][1], "0");
 // }
 ubahSkinPemain(playerid, skinid){
     // Hide dlu untuk dapat efeknya
@@ -155,16 +170,21 @@ ubahSkinPemain(playerid, skinid){
 }
 
 setUangPlayer(playerid, jumlah, bool:simpanDb = true){
-    new stringUang[50];
     PlayerInfo[playerid][uang] = jumlah;
-    valstr(stringUang, PlayerInfo[playerid][uang]);
 
     if(simpanDb){
         mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
         mysql_tquery(koneksi, pQuery[playerid]);
     }
 
-    PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
+    // Hanya tampilan untuk default
+    // Money bawaan tidak ada efek sama sekali karena tidak akan menjadi acuan
+    // Melainkan menggunakan variabel untuk pengecekan
+    SetPlayerMoney(playerid, PlayerInfo[playerid][uang]);
+    
+    // new stringUang[50];
+    // valstr(stringUang, PlayerInfo[playerid][uang]);
+    // PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
 }
 
 
@@ -255,7 +275,7 @@ stock GetVehicleSpeed(vehicleid) //Credits someone on SAMP Forums forgot the nam
 }
 
 Float:VehicleHealth(vehicleid){
-  new Float:health;
-  GetVehicleHealth(vehicleid, health);
-  return health;
+    new Float:health;
+    GetVehicleHealth(vehicleid, health);
+    return health;
 }

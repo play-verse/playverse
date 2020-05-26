@@ -153,6 +153,7 @@ publicFor: registerUser(playerid)
 	PlayerInfo[playerid][sudahLogin] = true;
 
 	setUangPlayer(playerid, 100);
+	// tampilkanTextDrawUang(playerid);
 
 	tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID], 1, true);
 
@@ -971,8 +972,8 @@ publicFor: cekSudahPunyaSIM(playerid){
 
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"SIM sedang diproses", msg, "Ok", "");
 	}else{
-		// ID SIM = 13
-		cekKetersediaanItem(playerid, 13, 1, "isBisaBuatSIM");
+		// ID SIM = 15
+		cekKetersediaanItem(playerid, 15, 1, "isBisaBuatSIM");
 	}
 	return 1;
 }

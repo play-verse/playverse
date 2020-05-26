@@ -57,8 +57,8 @@ public OnPlayerConnect(playerid)
 	SetPlayerColor(playerid, COLOR_WHITE);
 	
 	resetPlayerVariable(playerid);
+	ResetPlayerMoney(playerid);
 	resetPlayerToDo(playerid);
-	tampilkanTextDrawUang(playerid);
 	TextDrawShowForPlayer(playerid, TD_JamTanggal[0]);
 	TextDrawShowForPlayer(playerid, TD_JamTanggal[1]);
 	LoadSpeedoTextDraws(playerid);
@@ -100,7 +100,8 @@ public OnPlayerDisconnect(playerid, reason){
 	resetPlayerToDo(playerid);
 	if(PlayerInfo[playerid][sudahLogin]) updateOnPlayerDisconnect(playerid);
 	resetPlayerVariable(playerid);
-	hideTextDrawUang(playerid);
+	// hideTextDrawUang(playerid);
+	ResetPlayerMoney(playerid);
 	unloadTextDrawPemain(playerid);
 	return 1;
 }
@@ -159,6 +160,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					PlayerInfo[playerid][loginKe]++;
 					format(msg, sizeof(msg), "~r~Selamat ~y~datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %d ~w~!", PlayerInfo[playerid][loginKe]);
 					GameTextForPlayer(playerid, msg, 4000, 3);
+
+					// tampilkanTextDrawUang(playerid);
 
 					// Set player uang tanpa menambahkan di database - maka diset false untuk parameter terakhir
 					setUangPlayer(playerid, PlayerInfo[playerid][uang], false);
@@ -2383,8 +2386,8 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 				prosesPembuatanSIM(playerid, 30);
 				givePlayerUang(playerid, -100);
 				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
-				format(msg, sizeof(msg), WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan tunggu sekitar 30 menit real-time."WHITE"\nAnda dapat mengecek dan mengambilnya di tempat Registrasi sebelumnya, setelah sudah 30 menit berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Praktik SIM", msg, "Ok", "");
+				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan tunggu sekitar 30 menit real-time."WHITE"\nAnda dapat mengecek dan mengambilnya di tempat Registrasi sebelumnya, setelah sudah 30 menit berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Praktik SIM", pDialog[playerid], "Ok", "");
 				DisablePlayerRaceCheckpoint(playerid);
 				SetVehicleToRespawn(vehicleIdSIM[playerid]);
 				testSim[playerid] = 0;
@@ -2392,6 +2395,16 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 				poinSim[playerid] = 0;
 			}
 		}
+	}
+	return 1;
+}
+
+public OnPlayerCommandReceived(playerid, cmdtext[]){
+	if(PlayerInfo[playerid][sudahLogin] == false){
+		error_command(playerid, "Anda harus login terlebih dahulu untuk dapat menggunakan command!");
+		error_command(playerid, "Anda telah dikick dari server karena menggunakan command sebelum login.");
+		KickEx(playerid);
+		return 0;
 	}
 	return 1;
 }

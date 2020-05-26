@@ -21,5 +21,5 @@ loadAllMapIcon(){
     CreateDynamicMapIcon(1464.5782,-1009.9889,26.8438, 52, 1, 0, 0);
 
     // Map Icon untuk sweeper job
-    CreateDynamicMapIcon(706.6257, -1196.5216, 14.9840, 13, 1);
+    CreateDynamicMapIcon(706.6257, -1196.5216, 14.9840, 13, 1, 0, 0);
 }

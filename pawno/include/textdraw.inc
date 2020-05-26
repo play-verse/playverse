@@ -248,15 +248,15 @@ hideHUDStats(playerid){
 }
 
 // Radar Uang
-tampilkanTextDrawUang(playerid){
-	PlayerTextDrawShow(playerid, RadarUang[playerid][0]);
-	PlayerTextDrawShow(playerid, RadarUang[playerid][1]);
-}
+// tampilkanTextDrawUang(playerid){
+// 	PlayerTextDrawShow(playerid, RadarUang[playerid][0]);
+// 	PlayerTextDrawShow(playerid, RadarUang[playerid][1]);
+// }
 
-hideTextDrawUang(playerid){
-	PlayerTextDrawHide(playerid, RadarUang[playerid][0]);
-	PlayerTextDrawHide(playerid, RadarUang[playerid][1]);
-}
+// hideTextDrawUang(playerid){
+// 	PlayerTextDrawHide(playerid, RadarUang[playerid][0]);
+// 	PlayerTextDrawHide(playerid, RadarUang[playerid][1]);
+// }
 // End Radar Uang Textdraw
 
 /**
@@ -472,33 +472,33 @@ loadTextDrawPemain(playerid){
     // End My Info
 
 	// Radar Uang
-	RadarUang[playerid][0] = CreatePlayerTextDraw(playerid, 455.000000, 80.000000, "$");
-	PlayerTextDrawFont(playerid, RadarUang[playerid][0], 3);
-	PlayerTextDrawLetterSize(playerid, RadarUang[playerid][0], 0.600000, 2.250000);
-	PlayerTextDrawTextSize(playerid, RadarUang[playerid][0], 610.000000, 36.500000);
-	PlayerTextDrawSetOutline(playerid, RadarUang[playerid][0], 1);
-	PlayerTextDrawSetShadow(playerid, RadarUang[playerid][0], 0);
-	PlayerTextDrawAlignment(playerid, RadarUang[playerid][0], 1);
-	PlayerTextDrawColor(playerid, RadarUang[playerid][0], 1097458175);
-	PlayerTextDrawBackgroundColor(playerid, RadarUang[playerid][0], 255);
-	PlayerTextDrawBoxColor(playerid, RadarUang[playerid][0], 1296911868);
-	PlayerTextDrawUseBox(playerid, RadarUang[playerid][0], 1);
-	PlayerTextDrawSetProportional(playerid, RadarUang[playerid][0], 1);
-	PlayerTextDrawSetSelectable(playerid, RadarUang[playerid][0], 0);
+	// RadarUang[playerid][0] = CreatePlayerTextDraw(playerid, 455.000000, 80.000000, "$");
+	// PlayerTextDrawFont(playerid, RadarUang[playerid][0], 3);
+	// PlayerTextDrawLetterSize(playerid, RadarUang[playerid][0], 0.600000, 2.250000);
+	// PlayerTextDrawTextSize(playerid, RadarUang[playerid][0], 610.000000, 36.500000);
+	// PlayerTextDrawSetOutline(playerid, RadarUang[playerid][0], 1);
+	// PlayerTextDrawSetShadow(playerid, RadarUang[playerid][0], 0);
+	// PlayerTextDrawAlignment(playerid, RadarUang[playerid][0], 1);
+	// PlayerTextDrawColor(playerid, RadarUang[playerid][0], 1097458175);
+	// PlayerTextDrawBackgroundColor(playerid, RadarUang[playerid][0], 255);
+	// PlayerTextDrawBoxColor(playerid, RadarUang[playerid][0], 1296911868);
+	// PlayerTextDrawUseBox(playerid, RadarUang[playerid][0], 1);
+	// PlayerTextDrawSetProportional(playerid, RadarUang[playerid][0], 1);
+	// PlayerTextDrawSetSelectable(playerid, RadarUang[playerid][0], 0);
 
-	RadarUang[playerid][1] = CreatePlayerTextDraw(playerid, 606.000000, 81.000000, "0");
-	PlayerTextDrawFont(playerid, RadarUang[playerid][1], 3);
-	PlayerTextDrawLetterSize(playerid, RadarUang[playerid][1], 0.600000, 2.000000);
-	PlayerTextDrawTextSize(playerid, RadarUang[playerid][1], 400.000000, 17.000000);
-	PlayerTextDrawSetOutline(playerid, RadarUang[playerid][1], 1);
-	PlayerTextDrawSetShadow(playerid, RadarUang[playerid][1], 0);
-	PlayerTextDrawAlignment(playerid, RadarUang[playerid][1], 3);
-	PlayerTextDrawColor(playerid, RadarUang[playerid][1], 9109759);
-	PlayerTextDrawBackgroundColor(playerid, RadarUang[playerid][1], 255);
-	PlayerTextDrawBoxColor(playerid, RadarUang[playerid][1], 50);
-	PlayerTextDrawUseBox(playerid, RadarUang[playerid][1], 0);
-	PlayerTextDrawSetProportional(playerid, RadarUang[playerid][1], 1);
-	PlayerTextDrawSetSelectable(playerid, RadarUang[playerid][1], 0);
+	// RadarUang[playerid][1] = CreatePlayerTextDraw(playerid, 606.000000, 81.000000, "0");
+	// PlayerTextDrawFont(playerid, RadarUang[playerid][1], 3);
+	// PlayerTextDrawLetterSize(playerid, RadarUang[playerid][1], 0.600000, 2.000000);
+	// PlayerTextDrawTextSize(playerid, RadarUang[playerid][1], 400.000000, 17.000000);
+	// PlayerTextDrawSetOutline(playerid, RadarUang[playerid][1], 1);
+	// PlayerTextDrawSetShadow(playerid, RadarUang[playerid][1], 0);
+	// PlayerTextDrawAlignment(playerid, RadarUang[playerid][1], 3);
+	// PlayerTextDrawColor(playerid, RadarUang[playerid][1], 9109759);
+	// PlayerTextDrawBackgroundColor(playerid, RadarUang[playerid][1], 255);
+	// PlayerTextDrawBoxColor(playerid, RadarUang[playerid][1], 50);
+	// PlayerTextDrawUseBox(playerid, RadarUang[playerid][1], 0);
+	// PlayerTextDrawSetProportional(playerid, RadarUang[playerid][1], 1);
+	// PlayerTextDrawSetSelectable(playerid, RadarUang[playerid][1], 0);
 
 	// End Radar Uang
 
@@ -546,8 +546,8 @@ unloadTextDrawPemain(playerid){
 	PlayerTextDrawDestroy(playerid, showItem[playerid][5]);	
 
 	// Radar Uang
-	PlayerTextDrawDestroy(playerid, RadarUang[playerid][0]);
-	PlayerTextDrawDestroy(playerid, RadarUang[playerid][1]);
+	// PlayerTextDrawDestroy(playerid, RadarUang[playerid][0]);
+	// PlayerTextDrawDestroy(playerid, RadarUang[playerid][1]);
 
 	// Bar Stats
 	DestroyPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][0]);
