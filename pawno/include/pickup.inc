@@ -1,6 +1,7 @@
 loadAllPickup(){
-    PU_tempatFoto[ENTER_PICKUP] = buatPickupDanLabel(1318, 1111.9841, -1370.0327, 13.9844, "Tempat foto dan cetak foto\n"GREEN"Pintu Masuk");
-    PU_tempatFoto[EXIT_PICKUP] = buatPickupDanLabel(1318, -204.3725, -27.3480, 1002.2734, "Tempat foto dan cetak foto\n"GREEN"Pintu Keluar");
+    PU_tempatFoto_in[0] = buatPickupDanLabel(1318, 1111.9841, -1370.0327, 13.9844, "Tempat Cetak foto "nama_A"\n"GREEN"Pintu Masuk");
+    PU_tempatFoto_in[1] = buatPickupDanLabel(1318, 1553.9622,-1450.5079,13.5469, "Tempat Cetak foto "nama_B"\n"GREEN"Pintu Masuk");
+    PU_tempatFoto_out = buatPickupDanLabel(1318, -204.3725, -27.3480, 1002.2734, "Tempat Cetak foto\n"GREEN"Pintu Keluar");
 
     // minimarket yang ada mappingan
     PU_miniMarket[0][ENTER_PICKUP] = buatPickupDanLabel(1318, 1352.3239, -1759.2528, 13.5078, "Minimarket "nama_A"\n"GREEN"Pintu Masuk");
@@ -15,4 +16,7 @@ loadAllPickup(){
     PU_cityHallMasuk[2] = buatPickupDanLabel(1318, 1472.9707,-1786.4982,15.4566, "Kantor Pemerintah Los Santos\n"GREEN"Pintu Masuk");
 
     PU_cityHallKeluar = buatPickupDanLabel(1318, -501.1548,286.2194,2001.0950, "Kantor Pemerintah Los Santos\n"GREEN"Pintu Keluar");
+
+    PU_bankLS[ENTER_PICKUP] = buatPickupDanLabel(1318, 1464.5782,-1009.9889,26.8438, "Bank Los Santos\n"GREEN"Pintu Masuk");
+    PU_bankLS[EXIT_PICKUP] = buatPickupDanLabel(1318, 1417.0054,-979.5762,-55.2764, "Bank Los Santos\n"GREEN"Pintu Keluar");
 }

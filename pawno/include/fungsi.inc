@@ -1,5 +1,4 @@
-forward isRegistered(playerid);
-public isRegistered(playerid)
+publicFor: isRegistered(playerid)
 {
 	if(cache_num_rows()) // IsRegistered
 	{
@@ -16,14 +15,22 @@ public isRegistered(playerid)
 		// Equiped phone
 		cache_get_value_name_int(0, "use_phone", PlayerInfo[playerid][ePhone]);
 		cache_get_value_name_int(0, "save_house", PlayerInfo[playerid][sHouse]);
-		cache_is_value_name_null(0, "nomor_handphone", is_null);
 
+		cache_is_value_name_null(0, "nomor_handphone", is_null);
 		if(is_null){
 			// EOS = End Of String - '\0' sama
 			PlayerInfo[playerid][nomorHP][0] = EOS;
 		}else{
 			cache_get_value_name(0, "nomor_handphone", temp_value);
 			format(PlayerInfo[playerid][nomorHP], 12, "%s", temp_value);
+		}
+
+		cache_is_value_name_null(0, "rekening", is_null);
+		if(is_null){
+			PlayerInfo[playerid][nomorRekening][0] = EOS;
+		}else{
+			cache_get_value_name(0, "rekening", temp_value);
+			format(PlayerInfo[playerid][nomorRekening], 10, "%s", temp_value);
 		}
 
 		cache_get_value_name_int(0, "uang", PlayerInfo[playerid][uang]);
@@ -37,10 +44,14 @@ public isRegistered(playerid)
 		PlayerInfo[playerid][last_z] = floatstr(temp_value);
 		cache_get_value_name(0, "last_a", temp_value);
 		PlayerInfo[playerid][last_a] = floatstr(temp_value);
+		
 		cache_get_value_name(0, "last_int", temp_value);
 		PlayerInfo[playerid][last_int] = strval(temp_value);
 		cache_get_value_name(0, "last_vw", temp_value);
 		PlayerInfo[playerid][last_vw] = strval(temp_value);
+
+		cache_get_value_name_float(0, "last_hp", PlayerInfo[playerid][lastHp]);
+		cache_get_value_name_float(0, "last_armour", PlayerInfo[playerid][lastArmour]);
 
 		// Pindahkan player
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
@@ -88,11 +99,19 @@ resetPlayerVariable(playerid){
 
     PlayerInfo[playerid][ePhone] = 0;
     PlayerInfo[playerid][nomorHP][0] = EOS;
+    PlayerInfo[playerid][nomorRekening][0] = EOS;
 
 	PlayerInfo[playerid][lastGlobalChat] = 0;
 	PlayerInfo[playerid][reply] = -1;
 	PlayerInfo[playerid][sudahLogin] = false;
 	PlayerInfo[playerid][sudahSpawn] = false;
+
+	PlayerInfo[playerid][onSelectedTextdraw] = false;
+
+	PlayerInfo[playerid][sisaPalu] = 0;
+
+	KillTimer(PlayerAction[playerid][timerNambang]);
+	PlayerAction[playerid][sedangNambang] = false;
 }
 
 resetPVarInventory(playerid){
@@ -103,15 +122,14 @@ resetPVarInventory(playerid){
 	DeletePVar(playerid, "inv_target_id");
 }
 
-forward registerUser(playerid);
-public registerUser(playerid)
+publicFor: registerUser(playerid)
 {
 	new EncryptedPassword[65];
 	SHA256_PassHash(registerInfo[playerid][registerPassword], PlayerInfo[playerid][pPlayerName], EncryptedPassword, 64);
 
 	new Cache:result;
-	mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user` (`nama`, `password`, `jumlah_login`, `join_date`, `jenis_kelamin`, `email`, `account_status`, `current_skin`) VALUES ('%e', '%e', '1', NOW(), '%d', '%e', '0', '%d')", PlayerInfo[playerid][pPlayerName], EncryptedPassword, registerInfo[playerid][jenisKelamin], registerInfo[playerid][email], registerInfo[playerid][freeSkinID]);
-	result = mysql_query(koneksi, query);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `user` (`nama`, `password`, `jumlah_login`, `join_date`, `jenis_kelamin`, `email`, `account_status`, `current_skin`) VALUES ('%e', '%e', '1', NOW(), '%d', '%e', '0', '%d')", PlayerInfo[playerid][pPlayerName], EncryptedPassword, registerInfo[playerid][jenisKelamin], registerInfo[playerid][email], registerInfo[playerid][freeSkinID]);
+	result = mysql_query(koneksi, pQuery[playerid]);
 	PlayerInfo[playerid][pID] = cache_insert_id();
 	PlayerInfo[playerid][loginKe] = 1;
 	PlayerInfo[playerid][jenisKelamin] = registerInfo[playerid][jenisKelamin];
@@ -132,8 +150,7 @@ dialogEmail(playerid){
 	ShowPlayerDialog(playerid, DIALOG_INPUT_EMAIL, DIALOG_STYLE_INPUT, "Input Email anda", WHITE"Masukan email anda, kami hanya mensupport email "RED"@gmail.com\n:", "Simpan", "Keluar");
 }
 
-forward spawnPemain(playerid);
-public spawnPemain(playerid)
+publicFor: spawnPemain(playerid)
 {
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	PlayerInfo[playerid][sudahSpawn] = true;
@@ -146,7 +163,15 @@ public spawnPemain(playerid)
 		pindahkanPemain(playerid, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, true);
 
 		TogglePlayerControllable(playerid, 0);
-    	SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
+		SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
+
+		if(PlayerInfo[playerid][lastHp] > 0) {
+			SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
+			SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+		}
+
+		PlayerInfo[playerid][lastHp] = 0;
+		PlayerInfo[playerid][lastArmour] = 0;
 
 		PlayerInfo[playerid][last_x] = 0;
 		PlayerInfo[playerid][last_y] = 0;
@@ -163,8 +188,16 @@ public spawnPemain(playerid)
 			pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
 
 			TogglePlayerControllable(playerid, 0);
-			SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
+			SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 			
+			if(PlayerInfo[playerid][lastHp] > 0) {
+				SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
+				SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+			}
+
+			PlayerInfo[playerid][lastHp] = 0;
+			PlayerInfo[playerid][lastArmour] = 0;
+
 			PlayerInfo[playerid][last_x] = 0;
 			PlayerInfo[playerid][last_y] = 0;
 			PlayerInfo[playerid][last_z] = 0;
@@ -180,28 +213,24 @@ public spawnPemain(playerid)
 			pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
 
 			TogglePlayerControllable(playerid, 0);
-			SetTimerEx("GantiSkinSaatSpawn", 1000, false, "i", playerid);
-
+			SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 		}
 	}
 	return 1;
 }
 
-forward GantiSkinSaatSpawn(playerid);
-public GantiSkinSaatSpawn(playerid){
+publicFor: GantiSkinSaatSpawn(playerid){
 	TogglePlayerControllable(playerid, 1);
 	SetPlayerSkin(playerid, PlayerInfo[playerid][skinID]);
 }
 
-forward updatePlayerCurrentPhone(playerid, listitem);
-public updatePlayerCurrentPhone(playerid, listitem){
-	mysql_format(koneksi, query, sizeof(query), "SELECT a.use_phone, b.id_user_item, c.nama_item FROM `user` a LEFT JOIN `user_item` b ON b.id_user = a.id LEFT JOIN `item` c ON a.use_phone = c.id_item WHERE a.id = '%d'", PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query, "checkIfPhoneExist", "dd", playerid, listitem);
+publicFor: updatePlayerCurrentPhone(playerid, listitem){
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.use_phone, b.id_user_item, c.nama_item FROM `user` a LEFT JOIN `user_item` b ON b.id_user = a.id LEFT JOIN `item` c ON a.use_phone = c.id_item WHERE a.id = '%d'", PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid], "checkIfPhoneExist", "dd", playerid, listitem);
 	return 1;
 }
 
-forward checkIfPhoneExist(playerid, listitem);
-public checkIfPhoneExist(playerid, listitem){
+publicFor: checkIfPhoneExist(playerid, listitem){
 	if(cache_num_rows()){
 		new id_phone, id_user_item, itemid = getIDbyModelItem(listitem), old_nama_item[100], pesan[256], nama_item[256];
 		getNamaByIdItem(itemid, nama_item);
@@ -233,8 +262,8 @@ public checkIfPhoneExist(playerid, listitem){
 		tambahItemPlayer(playerid, itemid, -1);
 
 		// Set item terequip
-		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET use_phone = '%d' WHERE id = '%d'",itemid, PlayerInfo[playerid][pID]);
-		mysql_tquery(koneksi, query);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET use_phone = '%d' WHERE id = '%d'",itemid, PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
 
 		// Set player variabel
 		PlayerInfo[playerid][ePhone] = itemid;
@@ -244,8 +273,7 @@ public checkIfPhoneExist(playerid, listitem){
 	return 1;
 }
 
-forward cekPesanTerkirim(playerid);
-public cekPesanTerkirim(playerid){
+publicFor: cekPesanTerkirim(playerid){
 	new banyak_pesan;
 	cache_get_value_name_int(0, "banyak_pesan", banyak_pesan);
 	if(banyak_pesan >= MAX_SMS_PER_PLAYER){
@@ -258,8 +286,7 @@ public cekPesanTerkirim(playerid){
 	return 1;
 }
 
-forward cekNomorPenerima(playerid);
-public cekNomorPenerima(playerid){
+publicFor: cekNomorPenerima(playerid){
 	new banyak_pesan, id_penerima;
 	cache_get_value_name_int(0, "banyak_pesan", banyak_pesan);
 	cache_get_value_name_int(0, "id", id_penerima);
@@ -278,8 +305,7 @@ public cekNomorPenerima(playerid){
 	return 1;
 }
 
-forward lihatPesanMasuk(playerid);
-public lihatPesanMasuk(playerid){
+publicFor: lihatPesanMasuk(playerid){
 	new rows;
 	cache_get_row_count(rows);
 	if(rows){
@@ -303,8 +329,7 @@ public lihatPesanMasuk(playerid){
 	return 1;
 }
 
-forward lihatPesanTerkirim(playerid);
-public lihatPesanTerkirim(playerid){
+publicFor: lihatPesanTerkirim(playerid){
 	new rows;
 	cache_get_row_count(rows);
 	if(rows){
@@ -328,18 +353,16 @@ public lihatPesanTerkirim(playerid){
 	return 1;
 }
 
-forward updatePlayerCurrentSkin(playerid, skinid);
-public updatePlayerCurrentSkin(playerid, skinid){
-	mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user_skin` WHERE id_skin = '%d' AND id_user = '%d'", skinid, PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query, "checkIfSkinExist", "dd", playerid, skinid);
+publicFor: updatePlayerCurrentSkin(playerid, skinid){
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user_skin` WHERE id_skin = '%d' AND id_user = '%d'", skinid, PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid], "checkIfSkinExist", "dd", playerid, skinid);
 	return 1;
 }
 
-forward checkIfSkinExist(playerid, skinid);
-public checkIfSkinExist(playerid, skinid){
+publicFor: checkIfSkinExist(playerid, skinid){
 	if(cache_num_rows()){
-		mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET current_skin = '%d' WHERE id = '%d'",skinid, PlayerInfo[playerid][pID]);
-		mysql_tquery(koneksi, query);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET current_skin = '%d' WHERE id = '%d'",skinid, PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
 
 		// Kembalikan skin yang sama
 		tambahSkinPlayer(playerid, PlayerInfo[playerid][skinID], 1, false);
@@ -352,8 +375,7 @@ public checkIfSkinExist(playerid, skinid){
 	return 1;
 }
 
-forward tampilInventorySkinPlayer(playerid);
-public tampilInventorySkinPlayer(playerid){
+publicFor: tampilInventorySkinPlayer(playerid){
 	new rows, string[500], subString[20], id_skin, jumlah;
 	if(cache_get_row_count(rows)){
 		for(new i = 0; i < rows; i++){
@@ -369,21 +391,40 @@ public tampilInventorySkinPlayer(playerid){
 	return 1; // For deleteing cache tquery
 }
 
-forward tampilInventoryBarangPlayer(playerid);
-public tampilInventoryBarangPlayer(playerid){
-	new rows, subString[64], jumlah, model_id, nama_item[100];
+publicFor: hitungGaji(playerid, tipe){
+	new nominal;
+	cache_get_value_name_int(0, "nominal", nominal);
+	if(nominal > 0){
+		if(tipe == 0){ // Ambil gaji via bank
+			addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], nominal, "Pencairan gaji");
+		}else if(tipe == 1){ // Ambil gaji via kontan
+			givePlayerUang(playerid, nominal);
+		}
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `gaji` SET `status` = '1' WHERE id_user = '%d' AND status = '0'", PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
+
+		format(pDialog[playerid], sizePDialog, WHITE"Selamat anda berhasil mengambil gaji anda.\nGaji anda yang berhasil anda ambil sebesar "GREEN"$%d"WHITE".\n"YELLOW"Gaji yang sudah diterima tidak dapat claim kembali.", nominal);
+		showDialogPesan(playerid, GREEN"Berhasil mengambil gaji", pDialog[playerid]);
+	}else{
+		showDialogPesan(playerid, RED"Kotak gaji kosong", WHITE"Gaji anda saat ini sedang kosong!\nUntuk dapat mengambil gaji anda harus bekerja terlebih dahulu, kemudian anda dapat mengambil gaji disini!");
+	}
+	return 1;
+}
+
+publicFor: tampilInventoryBarangPlayer(playerid){
+	new rows, subString[64], jumlah, id_item, nama_item[100];
 	cache_get_row_count(rows);
-	new string[MAX_SERVER_ITEM * 64 + 5];
+	new string[MAX_SERVER_ITEM * 64 + 5] = "Kode\tNama\tJumlah\n"WHITE;
 	if(rows){
 		for(new i = 0; i < rows; i++){
-			cache_get_value_name_int(i, "model_id", model_id);
+			cache_get_value_name_int(i, "id_item", id_item);
 			cache_get_value_name_int(i, "jumlah", jumlah);
 			cache_get_value_name(i, "nama_item", nama_item);
 
-			format(subString, sizeof(subString), "%i\t%s~n~~g~%i\n", model_id, nama_item,jumlah);
+			format(subString, sizeof(subString), "%i\t%s\t%i\n", id_item, nama_item,jumlah);
 			strcat(string, subString);
 		}
-		ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_PREVIEW_MODEL, "~w~Pilih barang anda :", string, "~w~Pilih", "Keluar");
+		ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_TABLIST_HEADERS, "Pilih barang anda :", string, "Pilih", "Keluar");
 	}else{
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item "RED"kosong", WHITE"Maaf saat ini inventory item anda tidak berisi apapun!\n"YELLOW"Anda bisa mendapatkan item dari bekerja, berbelanja, ataupun saling bertukar item kepada player lain!", "Oke", "");
 	}
@@ -391,37 +432,32 @@ public tampilInventoryBarangPlayer(playerid){
 	return 1; // For deleteing cache tquery
 }
 
-forward tambahItemPlayer(playerid, itemid, jumlah);
-public tambahItemPlayer(playerid, itemid, jumlah){
-	// mysql_format(koneksi, query, sizeof(query), "INSERT INTO `user_item` (id_user, id_item, jumlah) VALUES('%d', '%d', '%d') ON DUPLICATE KEY UPDATE `jumlah` = `jumlah` + '%d'", PlayerInfo[playerid][pID], itemid, jumlah, jumlah);
-
+publicFor: tambahItemPlayer(playerid, itemid, jumlah){
 	// Pakai trigger procedure
-	mysql_format(koneksi, query, sizeof(query), "CALL tambah_item(%d, %d, %d)", PlayerInfo[playerid][pID], itemid, jumlah);
-	mysql_tquery(koneksi, query);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "CALL tambah_item(%d, %d, %d)", PlayerInfo[playerid][pID], itemid, jumlah);
+	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }
 
-forward tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan);
-public tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan){
+publicFor: tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan){
 	// Pakai trigger procedure
-	mysql_format(koneksi, query, sizeof(query), "CALL tambah_skin(%d, %d, %d)", PlayerInfo[playerid][pID], skinid, jumlah);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "CALL tambah_skin(%d, %d, %d)", PlayerInfo[playerid][pID], skinid, jumlah);
 	if(langsung_gunakan){
-		mysql_tquery(koneksi, query, "updatePlayerCurrentSkin", "dd", playerid, skinid);
+		mysql_tquery(koneksi, pQuery[playerid], "updatePlayerCurrentSkin", "dd", playerid, skinid);
 	}else{
-		mysql_tquery(koneksi, query);
+		mysql_tquery(koneksi, pQuery[playerid]);
 	}
 	return 1;
 }
 
-forward cekJumlahItem(playerid, model_id);
-public cekJumlahItem(playerid, model_id){
+publicFor: cekJumlahItem(playerid, itemid){
 	if(cache_num_rows()){
-		new jumlah, keterangan[500], itemid = getIDbyModelItem(model_id);
+		new jumlah, keterangan[500];
 		cache_get_value_name_int(0, "jumlah", jumlah);
 
 		if(jumlah > 0){
-			SetPVarInt(playerid, "inv_indexlist", model_id);
-			SetPVarInt(playerid, "inv_model", model_id);
+			SetPVarInt(playerid, "inv_indexlist", itemid);
+			SetPVarInt(playerid, "inv_model", getModelByIdItem(itemid));
 			SetPVarInt(playerid, "inv_jumlah", jumlah);
 
 			getKeteranganByIdItem(itemid, keterangan);
@@ -442,16 +478,14 @@ public cekJumlahItem(playerid, model_id){
 /*
 	ITEM USE TRIGGER
 */
-forward itemTidakDapatDipakai(playerid);
-public itemTidakDapatDipakai(playerid){
+publicFor: itemTidakDapatDipakai(playerid){
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"Item tidak dapat dipakai", WHITE"Maaf item yang anda pilih bukan merupakan jenis item yang dapat digunakan.\nAnda dapat memilih item lain yang dapat digunakan.", "Ok", "");
 
 	resetPVarInventory(playerid);
 	return 1;
 }
 
-forward pakaiHpFromInven(playerid);
-public pakaiHpFromInven(playerid){
+publicFor: pakaiHpFromInven(playerid){
 	updatePlayerCurrentPhone(playerid, GetPVarInt(playerid, "inv_indexlist"));
 	resetPVarInventory(playerid);
 	return 1;
@@ -459,8 +493,7 @@ public pakaiHpFromInven(playerid){
 
 // KTP
 
-forward cekKetersediaanItemBuatKTP(playerid, cukup);
-public cekKetersediaanItemBuatKTP(playerid, cukup){
+publicFor: cekKetersediaanItemBuatKTP(playerid, cukup){
     new hasil;
     cache_get_value_name_int(0, "hasil", hasil);
     if(cukup){
@@ -478,8 +511,7 @@ public cekKetersediaanItemBuatKTP(playerid, cukup){
     return 1;
 }
 
-forward isBisaBuatKTP(playerid, tidak_bisa);
-public isBisaBuatKTP(playerid, tidak_bisa){
+publicFor: isBisaBuatKTP(playerid, tidak_bisa){
 	if(tidak_bisa){
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Anda telah memiliki KTP", WHITE"Maaf anda telah memiliki KTP, anda tidak dapat membuatnya lagi.", "Ok", "");
 	}else{
@@ -487,23 +519,155 @@ public isBisaBuatKTP(playerid, tidak_bisa){
 	}
 }
 
+publicFor: pakaiPaluTambang(playerid){
+	tambahItemPlayer(playerid, 8, -1);
+	PlayerInfo[playerid][sisaPalu] += 15;
+
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Palu Tambang = "GREEN"Penambahan kesempatan menambang sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan menambang anda direset jadi 0.", "Ok", "");
+	return 1;
+}
+
 getSudahBuatKTP(playerid, const fungsi_callback[], bool:cek_untuk_buat = true)
 {
 	if(cek_untuk_buat) {
-		mysql_format(koneksi, query, sizeof(query), "SELECT tanggal_ambil FROM pengambilan_ktp WHERE id_user = '%d' AND tanggal_ambil > NOW()", PlayerInfo[playerid][pID]);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil FROM pengambilan_ktp WHERE id_user = '%d' AND tanggal_ambil > NOW()", PlayerInfo[playerid][pID]);
 	}else{
-		mysql_format(koneksi, query, sizeof(query), "SELECT tanggal_ambil, (CASE WHEN tanggal_ambil <= NOW() THEN 1 ELSE 0 END) AS hasil FROM `pengambilan_ktp` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil, (CASE WHEN tanggal_ambil <= NOW() THEN 1 ELSE 0 END) AS hasil FROM `pengambilan_ktp` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 	}
-	mysql_tquery(koneksi, query, fungsi_callback, "i", playerid);
+	mysql_tquery(koneksi, pQuery[playerid], fungsi_callback, "i", playerid);
 }
 
 hapusSetelahPengambilanKTP(playerid){
-	mysql_format(koneksi, query, sizeof(query), "DELETE FROM pengambilan_ktp WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM pengambilan_ktp WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
 }
 
-forward cekSudahBisaAmbilKTP(playerid);
-public cekSudahBisaAmbilKTP(playerid){
+publicFor: isRekeningAda(playerid){
+	new hasil, rekening[10];
+	cache_get_value_name_int(0, "hasil", hasil);
+	if(hasil == 0){
+		GetSVarString("regis_rekening", rekening, sizeof(rekening));
+		format(msg, sizeof(msg), "Anda akan membuat rekening dengan nomor rekening "YELLOW"%s "WHITE"dengan ketentuan:\n"YELLOW"- Pembuatan rekening membutuhkan uang administrasi sebesar "GREEN"$100\n- Memiliki 2 Materai dan 4 Pas Foto", rekening);
+		ShowPlayerDialog(playerid, DIALOG_DAFTAR_REKENING_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi Pembuatan Rekening", msg, "Daftar", "Batal");
+	}else{
+		DeletePVar(playerid, "regis_rekening");
+		return ShowPlayerDialog(playerid, DIALOG_DAFTAR_REKENING_INPUT_NOMOR, DIALOG_STYLE_INPUT, "Input nomor rekening ATM baru", RED"Nomor rekening telah ada, silahkan pilih nomor rekening lain!\n\n"WHITE"Input nomor rekening ATM yang baru:\n"WHITE"- Nomor rekening harus terdiri dari 8 karakter\n- Nomor rekening belum digunakan oleh orang lain sebelumnya", "Ok", "Kembali");
+	}
+	return 1;
+}
+
+publicFor: isRekeningTujuanAda(playerid, const rekening[]){
+	new result_nama[50], rekening_temp[10];
+	if(cache_num_rows()){
+		cache_get_value_name(0, "nama", result_nama);
+		SetPVarString(playerid, "tf_nama", result_nama);
+		format(rekening_temp, sizeof(rekening_temp), "%s", rekening);
+		SetPVarString(playerid, "tf_rekening", rekening_temp);
+
+		ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", "Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
+	}
+	else{
+		format(msg, sizeof(msg), RED"Nomor rekening "YELLOW"%s "RED"tidak ada.\n"WHITE"Silahkan masukan nomor rekening tujuan:\nNomor rekening harus terdiri dari 8 digit.\nPastikan anda memasukan rekening yang benar.", rekening);
+		ShowPlayerDialog(playerid, DIALOG_INPUT_REKENING_TUJUAN, DIALOG_STYLE_INPUT, "Nomor rekening tujuan", msg, "Ok", "Kembali");
+	}
+	return 1;
+}
+
+publicFor: isMencukupiTransfer(playerid){
+	new saldo, nominal = GetPVarInt(playerid, "tf_nominal");
+	if(cache_num_rows()){
+		cache_get_value_name_int(0, "saldo", saldo);
+		if(nominal > saldo){
+			ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", RED"Saldo ATM anda tidak mencukupi.\n"WHITE"Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
+			return 1;
+		}
+
+		new nama_penerima[50], rekening_penerima[10];
+		GetPVarString(playerid, "tf_nama", nama_penerima, sizeof(nama_penerima));
+		GetPVarString(playerid, "tf_rekening", rekening_penerima, sizeof(rekening_penerima));
+
+		format(msg, sizeof(msg), WHITE"Anda akan melakukan transfer dengan data berikut :\n\n"YELLOW"Nama Penerima : %s\nNo. Rek : %s\nNominal : %d\n\n"WHITE"Anda yakin ingin mengirimnya? Silahkan isi keterangan pengiriman menandakan anda setuju.", nama_penerima, rekening_penerima, nominal);
+		ShowPlayerDialog(playerid, DIALOG_TRANSFER_KONFIRMASI, DIALOG_STYLE_INPUT, "Konfirmasi Transfer", msg, "Kirim", "Batal");
+	}else
+		printf("[ERROR] #01 Error fungsi transfer (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
+	return 1;
+}
+
+publicFor: isMencukupiTarik(playerid){
+	new saldo, nominal = GetPVarInt(playerid, "wd_nominal");
+	if(cache_num_rows()){
+		cache_get_value_name_int(0, "saldo", saldo);
+		if(nominal > saldo){
+			ShowPlayerDialog(playerid, DIALOG_TARIK_UANG_NOMINAL, DIALOG_STYLE_INPUT, "Nominal penarikan uang", RED"Saldo tidak mencukupi nominal yang ingin ditarik.\n"WHITE"Silahkan masukan nominal yang ingin anda ambil :\n"YELLOW"Pastikan anda memiliki cukup saldo untuk mengambilnya.", "Tarik", "Kembali");
+			return 1;
+		}
+
+		format(msg, sizeof(msg), WHITE"Anda akan menarik uang sebesar "GREEN"%d."WHITE"\nApakah anda yakin ingin melakukan penarikan?", nominal);
+		ShowPlayerDialog(playerid, DIALOG_TARIK_UANG_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi penarikan uang", msg, "Konfirmasi", "Batal");
+	}else
+		printf("[ERROR] #02 Error fungsi penarikan (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
+	return 1;
+}
+
+publicFor: tampilSaldoPlayer(playerid){
+	new saldo;
+	if(cache_num_rows()){
+		cache_get_value_name_int(0, "saldo", saldo);
+		format(msg, sizeof(msg), WHITE"Informasi saldo anda dan Rekening anda:\n\nNama : %s\nRekening : %s\nSaldo : %d\n\nInformasi saldo dapat berubah sewaktu-waktu sesuai dengan transaksi yang terjadi setiap saatnya.\nTerimakasih telah menggunakan Layanan dari kami.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][nomorRekening], saldo);
+		ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY, DIALOG_STYLE_MSGBOX, "Informasi saldo dan Akun Bank", msg, "Kembali", "Tutup");
+	}
+	else
+		printf("[ERROR] #03 Error fungsi tampil saldo (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
+	return 1;
+}
+
+publicFor: historyATMPemain(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		new idx = 0, subString[150], string[1700] = "Pengirim/Penerima\tNominal\tTanggal\tKeterangan\n", temp_tanggal[20], rekening_temp[10], keterangan[60], nominal_temp;
+		while(idx < rows){
+			cache_get_value_name(idx, "rekening", rekening_temp);
+			cache_get_value_name(idx, "keterangan", keterangan);
+			cache_get_value_name(idx, "tanggal", temp_tanggal);
+			cache_get_value_name_int(idx, "nominal", nominal_temp);
+			format(subString, sizeof(subString), "%s\t%d\t%s\t%s\n", rekening_temp, nominal_temp, temp_tanggal, keterangan);
+			strcat(string, subString);
+			idx++;
+		}
+		ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY, DIALOG_STYLE_TABLIST_HEADERS, "Informasi History ATM", string, "Kembali", "Tutup");
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY, DIALOG_STYLE_MSGBOX, "Informasi History ATM", "Tidak ada history ATM untuk saat ini.", "Kembali", "Tutup");
+	}
+	return 1;
+}
+
+publicFor: konfirmasiPembuatanRekening(playerid, ada){
+	if(ada){
+		new rekening[10];
+
+		tambahItemPlayer(playerid, 5, -4);
+		tambahItemPlayer(playerid, 6, -2);
+		givePlayerUang(playerid, -100);
+
+		GetPVarString(playerid, "regis_rekening", rekening, sizeof(rekening));
+		// Update rekening player
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET rekening = '%e' WHERE id = '%d'", rekening, PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
+
+		format(PlayerInfo[playerid][nomorRekening], 10, "%s", rekening);
+
+		DeletePVar(playerid, "regis_rekening");
+
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat rekening ATM", "Berhasil membuat rekening ATM, anda dapat menggunakan ATM untuk mengirim dan menerima uang dari orang lain.\n\n"YELLOW"Anda juga menggunakan eBanking jika memiliki ePhone yang mendukung.\nSetiap transaksi pada ATM dapat anda lakukan pada mesin ATM manapun.", "Ok", "");
+	}else{
+		DeletePVar(playerid, "regis_rekening");
+		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", "Anda tidak memiliki cukup item yang diperlukan untuk pembuatan rekening.", "Ok", "");
+	}
+	return 1;
+}
+
+publicFor: cekSudahBisaAmbilKTP(playerid){
 	new sudah_selesai, tanggal_pengambilan[50];
 	if(cache_num_rows()){
 		cache_get_value_name_int(0, "hasil", sudah_selesai);
@@ -526,8 +690,7 @@ public cekSudahBisaAmbilKTP(playerid){
 	return 1;
 }
 
-forward cekSudahPunyaKTP(playerid);
-public cekSudahPunyaKTP(playerid){
+publicFor: cekSudahPunyaKTP(playerid){
 	new tanggal_pengambilan[50];
 	if(cache_num_rows()){
 		cache_get_value_name(0, "tanggal_ambil", tanggal_pengambilan);
@@ -541,24 +704,177 @@ public cekSudahPunyaKTP(playerid){
 	return 1;
 }
 
-prosesPembuatanKTP(playerid, interval_menit){
-	// Interval dalam menit
-	mysql_format(koneksi, query, sizeof(query), "INSERT INTO pengambilan_ktp(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
-	mysql_tquery(koneksi, query);
+publicFor: inputNomorRekeningATMBaru(playerid, ada){
+	if(ada){
+		ShowPlayerDialog(playerid, DIALOG_DAFTAR_REKENING_INPUT_NOMOR, DIALOG_STYLE_INPUT, "Input nomor rekening ATM baru", "Input nomor rekening ATM yang baru:\n"WHITE"- Nomor rekening harus terdiri dari 8 karakter\n- Nomor rekening belum digunakan oleh orang lain sebelumnya", "Ok", "Kembali");
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Anda harus memiliki KTP terlebih dahulu untuk dapat mendaftarkan rekening ATM.", "Ok", "");
+	}
+	return 1;
 }
 
-showDialogBeliBarang(playerid){
-	new subString[45];
-    static string[sizeof(BARANG_MARKET) * 45];
+publicFor: selesaiNambang(playerid){
+	PlayerAction[playerid][sedangNambang] = false;
+	ClearAnimations(playerid);
+	TogglePlayerControllable(playerid, 1);
+	if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
 
-    if(string[0] == EOS){
-		for(new i = 0; i < sizeof(BARANG_MARKET); i++){
-			format(subString, sizeof(subString), "%i\t%s~n~~g~$%d\n", BARANG_MARKET[i][idModelBarang], BARANG_MARKET[i][namaBarang], BARANG_MARKET[i][hargaBarang]);
-            strcat(string, subString);
+	PlayerInfo[playerid][sisaPalu]--;
+
+	// Testing Probalities
+	new angka = random(15);
+	switch(angka){
+		case 1:
+		{
+			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
+			tambahItemPlayer(playerid, 10, 1);
+		}
+		case 2..3:
+		{
+			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
+			tambahItemPlayer(playerid, 9, 1);
+		}
+		case 4..6:{
+			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Perunggu"WHITE".\nPerunggu adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
+			tambahItemPlayer(playerid, 11, 1);
+		}
+		case 7..9:
+		{
+			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
+
+			tambahItemPlayer(playerid, 12, 1);
+		}
+		default:{
+			SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
 		}
 	}
-	ShowPlayerDialog(playerid, DIALOG_BELI_BARANG_MARKET, DIALOG_STYLE_PREVIEW_MODEL, "Beli Barang", string, "Beli", "Batal");
+
+	// Real Probalities
+	// new angka = random(1000000);
+	// if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
+	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
+	// 		tambahItemPlayer(playerid, 10, 1);
+	// }else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
+	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
+	// 		tambahItemPlayer(playerid, 9, 1);
+	// }else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
+	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Perunggu"WHITE".\nPerunggu adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
+	// 		tambahItemPlayer(playerid, 11, 1);
+	// }else if(angka >= 120001 && angka <= 420000){ // Kemungkinan 30%
+	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
+
+	// 		tambahItemPlayer(playerid, 12, 1);
+	// }else{
+	// 		SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
+	// }
+
 	return 1;
+}
+
+publicFor: showHistoryGajiPemain(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		new tmp_tanggal[50], tmp_nominal, temp_dialog[150];
+		format(pDialog[playerid], sizePDialog, WHITE"Tanggal\t"GREEN"Nominal\n"WHITE);
+		foreach(new i : Range(0, rows)){
+			cache_get_value_name(i, "tanggal", tmp_tanggal);
+			cache_get_value_name_int(i, "nominal", tmp_nominal);
+
+			format(temp_dialog, 149, "%s\t%i\n", tmp_tanggal, tmp_nominal);
+			strcat(pDialog[playerid], temp_dialog);
+		}
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_TABLIST_HEADERS, "History Gaji Pemain", pDialog[playerid], "Tutup", "");
+	}else
+		showDialogPesan(playerid, RED"Kotak gaji kosong", WHITE"Saat ini gaji anda tidak ada yang mau diambil.");
+	return 1;
+}
+
+prosesPembuatanKTP(playerid, interval_menit){
+	// Interval dalam menit
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_ktp(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
+	mysql_tquery(koneksi, pQuery[playerid]);
+}
+
+addTransaksiTabungan(const rekening_user[], nominal, const keterangan[], const rekening_pengirim_penerima[] = ""){
+	new tempQuery[100];
+	mysql_format(koneksi, tempQuery, 100, "CALL `tambah_transaksi_atm`('%e', '%e', %d, '%e')", rekening_pengirim_penerima, rekening_user, nominal, keterangan);
+	mysql_tquery(koneksi, tempQuery);
+}
+
+getSudahBuatSIM(playerid, const fungsi_callback[], bool:cek_untuk_buat = true)
+{
+	if(cek_untuk_buat) {
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil FROM pengambilan_sim WHERE id_user = '%d' AND tanggal_ambil > NOW()", PlayerInfo[playerid][pID]);
+	}else{
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil, (CASE WHEN tanggal_ambil <= NOW() THEN 1 ELSE 0 END) AS hasil FROM `pengambilan_sim` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+	}
+	mysql_tquery(koneksi, pQuery[playerid], fungsi_callback, "i", playerid);
+}
+
+prosesPembuatanSIM(playerid, interval_menit){
+	// Interval dalam menit
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
+	mysql_tquery(koneksi, pQuery[playerid]);
+}
+
+hapusSetelahPengambilanSIM(playerid){
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM pengambilan_sim WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
+}
+
+publicFor: cekPembuatanSIM(playerid, ada){
+	if(ada){
+		mulaiPembuatanSIM(playerid);
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Anda harus memiliki KTP terlebih dahulu untuk dapat mendaftarkan praktik pengujian SIM.", "Ok", "");
+	}
+	return 1;
+}
+
+publicFor: cekSudahBisaAmbilSIM(playerid){
+	new sudah_selesai, tanggal_pengambilan[50];
+	if(cache_num_rows()){
+		cache_get_value_name_int(0, "hasil", sudah_selesai);
+		if(sudah_selesai){
+			hapusSetelahPengambilanSIM(playerid);
+			
+			tambahItemPlayer(playerid, 13, 1);
+
+			format(msg, sizeof(msg), WHITE"Anda berhasil mendapatkan SIM yang sudah anda proses selama beberapa waktu.\nSilahkan berkendara dengan sebaik mungkin.\n"ORANGE"\nMelakukan pelanggaran lalu lintas akan mendapat tindakan tegas.");
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"SIM sudah selesai", msg, "Ok", "");
+		}else{
+			cache_get_value_name(0, "tanggal_ambil", tanggal_pengambilan);
+			format(msg, sizeof(msg), WHITE"SIM anda sedang dalam proses pembuatan, silahkan kembali pada tanggal :\n"YELLOW"%s\n"WHITE"Pengambilan SIM dapat anda lakukan dengan memilih menu "GREEN"Ambil SIM "WHITE"\nAnda akan mendapatkan SIM pada saat itu juga.", tanggal_pengambilan);
+
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"SIM sedang diproses", msg, "Ok", "");			
+		}
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Maaf SIM tidak ditemukan", WHITE"Maaf SIM atas nama anda tidak ditemukan, anda harus membuatnya terlebih dahulu. \nMaka setelah anda membuatnya, anda dapat mengambilnya disini.", "Ok", "");
+	}
+	return 1;
+}
+
+publicFor: cekSudahPunyaSIM(playerid){
+	new tanggal_pengambilan[50];
+	if(cache_num_rows()){
+		cache_get_value_name(0, "tanggal_ambil", tanggal_pengambilan);
+		format(msg, sizeof(msg), WHITE"SIM anda sedang dalam proses pembuatan, silahkan kembali pada tanggal :\n"YELLOW"%s\n"WHITE"Pengambilan SIM dapat anda lakukan dengan memilih menu "GREEN"Ambil SIM "WHITE"\nAnda akan mendapatkan SIM pada saat itu juga.", tanggal_pengambilan);
+
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"SIM sedang diproses", msg, "Ok", "");
+	}else{
+		// ID SIM = 13
+		cekKetersediaanItem(playerid, 13, 1, "isBisaBuatSIM");
+	}
+	return 1;
+}
+
+publicFor: isBisaBuatSIM(playerid, tidak_bisa){
+	if(tidak_bisa){
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Anda telah memiliki SIM", WHITE"Maaf anda telah memiliki SIM, anda tidak dapat membuatnya lagi.", "Ok", "");
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_DAFTAR_SIM_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi Pembuatan SIM", WHITE"Anda akan membuat SIM dengan syarat berikut.\nPersyaratan:\n"YELLOW"- Biaya administrasi sebesar "GREEN"$100"YELLOW"\n- Memiliki KTP", "Daftar", "Batal");
+	}
 }
 
 /**
@@ -566,31 +882,33 @@ showDialogBeliBarang(playerid){
  */
 
 tampilkanKotakMasuk(playerid){
-	mysql_format(koneksi, query, sizeof(query), "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_pengirim = b.id WHERE a.id_user_penerima = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query, "lihatPesanMasuk", "d", playerid);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_pengirim = b.id WHERE a.id_user_penerima = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid], "lihatPesanMasuk", "d", playerid);
 }
 
 tampilkanKotakTerkirim(playerid){
-	mysql_format(koneksi, query, sizeof(query), "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_penerima = b.id WHERE a.id_user_pengirim = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query, "lihatPesanTerkirim", "d", playerid);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.id_sms, a.tanggal_dikirim, b.nomor_handphone, a.pesan FROM `sms` a LEFT JOIN `user` b ON a.id_user_penerima = b.id WHERE a.id_user_pengirim = '%d' AND a.id_pemilik_pesan = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid], "lihatPesanTerkirim", "d", playerid);
 }
 
 updateOnPlayerDisconnect(playerid){
-	// new temp_value[256];
-
 	// Position
-	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw;
+	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, Float:last_hp, Float:last_armour;
 	if(PlayerInfo[playerid][sudahSpawn]){
 		GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
 		GetPlayerFacingAngle(playerid, last_spawn_info_a);
 		last_spawn_info_vw = GetPlayerVirtualWorld(playerid);
-		last_spawn_info_int = GetPlayerInterior(playerid);		
+		last_spawn_info_int = GetPlayerInterior(playerid);
+
+		GetPlayerHealth(playerid, last_hp);
+		GetPlayerArmour(playerid, last_armour);
 	}else{
-		last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a, last_spawn_info_int = last_spawn_info_vw = 0;
+		last_hp = last_armour = last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a = 0;
+		last_spawn_info_int = last_spawn_info_vw = 0;
 	}
 
-	mysql_format(koneksi, query, sizeof(query), "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }
 
@@ -739,9 +1057,9 @@ reloadHouseLabel(house_Id){
 }
 
 getOwnerHouse(ownerid){
-	new Cache:result, nama[MAX_PLAYER_NAME];
-	mysql_format(koneksi, query, sizeof(query), "SELECT * FROM `user` WHERE `id` = '%d'", ownerid);
-	result = mysql_query(koneksi, query);
+	new Cache:result, nama[MAX_PLAYER_NAME], tempQuery[100];
+	mysql_format(koneksi, tempQuery, 100, "SELECT * FROM `user` WHERE `id` = '%d'", ownerid);
+	result = mysql_query(koneksi, tempQuery);
 	if(cache_num_rows()){
 		cache_get_value_name(0, "nama", nama);
 	}
@@ -761,4 +1079,126 @@ getHousePrice(house_Id, method[16]=""){
 		return hargaRate;
 	}
 	return -1;
+}
+
+todoActive(playerid){
+	if(sweeperJob[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Maaf anda sedang bekerja sebagai Sweeper, silahkan kembali bekerja!");
+		return 1;
+	}
+	if(testSim[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Maaf anda sedang melakukan praktik pengujian SIM, silahkan kembali praktik!");
+		return 1;
+	}
+	return 0;
+}
+
+forward todoExit(playerid, paramid);
+public todoExit(playerid, paramid){
+	if(sweeperJob[playerid] == 1){
+		sweeperJob[playerid] = 0;
+		sweeperId[playerid] = -1;
+		DisablePlayerRaceCheckpoint(playerid);
+		SetVehicleToRespawn(paramid);
+		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda telah berhenti bekerja!");
+	}
+	if(testSim[playerid] == 1){
+		testSim[playerid] = 0;
+		vehicleIdSIM[playerid] = -1;
+		DisablePlayerRaceCheckpoint(playerid);
+		SetVehicleToRespawn(paramid);
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan praktik pengujian SIM, silahkan coba lagi!");
+	}
+	return 1;
+}
+
+resetPlayerToDo(playerid){
+	if(sweeperJob[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda telah berhenti bekerja!");
+		KillTimer(todoTimer[playerid]);
+		SetVehicleToRespawn(sweeperId[playerid]);
+		DisablePlayerRaceCheckpoint(playerid);
+		sweeperJob[playerid] = 0;
+		sweeperId[playerid] = -1;
+	}
+	if(testSim[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan praktik pengujian SIM, silahkan coba lagi!");
+		KillTimer(todoTimer[playerid]);
+		SetVehicleToRespawn(vehicleIdSIM[playerid]);
+		DisablePlayerRaceCheckpoint(playerid);
+		testSim[playerid] = 0;
+		vehicleIdSIM[playerid] = -1;
+	}
+	return 1;
+}
+
+mulaiPembuatanSIM(playerid){
+	for(new i = 0; i < MAX_PLAYERS; i++){
+		for(new v = 0; v < 3; v++){
+			if(vehicleSIM[v]){
+				if(!IsPlayerInVehicle(i, vehicleSIM[v])){
+					testSim[playerid] = 1;
+					poinSim[playerid] = 100;
+					PutPlayerInVehicle(playerid, vehicleSIM[v], 0);
+					vehicleIdSIM[playerid] = GetPlayerVehicleID(playerid);
+					SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan praktik mengemudi kendaraan.\nSilahkan ikuti aturan dan arah jalan dengan benar sebagai berikut.\nAturan:\n"YELLOW"- Maksimal kecepatan "GREEN"80 KmpH\n"YELLOW"- Kendaraan tidak boleh menabrak apapun disekitar\n- Minimal poin "GREEN"80", "Ok", "");
+					goto label_berhenti_sim;
+				}else if(v == 1 && v == 2 && v == 3 && IsPlayerInVehicle(i, vehicleSIM[v])){
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
+					goto label_berhenti_sim;
+				}
+			}
+		}
+	}
+	label_berhenti_sim:
+	return 1;	
+}
+
+ShowPlayerSpeedo(playerid){
+    SpeedoTimer[playerid] = SetTimerEx("SpeedoUpdate", 1000, 1, "i", playerid);
+    PlayerTextDrawShow(playerid, SpeedoTextDraws[playerid]);
+    return 1;
+}
+
+HidePlayerSpeedo(playerid){
+    KillTimer(SpeedoTimer[playerid]);
+    PlayerTextDrawHide(playerid, SpeedoTextDraws[playerid]);
+    return 1;
+}
+
+forward OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth);
+public OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth){
+  if(newhealth < oldhealth){
+    if(testSim[playerid] == 1){
+		poinSim[playerid]--;
+    	GameTextForPlayer(playerid, "~y~Kesehatan Kendaraan~n~~r~Poin -1", 1000, 3);
+	}
+  }
+  return true;
+}
+
+forward SpeedoUpdate(playerid);
+public SpeedoUpdate(playerid)
+{
+    new text_speed[24],
+    	vehid = GetPlayerVehicleID(playerid),
+    	vehspeed = GetVehicleSpeed(vehid);
+
+	newVehicleHealth[vehid] = VehicleHealth(vehid);
+	if(newVehicleHealth[vehid] != oldVehicleHealth[vehid]){
+		OnPlayerVehicleHealthChange(playerid, vehid, newVehicleHealth[vehid], oldVehicleHealth[vehid]);
+		oldVehicleHealth[vehid] = newVehicleHealth[vehid];
+	}
+
+    //format(text_speed, 24, "Speed: %i MpH", vehspeed); //Mph
+	format(text_speed, 24, "Speed: %i KmpH", vehspeed); //KmpH
+    PlayerTextDrawSetString(playerid, SpeedoTextDraws[playerid], text_speed);
+    if(testSim[playerid] == 1){
+    	if(vehspeed >= 80){
+    		poinSim[playerid]--;
+    		GameTextForPlayer(playerid, "~y~Kecepatan Kendaraan~n~~r~Poin -1", 1000, 3);
+    	}
+	}
+    return 1;
 }
