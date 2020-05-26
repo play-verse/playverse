@@ -28,36 +28,28 @@ Happy Pawning!
 
 ## Installation
 
-Simply install to your project:
+Cara install:
 
 ```bash
-sampctl package install nathanramli/eternity-legend
+git pull
+sampctl package install
+sampctl package ensure
 ```
 
-Include in your code and begin using the library:
+### Cara compile :
 
-```pawn
-#include <eternity-legend>
-```
-
-## Usage
-
-<!--
-Write your code documentation or examples here. If your library is documented in
-the source code, direct users there. If not, list your API and describe it well
-in this section. If your library is passive and has no API, simply omit this
-section.
--->
-
-## Testing
-
-<!--
-Depending on whether your package is tested via in-game "demo tests" or
-y_testing unit-tests, you should indicate to readers what to expect below here.
--->
-
-To test, simply run the package:
-
+Development server
 ```bash
-sampctl package run
+sampctl package build dev
+```
+
+Production server
+```bash
+sampctl package build prod
+```
+
+
+## Cara Run Server :
+```bash
+sampctl server run
 ```
