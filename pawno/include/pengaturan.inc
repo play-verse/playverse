@@ -17,11 +17,7 @@
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 50
 
-<<<<<<< HEAD
-#define MAX_SERVER_ITEM 10 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
-=======
 #define MAX_SERVER_ITEM 13 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
->>>>>>> dev
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -134,17 +130,12 @@
     #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))) || !strcmp(%1, "NULL"))
 #endif
 
-<<<<<<< HEAD
 #define PRESSED(%0) \
 	(((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
 
 #define publicFor:%0(%1) forward %0(%1); public %0(%1)
 
 #define KickEx(%0) SetTimerEx("keluarkanPlayer", 1, 0, "d", %0) 
-=======
-#define publicFor:%0(%1) forward %0(%1); public %0(%1)
-
-#define KickEx(%0) SetTimerEx("keluarkanPlayer", 1, 0, "d", %0)
 
 /*
 	Sweeper Job
@@ -228,4 +219,3 @@
 #define CP_simLS38 1526.5812,-1707.2993,13.1033
 #define CP_simLS39 1527.3547,-1625.8934,13.1053
 #define CP_simLS40 1590.3997,-1634.8812,13.1595
->>>>>>> dev
