@@ -57,10 +57,11 @@ public OnPlayerConnect(playerid)
 	SetPlayerColor(playerid, COLOR_WHITE);
 	
 	resetPlayerVariable(playerid);
-
+	resetPlayerToDo(playerid);
 	tampilkanTextDrawUang(playerid);
 	TextDrawShowForPlayer(playerid, TD_JamTanggal[0]);
 	TextDrawShowForPlayer(playerid, TD_JamTanggal[1]);
+	LoadSpeedoTextDraws(playerid);
 
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
@@ -96,6 +97,7 @@ public OnPlayerDisconnect(playerid, reason){
 	DeletePVar(playerid, "wd_nominal");
 
 	resetPVarInventory(playerid);
+	resetPlayerToDo(playerid);
 	if(PlayerInfo[playerid][sudahLogin]) updateOnPlayerDisconnect(playerid);
 	resetPlayerVariable(playerid);
 	hideTextDrawUang(playerid);
@@ -676,7 +678,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						cache_delete(PlayerInfo[playerid][kotakPesan]);
 						PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;	
 
-						tampilkanKotakMasuk(playerid);		
+						tampilkanKotakMasuk(playerid);	
 					}
 				}
 			}else{
@@ -719,9 +721,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					SetPVarInt(playerid, "level_rumah", level_rumah);
 					ShowPlayerDialog(playerid, DIALOG_HARGA_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", WHITE"Silahkan input harga rumah yang ingin dibuat.\n", "Lanjut", "Batal");
 				}else{
-					new pmsg[256];
-					format(pmsg, sizeof(pmsg), RED"Level tidak valid!\n"WHITE"Anda harus menginput level minimal 1 dan maksimal %d.\n", MAX_HOUSES_LEVEL);
-					ShowPlayerDialog(playerid, DIALOG_LEVEL_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", pmsg, "Lanjut", "Batal");
+					format(msg, sizeof(msg), RED"Level tidak valid!\n"WHITE"Anda harus menginput level minimal 1 dan maksimal %d.\n", MAX_HOUSES_LEVEL);
+					ShowPlayerDialog(playerid, DIALOG_LEVEL_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", msg, "Lanjut", "Batal");
 				}
 			}
 			return 1;
@@ -761,7 +762,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(!sama("RESET", inputtext)) return ShowPlayerDialog(playerid, DIALOG_RESET_RUMAH, DIALOG_STYLE_INPUT, "Reset Rumah", RED"Input tidak valid!\n"WHITE"Anda harus mengetik "GREEN"RESET"WHITE" untuk setuju.\n", "Lanjut", "Batal");
 				
 				for(new i = 0; i < MAX_HOUSES; i++){
-					if(houseInfo[i][hOwner] != -1){
+					if(housePickup[i] != -1){
 						new ownerName[256], beliRate = getHousePrice(i, "beli");
 						format(ownerName, 256, "%s", getOwnerHouse(houseInfo[i][hOwner]));
 						new ownerId = GetPlayerIdFromName(ownerName);
@@ -875,7 +876,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(!sama("HAPUS", inputtext)) return ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ALL, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"Input tidak valid!\n"WHITE"Anda harus mengetik "GREEN"HAPUS"WHITE" untuk setuju.\n", "Lanjut", "Batal");
 
 				for(new i = 0; i < MAX_HOUSES; i++){
-					if(houseInfo[i][hOwner] != -1){
+					if(housePickup[i] != -1){
 						new ownerName[256], beliRate = getHousePrice(i, "beli");
 						format(ownerName, 256, "%s", getOwnerHouse(houseInfo[i][hOwner]));
 						new ownerId = GetPlayerIdFromName(ownerName);
@@ -911,11 +912,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_INFO_RUMAH:
 		{
 			if(response){
-				new infoRumah[128], pmsg[256], id, ownerName[256], houseLevel, houseHarga, beliRate;
+				new infoRumah[128], id, ownerName[256], houseLevel, beliRate;
 				GetPVarString(playerid, "info_rumah", infoRumah, 128);
 				id = houseId[lastHousePickup[playerid]];
-				houseLevel = houseInfo[id][hLevel],
-				houseHarga = houseInfo[id][hHarga];
+				houseLevel = houseInfo[id][hLevel];
 				beliRate = getHousePrice(id, "beli");
 				if(houseInfo[id][hOwner] != -1){
 					format(ownerName, 256, "%s", getOwnerHouse(houseInfo[id][hOwner]));
@@ -980,8 +980,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
 							    mysql_tquery(koneksi, pQuery[playerid]);
 							    reloadHouseLabel(id);
-							    format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil upgrade rumah ke level ("YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hLevel], upgradeRate);
-							    SendClientMessage(playerid, COLOR_WHITE, pmsg);
+							    format(msg, sizeof(msg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil upgrade rumah ke level ("YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hLevel], upgradeRate);
+							    SendClientMessage(playerid, COLOR_WHITE, msg);
 							}else{
 								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf level rumah anda sudah maksimal!");
 							}
@@ -1033,7 +1033,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						case 1:
 						{
-							if(PlayerInfo[playerid][uang] < houseHarga) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
+							if(PlayerInfo[playerid][uang] < beliRate) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
 							if(houseInfo[id][hOwner] != -1){
 								new ownerId = GetPlayerIdFromName(ownerName);
 								if(ownerId != INVALID_PLAYER_ID){
@@ -1053,8 +1053,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `id_user` = '%d', `jual` = 0 WHERE `id_house` = '%d'", PlayerInfo[playerid][pID], id);
 						    mysql_tquery(koneksi, pQuery[playerid]);
 						    reloadHouseLabel(id);
-						    format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil membeli rumah (id:"YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hID], beliRate);
-						    SendClientMessage(playerid, COLOR_WHITE, pmsg);
+						    format(msg, sizeof(msg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil membeli rumah (id:"YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hID], beliRate);
+						    SendClientMessage(playerid, COLOR_WHITE, msg);
 							DeletePVar(playerid, "info_rumah");
 						}
 						case 2:
@@ -1078,8 +1078,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}else{
 								format(houseJual, 16, "Tidak Dijual");
 							}
-							format(pmsg, sizeof(pmsg), "No : %d\nLevel : %d\nHarga : %d\nStatus : %s\nPemilik : %s\nTerkunci : %s", id, houseLevel, beliRate, houseJual, ownerName, houseKunci);
-							ShowPlayerDialog(playerid, DIALOG_TENTANG_RUMAH, DIALOG_STYLE_MSGBOX, "Tentang Rumah", pmsg, "Kembali", "Batal");
+							format(msg, sizeof(msg), "No : %d\nLevel : %d\nHarga : %d\nStatus : %s\nPemilik : %s\nTerkunci : %s", id, houseLevel, beliRate, houseJual, ownerName, houseKunci);
+							ShowPlayerDialog(playerid, DIALOG_TENTANG_RUMAH, DIALOG_STYLE_MSGBOX, "Tentang Rumah", msg, "Kembali", "Batal");
 							DeletePVar(playerid, "info_rumah");
 						}
 						case 1:
@@ -1653,6 +1653,61 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				DeletePVar(playerid, "bmakan_index");
 				DeletePVar(playerid, "bmakan_jumlah");				
 			}
+		}
+		case DIALOG_JOB_SWEEPER:
+		{
+			if(response){
+				if(todoActive(playerid) == 1){
+					RemovePlayerFromVehicle(playerid);
+					return 1;
+				}
+				sweeperJob[playerid] = 1;
+				SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper1, CP_sweeper2, 3.0);
+				SendClientMessage(playerid, COLOR_GREEN, "[JOB] "YELLOW"Anda berhasil bekerja sebagai "GREEN"Sweeper"YELLOW"!");
+			}else{
+				sweeperJob[playerid] = 0;
+				sweeperId[playerid] = -1;
+				RemovePlayerFromVehicle(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_SIM_REGIS_MENU:
+		{
+			if(response){
+				switch(listitem){
+					// Buat SIM
+					case 0:
+					{
+						// Eksekusi fungsi pengecekan, 
+						// yang akan langsung mengeksekusi pembuatan jika memungkinkan
+						if(todoActive(playerid) == 1){
+							return 1;
+						}
+						getSudahBuatSIM(playerid, "cekSudahPunyaSIM");
+					}
+					// Ambil SIM yang sudah selesai
+					case 1:
+					{
+						if(todoActive(playerid) == 1){
+							return 1;
+						}
+						getSudahBuatSIM(playerid, "cekSudahBisaAmbilSIM", false);
+					}
+				}
+			}else{
+				showDialogSimRegis(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_DAFTAR_SIM_KONFIRMASI:
+		{
+			if(response){
+				if(getUangPlayer(playerid) < 100){
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang tidak mencukupi", "Anda tidak memiliki cukup uang untuk mendaftarkan SIM baru.", "Ok", "");
+				}else{
+					cekKetersediaanItem(playerid, 7, 1, "cekPembuatanSIM");
+				}
+			}
 			return 1;
 		}
     }
@@ -1736,9 +1791,11 @@ public OnPlayerDeath(playerid, killerid, reason)
 	#endif
 
 	PlayerInfo[playerid][sudahSpawn] = false;
+	hideHUDStats(playerid);
+	
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
 
-	hideHUDStats(playerid);
+	resetPlayerToDo(playerid);
 
 	new random_spawn = random(sizeof(SPAWN_POINT));
 	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
@@ -1846,6 +1903,15 @@ public OnGameModeInit()
     total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/red_county.txt");
 
     printf("Total vehicles from files: %d",total_vehicles_from_files);
+
+    // Sweeper Vehicle
+    vehicleSweeper[0] = CreateVehicle(574, 708.4822, -1193.1827, 15.0324, 0.0000, -1, -1, 60);
+	vehicleSweeper[1] = CreateVehicle(574, 706.6257, -1196.5216, 14.9840, 0.0000, -1, -1, 60);
+	vehicleSweeper[2] = CreateVehicle(574, 704.5869, -1199.6705, 14.9557, 0.0000, -1, -1, 60);
+
+	vehicleSIM[0] = CreateVehicle(596, 1584.9463, -1606.8075, 13.1038, 180.6711, -1, -1, 60);
+	vehicleSIM[1] = CreateVehicle(596, 1580.1217, -1607.0674, 13.1037, 179.7378, -1, -1, 60);
+	vehicleSIM[2] = CreateVehicle(596, 1575.1067, -1606.8228, 13.1040, 179.4362, -1, -1, 60);
 	return 1;
 }
 
@@ -1883,7 +1949,46 @@ public OnPlayerUpdate(playerid)
 }
 
 public OnPlayerStateChange(playerid, newstate, oldstate){
+	if(newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER){
+		ShowPlayerSpeedo(playerid);
+	}
+	if(oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER && newstate == PLAYER_STATE_ONFOOT){
+		HidePlayerSpeedo(playerid);
+	}
+	for(new v = 0; v < 3; v++){
+		if(vehicleSIM[v]){
+			if(GetPlayerVehicleID(playerid) == vehicleSIM[v] && testSim[playerid] != 1 || GetPlayerVehicleID(playerid) != vehicleIdSIM[playerid] && testSim[playerid] == 1){
+				RemovePlayerFromVehicle(playerid);
+			}
+			if(newstate == PLAYER_STATE_DRIVER && GetPlayerVehicleID(playerid) == vehicleIdSIM[playerid] && testSim[playerid] == 1){
+				KillTimer(todoTimer[playerid]);
+			}
+		}
+		if(vehicleSweeper[v]){
+			if(GetPlayerVehicleID(playerid) == vehicleSweeper[v] && sweeperJob[playerid] == 1 && sweeperId[playerid] != GetPlayerVehicleID(playerid)){
+				RemovePlayerFromVehicle(playerid);
+			}
+			if(newstate == PLAYER_STATE_DRIVER && GetPlayerVehicleID(playerid) == vehicleSweeper[v] && sweeperJob[playerid] == 1){
+				KillTimer(todoTimer[playerid]);
+			}else if(newstate == PLAYER_STATE_DRIVER && GetPlayerVehicleID(playerid) == vehicleSweeper[v] && sweeperJob[playerid] == 0){
+				sweeperId[playerid] = GetPlayerVehicleID(playerid);
+				ShowPlayerDialog(playerid, DIALOG_JOB_SWEEPER, DIALOG_STYLE_MSGBOX, "Sweeper Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Sweeper"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+			}
+		}
+	}
 	return 1;
+}
+
+public OnPlayerExitVehicle(playerid, vehicleid)
+{
+	if(vehicleid == sweeperId[playerid] && sweeperJob[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda keluar dari kendaraan, silahkan kembali bekerja! "WHITE"Sebelum 30 detik atau anda berhenti bekerja.");
+		todoTimer[playerid] = SetTimerEx("todoExit", 30000, false, "ii", playerid, sweeperId[playerid]);
+	}else if(vehicleid == vehicleIdSIM[playerid] && testSim[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda keluar dari kendaraan, silahkan kembali praktik! "WHITE"Sebelum 30 detik atau anda gagal praktik pengujian SIM.");
+		todoTimer[playerid] = SetTimerEx("todoExit", 30000, false, "ii", playerid, vehicleIdSIM[playerid]);
+	}
+    return 1;
 }
 
 public OnPlayerText(playerid, text[]){
@@ -1961,13 +2066,12 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		return 1;
 	}
 	else if(pickupid == housePickup[houseId[pickupid]]){
-		new pmsg[256],
-		id = houseId[pickupid];
+		new id = houseId[pickupid];
 		lastHousePickup[playerid] = pickupid;
 		if(houseNotif[playerid] != id){
 			houseNotif[playerid] = id;
-			format(pmsg, 256, "[RUMAH]"WHITE" Ketik "GREEN"/inforumah"WHITE" untuk melihat info tentang rumah.");
-	    	SendClientMessage(playerid, COLOR_GREEN, pmsg);
+			format(msg, 256, "[RUMAH]"WHITE" Ketik "GREEN"/inforumah"WHITE" untuk melihat info tentang rumah.");
+	    	SendClientMessage(playerid, COLOR_GREEN, msg);
 		}
 	}else if(pickupid == PU_cityHallMasuk[0] || pickupid == PU_cityHallMasuk[1] || pickupid == PU_cityHallMasuk[2]){
 		pindahkanPemain(playerid, -501.2855,289.1127,2001.0950, 357.5606, 1, 1, true);
@@ -2025,6 +2129,269 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 	}else if(checkpointid == CP_beliMakanCepatSaji){
 		showDialogTempatMakan(playerid);
 		return 1;
+	}else if(checkpointid == CP_simPoliceRegis[0]){
+		showDialogSimRegis(playerid);
+		return 1;
+	}
+	return 1;
+}
+
+public OnPlayerEnterRaceCheckpoint(playerid){
+	if(GetVehicleModel(GetPlayerVehicleID(playerid)) == 574 && sweeperJob[playerid] == 1){
+		if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper1)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper2, CP_sweeper3, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper2)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper3, CP_sweeper4, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper3)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper4, CP_sweeper5, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper4)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper5, CP_sweeper6, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper5)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper6, CP_sweeper7, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper6)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper7, CP_sweeper8, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper7)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper8, CP_sweeper9, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper8)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper9, CP_sweeper10, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper9)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper10, CP_sweeper11, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper10)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper11, CP_sweeper12, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper11)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper12, CP_sweeper13, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper12)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper13, CP_sweeper14, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper13)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper14, CP_sweeper15, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper14)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper15, CP_sweeper16, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper15)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper16, CP_sweeper17, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper16)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper17, CP_sweeper18, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper17)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper18, CP_sweeper19, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper18)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper19, CP_sweeper20, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper19)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper20, CP_sweeper21, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper20)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper21, CP_sweeper22, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper21)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper22, CP_sweeper23, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper22)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper23, CP_sweeper24, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper23)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper24, CP_sweeper25, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper24)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper25, CP_sweeper26, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper25)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper26, CP_sweeper27, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper26)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper27, CP_sweeper28, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper27)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper28, CP_sweeper29, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper28)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper29, CP_sweeper30, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper29)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper30, CP_sweeper31, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper30)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper31, CP_sweeper32, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper31)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper32, CP_sweeper33, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper32)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper33, CP_sweeper34, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper33)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper34, CP_sweeper35, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper34)){
+			SetPlayerRaceCheckpoint(playerid, 1, CP_sweeper35, 0.0, 0.0, 0.0, 3.0);
+			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper35)){
+			addGajiPemain(playerid, 100);
+			GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$100\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", "Ok", "");
+			DisablePlayerRaceCheckpoint(playerid);
+			SetVehicleToRespawn(sweeperId[playerid]);
+			sweeperJob[playerid] = 0;
+			sweeperId[playerid] = -1;
+		}
+	}
+	if(GetPlayerVehicleID(playerid) == vehicleIdSIM[playerid] && testSim[playerid] == 1){
+		if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS1)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS2, CP_simLS3, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS2)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS3, CP_simLS4, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS3)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS4, CP_simLS5, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS4)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS5, CP_simLS6, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS5)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS6, CP_simLS7, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS6)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS7, CP_simLS8, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS7)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS8, CP_simLS9, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS8)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS9, CP_simLS10, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS9)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS10, CP_simLS11, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS10)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS11, CP_simLS12, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS11)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS12, CP_simLS13, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS12)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS13, CP_simLS14, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS13)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS14, CP_simLS15, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS14)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS15, CP_simLS16, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS15)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS16, CP_simLS17, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS16)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS17, CP_simLS18, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS17)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS18, CP_simLS19, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS18)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS19, CP_simLS20, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS19)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS20, CP_simLS21, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS20)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS21, CP_simLS22, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS21)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS22, CP_simLS23, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS22)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS23, CP_simLS24, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS23)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS24, CP_simLS25, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS24)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS25, CP_simLS26, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS25)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS26, CP_simLS27, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS26)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS27, CP_simLS28, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS27)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS28, CP_simLS29, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS28)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS29, CP_simLS30, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS29)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS30, CP_simLS31, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS30)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS31, CP_simLS32, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS31)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS32, CP_simLS33, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS32)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS33, CP_simLS34, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS33)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS34, CP_simLS35, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS34)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS35, CP_simLS36, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS35)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS36, CP_simLS37, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS36)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS37, CP_simLS38, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS37)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS38, CP_simLS39, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS38)){
+			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS39, CP_simLS40, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS39)){
+			SetPlayerRaceCheckpoint(playerid, 1, CP_simLS40, 0.0, 0.0, 0.0, 3.0);
+			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
+		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS40)){
+			if(poinSim[playerid] <= 80){
+				givePlayerUang(playerid, -100);
+				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
+				format(msg, sizeof(msg), WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan mencoba kembali ketika anda sudah siap.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal Praktik SIM", msg, "Ok", "");
+				DisablePlayerRaceCheckpoint(playerid);
+				SetVehicleToRespawn(vehicleIdSIM[playerid]);
+				testSim[playerid] = 0;
+				vehicleIdSIM[playerid] = -1;
+				poinSim[playerid] = 0;
+			}else{
+				prosesPembuatanSIM(playerid, 30);
+				givePlayerUang(playerid, -100);
+				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
+				format(msg, sizeof(msg), WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan tunggu sekitar 30 menit real-time."WHITE"\nAnda dapat mengecek dan mengambilnya di tempat Registrasi sebelumnya, setelah sudah 30 menit berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Praktik SIM", msg, "Ok", "");
+				DisablePlayerRaceCheckpoint(playerid);
+				SetVehicleToRespawn(vehicleIdSIM[playerid]);
+				testSim[playerid] = 0;
+				vehicleIdSIM[playerid] = -1;
+				poinSim[playerid] = 0;
+			}
+		}
 	}
 	return 1;
 }

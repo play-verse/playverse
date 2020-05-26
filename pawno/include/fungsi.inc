@@ -782,7 +782,6 @@ publicFor: selesaiNambang(playerid){
 			SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
 		}
 	}
-
 	// Real Probalities
 	// new angka = random(1000000);
 	// if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
@@ -805,6 +804,89 @@ publicFor: selesaiNambang(playerid){
 	// }else{
 	// 		SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
 	// }
+}
+
+publicFor: showHistoryGajiPemain(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		new tmp_tanggal[50], tmp_nominal, temp_dialog[150];
+		format(pDialog[playerid], sizePDialog, WHITE"Tanggal\t"GREEN"Nominal\n"WHITE);
+		foreach(new i : Range(0, rows)){
+			cache_get_value_name(i, "tanggal", tmp_tanggal);
+			cache_get_value_name_int(i, "nominal", tmp_nominal);
+
+			format(temp_dialog, 149, "%s\t%i\n", tmp_tanggal, tmp_nominal);
+			strcat(pDialog[playerid], temp_dialog);
+		}
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_TABLIST_HEADERS, "History Gaji Pemain", pDialog[playerid], "Tutup", "");
+	}else
+		showDialogPesan(playerid, RED"Kotak gaji kosong", WHITE"Saat ini gaji anda tidak ada yang mau diambil.");
+	return 1;
+}
+
+prosesPembuatanKTP(playerid, interval_menit){
+	// Interval dalam menit
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_ktp(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
+	mysql_tquery(koneksi, pQuery[playerid]);
+}
+
+addTransaksiTabungan(const rekening_user[], nominal, const keterangan[], const rekening_pengirim_penerima[] = ""){
+	new tempQuery[100];
+	mysql_format(koneksi, tempQuery, 100, "CALL `tambah_transaksi_atm`('%e', '%e', %d, '%e')", rekening_pengirim_penerima, rekening_user, nominal, keterangan);
+	mysql_tquery(koneksi, tempQuery);
+}
+
+getSudahBuatSIM(playerid, const fungsi_callback[], bool:cek_untuk_buat = true)
+{
+	if(cek_untuk_buat) {
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil FROM pengambilan_sim WHERE id_user = '%d' AND tanggal_ambil > NOW()", PlayerInfo[playerid][pID]);
+	}else{
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil, (CASE WHEN tanggal_ambil <= NOW() THEN 1 ELSE 0 END) AS hasil FROM `pengambilan_sim` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+	}
+	mysql_tquery(koneksi, pQuery[playerid], fungsi_callback, "i", playerid);
+}
+
+prosesPembuatanSIM(playerid, interval_menit){
+	// Interval dalam menit
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
+	mysql_tquery(koneksi, pQuery[playerid]);
+}
+
+hapusSetelahPengambilanSIM(playerid){
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM pengambilan_sim WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
+}
+
+publicFor: cekPembuatanSIM(playerid, ada){
+	if(ada){
+		mulaiPembuatanSIM(playerid);
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Anda harus memiliki KTP terlebih dahulu untuk dapat mendaftarkan praktik pengujian SIM.", "Ok", "");
+	}
+	return 1;
+}
+
+publicFor: cekSudahBisaAmbilSIM(playerid){
+	new sudah_selesai, tanggal_pengambilan[50];
+	if(cache_num_rows()){
+		cache_get_value_name_int(0, "hasil", sudah_selesai);
+		if(sudah_selesai){
+			hapusSetelahPengambilanSIM(playerid);
+			
+			tambahItemPlayer(playerid, 13, 1);
+
+			format(msg, sizeof(msg), WHITE"Anda berhasil mendapatkan SIM yang sudah anda proses selama beberapa waktu.\nSilahkan berkendara dengan sebaik mungkin.\n"ORANGE"\nMelakukan pelanggaran lalu lintas akan mendapat tindakan tegas.");
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"SIM sudah selesai", msg, "Ok", "");
+		}else{
+			cache_get_value_name(0, "tanggal_ambil", tanggal_pengambilan);
+			format(msg, sizeof(msg), WHITE"SIM anda sedang dalam proses pembuatan, silahkan kembali pada tanggal :\n"YELLOW"%s\n"WHITE"Pengambilan SIM dapat anda lakukan dengan memilih menu "GREEN"Ambil SIM "WHITE"\nAnda akan mendapatkan SIM pada saat itu juga.", tanggal_pengambilan);
+
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"SIM sedang diproses", msg, "Ok", "");			
+		}
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Maaf SIM tidak ditemukan", WHITE"Maaf SIM atas nama anda tidak ditemukan, anda harus membuatnya terlebih dahulu. \nMaka setelah anda membuatnya, anda dapat mengambilnya disini.", "Ok", "");
+	}
 
 	return 1;
 }
@@ -894,6 +976,19 @@ publicFor: pakaiMakanan(playerid, itemid){
 			ApplyAnimation(playerid, "FOOD", "EAT_Burger", 4.1, 0, 1, 1, 0, 0, 1);
 			setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) + 80);
 		}
+	return 1;
+}
+
+publicFor: cekSudahPunyaSIM(playerid){
+	new tanggal_pengambilan[50];
+	if(cache_num_rows()){
+		cache_get_value_name(0, "tanggal_ambil", tanggal_pengambilan);
+		format(msg, sizeof(msg), WHITE"SIM anda sedang dalam proses pembuatan, silahkan kembali pada tanggal :\n"YELLOW"%s\n"WHITE"Pengambilan SIM dapat anda lakukan dengan memilih menu "GREEN"Ambil SIM "WHITE"\nAnda akan mendapatkan SIM pada saat itu juga.", tanggal_pengambilan);
+
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"SIM sedang diproses", msg, "Ok", "");
+	}else{
+		// ID SIM = 13
+		cekKetersediaanItem(playerid, 13, 1, "isBisaBuatSIM");
 	}
 	return 1;
 }
@@ -910,16 +1005,13 @@ publicFor: pakaiMinuman(playerid, itemid){
 	return 1;
 }
 
-prosesPembuatanKTP(playerid, interval_menit){
-	// Interval dalam menit
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_ktp(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
-	mysql_tquery(koneksi, pQuery[playerid]);
-}
-
-addTransaksiTabungan(const rekening_user[], nominal, const keterangan[], const rekening_pengirim_penerima[] = ""){
-	new tempQuery[100];
-	mysql_format(koneksi, tempQuery, 100, "CALL `tambah_transaksi_atm`('%e', '%e', %d, '%e')", rekening_pengirim_penerima, rekening_user, nominal, keterangan);
-	mysql_tquery(koneksi, tempQuery);
+publicFor: isBisaBuatSIM(playerid, tidak_bisa){
+	if(tidak_bisa){
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Anda telah memiliki SIM", WHITE"Maaf anda telah memiliki SIM, anda tidak dapat membuatnya lagi.", "Ok", "");
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_DAFTAR_SIM_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi Pembuatan SIM", WHITE"Anda akan membuat SIM dengan syarat berikut.\nPersyaratan:\n"YELLOW"- Biaya administrasi sebesar "GREEN"$100"YELLOW"\n- Memiliki KTP", "Daftar", "Batal");
+	}
+	return 1;
 }
 
 /**
@@ -1128,4 +1220,126 @@ getHousePrice(house_Id, method[16]=""){
 		return hargaRate;
 	}
 	return -1;
+}
+
+todoActive(playerid){
+	if(sweeperJob[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Maaf anda sedang bekerja sebagai Sweeper, silahkan kembali bekerja!");
+		return 1;
+	}
+	if(testSim[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Maaf anda sedang melakukan praktik pengujian SIM, silahkan kembali praktik!");
+		return 1;
+	}
+	return 0;
+}
+
+forward todoExit(playerid, paramid);
+public todoExit(playerid, paramid){
+	if(sweeperJob[playerid] == 1){
+		sweeperJob[playerid] = 0;
+		sweeperId[playerid] = -1;
+		DisablePlayerRaceCheckpoint(playerid);
+		SetVehicleToRespawn(paramid);
+		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda telah berhenti bekerja!");
+	}
+	if(testSim[playerid] == 1){
+		testSim[playerid] = 0;
+		vehicleIdSIM[playerid] = -1;
+		DisablePlayerRaceCheckpoint(playerid);
+		SetVehicleToRespawn(paramid);
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan praktik pengujian SIM, silahkan coba lagi!");
+	}
+	return 1;
+}
+
+resetPlayerToDo(playerid){
+	if(sweeperJob[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda telah berhenti bekerja!");
+		KillTimer(todoTimer[playerid]);
+		SetVehicleToRespawn(sweeperId[playerid]);
+		DisablePlayerRaceCheckpoint(playerid);
+		sweeperJob[playerid] = 0;
+		sweeperId[playerid] = -1;
+	}
+	if(testSim[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan praktik pengujian SIM, silahkan coba lagi!");
+		KillTimer(todoTimer[playerid]);
+		SetVehicleToRespawn(vehicleIdSIM[playerid]);
+		DisablePlayerRaceCheckpoint(playerid);
+		testSim[playerid] = 0;
+		vehicleIdSIM[playerid] = -1;
+	}
+	return 1;
+}
+
+mulaiPembuatanSIM(playerid){
+	for(new i = 0; i < MAX_PLAYERS; i++){
+		for(new v = 0; v < 3; v++){
+			if(vehicleSIM[v]){
+				if(!IsPlayerInVehicle(i, vehicleSIM[v])){
+					testSim[playerid] = 1;
+					poinSim[playerid] = 100;
+					PutPlayerInVehicle(playerid, vehicleSIM[v], 0);
+					vehicleIdSIM[playerid] = GetPlayerVehicleID(playerid);
+					SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan praktik mengemudi kendaraan.\nSilahkan ikuti aturan dan arah jalan dengan benar sebagai berikut.\nAturan:\n"YELLOW"- Maksimal kecepatan "GREEN"80 KmpH\n"YELLOW"- Kendaraan tidak boleh menabrak apapun disekitar\n- Minimal poin "GREEN"80", "Ok", "");
+					goto label_berhenti_sim;
+				}else if(v == 1 && v == 2 && v == 3 && IsPlayerInVehicle(i, vehicleSIM[v])){
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
+					goto label_berhenti_sim;
+				}
+			}
+		}
+	}
+	label_berhenti_sim:
+	return 1;	
+}
+
+ShowPlayerSpeedo(playerid){
+    SpeedoTimer[playerid] = SetTimerEx("SpeedoUpdate", 1000, 1, "i", playerid);
+    PlayerTextDrawShow(playerid, SpeedoTextDraws[playerid]);
+    return 1;
+}
+
+HidePlayerSpeedo(playerid){
+    KillTimer(SpeedoTimer[playerid]);
+    PlayerTextDrawHide(playerid, SpeedoTextDraws[playerid]);
+    return 1;
+}
+
+forward OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth);
+public OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth){
+  if(newhealth < oldhealth){
+    if(testSim[playerid] == 1){
+		poinSim[playerid]--;
+    	GameTextForPlayer(playerid, "~y~Kesehatan Kendaraan~n~~r~Poin -1", 1000, 3);
+	}
+  }
+  return true;
+}
+
+forward SpeedoUpdate(playerid);
+public SpeedoUpdate(playerid)
+{
+    new text_speed[24],
+    	vehid = GetPlayerVehicleID(playerid),
+    	vehspeed = GetVehicleSpeed(vehid);
+
+	newVehicleHealth[vehid] = VehicleHealth(vehid);
+	if(newVehicleHealth[vehid] != oldVehicleHealth[vehid]){
+		OnPlayerVehicleHealthChange(playerid, vehid, newVehicleHealth[vehid], oldVehicleHealth[vehid]);
+		oldVehicleHealth[vehid] = newVehicleHealth[vehid];
+	}
+
+    //format(text_speed, 24, "Speed: %i MpH", vehspeed); //Mph
+	format(text_speed, 24, "Speed: %i KmpH", vehspeed); //KmpH
+    PlayerTextDrawSetString(playerid, SpeedoTextDraws[playerid], text_speed);
+    if(testSim[playerid] == 1){
+    	if(vehspeed >= 80){
+    		poinSim[playerid]--;
+    		GameTextForPlayer(playerid, "~y~Kecepatan Kendaraan~n~~r~Poin -1", 1000, 3);
+    	}
+	}
+    return 1;
 }

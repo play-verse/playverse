@@ -78,3 +78,6 @@ showDialogTempatMakan(playerid){
     }
     return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_MAKAN, DIALOG_STYLE_TABLIST_HEADERS, "Menu hidangan.", str_daftar_makanan, "Pilih", "Batal");
 }
+showDialogSimRegis(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_SIM_REGIS_MENU, DIALOG_STYLE_LIST, WHITE"Pilihan tindakan SIM", "Buat SIM\nAmbil SIM yang sudah selesai", "Pilih", "Kembali");
+}

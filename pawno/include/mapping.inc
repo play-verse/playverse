@@ -17,6 +17,8 @@
 //Interior Bank
 //PizzaLS
 //Interior Kantor Polisi
+//SIM Kantor Polisi Los Santos
+//Sweeper Job Los Santos
 
 loadAllMapingan(){
     pelabuhanSantaMaria();
@@ -38,6 +40,8 @@ loadAllMapingan(){
     interiorBank();
     pizzaLS();
     interiorKantorPolisi();
+    simKantorPolisiLS();
+    sweeperJobLS();
 }
 
 removeBangunanUntukMapping(playerid){
@@ -4364,3 +4368,28 @@ interiorKantorPolisi(){
     CreateDynamicObject(1800, 1756.10107, -1565.09888, 1733.94299,   0.00000, 0.00000, 0.00000);
 }
 
+simKantorPolisiLS(){
+    CreateDynamicObject(2773, 1576.04150, -1635.79895, 13.07030,   0.00000, 0.00000, 90.24000);
+    CreateDynamicObject(2773, 1574.11475, -1635.82336, 13.07030,   0.00000, 0.00000, 90.24000);
+    CreateDynamicObject(2773, 1572.18774, -1635.83044, 13.07030,   0.00000, 0.00000, 90.24000);
+    CreateDynamicObject(2773, 1570.26001, -1635.84229, 13.07030,   0.00000, 0.00000, 90.24000);
+    CreateDynamicObject(2773, 1568.34338, -1635.84155, 13.07030,   0.00000, 0.00000, 89.80000);
+    CreateDynamicObject(2773, 1566.41443, -1635.84265, 13.07030,   0.00000, -0.22000, 90.36000);
+    CreateDynamicObject(2773, 1564.50916, -1635.66357, 13.07030,   0.00000, 0.00000, 78.66000);
+    CreateDynamicObject(19980, 1563.52332, -1634.40491, 11.46000,   0.00000, 0.00000, -88.20000);
+    CreateDynamicObject(19957, 1563.51392, -1635.44678, 11.66000,   0.00000, 0.44000, -93.20000);
+}
+
+sweeperJobLS(){
+    CreateDynamicObject(2773, 698.12262, -1192.71045, 14.95700,   -2.00000, 0.00000, 60.00000);
+    CreateDynamicObject(2773, 696.46228, -1191.73047, 14.91700,   0.00000, 0.00000, 58.92190);
+    CreateDynamicObject(2773, 694.82532, -1190.70154, 14.90410,   -1.00000, 0.00000, 57.00000);
+    CreateDynamicObject(2773, 693.21918, -1189.67273, 14.86410,   -1.00000, 3.00000, 59.00000);
+    CreateDynamicObject(2773, 691.58490, -1188.64502, 14.82410,   -1.00000, 4.00000, 56.00000);
+    CreateDynamicObject(2773, 689.95612, -1187.63782, 14.82410,   -1.00000, 4.00000, 60.84000);
+    CreateDynamicObject(2773, 688.23767, -1186.79333, 14.82410,   1.00000, 4.00000, 67.00000);
+    CreateDynamicObject(2773, 686.41711, -1186.53784, 14.99890,   3.04000, 3.00000, 98.04000);
+    CreateDynamicObject(2773, 684.96472, -1187.46094, 15.13890,   5.00000, 0.00000, 147.00000);
+    CreateDynamicObject(19957, 684.31982, -1188.42712, 13.74590,   -5.00000, 1.00000, -26.00000);
+    CreateDynamicObject(19980, 683.47198, -1187.78198, 13.55300,   -4.00000, 0.00000, -35.00000);
+}

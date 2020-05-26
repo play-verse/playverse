@@ -553,3 +553,17 @@ unloadTextDrawPemain(playerid){
 	DestroyPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][0]);
 	DestroyPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][1]);
 }
+
+LoadSpeedoTextDraws(playerid){
+    SpeedoTextDraws[playerid] = CreatePlayerTextDraw(playerid, 320.0, 400.0, "Speed: 0 KmpH");
+    PlayerTextDrawFont(playerid, SpeedoTextDraws[playerid], 1);
+    PlayerTextDrawLetterSize(playerid, SpeedoTextDraws[playerid], 0.258332, 1.750000);
+    PlayerTextDrawTextSize(playerid, SpeedoTextDraws[playerid], 16.500000, 90.500000);
+    PlayerTextDrawSetOutline(playerid, SpeedoTextDraws[playerid], 1);
+    PlayerTextDrawSetShadow(playerid, SpeedoTextDraws[playerid], 0);
+    PlayerTextDrawAlignment(playerid, SpeedoTextDraws[playerid], 2);
+    PlayerTextDrawColor(playerid, SpeedoTextDraws[playerid], -1);
+    PlayerTextDrawBoxColor(playerid, SpeedoTextDraws[playerid], 200);
+    PlayerTextDrawUseBox(playerid, SpeedoTextDraws[playerid], 1);
+    PlayerTextDrawSetProportional(playerid, SpeedoTextDraws[playerid], 1);
+}

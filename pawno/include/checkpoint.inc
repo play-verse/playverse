@@ -34,4 +34,7 @@ loadAllCP(){
         printf("[ERROR] #05 Checkpoint tambang tidak memiliki ID yang simetris.");
         SendRconCommand("exit");
     }
+
+     // Buat SIM
+    CP_simPoliceRegis[0] = buatCPDanLabel(1580.3300,-1635.5547,13.5601, "Polisi Metro Los Santos\nPelayanan SIM\n"GREEN"Registrasi", 1.0);
 }

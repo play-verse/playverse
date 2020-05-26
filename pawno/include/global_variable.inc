@@ -34,16 +34,22 @@ enum pInfo
     last_int,
     last_vw,
 
+<<<<<<< HEAD
     Float:last_stats_makan,
     Float:last_stats_minum,
 
+=======
+>>>>>>> dev
     // Status
     Float:lastHp,
     Float:lastArmour,
 
+<<<<<<< HEAD
     Float:statusMakan,
     Float:statusMinum,
 
+=======
+>>>>>>> dev
     // Equiped Item
     ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
     sHouse, // Berisi ID Rumah, untuk spawn dirumah jika tidak 0
@@ -229,7 +235,8 @@ new CP_tempatFoto,
     CP_tellerBankLS[2],
     CP_ATM[1],
     CP_Tambang[sizeof(POSISI_NAMBANG)],
-    CP_beliMakanCepatSaji;
+    CP_beliMakanCepatSaji,
+    CP_simPoliceRegis[1];
 
 /**
     PICKUP VARIABEL
@@ -252,3 +259,27 @@ new PU_tempatFoto_in[2],
 
 #define VW_tempatMakan_1 1
 #define VW_tempatMakan_2 2
+
+/**
+    Job / Aktifitas
+*/
+new todoTimer[MAX_PLAYERS];
+
+/* Sweeper */
+new vehicleSweeper[3],
+    sweeperJob[MAX_PLAYERS],
+    sweeperId[MAX_PLAYERS];
+
+/* SIM Kendaraan */
+new vehicleSIM[3],
+    vehicleIdSIM[MAX_PLAYERS],
+    testSim[MAX_PLAYERS],
+    poinSim[MAX_PLAYERS],
+    Float:oldVehicleHealth[MAX_VEHICLES], 
+    Float:newVehicleHealth[MAX_VEHICLES];
+
+/**
+    Speedometer
+*/
+new PlayerText:SpeedoTextDraws[MAX_PLAYERS],
+    SpeedoTimer[MAX_PLAYERS];

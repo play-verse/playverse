@@ -16,4 +16,10 @@ loadAllMapIcon(){
     CreateDynamicMapIcon(928.9155,-1352.9557,13.3438, 10, 1, 0, 0);
     CreateDynamicMapIcon(810.4855,-1616.1713,13.5469, 10, 1, 0, 0);
 
+    
+    // Bank LS Icon
+    CreateDynamicMapIcon(1464.5782,-1009.9889,26.8438, 52, 1, 0, 0);
+
+    // Map Icon untuk sweeper job
+    CreateDynamicMapIcon(706.6257, -1196.5216, 14.9840, 13, 1);
 }
