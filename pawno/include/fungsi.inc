@@ -928,25 +928,6 @@ publicFor: responseUpdateHari(tahun, hari){
 	TextDrawSetString(TD_JamTanggal[1], str_hari);
 }
 
-publicFor: showHistoryGajiPemain(playerid){
-	new rows;
-	cache_get_row_count(rows);
-	if(rows){
-		new tmp_tanggal[50], tmp_nominal, temp_dialog[150];
-		format(pDialog[playerid], sizePDialog, WHITE"Tanggal\t"GREEN"Nominal\n"WHITE);
-		foreach(new i : Range(0, rows)){
-			cache_get_value_name(i, "tanggal", tmp_tanggal);
-			cache_get_value_name_int(i, "nominal", tmp_nominal);
-
-			format(temp_dialog, 149, "%s\t%i\n", tmp_tanggal, tmp_nominal);
-			strcat(pDialog[playerid], temp_dialog);
-		}
-		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_TABLIST_HEADERS, "History Gaji Pemain", pDialog[playerid], "Tutup", "");
-	}else
-		showDialogPesan(playerid, RED"Kotak gaji kosong", WHITE"Saat ini gaji anda tidak ada yang mau diambil.");
-	return 1;
-}
-
 publicFor: pembayaranMakananATM(playerid){	
 	new idx = GetPVarInt(playerid, "bmakan_index"), jumlah = GetPVarInt(playerid, "bmakan_jumlah");
 	new harga = jumlah * MENU_MAKANAN[idx][hargaMakanan];
@@ -976,6 +957,9 @@ publicFor: pakaiMakanan(playerid, itemid){
 			ApplyAnimation(playerid, "FOOD", "EAT_Burger", 4.1, 0, 1, 1, 0, 0, 1);
 			setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) + 80);
 		}
+		default:
+			return 1;
+	}
 	return 1;
 }
 
@@ -994,13 +978,16 @@ publicFor: cekSudahPunyaSIM(playerid){
 }
 
 publicFor: pakaiMinuman(playerid, itemid){
-	switch(itemid){
+	switch(itemid)
+	{
 		case 13: // Air minum mineral
 		{
 			tambahItemPlayer(playerid, itemid, -1);
 			ApplyAnimation(playerid, "BAR", "dnk_stndM_loop", 4.1, 0, 1, 1, 0, 0, 1);
 			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) + 5);
 		}
+		default :
+			return 1;
 	}
 	return 1;
 }

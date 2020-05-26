@@ -34,22 +34,16 @@ enum pInfo
     last_int,
     last_vw,
 
-<<<<<<< HEAD
     Float:last_stats_makan,
     Float:last_stats_minum,
 
-=======
->>>>>>> dev
     // Status
     Float:lastHp,
     Float:lastArmour,
 
-<<<<<<< HEAD
     Float:statusMakan,
     Float:statusMinum,
 
-=======
->>>>>>> dev
     // Equiped Item
     ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
     sHouse, // Berisi ID Rumah, untuk spawn dirumah jika tidak 0

@@ -15,15 +15,12 @@ error_command(playerid, const message[]){
     return SendClientMessage(playerid, COLOR_WHITE, pesan);
 }
 
-<<<<<<< HEAD
 server_message(playerid, const message[]){
     new pesan[200];
     format(pesan, 200, "SERVER: "GREY"%s", message);
     return SendClientMessage(playerid, COLOR_ORANGE, pesan);
 }
 
-=======
->>>>>>> dev
 addGajiPemain(playerid, nominal){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `gaji`(id_user, nominal, tanggal, status) VALUES('%d', '%d', NOW(), '0')", PlayerInfo[playerid][pID], nominal);
     mysql_tquery(koneksi, pQuery[playerid]);
@@ -43,11 +40,7 @@ pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:prel
     SetPlayerFacingAngle(playerid, a);
     if(preload_dynamic_map){
         Streamer_UpdateEx(playerid, x, y, z, vw, int, -1, 2000, 1);
-<<<<<<< HEAD
         GameTextForPlayer(playerid, "~w~Sedang ~y~loading..", 1500, 3);
-=======
-        GameTextForPlayer(playerid, "~w~Sedang ~y~loading..", 1800, 3);
->>>>>>> dev
     }
     if(preload_dynamic_map){
         SetPlayerPos(playerid, x, y, z + 0.5);
