@@ -26,8 +26,8 @@ server_message(playerid, const message[]){
     return SendClientMessage(playerid, COLOR_ORANGE, pesan);
 }
 
-addGajiPemain(playerid, nominal){
-    mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `gaji`(id_user, nominal, tanggal, status) VALUES('%d', '%d', NOW(), '0')", PlayerInfo[playerid][pID], nominal);
+addGajiPemain(playerid, nominal, const keterangan[]){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `gaji`(id_user, nominal, tanggal, status, keterangan) VALUES('%d', '%d', NOW(), '0', '%e')", PlayerInfo[playerid][pID], nominal, keterangan);
     mysql_tquery(koneksi, pQuery[playerid]);
 }
 

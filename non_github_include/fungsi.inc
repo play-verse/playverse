@@ -813,13 +813,14 @@ publicFor: showHistoryGajiPemain(playerid){
 	new rows;
 	cache_get_row_count(rows);
 	if(rows){
-		new tmp_tanggal[50], tmp_nominal, temp_dialog[150];
-		format(pDialog[playerid], sizePDialog, WHITE"Tanggal\t"GREEN"Nominal\n"WHITE);
+		new tmp_tanggal[50], tmp_nominal, temp_dialog[150], tmp_keterangan[50];
+		format(pDialog[playerid], sizePDialog, WHITE"Tanggal\t"GREEN"Nominal\t"WHITE"Keterangan\n");
 		foreach(new i : Range(0, rows)){
 			cache_get_value_name(i, "tanggal", tmp_tanggal);
+			cache_get_value_name(i, "keterangan", tmp_keterangan);
 			cache_get_value_name_int(i, "nominal", tmp_nominal);
 
-			format(temp_dialog, 149, "%s\t%i\n", tmp_tanggal, tmp_nominal);
+			format(temp_dialog, 149, "%s\t%i\t%s\n", tmp_tanggal, tmp_nominal, tmp_keterangan);
 			strcat(pDialog[playerid], temp_dialog);
 		}
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_TABLIST_HEADERS, "History Gaji Pemain", pDialog[playerid], "Tutup", "");

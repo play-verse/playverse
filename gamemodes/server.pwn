@@ -1536,12 +1536,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0: // Ambil gaji
 					{
-						ShowPlayerDialog(playerid, DIALOG_PILIHAN_AMBIL_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan ambil gaji :", WHITE"Masukin ke saldo Bank\nAmbil Uang Kontan", "Pilih", "Batal");
+						ShowPlayerDialog(playerid, DIALOG_PILIHAN_AMBIL_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan ambil gaji :", WHITE"Masukin ke saldo Bank\nAmbil uang cash", "Pilih", "Batal");
 						return 1;
 					}
 					case 1: // Lihat gaji
 					{
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT nominal, tanggal FROM `gaji` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC", PlayerInfo[playerid][pID]);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT nominal, tanggal, keterangan FROM `gaji` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC", PlayerInfo[playerid][pID]);
 						mysql_tquery(koneksi, pQuery[playerid], "showHistoryGajiPemain", "i", playerid);
 						return 1;
 					}
@@ -2247,7 +2247,7 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 			SetPlayerRaceCheckpoint(playerid, 1, CP_sweeper35, 0.0, 0.0, 0.0, 3.0);
 			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
 		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper35)){
-			addGajiPemain(playerid, 100);
+			addGajiPemain(playerid, 100, "Pembersih jalan (sweeper)");
 			GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
 			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$100\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", "Ok", "");
 			DisablePlayerRaceCheckpoint(playerid);

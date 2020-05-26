@@ -6,8 +6,8 @@ new last_hari;
 /*
 	GLOBAL DEFINITION VARIABLE FOR MYSQL
  */
-#define sizePQuery 500
-#define sizePDialog 1000
+#define sizePQuery 800
+#define sizePDialog 1500
 new MySQL:koneksi, errno, pQuery[MAX_PLAYERS][sizePQuery];
 
 /*
