@@ -16,6 +16,7 @@
 #include <zcmd>
 
 #define YSI_NO_HEAP_MALLOC
+#define YSI_NO_VERSION_CHECK
 #include <YSI_Data\y_iterate>
 #include <YSI_Coding\y_timers>
 #include <YSI_Coding\y_inline>
@@ -1716,6 +1717,192 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_ADMIN_PAPAN:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Get Papan Sekitar
+					{
+						new hitung = 0, subString[50];
+						format(pDialog[playerid], sizePDialog, WHITE"Daftar ID papan terdekat (sejauh radius 20 meter) "RED"dengan LIMIT 20 papan.\n");
+						foreach(new i : Range(0, jumlahBoard)){
+							if(IsPlayerInRangeOfPoint(playerid, 20, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ])){
+								format(subString, 50, "ID - %d\n", i);
+								strcat(pDialog[playerid], subString);
+								hitung++;
+							}
+							if(hitung == 20) break;
+						}
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Daftar Papan terdekat", pDialog[playerid], "Ok", "");
+						return 1;
+					}
+					case 1: // Teleport ke papan
+					{
+						return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN, DIALOG_STYLE_INPUT, "Input ID Papan", "Silahkan masukan ID papan yang ingin dikunjungi", "Pergi", "Kembali");
+					}
+					case 2: // Buat Papan
+					{
+						return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN, DIALOG_STYLE_INPUT, "Input tulisan", "Silahkan Input text yang ingin anda tulis di papan.", "Ok", "Kembali");
+					}
+					case 3: // Edit Posisi Papan
+					{
+						return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_EDIT_ID, DIALOG_STYLE_INPUT, "Edit Posisi Papan", "Silahkan masukan id papan yang mau di edit posisinya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+					}
+					case 4: // Edit Text
+					{
+						return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ETEXT_ID, DIALOG_STYLE_INPUT, "Edit Text Papan", "Silahkan masukan id papan yang mau di edit textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+					}
+					case 5: // Ukuran text
+					{
+						return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ESIZE_ID, DIALOG_STYLE_INPUT, "Edit Ukuran Text", "Silahkan masukan id papan yang mau di edit ukuran textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+					}
+					case 6: // Hapus papan
+					{
+						return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_HAPUS, DIALOG_STYLE_INPUT, "Hapus Papan", "Masukan ID papan yang ingin anda hapus.", "Ok", "Kembali");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_PAPAN_GOTO:
+		{
+			if(response){
+				new i;
+				if(sscanf(inputtext, "i", i)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_GOTO, DIALOG_STYLE_INPUT, "Input ID Papan", RED"ID Papan salah.\n"WHITE"Silahkan masukan ID papan yang ingin dikunjungi", "Pergi", "Kembali");
+				if(i < 0 || i > MAX_BOARDS) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_GOTO, DIALOG_STYLE_INPUT, "Input ID Papan", RED"ID Papan salah.\n"WHITE"Silahkan masukan ID papan yang ingin dikunjungi", "Pergi", "Kembali");
+				if(!BoardInfo[i][bModel]) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_GOTO, DIALOG_STYLE_INPUT, "Input ID Papan", RED"Papan tidak ada.\n"WHITE"Silahkan masukan ID papan yang ingin dikunjungi", "Pergi", "Kembali");
+
+				pindahkanPemain(playerid, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ], 0, 0, 0);
+				server_message(playerid, "Anda berhasil teleport ke board.");
+			}else
+				showDialogAdminPapan(playerid);
+			return 1;
+		}
+		case DIALOG_ADMIN_PAPAN_BUAT_PAPAN:
+		{
+			if(response){
+				if(strlen(inputtext) < 1 || strlen(inputtext) > 1000) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN, DIALOG_STYLE_INPUT, "Input tulisan", RED"Panjang tulisan harus antara 1 hingga 1000 karakter.\n"WHITE"Silahkan Input text yang ingin anda tulis di papan.", "Ok", "Kembali");
+
+				if((jumlahBoard + 1) >= MAX_BOARDS) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN, DIALOG_STYLE_INPUT, "Input tulisan", RED"Server telah mencapai batas maksimal papan.\n"WHITE"Silahkan Input text yang ingin anda tulis di papan.", "Ok", "Kembali");
+
+				new i = jumlahBoard;
+				GetPlayerPos(playerid, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ]);
+				BoardInfo[i][bModel] = MODEL_PAPAN;
+				BoardInfo[i][bCX] = BoardInfo[i][bCX] + 2;
+				BoardInfo[i][bCY] = BoardInfo[i][bCY] + 2;
+				BoardInfo[i][bCRX] = 0;
+				BoardInfo[i][bCRY] = 0;
+				BoardInfo[i][bCRZ] = 0;
+				BoardInfo[i][bStatus] = 0;
+				BoardInfo[i][bFontSiz] = 24;
+				format(BoardInfo[i][bText], 999, BLACK"%s", inputtext);
+				strreplace(BoardInfo[i][bText], "\\n", "\n");
+
+				BoardInfo[i][bBoard] = CreateDynamicObject(BoardInfo[i][bModel], BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ], BoardInfo[i][bCRX], BoardInfo[i][bCRY], BoardInfo[i][bCRZ]);
+
+				SetDynamicObjectMaterialText(BoardInfo[i][bBoard], 0, BoardInfo[i][bText], OBJECT_MATERIAL_SIZE_256x128,"Arial", BoardInfo[i][bFontSiz], 1, 0x000000FF,0xFFFFFFFF,OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
+
+				format(pDialog[playerid], sizePDialog, "Berhasil membuat board "WHITE"ID %d. (object: 5846)", i);
+				SendClientMessage(playerid, COLOR_GREEN, pDialog[playerid]);
+
+				SaveBoard(BoardInfo[i][bModel], BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ], BoardInfo[i][bCRX], BoardInfo[i][bCRY], BoardInfo[i][bCRZ], BoardInfo[i][bText], BoardInfo[i][bFontSiz]);
+				jumlahBoard++;
+			}else
+				showDialogAdminPapan(playerid);
+			return 1;
+		}
+		case DIALOG_ADMIN_PAPAN_EDIT_ID:
+		{
+			if(response){
+				new i;
+				if(sscanf(inputtext, "i", i)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_EDIT_ID, DIALOG_STYLE_INPUT, "Edit Posisi Papan", RED"ID Papan salah.\n"WHITE"Silahkan masukan id papan yang mau di edit posisinya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+				if(i < 0 || i > MAX_BOARDS) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_EDIT_ID, DIALOG_STYLE_INPUT, "Edit Posisi Papan", RED"ID Papan tidak benar.\n"WHITE"Silahkan masukan id papan yang mau di edit posisinya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+				if(!BoardInfo[i][bModel]) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_EDIT_ID, DIALOG_STYLE_INPUT, "Edit Posisi Papan", RED"ID Papan tidak ada.\n"WHITE"Silahkan masukan id papan yang mau di edit posisinya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+				if(!IsPlayerInRangeOfPoint(playerid, 10, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_EDIT_ID, DIALOG_STYLE_INPUT, "Edit Posisi Papan", RED"Papan tidak berada disekitar anda.\n"WHITE"Silahkan masukan id papan yang mau di edit posisinya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+
+				bEditID[playerid] = i;
+				GetDynamicObjectPos(BoardInfo[i][bBoard], bCPos[playerid][0], bCPos[playerid][1], bCPos[playerid][2]);
+				GetDynamicObjectRot(BoardInfo[i][bBoard], bCRot[playerid][0], bCRot[playerid][1], bCRot[playerid][2]);
+				EditDynamicObject(playerid, BoardInfo[i][bBoard]);
+			}else
+				showDialogAdminPapan(playerid);
+			return 1;
+		}
+		case DIALOG_ADMIN_PAPAN_ETEXT_ID:
+		{
+			if(response){
+				new i;
+				if(sscanf(inputtext, "i", i)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ETEXT_ID, DIALOG_STYLE_INPUT, "Edit Text Papan", RED"ID Papan salah.\n"WHITE"Silahkan masukan id papan yang mau di edit textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+				if(i < 0 || i > MAX_BOARDS) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ETEXT_ID, DIALOG_STYLE_INPUT, "Edit Text Papan", RED"ID Papan tidak benar.\n"WHITE"Silahkan masukan id papan yang mau di edit textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+				if(!BoardInfo[i][bModel]) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ETEXT_ID, DIALOG_STYLE_INPUT, "Edit Text Papan", RED"ID Papan tidak ada.\n"WHITE"Silahkan masukan id papan yang mau di edit textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+				if(!IsPlayerInRangeOfPoint(playerid, 10, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ETEXT_ID, DIALOG_STYLE_INPUT, "Edit Text Papan", RED"Papan tidak berada disekitar anda.\n"WHITE"Silahkan masukan id papan yang mau di edit textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+
+				bEditID[playerid] = i;
+				ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ETEXT_TEXT, DIALOG_STYLE_INPUT, "Edit Text", "Silahkan isi text yang diinginkan.\nPastikan text tidak melebihi 1000 karakter dan minimal memiliki sebuah karakter.", "OK", "Batal");
+			}else
+				showDialogAdminPapan(playerid);
+			return 1;
+		}
+		case DIALOG_ADMIN_PAPAN_ETEXT_TEXT:
+		{
+			if(response){
+				new idx = bEditID[playerid];
+				if(strlen(inputtext) < 1 || strlen(inputtext) > 1000) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ETEXT_TEXT, DIALOG_STYLE_INPUT, "Edit Text", RED"Jumlah karakter pada text tidak mengikuti aturan!\n"WHITE"Silahkan isi text yang diinginkan.\nPastikan text tidak melebihi 1000 karakter dan minimal memiliki sebuah karakter.", "OK", "Batal");
+
+				format(BoardInfo[idx][bText], 1000, BLACK"%s", inputtext);
+				strreplace(BoardInfo[idx][bText], "\\n", "\n");
+				SetDynamicObjectMaterialText(BoardInfo[idx][bBoard], 0, BoardInfo[idx][bText],OBJECT_MATERIAL_SIZE_256x128, "Arial", BoardInfo[idx][bFontSiz], 1, 0x000000FF,0xFFFFFFFF,OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
+
+				SendClientMessage(playerid, COLOR_BLUE, "* Anda berhasil mengubah text pada papan.");
+				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
+				bEditID[playerid] = 0;
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_PAPAN_ESIZE_ID:
+		{
+			if(response){
+				new i;
+				if(sscanf(inputtext, "i", i)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ESIZE_ID, DIALOG_STYLE_INPUT, "Edit Ukuran Text", RED"ID Papan salah.\n"WHITE"Silahkan masukan id papan yang mau di edit ukuran textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+				if(i < 0 || i > MAX_BOARDS) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ESIZE_ID, DIALOG_STYLE_INPUT, "Edit Ukuran Text", RED"ID Papan tidak benar.\n"WHITE"Silahkan masukan id papan yang mau di edit ukuran textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+				if(!BoardInfo[i][bModel]) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ESIZE_ID, DIALOG_STYLE_INPUT, "Edit Ukuran Text", RED"ID Papan tidak ada.\n"WHITE"Silahkan masukan id papan yang mau di edit ukuran textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+				if(!IsPlayerInRangeOfPoint(playerid, 10, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ESIZE_ID, DIALOG_STYLE_INPUT, "Edit Ukuran Text", RED"Papan tidak berada disekitar anda.\n"WHITE"Silahkan masukan id papan yang mau di edit ukuran textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
+
+				bEditID[playerid] = i;
+				ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ESIZE_SIZE, DIALOG_STYLE_INPUT, "Input ukuran text", "Silahkan masukan ukuran text yang diinginkan.", "Ok", "Batal");
+			}else
+				showDialogAdminPapan(playerid);
+			return 1;
+		}
+		case DIALOG_ADMIN_PAPAN_ESIZE_SIZE:
+		{
+			if(response){
+				new idx = bEditID[playerid];
+				if(strval(inputtext) < 1 || strval(inputtext) > 100) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ESIZE_SIZE, DIALOG_STYLE_INPUT, "Input ukuran text", RED"Ukuran text harus antara 1 hingga 100!\n"WHITE"Silahkan masukan ukuran text yang diinginkan.", "Ok", "Batal");
+
+				BoardInfo[idx][bFontSiz] = strval(inputtext);
+				SetDynamicObjectMaterialText(BoardInfo[idx][bBoard], 0, BoardInfo[idx][bText],OBJECT_MATERIAL_SIZE_256x128, "Arial", BoardInfo[idx][bFontSiz], 1, 0x000000FF,0xFFFFFFFF,OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
+
+				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
+				bEditID[playerid] = 0;
+			}else
+				bEditID[playerid] = 0;
+			return 1;
+		}
+		case DIALOG_ADMIN_PAPAN_HAPUS:
+		{
+			if(response){
+				new i;
+				if(sscanf(inputtext, "i", i)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_HAPUS, DIALOG_STYLE_INPUT, "Hapus Papan", RED"ID Papan salah.\n"WHITE"Masukan ID papan yang ingin anda hapus.", "Ok", "Kembali");
+				if(i < 0 || i > MAX_BOARDS) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_HAPUS, DIALOG_STYLE_INPUT, "Hapus Papan", RED"ID Papan tidak benar.\n"WHITE"Masukan ID papan yang ingin anda hapus.", "Ok", "Kembali");
+				if(!BoardInfo[i][bModel]) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_HAPUS, DIALOG_STYLE_INPUT, "Hapus Papan", RED"ID Papan tidak ada.\n"WHITE"Masukan ID papan yang ingin anda hapus.", "Ok", "Kembali");
+				if(!IsPlayerInRangeOfPoint(playerid, 10, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_HAPUS, DIALOG_STYLE_INPUT, "Hapus Papan", RED"Papan tidak berada disekitar anda.\n"WHITE"Masukan ID papan yang ingin anda hapus.", "Ok", "Kembali");
+
+				DeleteBoard(i);
+				SendClientMessage(playerid, COLOR_BLUE, "* Anda berhasil menghapus papan.");
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -1879,6 +2066,10 @@ public OnGameModeInit()
 	resetAllHouse();
 	printf("[HOUSE] Sukses load house!");
 
+	printf("[PAPAN] Load semua papan...");
+	LoadBoards();
+	printf("[PAPAN] Sukses load papan!");
+
 	SetGameModeText("EL v1.0");
 	// ShowPlayerMarkers(PLAYER_MARKERS_MODE_STREAMED);
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
@@ -1928,6 +2119,7 @@ public OnGameModeExit(){
 	}
 	unloadTextdrawGlobal();
 	unloadAllHouse();
+	UnloadBoards();
 	mysql_close(koneksi);
 	return 1;
 }
@@ -2109,7 +2301,7 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 
 		ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", pDialog[playerid], "Cetak", "Batal");
 		return 1;
-	}else if(checkpointid == CP_spotBarangMarket[0] || checkpointid == CP_spotBarangMarket[1] || checkpointid == CP_spotBarangMarket[2] || checkpointid == CP_spotBarangMarket[3]){
+	}else if(checkpointid >= CP_spotBarangMarket[0] && checkpointid <= CP_spotBarangMarket[sizeof(CP_spotBarangMarket) - 1]){
 		showDialogBeliBarang(playerid);
 		return 1;
 	}else if(checkpointid == CP_spotGantiSkin){
@@ -2124,10 +2316,12 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 	}else if(checkpointid == CP_tellerBankLS[0] || checkpointid == CP_tellerBankLS[1]){
 		showDialogTellerBank(playerid);
 		return 1;
-	}else if(checkpointid == CP_ATM[0]){
+	// ID nya harus simetris (berurut dengan setiap |x2 - x1| = 1)
+	}else if(checkpointid >= CP_ATM[0] && checkpointid <= CP_ATM[sizeof(CP_ATM) - 1]){
 		if(isnull(PlayerInfo[playerid][nomorRekening])) return SendClientMessage(playerid, COLOR_RED, "[ATM] "WHITE"Anda tidak dapat menggunakan ATM jika tidak memiliki rekening");
 		showDialogATM(playerid);
 		return 1;
+	// ID nya harus simetris (berurut dengan setiap |x2 - x1| = 1)
 	}else if(checkpointid >= CP_Tambang[0] && checkpointid <= CP_Tambang[sizeof(CP_Tambang) - 1]) {
 		if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Anda harus berjalan kaki untuk dapat menambang!");
 		if(PlayerInfo[playerid][sisaPalu] <= 0) return error_command(playerid, "Anda kehabisan kesempatan menambang, gunakan item Palu Tambang untuk menambah kesempatan anda.");
@@ -2434,6 +2628,46 @@ task updateWorldTime[1000]()
 	foreach(new i : Player){
 		SetPlayerTime(i, temp_jam, temp_menit);
 	}
+}
+
+public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)
+{
+	new idx = bEditID[playerid];
+	if(response == EDIT_RESPONSE_UPDATE)
+	{
+		SetDynamicObjectPos(objectid, x, y, z);
+		SetDynamicObjectRot(objectid, rx, ry, rz);
+	}
+	else if(response == EDIT_RESPONSE_CANCEL)
+	{
+		SetDynamicObjectPos(objectid, bCPos[playerid][0], bCPos[playerid][1], bCPos[playerid][2]);
+		SetDynamicObjectRot(objectid, bCRot[playerid][0], bCRot[playerid][1],bCRot[playerid][2]);
+		bCPos[playerid][0] = bCPos[playerid][1] = bCPos[playerid][2] = 0;
+		bCRot[playerid][0] = bCRot[playerid][1] = bCRot[playerid][2] = 0;
+
+		format(pDialog[playerid], sizePDialog, "* Anda membatalkan edit board id : %d.", idx);
+		SendClientMessage(playerid, COLOR_BLUE, pDialog[playerid]);
+	}
+	else if(response == EDIT_RESPONSE_FINAL)
+	{
+		SetDynamicObjectPos(objectid, x, y, z);
+		SetDynamicObjectRot(objectid, rx, ry, rz);
+
+		BoardInfo[idx][bCX] = x;
+		BoardInfo[idx][bCY] = y;
+		BoardInfo[idx][bCZ] = z;
+		BoardInfo[idx][bCRX] = rx;
+		BoardInfo[idx][bCRY] = ry;
+		BoardInfo[idx][bCRZ] = rz;
+
+		bEditID[playerid] = 0;
+		BoardInfo[idx][bStatus] = 0;
+		
+		SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
+		format(pDialog[playerid], sizePDialog, "* Kamu berhasil mengedit posisi dari board ID : %d.", idx);
+		SendClientMessage(playerid, COLOR_GREEN, pDialog[playerid]);
+	}
+	return 1;
 }
 
 #include <command>

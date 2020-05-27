@@ -81,3 +81,7 @@ showDialogTempatMakan(playerid){
 showDialogSimRegis(playerid){
     return ShowPlayerDialog(playerid, DIALOG_SIM_REGIS_MENU, DIALOG_STYLE_LIST, WHITE"Pilihan tindakan SIM", "Buat SIM\nAmbil SIM yang sudah selesai", "Pilih", "Kembali");
 }
+
+showDialogAdminPapan(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk Papan", "Get ID Papan Sekitar\nTeleport ke Papan\nBuat Papan\nEdit Posisi Papan\nEdit Text\nEdit Ukuran Text\nHapus Papan", "Pilih", "Batal");
+}

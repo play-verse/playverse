@@ -5,6 +5,7 @@ loadAllMapIcon(){
 
     // Map Icon untuk market
     CreateDynamicMapIcon(1352.3239, -1759.2528, 13.5078, 38, 1, 0, 0);
+    CreateDynamicMapIcon(1160.1254, -1440.1025, 15.7981, 38, 1, 0, 0);
 
     // Map Icon untuk tempat baju A
     CreateDynamicMapIcon(499.5623, -1360.6381, 16.3685, 45, 1, 0, 0);

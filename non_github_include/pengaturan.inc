@@ -25,6 +25,9 @@
 #define MAX_HOUSES 1000 // Maksimal rumah yang dapat dibuat
 #define MAX_HOUSES_LEVEL 3 // Maksimal level rumah
 
+#define MAX_BOARDS 100
+#define MODEL_PAPAN 5846
+
 /**
 	INDEX ATTACHED OBJECT PLAYER
  */
@@ -106,6 +109,15 @@
 #define DIALOG_JOB_SWEEPER 68
 #define DIALOG_SIM_REGIS_MENU 69
 #define DIALOG_DAFTAR_SIM_KONFIRMASI 70
+#define DIALOG_ADMIN_PAPAN 71
+#define DIALOG_ADMIN_PAPAN_GOTO 72
+#define DIALOG_ADMIN_PAPAN_BUAT_PAPAN 73
+#define DIALOG_ADMIN_PAPAN_EDIT_ID 74
+#define DIALOG_ADMIN_PAPAN_ETEXT_ID 75
+#define DIALOG_ADMIN_PAPAN_ETEXT_TEXT 76
+#define DIALOG_ADMIN_PAPAN_ESIZE_ID 77
+#define DIALOG_ADMIN_PAPAN_ESIZE_SIZE 78
+#define DIALOG_ADMIN_PAPAN_HAPUS 79
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR
@@ -132,6 +144,9 @@
 
 #define PRESSED(%0) \
 	(((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
+
+#define HOLDING(%0) \
+	((newkeys & (%0)) == (%0))
 
 #define publicFor:%0(%1) forward %0(%1); public %0(%1)
 

@@ -7,6 +7,32 @@ stock SetPlayerMoney(playerid, jumlah){
     GivePlayerMoney(playerid, jumlah);
 }
 
+stock strreplace(sstring[], const search[], const replacement[], bool:ignorecase = false, pos = 0, limit = -1, maxlength = sizeof(sstring)) 
+{
+    if (limit == 0)
+        return 0;
+    new sublen = strlen(search), replen = strlen(replacement), bool:packed = ispacked(sstring), maxlen = maxlength, len = strlen(sstring), count = 0;
+    if (packed)
+        maxlen *= 4;
+    if (!sublen)
+        return 0;
+    while (-1 != (pos = strfind(sstring, search, ignorecase, pos))) 
+	{
+        strdel(sstring, pos, pos + sublen);
+        len -= sublen;
+        if (replen && len + replen < maxlen) {
+            strins(sstring, replacement, pos, maxlength);
+            
+            pos += replen;
+            len += replen;
+        }
+        if (limit != -1 && ++count >= limit)
+            break;
+    }
+    return count;
+}
+
+
 error_syntax(playerid, const syntax[]){
     new pesan[256] = "[{FF0000}Invalid{FFFFFF}] {FF0000}Gunakan {FFFFFF}: ";
 

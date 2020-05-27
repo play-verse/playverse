@@ -188,6 +188,12 @@ CMD:slap(playerid, params[]){
     return 1;
 }
 
+CMD:apapan(playerid, params[]){
+    if(!IsPlayerAdmin(playerid)) return 0;
+    showDialogAdminPapan(playerid);
+    return 1;
+}
+
 CMD:arumah(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
     if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada diluar Interior atau Virtual World 0!");
