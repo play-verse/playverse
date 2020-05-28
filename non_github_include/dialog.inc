@@ -85,3 +85,7 @@ showDialogSimRegis(playerid){
 showDialogAdminPapan(playerid){
     return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk Papan", "Get ID Papan Sekitar\nTeleport ke Papan\nBuat Papan\nEdit Posisi Papan\nEdit Text\nEdit Ukuran Text\nHapus Papan", "Pilih", "Batal");
 }
+
+showDialogAdminVehicle(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk kendaraan", "Buat Kendaraan\nParkir Kendaraan Dealer\nRespawn Semua kendaraan Dealer", "Pilih", "Batal");
+}

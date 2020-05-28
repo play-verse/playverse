@@ -128,6 +128,11 @@ resetPlayerVariable(playerid){
 	PlayerAction[playerid][sedangNambang] = false;
 }
 
+ResetPVarTemporary(playerid){
+	DeletePVar(playerid, "buatveh_id");
+	DeletePVar(playerid, "buatveh_col");
+}
+
 resetPVarInventory(playerid){
 	DeletePVar(playerid, "inv_indexlist");
 	DeletePVar(playerid, "inv_model");
@@ -760,25 +765,20 @@ publicFor: selesaiNambang(playerid){
 		case 1:
 		{
 			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
-			ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 			tambahItemPlayer(playerid, 10, 1);
 		}
 		case 2..3:
 		{
 			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
-			ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 			tambahItemPlayer(playerid, 9, 1);
 		}
 		case 4..6:{
 			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Perunggu"WHITE".\nPerunggu adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
-			ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 			tambahItemPlayer(playerid, 11, 1);
 		}
 		case 7..9:
 		{
 			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
-			ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
-
 			tambahItemPlayer(playerid, 12, 1);
 		}
 		default:{
@@ -790,20 +790,15 @@ publicFor: selesaiNambang(playerid){
 	// if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
 	// 		tambahItemPlayer(playerid, 10, 1);
-	//		ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 	// }else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
 	// 		tambahItemPlayer(playerid, 9, 1);
-	//		ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 	// }else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Perunggu"WHITE".\nPerunggu adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
 	// 		tambahItemPlayer(playerid, 11, 1);
-	//		ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 	// }else if(angka >= 120001 && angka <= 420000){ // Kemungkinan 30%
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
-
 	// 		tambahItemPlayer(playerid, 12, 1);
-	//		ApplyAnimation(playerid, "OTB", "wtchrace_win", 4.1, 0, 1, 1, 0, 1, 1);
 	// }else{
 	// 		SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
 	// }
@@ -1310,7 +1305,7 @@ UnloadBoards(){
 
 DeleteBoard(i){
 	DestroyDynamicObject(BoardInfo[i][bBoard]);
-	mysql_format(koneksi, sQuery, sizeSQuery, "DELETE FROM papan WHERE id_papan = '%d", BoardInfo[i][boardID]);
+	mysql_format(koneksi, sQuery, sizeSQuery, "DELETE FROM papan WHERE id_papan = '%d'", BoardInfo[i][boardID]);
 	mysql_tquery(koneksi, sQuery);
 
 	static const kosong[boardInfo];
@@ -1361,6 +1356,159 @@ SaveBoard(modelid, Float:x, Float:y, Float:z, Float:rot_x, Float:rot_y, Float:ro
 		mysql_format(koneksi, sQuery, sizeSQuery, "UPDATE papan SET id_model = '%d', pos_x = '%f', pos_y = '%f',pos_z = '%f', rot_x = '%f', rot_y = '%f', rot_z = '%f', text = '%e', font_size = '%d' WHERE id_papan = '%d'", modelid, x, y, z, rot_x, rot_y, rot_z, text, fontsize, boardid);
 	}
 	mysql_tquery(koneksi, sQuery);
+}
+
+LoadVehicleDealer(){
+	new Cache:result = mysql_query(koneksi, "SELECT * FROM vehicle_dealer"), rows, idx = 0, id, temp_model, Float:temp_pos[4], temp_color[2];
+	cache_get_row_count(rows);
+	if(rows){
+		while(idx < rows)
+		{
+			cache_get_value_name_int(idx, "id_model", temp_model);
+			cache_get_value_name_float(idx, "pos_x", temp_pos[0]);
+			cache_get_value_name_float(idx, "pos_y", temp_pos[1]);
+			cache_get_value_name_float(idx, "pos_z", temp_pos[2]);
+			cache_get_value_name_float(idx, "pos_a", temp_pos[3]);
+			cache_get_value_name_int(idx, "color_1", temp_color[0]);
+			cache_get_value_name_int(idx, "color_2", temp_color[1]);
+
+			id = CreateVehicle(temp_model, temp_pos[0], temp_pos[1], temp_pos[2], temp_pos[3], temp_color[0], temp_color[1], -1);
+
+			cache_get_value_name_int(idx, "id", DVeh[id][dVehID]);
+			cache_get_value_name_int(idx, "harga", DVeh[id][dVehHarga]);
+
+			DVeh[id][dVehCoord][0] = temp_pos[0];
+			DVeh[id][dVehCoord][1] = temp_pos[1];
+			DVeh[id][dVehCoord][2] = temp_pos[2];
+			DVeh[id][dVehCoord][3] = temp_pos[3];
+			DVeh[id][dVehColor][0] = temp_color[0];
+			DVeh[id][dVehColor][1] = temp_color[1];
+			DVeh[id][dVehModel] = temp_model;
+
+			#if defined DEBUG_SERVER_LOAD
+			printf("Vehicle Dealer ID(%d) ig-ID(%d) load.", DVeh[id][dVehID], id);
+			#endif
+
+			new str[150];
+			format(str, sizeof(str), "Kendaraan ini dijual!\n"ORANGE"Nama Kendaraan: "WHITE"%s\n"PURPLE"Harga: "GREEN"$%d", GetVehicleNameFromModel(DVeh[id][dVehModel]), DVeh[id][dVehHarga]);
+			DVeh[id][dVehText3D] = CreateDynamic3DTextLabel(str, COLOR_GREEN, 0.0, 0.0, 0.0, 50.0, INVALID_PLAYER_ID, id);
+
+			Iter_Add(DVehIterator, id);
+			SetVehicleToRespawn(id);
+			idx++;
+		}
+	}
+	cache_delete(result);
+}
+
+CreateVehicleDealer(modelid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle, color1, color2, harga)
+{
+	new id = CreateVehicle(modelid, spawn_x, spawn_y, spawn_z, z_angle, color1, color2, -1);	
+	DVeh[id][dVehModel] = modelid;
+	DVeh[id][dVehColor][0] = color1;
+	DVeh[id][dVehColor][1] = color2;
+	DVeh[id][dVehCoord][0] = spawn_x;
+	DVeh[id][dVehCoord][1] = spawn_y;
+	DVeh[id][dVehCoord][2] = spawn_z;
+	DVeh[id][dVehCoord][3] = z_angle;
+	DVeh[id][dVehHarga] = harga;
+
+	SetVehicleToRespawn(id);
+
+	Iter_Add(DVehIterator, id);
+
+	format(sQuery, sizeSQuery,"INSERT INTO vehicle_dealer (id_model,pos_x,pos_y,pos_z,pos_a,color_1,color_2,harga) VALUES('%d', '%f', '%f', '%f', '%f', '%d', '%d', '%d')", modelid, spawn_x, spawn_y, spawn_z, z_angle, color1, color2, harga);
+	new Cache:result = mysql_query(koneksi, sQuery);
+	DVeh[id][dVehID] = cache_insert_id();
+	cache_delete(result);
+	
+	new str[150];
+	format(str, sizeof(str), "Kendaraan ini dijual!\n"ORANGE"Nama Kendaraan: "WHITE"%s\n"PURPLE"Harga: "GREEN"$%d", GetVehicleNameFromModel(modelid), harga);
+	DVeh[id][dVehText3D] = CreateDynamic3DTextLabel(str, COLOR_GREEN, 0.0, 0.0, 0.0, 50.0, INVALID_PLAYER_ID, id);
+
+	return id;
+}
+
+DeleteVehicleDealer(veh_primary){
+	mysql_format(koneksi, sQuery, sizeSQuery, "DELETE FROM vehicle_dealer WHERE id = '%d'", veh_primary);
+	mysql_tquery(koneksi, sQuery);
+}
+
+BeliVehicleDariDealer(playerid, vehicleid, Float:pos_x, Float:pos_y, Float:pos_z, Float:pos_a){
+	if(Iter_Contains(DVehIterator, vehicleid)){
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO vehicle(id_pemilik, id_model, pos_x, pos_y, pos_z, pos_a, color_1, color_2) SELECT '%d' AS id_pemilik, id_model, '%f' AS pos_x, '%f' AS pos_y, '%f' AS pos_z, '%f' AS pos_a, color_1, color_2 FROM vehicle_dealer WHERE id = '%d'", PlayerInfo[playerid][pID], pos_x, pos_y, pos_z, pos_a, DVeh[vehicleid][dVehID]);
+		new Cache:result = mysql_query(koneksi, pQuery[playerid]);
+		new id = cache_insert_id();
+		cache_delete(result);
+		return id;
+	}
+	else{
+		printf("[FATAL ERROR] #008 Invalid vehicle dealer ID.");
+		return 0;
+	} 
+}
+
+publicFor: pembayaranKendaraanATM(playerid){
+	new saldo;
+	cache_get_value_name_int(0, "saldo", saldo);
+
+	if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus didalam mobil", WHITE"Anda harus didalam mobil yang ingin dibeli, jangan keluar hingga transaksi selesai.");
+
+	new vehid = GetPlayerVehicleID(playerid);
+	// Counter cheater jika model mobil dimanipulasi
+	if(!Iter_Contains(DVehIterator, vehid) || GetVehicleModel(vehid) != DVeh[vehid][dVehModel]) {
+		RemovePlayerFromVehicle(playerid);
+		// Banned Cheater
+		return 1;
+	}
+
+	if(saldo < DVeh[vehid][dVehHarga]){
+		RemovePlayerFromVehicle(playerid);
+		return showDialogPesan(playerid, RED"Anda tidak memiliki cukup saldo", WHITE"Anda tidak memiliki cukup saldo untuk melakukan transaksi tersebut\nSilahkan menggunakan metode lain atau isi saldo terlebih dahulu.");
+	}
+	format(pDialog[playerid], sizePDialog, "Pembelian %s dari dealer", GetVehicleNameFromModel(DVeh[vehid][dVehModel]));
+	addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -DVeh[vehid][dVehHarga], pDialog[playerid]);
+
+	new primary_id = BeliVehicleDariDealer(playerid, vehid, DVeh[vehid][dVehCoord][0], DVeh[vehid][dVehCoord][1], DVeh[vehid][dVehCoord][2], DVeh[vehid][dVehCoord][3]);
+
+	// Pindah iterator
+	Iter_Remove(DVehIterator, vehid);
+	Iter_Add(PVehIterator, vehid);
+
+	PVeh[vehid][pVehID] = primary_id;
+	PVeh[vehid][pVehPemilik] = PlayerInfo[playerid][pID];
+	PVeh[vehid][pVehModel] = DVeh[vehid][dVehModel];
+	PVeh[vehid][pVehCoord][0] = DVeh[vehid][dVehCoord][0];
+	PVeh[vehid][pVehCoord][1] = DVeh[vehid][dVehCoord][1];
+	PVeh[vehid][pVehCoord][2] = DVeh[vehid][dVehCoord][2];
+	PVeh[vehid][pVehCoord][3] = DVeh[vehid][dVehCoord][3];
+	PVeh[vehid][pVehColor][0] = DVeh[vehid][dVehColor][0];
+	PVeh[vehid][pVehColor][1] = DVeh[vehid][dVehColor][1];
+	PVeh[vehid][pVehDarah] = 100;
+	SetVehicleHealth(vehid, 100);
+
+	format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
+	format(pDialog[playerid], sizePDialog, "%s"ORANGE"Selamat anda berhasil membeli kendaraan dengan spesifikasi sebagai berikut :\n\n", pDialog[playerid]);
+	format(pDialog[playerid], sizePDialog, "%s"PURPLE"Nama Kendaraan: "WHITE"%s\n", pDialog[playerid], GetVehicleNameFromModel(DVeh[vehid][dVehModel]));
+	format(pDialog[playerid], sizePDialog, "%sHarga: "GREEN"$%d\n\n", pDialog[playerid], DVeh[vehid][dVehHarga]);
+	format(pDialog[playerid], sizePDialog, "%s"WHITE"Terimakasih sudah menggunakan layanan kami.\n\n"CYAN"*********************************************************************************\n", pDialog[playerid]);
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Berhasil membeli kendaraan", pDialog[playerid], "Ok", "");
+
+	// Reset nilai & Hapus
+	DestroyDynamic3DTextLabel(DVeh[vehid][dVehText3D]);
+	DeleteVehicleDealer(DVeh[vehid][dVehID]);
+
+	static const kosong_dveh[DealerVehicleInfo];
+	DVeh[vehid] = kosong_dveh;
+	return 1;
+}
+
+UpdateVehicleDealer(vehicleid){
+	if(Iter_Contains(DVehIterator, vehicleid) && DVeh[vehicleid][dVehID]){
+		mysql_format(koneksi, sQuery, sizeSQuery, "UPDATE vehicle_dealer SET id_model = '%d', pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', color_1 = '%d', color_2 = '%d', harga = '%d' WHERE id = '%d'", DVeh[vehicleid][dVehModel], DVeh[vehicleid][dVehCoord][0], DVeh[vehicleid][dVehCoord][1], DVeh[vehicleid][dVehCoord][2], DVeh[vehicleid][dVehCoord][3], DVeh[vehicleid][dVehColor][0], DVeh[vehicleid][dVehColor][1], DVeh[vehicleid][dVehHarga], DVeh[vehicleid][dVehID]);
+		return mysql_tquery(koneksi, sQuery);
+	}else
+		return 0;
 }
 
 forward OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth);

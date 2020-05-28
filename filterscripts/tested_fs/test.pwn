@@ -1,6 +1,5 @@
 #include <a_samp>
-
-
+#include <YSI\y_iterate>
 
 #define DIALOG_MSG 0
 #define DIALOG_REGISTER 1

@@ -318,3 +318,73 @@ new jumlahBoard = 0; // Menyimpan jumlah Board
 new bEditID[MAX_PLAYERS] = {0, ...};
 new Float:bCPos[MAX_PLAYERS][3];
 new Float:bCRot[MAX_PLAYERS][3];
+
+/**
+    VEHICLE DEFINITION
+*/
+new const NAMA_KENDARAAN[][] =
+{
+    "Landstalker", "Bravura", "Buffalo", "Linerunner", "Perrenial", "Sentinel",
+	"Dumper", "Firetruck", "Trashmaster", "Stretch", "Manana", "Infernus",
+	"Voodoo", "Pony", "Mule", "Cheetah", "Ambulance", "Leviathan", "Moonbeam",
+    "Esperanto", "Taxi", "Washington", "Bobcat", "Whoopee", "BFInjection",
+	"Hunter", "Premier", "Enforcer", "Securicar", "Banshee", "Predator", "Bus",
+	"Rhino", "Barracks", "Hotknife", "Trailer", "Previon", "Coach", "Cabbie",
+	"Stallion", "Rumpo", "RC Bandit", "Romero", "Packer", "Monster", "Admiral",
+	"Squalo", "Seasparrow", "Pizzaboy", "Tram", "Trailer", "Turismo", "Speeder",
+	"Reefer", "Tropic", "Flatbed", "Yankee", "Caddy", "Solair", "BerkleysRCVan",
+	"Skimmer", "PCJ-600", "Faggio", "Freeway", "RCBaron", "RCRaider", "Glendale",
+	"Oceanic","Sanchez", "Sparrow", "Patriot", "Quad", "Coastguard", "Dinghy",
+	"Hermes", "Sabre", "Rustler", "ZR-350", "Walton", "Regina", "Comet", "BMX",
+	"Burrito", "Camper", "Marquis", "Baggage", "Dozer", "Maverick", "NewsChopper",
+	"Rancher", "FBI Rancher", "Virgo", "Greenwood", "Jetmax", "Hotring", "Sandking",
+	"BlistaCompact", "PoliceMaverick", "Boxvillde", "Benson", "Mesa", "RCGoblin",
+	"HotringRacerA", "HotringRacerB", "BloodringBanger", "Rancher", "SuperGT",
+	"Elegant", "Journey", "Bike", "MountainBike", "Beagle", "Cropduster", "Stunt",
+ 	"Tanker", "Roadtrain", "Nebula", "Majestic", "Buccaneer", "Shamal", "Hydra",
+ 	"FCR-900", "NRG-500", "HPV1000", "CementTruck", "TowTruck", "Fortune",
+ 	"Cadrona", "FBITruck", "Willard", "Forklift", "Tractor", "Combine", "Feltzer",
+ 	"Remington", "Slamvan", "Blade", "Freight", "Streak", "Vortex", "Vincent",
+    "Bullet", "Clover", "Sadler", "Firetruck", "Hustler", "Intruder", "Primo",
+	"Cargobob", "Tampa", "Sunrise", "Merit", "Utility", "Nevada", "Yosemite",
+	"Windsor", "Monster", "Monster", "Uranus", "Jester", "Sultan", "Stratium",
+	"Elegy", "Raindance", "RCTiger", "Flash", "Tahoma", "Savanna", "Bandito",
+    "FreightFlat", "StreakCarriage", "Kart", "Mower", "Dune", "Sweeper",
+	"Broadway", "Tornado", "AT-400", "DFT-30", "Huntley", "Stafford", "BF-400",
+	"News Van", "Tug", "Trailer", "Emperor", "Wayfarer", "Euros", "Hotdog", "Club",
+	"FreightBox", "Trailer", "Andromada", "Dodo", "RC Cam", "Launch", "LSPD",
+ 	"SFPD", "LVPD", "PoliceRanger", "Picador", "S.W.A.T", "Alpha",
+ 	"Phoenix", "Glendale", "Sadler", "Luggage", "Luggage", "Stairs", "Boxville",
+ 	"Tiller", "UtilityTrailer"
+};
+
+/**
+    Vehicle Dealer
+*/
+
+enum DealerVehicleInfo
+{
+    dVehID, // ID Primary Key Database
+    dVehModel,
+    Float:dVehCoord[4],
+    dVehColor[2],
+    Text3D:dVehText3D,
+    dVehHarga
+}
+
+enum PlayerVehicleInfo
+{
+    pVehID, // Primary Key
+    pVehPemilik,
+    pVehModel,
+    Float:pVehCoord[4],
+    pVehColor[2],
+    pVehMod[14],
+    pVehPaintJob,
+    Float:pVehDarah
+}
+new 
+    Iterator:DVehIterator<MAX_VEHICLES>, // Nyimpan Iterator vehicle
+    DVeh[MAX_VEHICLES][DealerVehicleInfo],
+    Iterator:PVehIterator<MAX_VEHICLES>,
+    PVeh[MAX_VEHICLES][PlayerVehicleInfo]; // Nyimpan data vehicle berdasarkan ID vehicle

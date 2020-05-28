@@ -6,7 +6,6 @@
 	"dependencies": [
 		"sampctl/samp-stdlib",
 		"Southclaws/samp-logger",
-		"pawn-lang/YSI-Includes",
 		"zeex/samp-plugin-crashdetect:v4.19.4",
 		"pawn-lang/YSI-Includes@5.x",
 		"samp-incognito/samp-streamer-plugin:v2.9.4",

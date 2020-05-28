@@ -305,3 +305,17 @@ Float:VehicleHealth(vehicleid){
     GetVehicleHealth(vehicleid, health);
     return health;
 }
+
+stock IsVehicleOccupied(vehicleid){
+    foreach(new i : Player){
+        if(IsPlayerInVehicle(i, vehicleid)) return 1;
+    }
+    return 0;
+}
+
+stock GetVehicleNameFromModel(modelid)
+{
+	new temp_nama[64];
+    format(temp_nama, 64, "%s", NAMA_KENDARAAN[modelid - 400]);
+    return temp_nama;
+}
