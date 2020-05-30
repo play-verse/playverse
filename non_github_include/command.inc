@@ -43,8 +43,8 @@ CMD:spawn(playerid, params[]){
     return 1;
 }
 
-CMD:inventory(playerid, params[]){
-    ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", "Item\nSkin", "Pilih", "Batal");
+CMD:inventory(playerid, const params[]){
+    ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", "Item\nSkin\nKendaraan", "Pilih", "Batal");
     return 1;
 }
 
@@ -168,7 +168,7 @@ CMD:r(playerid, params[]){
     return 1;
 }
 
-CMD:ephone(playerid, params[]){
+CMD:ephone(playerid, const params[]){
     if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
     showDialogEPhone(playerid);
     return 1;

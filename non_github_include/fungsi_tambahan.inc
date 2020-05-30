@@ -319,3 +319,10 @@ stock GetVehicleNameFromModel(modelid)
     format(temp_nama, 64, "%s", NAMA_KENDARAAN[modelid - 400]);
     return temp_nama;
 }
+
+stock IsVehicleFlipped(vehicleid)
+{
+    new Float:Quat[2];
+    GetVehicleRotationQuat(vehicleid, Quat[0], Quat[1], Quat[0], Quat[0]);
+    return (Quat[1] >= 0.60 || Quat[1] <= -0.60);
+}

@@ -152,6 +152,7 @@ public OnFilterScriptInit()
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 	
 	Iter_Add(xVehicles, 0);
+
 	
 	mysql_tquery(mysqlB, "SELECT * FROM `xVehicle`", "LoadxVehicles");
 	return 1;

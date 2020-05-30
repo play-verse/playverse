@@ -88,6 +88,24 @@ public OnPlayerDisconnect(playerid, reason){
 		printf("OnPlayerDisconnect terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif	
 
+	if(IsPlayerInAnyVehicle(playerid)){
+		new vehicleid = GetPlayerVehicleID(playerid);
+		if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
+			new Float:darah;
+			GetVehicleHealth(vehicleid, darah);
+
+			if(!IsVehicleFlipped(vehicleid) && darah > 300)
+			{
+				new idpv = IDVehToPVeh[vehicleid];
+				GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
+				GetVehicleZAngle(vehicleid, PVeh[idpv][pVehCoord][3]);
+				PVeh[idpv][pVehDarah] = darah;
+				UpdatePosisiDarahVehiclePlayer(vehicleid);
+			}
+		}
+	} 
+
+
 	ResetPVarTemporary(playerid);
 
 	DeletePVar(playerid, "sms_list_pesan");
@@ -104,6 +122,8 @@ public OnPlayerDisconnect(playerid, reason){
 	DeletePVar(playerid, "tf_nama");
 	DeletePVar(playerid, "tf_rekening");
 	DeletePVar(playerid, "wd_nominal");
+
+	UnloadVehiclePlayer(playerid);
 
 	resetPVarInventory(playerid);
 	resetPlayerToDo(playerid);
@@ -171,6 +191,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					GameTextForPlayer(playerid, msg, 4000, 3);
 
 					// tampilkanTextDrawUang(playerid);
+					LoadVehiclePlayer(playerid);
 
 					// Set player uang tanpa menambahkan di database - maka diset false untuk parameter terakhir
 					setUangPlayer(playerid, PlayerInfo[playerid][uang], false);
@@ -241,18 +262,75 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				switch(listitem){
-					case 0:
+					case 0: // Item
 					{
 						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT b.id_item, b.nama_item, a.jumlah FROM `user_item` a LEFT JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0", PlayerInfo[playerid][pID]);
 
-						mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryBarangPlayer", "d", playerid);
+						mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryBarangPlayer", "i", playerid);
 					}
-					case 1:
+					case 1: // Skin
 					{
 						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user_skin` WHERE `id_user` = '%d' AND `jumlah` > 0", PlayerInfo[playerid][pID]);
-						mysql_tquery(koneksi, pQuery[playerid], "tampilInventorySkinPlayer", "d", playerid);
+						mysql_tquery(koneksi, pQuery[playerid], "tampilInventorySkinPlayer", "i", playerid);
+					}
+					case 2: // Kendaraan
+					{
+						new string[250 * BANYAK_DATA_PER_PAGE + 200];
+						format(string, sizeof(string), "Kode\tNama\tJarak\n");
+						
+						foreach(new i : PVehIterator){
+							if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID]){
+								if(PVeh[i][pVehIsReparasi]){ // Jika mobil sedang dalam reparasi (telah rusak)
+									format(string, sizeof(string), "%s%d\t%s\tReparasi\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]));
+								}else{
+									new Float:pos[3];
+									GetVehiclePos(PVeh[i][pVehicle], pos[0], pos[1], pos[2]);
+									format(string, sizeof(string), "%s%d\t%s\t%0.2fm\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]));
+								}
+							}
+						}
+
+						if(strcmp(string, "Kode\tNama\tJarak\n") == 0){
+							showDialogPesan(playerid, RED"Tidak terdapat kendaraan", WHITE"Tidak terdapat kendaraan apapun yang anda miliki.\nPastikan untuk memiliki kendaraan untuk dapat mengakses menu ini.");
+						}else
+							ShowPlayerDialog(playerid, DIALOG_PILIH_KENDARAAN, DIALOG_STYLE_TABLIST_HEADERS, "Kendaraan yang anda miliki.", string, "Pilih", "Kembali");
 					}
 				}
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_KENDARAAN:
+		{
+			if(response){
+				new id = strval(inputtext);
+				SetPVarInt(playerid, "veh_select_id", id);
+				ShowPlayerDialog(playerid, DIALOG_OPTION_KENDARAAN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi:", "Tampilkan Lokasi Kendaraan", "Pilih", "Batal");
+			}else
+				cmd_inventory(playerid, "");
+			return 1;
+		}
+		case DIALOG_OPTION_KENDARAAN_INVENTORY:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Tampilkan Lokasi Kendaraan
+					{
+						new id = GetPVarInt(playerid, "veh_select_id");
+						DeletePVar(playerid, "veh_select_id");
+						if(PVeh[id][pVehIsReparasi]) return showDialogPesan(playerid, RED"Kendaraan sedang rusak", WHITE"Kendaraan yang anda maksud, sedang rusak dan harus diambil terlebih dahulu di "ORANGE"pusat reparasi"WHITE".");
+
+						new Float:pos[3];
+						GetVehiclePos(PVeh[id][pVehicle], pos[0], pos[1], pos[2]);
+						SetPlayerCheckpoint(playerid, pos[0], pos[1], pos[2], 5.0);
+						PlayerInfo[playerid][activeMarker] = true;
+
+						SendClientMessage(playerid, COLOR_PINK, "[GPS] "WHITE"Lokasi mobil yang anda maksud telah ditandai pada peta menggunakan marker merah.");
+						SendClientMessage(playerid, COLOR_PINK, "[GPS] "YELLOW"Penggunaan fitur ini akan menggantikan marker yang sebelumnya ada.");
+						return 1;
+					}
+				}
+			}else{
+				DeletePVar(playerid, "veh_select_id");
 			}
 			return 1;
 		}
@@ -479,9 +557,55 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						showDialogEBank(playerid);
 					}
+					case 4: // Sharelock
+					{
+						return ShowPlayerDialog(playerid, DIALOG_SHARELOCK_HP, DIALOG_STYLE_INPUT, "Sharelock", WHITE"Silahkan masukan "GREEN"ID Pemain "WHITE"yang ingin anda bagikan lokasi anda.\n"ORANGE"Note : Pastikan pemain yang anda ingin bagikan memiliki HP yang terpakai (minimal ePhone 3)\n** Pada saat anda membagikan lokasi anda, pemain tersebut "GREEN" dapat melihat anda di peta mereka.", "Pilih", "Batal");
+					}
 					default:
 						return 1;
 				}
+			}
+			return 1;
+		}
+		case DIALOG_SHARELOCK_HP:
+		{
+			if(response){
+				new target_id;
+				if(sscanf(inputtext, "u", target_id)) return ShowPlayerDialog(playerid, DIALOG_SHARELOCK_HP, DIALOG_STYLE_INPUT, "Sharelock", RED"Anda harus memasukan inputan dengan benar.\n"WHITE"Silahkan masukan "GREEN"ID Pemain "WHITE"yang ingin anda bagikan lokasi anda.\n"ORANGE"Note : Pastikan pemain yang anda ingin bagikan memiliki HP yang terpakai (minimal ePhone 3)\n** Pada saat anda membagikan lokasi anda, pemain tersebut "GREEN" dapat melihat anda di peta mereka.", "Pilih", "Batal");
+
+				if(target_id == INVALID_PLAYER_ID || !IsPlayerConnected(target_id) || !PlayerInfo[target_id][sudahLogin] || target_id == playerid) return ShowPlayerDialog(playerid, DIALOG_SHARELOCK_HP, DIALOG_STYLE_INPUT, "Sharelock", RED"Pemain yang anda tuju tidak tersedia.\n"WHITE"Silahkan masukan "GREEN"ID Pemain "WHITE"yang ingin anda bagikan lokasi anda.\n"ORANGE"Note : Pastikan pemain yang anda ingin bagikan memiliki HP yang terpakai (minimal ePhone 3)\n** Pada saat anda membagikan lokasi anda, pemain tersebut "GREEN" dapat melihat anda di peta mereka.", "Pilih", "Batal");
+
+				// Apakah perlu dicounter bahwa si player yang dituju harus memiliki minimal ePhone 3 ?
+				if(!PlayerInfo[target_id][ePhone]) return ShowPlayerDialog(playerid, DIALOG_SHARELOCK_HP, DIALOG_STYLE_INPUT, "Sharelock", RED"Pemain yang anda tuju tidak memiliki HP yang sedang terpakai.\n"WHITE"Silahkan masukan "GREEN"ID Pemain "WHITE"yang ingin anda bagikan lokasi anda.\n"ORANGE"Note : Pastikan pemain yang anda ingin bagikan memiliki HP yang terpakai (minimal ePhone 3)\n** Pada saat anda membagikan lokasi anda, pemain tersebut "GREEN" dapat melihat anda di peta mereka.", "Pilih", "Batal");
+
+				SendClientMessage(playerid, COLOR_ORANGE, "[SHARELOCK] "WHITE"Berhasil mengirimkan request ke pada pemain yang anda tuju, anda akan dapat informasi jika dia menyetujui sharelock anda.");
+
+				format(pDialog[playerid], sizePDialog, GREEN"%s "WHITE"ingin membagikan lokasinya kepada anda. Apakah anda ingin menerimanya?\n"YELLOW"Menerima sharelock dari orang lain akan menghilangkan marker merah anda yang sedang aktif, marker merah tersebut akan digantikan dengan marker merah yang baru\nyang mengarah kepada lokasi "GREEN"%s "YELLOW"sekarang berada.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pPlayerName]);
+				ShowPlayerDialog(target_id, DIALOG_KONFIRMASI_TERIMA_SHARELOCK, DIALOG_STYLE_MSGBOX, "Konfirmasi Sharelock", pDialog[playerid], GREEN"Terima", RED"Tidak");
+
+				SetPVarInt(target_id, "sharelock_pemilik", playerid);
+			}else
+				cmd_ephone(playerid, "");
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_TERIMA_SHARELOCK:
+		{
+			new dari_id = GetPVarInt(playerid, "sharelock_pemilik"), string[256];
+			DeletePVar(playerid, "sharelock_pemilik");
+			if(!IsPlayerConnected(dari_id)) return SendClientMessage(playerid, COLOR_ORANGE, "[SHARELOCK] "WHITE"Pemain yang ingin membagikan lokasinya telah terputus dari server.");
+			if(response){
+				new Float:pos[3];
+				GetPlayerPos(dari_id, pos[0], pos[1], pos[2]);
+				SetPlayerCheckpoint(playerid, pos[0], pos[1], pos[2], 5.0);
+
+				format(string, 256, "[SHARELOCK] "BLUE"%s "WHITE"telah "GREEN"menerima "WHITE"sharelock yang ingin anda berikan. "YELLOW"Lokasi anda sekarang berhasil dibagikan.", PlayerInfo[playerid][pPlayerName]);
+				SendClientMessage(dari_id, COLOR_ORANGE, string);
+
+				format(string, 256, "[SHARELOCK] "WHITE"Lokasi "BLUE"%s "WHITE"telah ditampilkan pada map anda. "YELLOW"Silahkan ikuti marker merah yang telah tampil.", PlayerInfo[dari_id][pPlayerName]);
+				SendClientMessage(playerid, COLOR_ORANGE, string);
+			}else{
+				format(string, 256, "[SHARELOCK] "BLUE"%s "WHITE"telah "RED"menolak "WHITE"sharelock yang ingin anda berikan.", PlayerInfo[playerid][pPlayerName]);
+				SendClientMessage(dari_id, COLOR_ORANGE, string);
 			}
 			return 1;
 		}
@@ -1322,8 +1446,129 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						ShowPlayerDialog(playerid, DIALOG_MENU_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan gaji :", WHITE"Ambil Gaji\nLihat Gaji", "Pilih", "Kembali");
 						return 1;
 					}
+					case 3: // Bayar Biaya Perbaiki Kendaraan
+					{
+						new string[250 * BANYAK_DATA_PER_PAGE + 200];
+						format(string, sizeof(string), "Kode\tNama\tBiaya\n");
+						
+						foreach(new i : PVehIterator){
+							if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID] && PVeh[i][pVehIsReparasi] == 1){
+								// Jika mobil sedang dalam reparasi (telah rusak) dan belum dibayar
+								format(string, sizeof(string), "%s%d\t%s\t$%d\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), BIAYA_PERBAIKI_KENDARAAN);
+							}
+						}
+
+						if(strcmp(string, "Kode\tNama\tBiaya\n") == 0){
+							showDialogPesan(playerid, RED"Tidak terdapat kendaraan rusak", WHITE"Tidak terdapat kendaraan rusak yang anda miliki.\nMenu ini digunakan untuk membayar tagihan kendaraan yang rusak, sehingga anda dapat mengambilnya di pusat reparasi.");
+						}else
+							ShowPlayerDialog(playerid, DIALOG_BAYAR_KENDARAAN_RUSAK, DIALOG_STYLE_TABLIST_HEADERS, "Kendaraan yang sedang rusak.", string, "Pilih", "Kembali");
+					}
 				}
 			}
+			return 1;
+		}
+		case DIALOG_METODE_BAYAR:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Uang cash
+					{
+						format(pDialog[playerid], sizePDialog, WHITE"Anda memilih pembayaran via cash.\nPembayaran via cash akan memotong uang yang sedang anda bawa saat ini.\n\n"ORANGE"Pembayaran yang akan ditagih sebesar "GREEN"$%d\n\n"WHITE"Pastikan anda memiliki cukup uang untuk membayar tagihan ini.\n"YELLOW"Anda yakin ingin mengkonfirmasi pembayaran ini?", GetPVarInt(playerid, "metode_nominal"));
+						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_CASH, DIALOG_STYLE_MSGBOX, "Konfirmasi pembayaran Cash", pDialog[playerid], "Bayar", "Kembali");
+						return 1;						
+					}
+					case 1: // E-Banking
+					{
+						if(isnull(PlayerInfo[playerid][nomorRekening])) {
+							DeletePVar(playerid, "metode_nominal");
+							DeletePVar(playerid, "metode_callback_sukses");
+							DeletePVar(playerid, "metode_keterangan_atm");
+							return showDialogPesan(playerid, RED"Tidak memiliki ATM", WHITE"Anda tidak memiliki ATM.\nSilahkan buat ATM terlebih dahulu untuk menggunakan metode ini.");
+						}
+						if(PlayerInfo[playerid][ePhone] < 2) {
+							DeletePVar(playerid, "metode_nominal");
+							DeletePVar(playerid, "metode_callback_sukses");
+							DeletePVar(playerid, "metode_keterangan_atm");
+							return showDialogPesan(playerid, RED"Tidak memiliki ePhone", WHITE"Anda tidak memiliki ePhone.\nSilahkan beli dan gunakan ePhone terlebih dahulu (minimal ePhone 2) untuk menggunakan metode ini.");
+						}
+						format(pDialog[playerid], sizePDialog, WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\n"ORANGE"Harga yang akan dikenakan adalah "GREEN"$%d\n\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.\n"GREY"** Pastikan bahwa anda memiliki cukup saldo untuk melakukan pembayaran.", GetPVarInt(playerid, "metode_nominal"));
+						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_EBANKING, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran via E-Banking", pDialog[playerid], "Bayar", "Kembali");
+						return 1;
+					}
+				}
+			}else{
+				DeletePVar(playerid, "metode_nominal");
+				DeletePVar(playerid, "metode_callback_sukses");
+				DeletePVar(playerid, "metode_keterangan_atm");
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BAYAR_CASH:
+		{
+			if(response){
+				new nominal = GetPVarInt(playerid, "metode_nominal"), fungsi_callback_sukses[50];
+				GetPVarString(playerid, "metode_callback_sukses", fungsi_callback_sukses, 50);
+				DeletePVar(playerid, "metode_nominal");
+				DeletePVar(playerid, "metode_callback_sukses");
+				DeletePVar(playerid, "metode_keterangan_atm");
+				if(nominal > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.\nSelalu pastikan untuk mempunyai uang yang cukup sebelum melakukan pembelian.");
+
+				givePlayerUang(playerid, -nominal);
+				if(fungsi_callback_sukses[0] != EOS)
+					CallRemoteFunction(fungsi_callback_sukses, "i", playerid);
+				else
+					printf("[ERROR] #009-A Callback Error di metode pembayaran cash.");
+			}else
+				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR, DIALOG_STYLE_LIST, YELLOW"Silahkan pilih metode pembayaran", GREEN"Uang Cash\n"ORANGE"E-Banking", "Pilih", "Batal");
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BAYAR_EBANKING:
+		{
+			if(response){
+				if(strlen(inputtext) != 8 || strcmp(PlayerInfo[playerid][nomorRekening], inputtext) != 0) {
+					format(pDialog[playerid], sizePDialog, RED"Nomor rekening tidak valid.\n"WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\n"ORANGE"Harga yang akan dikenakan adalah "GREEN"$%d\n\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.\n"GREY"** Pastikan bahwa anda memiliki cukup saldo untuk melakukan pembayaran.", GetPVarInt(playerid, "metode_nominal"));
+					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_EBANKING, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran via E-Banking", pDialog[playerid], "Bayar", "Kembali");
+				}
+				inline responseCekSaldo(){
+					new nominal = GetPVarInt(playerid, "metode_nominal"), fungsi_callback_sukses[50], keterangan_atm[50], saldo;
+					GetPVarString(playerid, "metode_callback_sukses", fungsi_callback_sukses, sizeof(fungsi_callback_sukses));
+					GetPVarString(playerid, "metode_keterangan_atm", keterangan_atm, sizeof(keterangan_atm));
+					DeletePVar(playerid, "metode_nominal");
+					DeletePVar(playerid, "metode_callback_sukses");
+					DeletePVar(playerid, "metode_keterangan_atm");
+
+					cache_get_value_name_int(0, "saldo", saldo);
+
+					if(saldo > nominal){
+						addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -nominal, keterangan_atm);
+						if(fungsi_callback_sukses[0] != EOS)
+							CallRemoteFunction(fungsi_callback_sukses, "i", playerid);
+						else
+							printf("[ERROR] #009-B Callback Error di metode pembayaran atm.");
+					}else{
+						format(pDialog[playerid], sizePDialog, WHITE"Maaf saldo yang terdapat pada ATM anda tidak mencukupi.\n\n"ORANGE"Saldo rekening pada saat ini adalah "GREEN"$%d. \n"WHITE"Selalu pastikan bahwa saldo anda mencukupi untuk menggunakan metode E-Banking.\nSilahkan gunakan metode pembayaran lain.", nominal);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Saldo anda tidak mencukupi", pDialog[playerid], "Ok", "");
+					}
+				}
+				MySQL_TQueryInline(koneksi, using inline responseCekSaldo, "SELECT IFNULL(SUM(nominal), 0) as saldo FROM `trans_atm` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+			}else
+				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR, DIALOG_STYLE_LIST, YELLOW"Silahkan pilih metode pembayaran", GREEN"Uang Cash\n"ORANGE"E-Banking", "Pilih", "Batal");
+			return 1;
+		}
+		case DIALOG_BAYAR_KENDARAAN_RUSAK:
+		{
+			if(response){
+				new idpv = strval(inputtext);
+				if(PVeh[idpv][pVehIsReparasi] == 1 && PVeh[idpv][pVehPemilik] == PlayerInfo[playerid][pID]){
+					new keterangan[50];
+					format(keterangan, 50, "biaya perbaikan %s", GetVehicleNameFromModel(PVeh[idpv][pVehModel]));
+					SetPVarInt(playerid, "fixbayar_idpv", idpv);
+					dialogMetodeBayar(playerid, BIAYA_PERBAIKI_KENDARAAN, "selesaiBayarKerusakanKendaraan", keterangan);
+				}
+				else
+					showDialogKesalahanSistem(playerid, "invalid vehicle id saat memilih kendaraan rusak");
+			}else
+				showDialogTellerBank(playerid);
 			return 1;
 		}
 		case DIALOG_DAFTAR_REKENING_INPUT_NOMOR:
@@ -1928,6 +2173,29 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 								format(pDialog[playerid], sizePDialog, "[A-DEALER] "WHITE"Berhasil memarkirkan kendaraan dealer %s pada tempat ini.", GetVehicleNameFromModel(DVeh[idveh][dVehModel]));
 								SendClientMessage(playerid, COLOR_CYAN, pDialog[playerid]);
+
+								RemovePlayerFromVehicle(playerid);
+
+								DestroyDynamic3DTextLabel(DVeh[idveh][dVehText3D]);
+								DestroyVehicle(idveh);
+
+								new id = CreateVehicle(DVeh[idveh][dVehModel], DVeh[idveh][dVehCoord][0], DVeh[idveh][dVehCoord][1], DVeh[idveh][dVehCoord][2], DVeh[idveh][dVehCoord][3], DVeh[idveh][dVehColor][0], DVeh[idveh][dVehColor][0], -1);
+
+								if(id != idveh) {
+									// Pindahkan Nilai
+									DVeh[id] = DVeh[idveh];
+									Iter_Add(DVehIterator, id);
+
+									// Bersihkan
+									static const kosong_dveh[DealerVehicleInfo];
+									DVeh[idveh] = kosong_dveh;
+									Iter_Remove(DVehIterator, idveh);
+								}
+								new str[150];
+								format(str, sizeof(str), "Kendaraan ini dijual!\n"ORANGE"Nama Kendaraan: "WHITE"%s\n"PURPLE"Harga: "GREEN"$%d", GetVehicleNameFromModel(DVeh[id][dVehModel]), DVeh[id][dVehHarga]);
+								DVeh[id][dVehText3D] = CreateDynamic3DTextLabel(str, COLOR_GREEN, 0.0, 0.0, 0.0, 50.0, INVALID_PLAYER_ID, id);
+
+								SetVehicleToRespawn(id);
 							}else{
 								error_command(playerid, "Ini bukan kendaraan dealer.");
 							}
@@ -1937,10 +2205,33 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 2: // Respawn all dealer vehicle
 					{
 						foreach(new i : DVehIterator){
-							if(!IsVehicleOccupied(i))
+							if(!IsVehicleOccupied(i)) // Respawn kendaraan yang tidak sedang dinaiki
 								SetVehicleToRespawn(i);
 						}
 						SendClientMessage(playerid, COLOR_CYAN, "[A-DEALER] "WHITE"Berhasil merespawn semua kendaraan pada semua dealer!");
+					}
+					case 3: // Hapus kendaraan dealer
+					{
+						if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_RED, "[A-DEALER] "WHITE"Anda harus didalam kendaraan dealer yang ingin dihapus untuk dapat menggunakan perintah ini!");
+
+						new idveh = GetPlayerVehicleID(playerid);
+						if(Iter_Contains(DVehIterator, idveh) && DVeh[idveh][dVehID]){
+							RemovePlayerFromVehicle(playerid);
+
+							// Reset nilai & Hapus
+							DestroyDynamic3DTextLabel(DVeh[idveh][dVehText3D]);
+							DeleteVehicleDealer(DVeh[idveh][dVehID]);
+							DestroyVehicle(idveh);
+
+							Iter_Remove(DVehIterator, idveh);
+
+							static const kosong_dveh[DealerVehicleInfo];
+							DVeh[idveh] = kosong_dveh;
+
+							SendClientMessage(playerid, COLOR_CYAN, "[A-DEALER] "WHITE"Berhasil menghapus kendaraan dealer!");
+						}else{
+							SendClientMessage(playerid, COLOR_RED, "[A-DEALER] "WHITE"Kendaraan ini bukan kendaraan dealer yang dapat dihapus!");
+						}
 					}
 				}
 			}
@@ -2038,19 +2329,24 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						// Pindah iterator
 						Iter_Remove(DVehIterator, vehid);
-						Iter_Add(PVehIterator, vehid);
+						new idpv = Iter_Free(PVehIterator);
+						Iter_Add(PVehIterator, idpv);
 
-						PVeh[vehid][pVehID] = primary_id;
-						PVeh[vehid][pVehPemilik] = PlayerInfo[playerid][pID];
-						PVeh[vehid][pVehModel] = DVeh[vehid][dVehModel];
-						PVeh[vehid][pVehCoord][0] = DVeh[vehid][dVehCoord][0];
-						PVeh[vehid][pVehCoord][1] = DVeh[vehid][dVehCoord][1];
-						PVeh[vehid][pVehCoord][2] = DVeh[vehid][dVehCoord][2];
-						PVeh[vehid][pVehCoord][3] = DVeh[vehid][dVehCoord][3];
-						PVeh[vehid][pVehColor][0] = DVeh[vehid][dVehColor][0];
-						PVeh[vehid][pVehColor][1] = DVeh[vehid][dVehColor][1];
-						PVeh[vehid][pVehDarah] = 100;
-						SetVehicleHealth(vehid, 100);
+						Iter_Add(IDVehToPVehIterator, vehid);
+						IDVehToPVeh[vehid] = idpv;
+
+						PVeh[idpv][pVehID] = primary_id;
+						PVeh[idpv][pVehPemilik] = PlayerInfo[playerid][pID];
+						PVeh[idpv][pVehicle] = vehid;
+						PVeh[idpv][pVehModel] = DVeh[vehid][dVehModel];
+						PVeh[idpv][pVehCoord][0] = DVeh[vehid][dVehCoord][0];
+						PVeh[idpv][pVehCoord][1] = DVeh[vehid][dVehCoord][1];
+						PVeh[idpv][pVehCoord][2] = DVeh[vehid][dVehCoord][2];
+						PVeh[idpv][pVehCoord][3] = DVeh[vehid][dVehCoord][3];
+						PVeh[idpv][pVehColor][0] = DVeh[vehid][dVehColor][0];
+						PVeh[idpv][pVehColor][1] = DVeh[vehid][dVehColor][1];
+						PVeh[idpv][pVehDarah] = 1000;
+						SetVehicleHealth(vehid, 1000);
 
 						format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
 						format(pDialog[playerid], sizePDialog, "%s"ORANGE"Selamat anda berhasil membeli kendaraan dengan spesifikasi sebagai berikut :\n\n", pDialog[playerid]);
@@ -2112,6 +2408,47 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_AMBIL_KENDARAAN_REPARASI:
+		{
+			if(response){
+				new idpv = strval(inputtext);
+				if(Iter_Contains(PVehIterator, idpv)){
+					if(PVeh[idpv][pVehPemilik] == PlayerInfo[playerid][pID]){
+						if(IsValidDynamicCP(GetPlayerVisibleDynamicCP(playerid)) && CP_spawnReparasi[0] <= GetPlayerVisibleDynamicCP(playerid) && CP_spawnReparasi[sizeof(CP_spawnReparasi) - 1] >= GetPlayerVisibleDynamicCP(playerid)){
+							PVeh[idpv][pVehIsReparasi] = 0;
+							new id_cp = GetPlayerVisibleDynamicCP(playerid) - CP_spawnReparasi[0];
+							new idveh = CreateVehicle(PVeh[idpv][pVehModel], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_X], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_Y], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_Z], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_A], PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1], -1);
+
+							PVeh[idpv][pVehicle] = idveh;
+							IDVehToPVeh[idveh] = idpv;
+							Iter_Add(IDVehToPVehIterator, idveh);
+
+							LoadModifVehiclePlayer(idveh);
+
+							#if defined DEBUG_SERVER_LOAD
+							printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) load.",PlayerInfo[playerid][pPlayerName], PVeh[idpv][pVehID], idveh);
+							#endif
+							
+							SetVehicleToRespawn(idveh);
+
+							SetVehicleHealth(idveh, 1000);
+							PVeh[idpv][pVehDarah] = 1000;
+							
+							new engine, lights, alarm, doors, bonnet, boot, objective;
+							GetVehicleParamsEx(idveh, engine, lights, alarm, doors, bonnet, boot, objective);
+							SetVehicleParamsEx(idveh, 0, 0, alarm, doors, bonnet, boot, objective);
+
+							PutPlayerInVehicle(playerid, idveh, 0);
+
+							UpdatePosisiDarahVehiclePlayer(idveh);
+						}else{
+							server_message(playerid, "Anda harus berada dekat salah satu lingkaran merah pengambilan reparasi.");
+						}
+					}
+				}
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -2163,6 +2500,17 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		}else{
 			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - 0.5);
 		}
+	}else if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER && PRESSED(  KEY_CROUCH)){
+		new engine, lights, alarm, doors, bonnet, boot, objective;
+		GetVehicleParamsEx(GetPlayerVehicleID(playerid), engine, lights, alarm, doors, bonnet, boot, objective);
+		if(engine) {
+			GameTextForPlayer(playerid, "~w~Mesin kendaraan ~r~dimatikan", 1000, 3);
+			SetVehicleParamsEx(GetPlayerVehicleID(playerid), 0, 0, alarm, doors, bonnet, boot, objective);
+		}
+		else {
+			GameTextForPlayer(playerid, "~w~Mesin kendaraan ~g~dihidupkan", 1000, 3);
+			SetVehicleParamsEx(GetPlayerVehicleID(playerid), 1, 1, alarm, doors, bonnet, boot, objective);
+		}
 	}
     return 1;
 }
@@ -2201,6 +2549,23 @@ public OnPlayerDeath(playerid, killerid, reason)
 
 	new random_spawn = random(sizeof(SPAWN_POINT));
 	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+
+	if(IsPlayerInAnyVehicle(playerid)){
+		new vehicleid = GetPlayerVehicleID(playerid);
+		if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
+			new Float:darah;
+			GetVehicleHealth(vehicleid, darah);
+
+			if(!IsVehicleFlipped(vehicleid) && darah > 300)
+			{
+				new idpv = IDVehToPVeh[vehicleid];
+				GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
+				GetVehicleZAngle(vehicleid, PVeh[idpv][pVehCoord][3]);
+				PVeh[idpv][pVehDarah] = darah;
+				UpdatePosisiDarahVehiclePlayer(vehicleid);
+			}
+		}
+	}
 
 	return 1;
 }
@@ -2368,7 +2733,11 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 		format(pDialog[playerid], sizePDialog, "%sHarga: "GREEN"$%d\n\n", pDialog[playerid], DVeh[vehid][dVehHarga]);
 		format(pDialog[playerid], sizePDialog, "%s"YELLOW"Anda ingin membeli kendaraan ini ?\n\n"CYAN"*********************************************************************************\n", pDialog[playerid]);
 		ShowPlayerDialog(playerid, DIALOG_BELI_KENDARAAN_DEALER, DIALOG_STYLE_MSGBOX, "Kendaraan ini dijual.", pDialog[playerid], GREEN"Beli", GREY"Tidak");
+	}else if(newstate == PLAYER_STATE_PASSENGER && Iter_Contains(DVehIterator, vehid)){
+		error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang dijual.");
+		RemovePlayerFromVehicle(playerid);
 	}
+
 	if(newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER){
 		ShowPlayerSpeedo(playerid);
 	}
@@ -2407,6 +2776,18 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 	}else if(vehicleid == vehicleIdSIM[playerid] && testSim[playerid] == 1){
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda keluar dari kendaraan, silahkan kembali praktik! "WHITE"Sebelum 30 detik atau anda gagal praktik pengujian SIM.");
 		todoTimer[playerid] = SetTimerEx("todoExit", 30000, false, "ii", playerid, vehicleIdSIM[playerid]);
+	}else if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
+		new Float:darah;
+		GetVehicleHealth(vehicleid, darah);
+
+		if(!IsVehicleFlipped(vehicleid) && darah > 300)
+		{
+			new idpv = IDVehToPVeh[vehicleid];
+			GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
+			GetVehicleZAngle(vehicleid, PVeh[idpv][pVehCoord][3]);
+			PVeh[idpv][pVehDarah] = darah;
+			UpdatePosisiDarahVehiclePlayer(vehicleid);
+		}
 	}
     return 1;
 }
@@ -2525,6 +2906,11 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		return 1;
 	}else if(checkpointid >= CP_spotBarangMarket[0] && checkpointid <= CP_spotBarangMarket[sizeof(CP_spotBarangMarket) - 1]){
 		showDialogBeliBarang(playerid);
+		return 1;
+	}else if(checkpointid >= CP_spawnReparasi[0] && checkpointid <= CP_spawnReparasi[sizeof(CP_spawnReparasi) - 1]){
+		if(!IsPlayerInAnyVehicle(playerid)){
+			showDialogAmbilMobilReparasi(playerid);
+		}
 		return 1;
 	}else if(checkpointid == CP_spotGantiSkin){
 		ShowPlayerDialog(playerid, DIALOG_REFRESH_SKIN, DIALOG_STYLE_MSGBOX, "Refresh skin anda", "Apakah anda yakin ingin mensinkronisasikan kembali skin anda?\n\n"YELLOW"** Skin yang akan direfresh adalah skin yang sudah anda use pada inventory anda.\nJika anda belum memilih skin yang ingin anda gunakan, anda dapat membuka inventory\nLalu pilih skin yang ingin anda gunakan.", "Ganti", "Batal");
@@ -2814,6 +3200,36 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 				poinSim[playerid] = 0;
 			}
 		}
+	}
+	return 1;
+}
+
+public OnVehicleDeath(vehicleid, killerid){
+	if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
+		PVeh[IDVehToPVeh[vehicleid]][pVehIsReparasi] = STATUS_KENDARAAN_RUSAK;
+		updatePVehReparasi(PVeh[IDVehToPVeh[vehicleid]][pVehID], STATUS_KENDARAAN_RUSAK);
+
+		DestroyVehicle(vehicleid);
+		IDVehToPVeh[vehicleid] = 0;
+		Iter_Remove(IDVehToPVehIterator, vehicleid);
+
+		// Kirim Pesan ke pemain
+		foreach(new i : Player){
+			if(PVeh[IDVehToPVeh[vehicleid]][pVehPemilik] == PlayerInfo[i][pID] && IsPlayerConnected(i)){
+				new temp_msg[128];
+				format(temp_msg, 128,"[KENDARAAN] "WHITE"Kendaraan "ORANGE"%s "WHITE"milik anda telah rusak total dan masuk pusat reparasi.", GetVehicleNameFromModel(PVeh[IDVehToPVeh[vehicleid]][pVehModel]));
+				SendClientMessage(i, COLOR_RED, temp_msg);
+				break;
+			}
+		}
+	}
+	return 1;
+}
+
+public OnPlayerEnterCheckpoint(playerid){
+	if(PlayerInfo[playerid][activeMarker]){
+		PlayerInfo[playerid][activeMarker] = false;
+		DisablePlayerCheckpoint(playerid);
 	}
 	return 1;
 }

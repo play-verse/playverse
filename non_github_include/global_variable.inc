@@ -53,6 +53,7 @@ enum pInfo
 
     // Tambang
     sisaPalu,
+    bool:activeMarker,
 
     bool:sudahSpawn,
     bool:sudahLogin,
@@ -158,6 +159,14 @@ new const SP_OUT_BANK_LS[][SPAWN_POINT_INFO] = {
     {1443.1084,-1012.1120,26.8438,182.5710, 0, 0}
 };
 
+new const POSISI_SPAWN_REPARASI_MOBIL[][SPAWN_POINT_INFO] = {
+    {1013.6084, -1715.4836, 14.8368, 0.4314, 0, 0},
+    {986.8361,-1693.0780,14.6905,267.1821, 0, 0},
+    {988.2069,-1687.9666,14.6843,271.3264, 0, 0},
+    {987.8882,-1698.7465,14.3796,267.0156, 0, 0}
+};
+
+
 /**
     TAMBANG
  */
@@ -208,7 +217,6 @@ new const POSISI_BELI_BARANG_MARKET[][COORD_OBJ] = {
     {1175.0690, -1438.7549, 15.7981, 0, 0},
     {1166.0021, -1432.7262, 15.7981, 0, 0}
 };
-
 /**
     MARKET DIALOG
  */
@@ -246,7 +254,8 @@ new CP_tempatFoto,
     CP_ATM[sizeof(POSISI_ATM)],
     CP_Tambang[sizeof(POSISI_NAMBANG)],
     CP_beliMakanCepatSaji,
-    CP_simPoliceRegis[1];
+    CP_simPoliceRegis[1],
+    CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)];
 
 /**
     PICKUP VARIABEL
@@ -376,15 +385,19 @@ enum PlayerVehicleInfo
 {
     pVehID, // Primary Key
     pVehPemilik,
+    pVehicle, // Menyimpan id vehicle
     pVehModel,
     Float:pVehCoord[4],
     pVehColor[2],
     pVehMod[14],
     pVehPaintJob,
-    Float:pVehDarah
+    Float:pVehDarah,
+    pVehIsReparasi // Status Reparasi : 0 - kendaraan baik-baik aja, 1 - kendaraan rusak dan sedang dalam reparasi (harus diambil dari tempat reparasi), 2 - Kendaraan telah diperbaiki dan siap diambil
 }
 new 
     Iterator:DVehIterator<MAX_VEHICLES>, // Nyimpan Iterator vehicle
     DVeh[MAX_VEHICLES][DealerVehicleInfo],
+    Iterator:IDVehToPVehIterator<MAX_VEHICLES>, // Menyimpan iterator vehicle player yang sedang aktif (TERSPAWN)
+    IDVehToPVeh[MAX_VEHICLES], // Menyimpan index PVeh berdasarkan id vehicle
     Iterator:PVehIterator<MAX_VEHICLES>,
     PVeh[MAX_VEHICLES][PlayerVehicleInfo]; // Nyimpan data vehicle berdasarkan ID vehicle

@@ -8,11 +8,34 @@ showDialogRespsionisKTP(playerid){
 }
 
 showDialogTellerBank(playerid){
-    return ShowPlayerDialog(playerid, DIALOG_TELLER_BANK, DIALOG_STYLE_LIST, "Pilihan pengurusan administrasi Bank", "Buat Rekening ATM\nDeposit ke Tabungan\nGaji", "Pilih", "Tutup");
+    return ShowPlayerDialog(playerid, DIALOG_TELLER_BANK, DIALOG_STYLE_LIST, "Pilihan pengurusan administrasi Bank", "Buat Rekening ATM\nDeposit ke Tabungan\nGaji\nBayar Biaya Perbaiki Kendaraan Rusak", "Pilih", "Tutup");
 }
 
 showDialogPesan(playerid, const judul_pesan[], const isi_pesan[]){
 	return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, judul_pesan, isi_pesan, "Ok", "");
+}
+
+showDialogKesalahanSistem(playerid, const keterangan[]){
+    format(pDialog[playerid], sizePDialog, ORANGE"Terdapat kesalah pada sistem.\n\n"WHITE"Silahkan hubungi administrator "GREEN"dengan cara mengirimkan screenshot ini.\n\n"WHITE"Keterangan error : "GREY"%s\n\n"WHITE"Silahkan screenshot sekarang dengan cara menekan "YELLOW"F8 "WHITE"dan segera hubungi administrator sertakan gambar juga. Terimakasih.", keterangan);
+    ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, ORANGE"Kesalahan sistem", pDialog[playerid], "Tutup", "");
+}
+
+showDialogAmbilMobilReparasi(playerid){
+    new string[250 * BANYAK_DATA_PER_PAGE + 200];
+    format(string, sizeof(string), "Kode\tNama\n");
+    
+    foreach(new i : PVehIterator){
+        if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID]){
+            if(PVeh[i][pVehIsReparasi] == 2){ // Jika mobil sedang dalam reparasi (telah rusak)
+                format(string, sizeof(string), "%s%d\t%s\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]));
+            }
+        }
+    }
+
+    if(strcmp(string, "Kode\tNama\n") == 0){
+        showDialogPesan(playerid, RED"Tidak terdapat kendaraan", WHITE"Tidak terdapat kendaraan apapun yang sudah diperbaiki.\nJika anda mencari kendaraan anda yang rusak, silahkan bayar terlebih dahulu di bank kemudian ambil disini.");
+    }else
+        ShowPlayerDialog(playerid, DIALOG_AMBIL_KENDARAAN_REPARASI, DIALOG_STYLE_TABLIST_HEADERS, "Kendaraan yang tersedia.", string, "Pilih", "Batal");
 }
 
 showDialogEPhone(playerid){
@@ -87,5 +110,5 @@ showDialogAdminPapan(playerid){
 }
 
 showDialogAdminVehicle(playerid){
-    return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk kendaraan", "Buat Kendaraan\nParkir Kendaraan Dealer\nRespawn Semua kendaraan Dealer", "Pilih", "Batal");
+    return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk kendaraan", "Buat Kendaraan\nParkir Kendaraan Dealer\nRespawn Semua kendaraan Dealer\nHapus Kendaraan Dealer ini", "Pilih", "Batal");
 }

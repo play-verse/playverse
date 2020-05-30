@@ -111,6 +111,9 @@ resetPlayerVariable(playerid){
 
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
 
+	if(PlayerInfo[playerid][activeMarker]) DisablePlayerCheckpoint(playerid);
+	PlayerInfo[playerid][activeMarker] = false;
+
 	PlayerInfo[playerid][sisaPalu] = 0;
 
 	PlayerInfo[playerid][last_x] = 0;
@@ -131,6 +134,9 @@ resetPlayerVariable(playerid){
 ResetPVarTemporary(playerid){
 	DeletePVar(playerid, "buatveh_id");
 	DeletePVar(playerid, "buatveh_col");
+	DeletePVar(playerid, "sharelock_pemilik");
+	DeletePVar(playerid, "fixbayar_idpv");
+	DeletePVar(playerid, "veh_select_id");
 }
 
 resetPVarInventory(playerid){
@@ -413,7 +419,8 @@ publicFor: checkIfSkinExist(playerid, skinid){
 
 publicFor: tampilInventorySkinPlayer(playerid){
 	new rows, string[500], subString[20], id_skin, jumlah;
-	if(cache_get_row_count(rows)){
+	cache_get_row_count(rows);
+	if(rows){
 		for(new i = 0; i < rows; i++){
 			cache_get_value_name_int(i, "jumlah", jumlah);
 			cache_get_value_name_int(i, "id_skin", id_skin);
@@ -591,6 +598,19 @@ publicFor: isRekeningAda(playerid){
 	}
 	return 1;
 }
+
+publicFor: selesaiBayarKerusakanKendaraan(playerid){
+	new idpv = GetPVarInt(playerid, "fixbayar_idpv");
+	DeletePVar(playerid, "fixbayar_idpv");
+
+	PVeh[idpv][pVehIsReparasi] = 2;
+	updatePVehReparasi(PVeh[idpv][pVehID], 2);
+
+	format(pDialog[playerid], sizePDialog, WHITE"Anda telah membayar biaya kerusakan untuk "GREEN"%s"YELLOW"\nSilahkan ambil kendaraan anda pada pusat reparasi yang berada didekat pantai. Terimakasih.", GetVehicleNameFromModel(PVeh[idpv][pVehModel]));
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membayar biaya perbaikan", pDialog[playerid], "Ok", "");
+	return 1;
+}
+
 
 publicFor: isRekeningTujuanAda(playerid, const rekening[]){
 	new result_nama[50], rekening_temp[10];
@@ -1220,6 +1240,12 @@ todoActive(playerid){
 	return 0;
 }
 
+updatePVehReparasi(primary_id, status){
+	new temp_query[250];
+	mysql_format(koneksi, temp_query, 250, "UPDATE vehicle SET is_reparasi = '%d' WHERE id = '%d'", status, primary_id);
+	mysql_tquery(koneksi, temp_query);
+}
+
 forward todoExit(playerid, paramid);
 public todoExit(playerid, paramid){
 	if(sweeperJob[playerid] == 1){
@@ -1358,6 +1384,140 @@ SaveBoard(modelid, Float:x, Float:y, Float:z, Float:rot_x, Float:rot_y, Float:ro
 	mysql_tquery(koneksi, sQuery);
 }
 
+LoadVehiclePlayer(playerid){
+	inline responseLoadVehicle(){
+		new rows;
+		cache_get_row_count(rows);
+		if(rows){
+			new idx = 0, idveh, idpv;
+
+			while(idx < rows){
+				idpv = Iter_Free(PVehIterator);
+				cache_get_value_name_int(idx, "id", PVeh[idpv][pVehID]);
+				cache_get_value_name_int(idx, "id_pemilik", PVeh[idpv][pVehPemilik]);
+				cache_get_value_name_float(idx, "darah", PVeh[idpv][pVehDarah]);
+
+				cache_get_value_name_int(idx, "id_model", PVeh[idpv][pVehModel]);
+				cache_get_value_name_float(idx, "pos_x", PVeh[idpv][pVehCoord][0]);
+				cache_get_value_name_float(idx, "pos_y", PVeh[idpv][pVehCoord][1]);
+				cache_get_value_name_float(idx, "pos_z", PVeh[idpv][pVehCoord][2]);
+				cache_get_value_name_float(idx, "pos_a", PVeh[idpv][pVehCoord][3]);
+				cache_get_value_name_int(idx, "color_1", PVeh[idpv][pVehColor][0]);
+				cache_get_value_name_int(idx, "color_2", PVeh[idpv][pVehColor][1]);				
+				cache_get_value_name_int(idx, "is_reparasi", PVeh[idpv][pVehIsReparasi]);
+
+				if(!PVeh[idpv][pVehIsReparasi]) {
+					idveh = CreateVehicle(PVeh[idpv][pVehModel], PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2], PVeh[idpv][pVehCoord][3], PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1], -1);
+
+					PVeh[idpv][pVehicle] = idveh;
+
+					IDVehToPVeh[idveh] = idpv;
+					Iter_Add(IDVehToPVehIterator, idveh);
+
+					LoadModifVehiclePlayer(idveh);
+
+					#if defined DEBUG_SERVER_LOAD
+					printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) load.",PlayerInfo[playerid][pPlayerName], PVeh[idpv][pVehID], idveh);
+					#endif
+
+					SetVehicleToRespawn(idveh);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+					GetVehicleParamsEx(idveh, engine, lights, alarm, doors, bonnet, boot, objective);
+					SetVehicleParamsEx(idveh, 0, 0, alarm, doors, bonnet, boot, objective);
+
+					SetVehicleHealth(idveh, PVeh[idpv][pVehDarah]);
+				}
+
+
+				cache_get_value_name_int(idx, "paintjob", PVeh[idpv][pVehPaintJob]);
+				cache_get_value_name_int(idx, "veh_mod_1", PVeh[idpv][pVehMod][0]);
+				cache_get_value_name_int(idx, "veh_mod_2", PVeh[idpv][pVehMod][1]);
+				cache_get_value_name_int(idx, "veh_mod_3", PVeh[idpv][pVehMod][2]);
+				cache_get_value_name_int(idx, "veh_mod_4", PVeh[idpv][pVehMod][3]);
+				cache_get_value_name_int(idx, "veh_mod_5", PVeh[idpv][pVehMod][4]);
+				cache_get_value_name_int(idx, "veh_mod_6", PVeh[idpv][pVehMod][5]);
+				cache_get_value_name_int(idx, "veh_mod_7", PVeh[idpv][pVehMod][6]);
+				cache_get_value_name_int(idx, "veh_mod_8", PVeh[idpv][pVehMod][7]);
+				cache_get_value_name_int(idx, "veh_mod_9", PVeh[idpv][pVehMod][8]);
+				cache_get_value_name_int(idx, "veh_mod_10", PVeh[idpv][pVehMod][9]);
+				cache_get_value_name_int(idx, "veh_mod_11", PVeh[idpv][pVehMod][10]);
+				cache_get_value_name_int(idx, "veh_mod_12", PVeh[idpv][pVehMod][11]);
+				cache_get_value_name_int(idx, "veh_mod_13", PVeh[idpv][pVehMod][12]);
+				cache_get_value_name_int(idx, "veh_mod_14", PVeh[idpv][pVehMod][13]);
+
+				Iter_Add(PVehIterator, idpv);
+				idx++;
+			}
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseLoadVehicle, "SELECT * FROM vehicle WHERE id_pemilik = '%d'", PlayerInfo[playerid][pID]);
+}
+
+LoadModifVehiclePlayer(vehicleid){
+	new const idpv = IDVehToPVeh[vehicleid];
+	for(new i = 0; i < 14; i++) {
+		if(PVeh[idpv][pVehMod][i] >= 1000 && PVeh[idpv][pVehMod][i] <= 1193)
+			AddVehicleComponent(vehicleid, PVeh[idpv][pVehMod]);
+	}
+	if(PVeh[idpv][pVehPaintJob]) ChangeVehiclePaintjob(vehicleid, PVeh[idpv][pVehPaintJob]);
+}
+
+dialogMetodeBayar(playerid, nominal, const fungsi_callback_success[], const keterangan_atm[]){
+	SetPVarString(playerid, "metode_callback_sukses", fungsi_callback_success);
+	SetPVarString(playerid, "metode_keterangan_atm", keterangan_atm);
+	SetPVarInt(playerid, "metode_nominal", nominal);
+	ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR, DIALOG_STYLE_LIST, YELLOW"Silahkan pilih metode pembayaran", GREEN"Uang Cash\n"ORANGE"E-Banking", "Pilih", "Batal");
+}
+
+UnloadVehiclePlayer(playerid){
+	new id = PlayerInfo[playerid][pID], temp_nama[24];
+	format(temp_nama, 24, "%s", PlayerInfo[playerid][pPlayerName]);
+	static const kosong_pveh[PlayerVehicleInfo];
+	foreach(new i : PVehIterator){
+		if(PVeh[i][pVehPemilik] == id) {
+			new cur = i;
+			#if defined DEBUG_SERVER_LOAD
+			printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) unloaded.", temp_nama, PVeh[id][pVehID], i);
+			#endif
+			if(PVeh[i][pVehicle] != INVALID_VEHICLE_ID && Iter_Contains(IDVehToPVehIterator, PVeh[i][pVehicle]))
+			{
+				Iter_Remove(IDVehToPVehIterator, PVeh[i][pVehicle]);
+				IDVehToPVeh[PVeh[i][pVehicle]] = 0;
+				DestroyVehicle(PVeh[i][pVehicle]);
+			}
+
+			PVeh[i] = kosong_pveh;
+			Iter_SafeRemove(PVehIterator, cur, i);
+		}
+	}
+}
+
+UpdatePosisiDarahVehiclePlayer(vehicleid){
+	new idpv = IDVehToPVeh[vehicleid];
+	if(!Iter_Contains(PVehIterator, idpv) || !PVeh[idpv][pVehID]) {
+		printf("#011 Error save Posisi dan Darah ID(%d)", vehicleid);
+		return 0;
+	}
+
+	new temp_sql[1000];
+	new pveh_data[PlayerVehicleInfo];
+	pveh_data = PVeh[idpv];
+	mysql_format(koneksi, temp_sql, 1000, "UPDATE vehicle SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', darah = '%f' WHERE id = '%d'", pveh_data[pVehCoord][0], pveh_data[pVehCoord][1], pveh_data[pVehCoord][2], pveh_data[pVehCoord][3], pveh_data[pVehDarah], pveh_data[pVehID]);
+	return mysql_tquery(koneksi, temp_sql);
+}
+
+UpdateTampilanVehiclePlayer(vehicleid){
+	new idpv = IDVehToPVeh[vehicleid];
+	if(!PVeh[idpv][pVehID]) return 0;
+
+	new temp_sql[1000];
+	new pveh_data[PlayerVehicleInfo];
+	pveh_data = PVeh[idpv];
+	mysql_format(koneksi, temp_sql, 1000, "UPDATE vehicle SET color_1 = '%d', color_2 = '%d', paintjob = '%d', veh_mod_1 = '%d', veh_mod_2 = '%d', veh_mod_3 = '%d', veh_mod_4 = '%d', veh_mod_5 = '%d', veh_mod_6 = '%d', veh_mod_7 = '%d', veh_mod_8 = '%d', veh_mod_9 = '%d', veh_mod_10 = '%d', veh_mod_11 = '%d', veh_mod_12 = '%d', veh_mod_13 = '%d', veh_mod_14 = '%d', darah = '%f' WHERE id = '%d'", pveh_data[pVehColor][0], pveh_data[pVehColor][1], pveh_data[pVehPaintJob], pveh_data[pVehMod][0], pveh_data[pVehMod][1], pveh_data[pVehMod][2], pveh_data[pVehMod][3], pveh_data[pVehMod][4], pveh_data[pVehMod][5], pveh_data[pVehMod][6], pveh_data[pVehMod][7], pveh_data[pVehMod][8], pveh_data[pVehMod][9], pveh_data[pVehMod][10], pveh_data[pVehMod][11], pveh_data[pVehMod][12], pveh_data[pVehMod][13], pveh_data[pVehDarah], pveh_data[pVehID]);
+	return mysql_tquery(koneksi, temp_sql);
+}
+
 LoadVehicleDealer(){
 	new Cache:result = mysql_query(koneksi, "SELECT * FROM vehicle_dealer"), rows, idx = 0, id, temp_model, Float:temp_pos[4], temp_color[2];
 	cache_get_row_count(rows);
@@ -1473,19 +1633,25 @@ publicFor: pembayaranKendaraanATM(playerid){
 
 	// Pindah iterator
 	Iter_Remove(DVehIterator, vehid);
-	Iter_Add(PVehIterator, vehid);
 
-	PVeh[vehid][pVehID] = primary_id;
-	PVeh[vehid][pVehPemilik] = PlayerInfo[playerid][pID];
-	PVeh[vehid][pVehModel] = DVeh[vehid][dVehModel];
-	PVeh[vehid][pVehCoord][0] = DVeh[vehid][dVehCoord][0];
-	PVeh[vehid][pVehCoord][1] = DVeh[vehid][dVehCoord][1];
-	PVeh[vehid][pVehCoord][2] = DVeh[vehid][dVehCoord][2];
-	PVeh[vehid][pVehCoord][3] = DVeh[vehid][dVehCoord][3];
-	PVeh[vehid][pVehColor][0] = DVeh[vehid][dVehColor][0];
-	PVeh[vehid][pVehColor][1] = DVeh[vehid][dVehColor][1];
-	PVeh[vehid][pVehDarah] = 100;
-	SetVehicleHealth(vehid, 100);
+	new idpv = Iter_Free(PVehIterator);
+	Iter_Add(PVehIterator, idpv);
+
+	Iter_Add(IDVehToPVehIterator, vehid);
+	IDVehToPVeh[vehid] = idpv;
+
+	PVeh[idpv][pVehID] = primary_id;
+	PVeh[idpv][pVehPemilik] = PlayerInfo[playerid][pID];
+	PVeh[idpv][pVehicle] = vehid;
+	PVeh[idpv][pVehModel] = DVeh[idpv][dVehModel];
+	PVeh[idpv][pVehCoord][0] = DVeh[idpv][dVehCoord][0];
+	PVeh[idpv][pVehCoord][1] = DVeh[idpv][dVehCoord][1];
+	PVeh[idpv][pVehCoord][2] = DVeh[idpv][dVehCoord][2];
+	PVeh[idpv][pVehCoord][3] = DVeh[idpv][dVehCoord][3];
+	PVeh[idpv][pVehColor][0] = DVeh[idpv][dVehColor][0];
+	PVeh[idpv][pVehColor][1] = DVeh[idpv][dVehColor][1];
+	PVeh[idpv][pVehDarah] = 1000;
+	SetVehicleHealth(vehid, 1000);
 
 	format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
 	format(pDialog[playerid], sizePDialog, "%s"ORANGE"Selamat anda berhasil membeli kendaraan dengan spesifikasi sebagai berikut :\n\n", pDialog[playerid]);
