@@ -1104,7 +1104,7 @@ loadAllItem(){
 }
 
 loadAllHouse(){
-	new house_Id, userId, houseLevel, houseHarga, houseKunci, houseJual, hX[256], hY[256], hZ[256];
+	new house_Id, userId, houseLevel, houseHarga, houseSetHarga, houseKunci, houseJual, hX[256], hY[256], hZ[256];
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `house`");
 	cache_get_row_count(row);
@@ -1114,12 +1114,13 @@ loadAllHouse(){
 		cache_get_value_name_int(idx, "id_user", userId);
 		cache_get_value_name_int(idx, "level", houseLevel);
 		cache_get_value_name_int(idx, "harga", houseHarga);
+		cache_get_value_name_int(idx, "setharga", houseSetHarga);
 		cache_get_value_name_int(idx, "kunci", houseKunci);
 		cache_get_value_name_int(idx, "jual", houseJual);
 		cache_get_value_name(idx, "icon_x", hX);
 		cache_get_value_name(idx, "icon_y", hY);
 		cache_get_value_name(idx, "icon_z", hZ);
-		createHouse(house_Id, userId, houseLevel, houseHarga, houseKunci, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));
+		createHouse(house_Id, userId, houseLevel, houseHarga, houseSetHarga, houseKunci, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));
 		cache_set_active(result);
 		
 		#if DEBUG_SERVER_LOAD == true
@@ -1156,7 +1157,7 @@ resetAllHouse(){
 	loadAllHouse();
 }
 
-createHouse(house_Id, ownerId, houseLevel, houseHarga, houseKunci, houseJual, Float:hX, Float:hY, Float:hZ)
+createHouse(house_Id, ownerId, houseLevel, houseHarga, houseSetHarga, houseKunci, houseJual, Float:hX, Float:hY, Float:hZ)
 {
 	if(house_Id < MAX_HOUSES ){
 		new Id = CreateDynamicPickup(1273, 1, hX, hY, hZ);
@@ -1166,6 +1167,7 @@ createHouse(house_Id, ownerId, houseLevel, houseHarga, houseKunci, houseJual, Fl
 		houseInfo[house_Id][hOwner] = ownerId;
 		houseInfo[house_Id][hLevel] = houseLevel;
 		houseInfo[house_Id][hHarga] = houseHarga;
+		houseInfo[house_Id][hSetHarga] = houseSetHarga;
 		houseInfo[house_Id][hKunci] = houseKunci;
 		houseInfo[house_Id][hJual] = houseJual;
 		houseInfo[house_Id][icon_x] = hX;
@@ -1182,22 +1184,42 @@ reloadHouseLabel(house_Id){
 		DestroyDynamic3DTextLabel(houseTextInfo[house_Id]);
 	}
 	new text_info[256], ownerName[MAX_PLAYER_NAME], beliRate;
-	beliRate = getHousePrice(house_Id, "beli");
+	if(houseInfo[house_Id][hSetHarga] != 0){
+		beliRate = houseInfo[house_Id][hSetHarga];
+	}else{
+		beliRate = getHousePrice(house_Id, "beli");
+	}
 	houseTextInfo[house_Id] = Text3D:INVALID_3DTEXT_ID;
 	if(houseInfo[house_Id][hOwner] != -1){
 		format(ownerName, 256, "%s", getOwnerHouse(houseInfo[house_Id][hOwner]));
 	}
 	if(houseInfo[house_Id][hJual] == 1){
 		if(houseInfo[house_Id][hOwner] != -1){
-			format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], ownerName, beliRate);
+			if(houseInfo[house_Id][hJual] == 1){
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], ownerName, beliRate);
+			}else{
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"%s", houseInfo[house_Id][hID], ownerName);
+			}
 		}else{
-			format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], beliRate);
+			if(houseInfo[house_Id][hJual] == 1){
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], beliRate);
+			}else{
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada", houseInfo[house_Id][hID]);
+			}
 		}
 	}else{
 		if(houseInfo[house_Id][hOwner] != -1){
-			format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], ownerName, beliRate);
+			if(houseInfo[house_Id][hJual] == 1){
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], ownerName, beliRate);
+			}else{
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"%s", houseInfo[house_Id][hID], ownerName);
+			}
 		}else{
-			format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], beliRate);
+			if(houseInfo[house_Id][hJual] == 1){
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], beliRate);
+			}else{
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada", houseInfo[house_Id][hID]);
+			}
 		}
 	}
     houseTextInfo[house_Id] = CreateDynamic3DTextLabel(text_info, COLOR_WHITE, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z]+0.75, 20);
@@ -1701,8 +1723,8 @@ public SpeedoUpdate(playerid)
 		oldVehicleHealth[vehid] = newVehicleHealth[vehid];
 	}
 
-    //format(text_speed, 24, "Speed: %i MpH", vehspeed); //Mph
-	format(text_speed, 24, "Speed: %i KmpH", vehspeed); //KmpH
+    //format(text_speed, 24, "Kecepatan: %i MpH", vehspeed); //Mph
+	format(text_speed, 24, "Kecepatan: %i KmpH", vehspeed); //KmpH
     PlayerTextDrawSetString(playerid, SpeedoTextDraws[playerid], text_speed);
     if(testSim[playerid] == 1){
     	if(vehspeed >= 80){

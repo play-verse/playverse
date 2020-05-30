@@ -91,6 +91,7 @@ enum hInfo
     hID,
     hOwner,
     hHarga,
+    hSetHarga,
     hKunci,
     hJual,
     hLevel,

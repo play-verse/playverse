@@ -555,10 +555,10 @@ unloadTextDrawPemain(playerid){
 }
 
 LoadSpeedoTextDraws(playerid){
-    SpeedoTextDraws[playerid] = CreatePlayerTextDraw(playerid, 320.0, 400.0, "Speed: 0 KmpH");
+    SpeedoTextDraws[playerid] = CreatePlayerTextDraw(playerid, 320.0, 400.0, "Kecepatan: 0 KmpH");
     PlayerTextDrawFont(playerid, SpeedoTextDraws[playerid], 1);
     PlayerTextDrawLetterSize(playerid, SpeedoTextDraws[playerid], 0.258332, 1.750000);
-    PlayerTextDrawTextSize(playerid, SpeedoTextDraws[playerid], 16.500000, 90.500000);
+    PlayerTextDrawTextSize(playerid, SpeedoTextDraws[playerid], 16.000000, 98.000000);
     PlayerTextDrawSetOutline(playerid, SpeedoTextDraws[playerid], 1);
     PlayerTextDrawSetShadow(playerid, SpeedoTextDraws[playerid], 0);
     PlayerTextDrawAlignment(playerid, SpeedoTextDraws[playerid], 2);
