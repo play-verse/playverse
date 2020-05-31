@@ -209,22 +209,21 @@ publicFor: spawnPemain(playerid)
 		PlayerInfo[playerid][last_stats_minum] = 0;
 	}
 	
-
-	if(house_Id != 0){
-		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, 0, 0, 0, 0);
-			
-		SpawnPlayer(playerid);
+	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
+		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
 		
-		pindahkanPemain(playerid, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, true);
+		SpawnPlayer(playerid);
+
+		pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
 
 		TogglePlayerControllable(playerid, 0);
 		SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
-
+		
 		if(PlayerInfo[playerid][lastHp] > 0) {
 			SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
 			if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 		}
-		
+
 		PlayerInfo[playerid][lastHp] = 0;
 		PlayerInfo[playerid][lastArmour] = 0;
 
@@ -235,21 +234,21 @@ publicFor: spawnPemain(playerid)
 		PlayerInfo[playerid][last_vw] = 0;
 		PlayerInfo[playerid][last_int] = 0;
 	}else{
-		if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
-			SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
-			
+		if(house_Id != 0){
+			SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, 0, 0, 0, 0);
+				
 			SpawnPlayer(playerid);
-
-			pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
+			
+			pindahkanPemain(playerid, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, true);
 
 			TogglePlayerControllable(playerid, 0);
 			SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
-			
+
 			if(PlayerInfo[playerid][lastHp] > 0) {
 				SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
 				if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 			}
-
+			
 			PlayerInfo[playerid][lastHp] = 0;
 			PlayerInfo[playerid][lastArmour] = 0;
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 30, 2020 at 09:46 AM
+-- Generation Time: May 31, 2020 at 04:18 PM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.10
 
@@ -22,44 +22,6 @@ SET time_zone = "+00:00";
 -- Database: `server_samp`
 --
 
-DELIMITER $$
---
--- Procedures
---
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_item` (`x_id_user` INT, `x_id_item` INT, `x_banyak_item` INT)  BEGIN
-	SELECT jumlah, id_user_item INTO @jumlah, @id_user_item FROM `user_item` WHERE `id_item` = `x_id_item` AND `id_user` = `x_id_user`;
-	IF(ROW_COUNT()) THEN
-		IF(x_banyak_item < 0 AND (@jumlah - x_banyak_item) < 1) THEN
-			DELETE FROM `user_item` WHERE `id_user_item` = @id_user_item;
-		ELSE
-			UPDATE `user_item` SET `jumlah` = `jumlah` + `x_banyak_item` WHERE `id_user_item` = @id_user_item;
-		END IF;
-	ELSE
-		INSERT INTO `user_item`(id_item, id_user, jumlah) VALUES(`x_id_item`, `x_id_user`, `x_banyak_item`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_skin` (`x_id_user` INT, `x_id_skin` INT, `x_banyak_skin` INT)  BEGIN
-	SELECT jumlah, id INTO @jumlah, @id FROM `user_skin` WHERE `id_skin` = `x_id_skin` AND `id_user` = `x_id_user`;
-	IF(ROW_COUNT()) THEN
-		IF(x_banyak_skin < 0 AND (@jumlah - x_banyak_skin) < 1) THEN
-			DELETE FROM `user_skin` WHERE `id` = @id;
-		ELSE
-			UPDATE `user_skin` SET `jumlah` = `jumlah` + `x_banyak_skin` WHERE `id` = @id;
-		END IF;
-	ELSE
-		INSERT INTO `user_skin`(id_skin, id_user, jumlah) VALUES(`x_id_skin`, `x_id_user`, `x_banyak_skin`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_transaksi_atm` (`rekening_pengirim` VARCHAR(50), `rekening_penerima` VARCHAR(50), `ex_nominal` BIGINT, `ex_keterangan` TEXT)  BEGIN
-	INSERT INTO `trans_atm`(id_user, id_pengirim_penerima, nominal, tanggal, keterangan) 
-	SELECT a.id as id_user, b.id as id_pengirim_penerima, ex_nominal as nominal, NOW() as tanggal, ex_keterangan as keterangan FROM `user` a
-	LEFT JOIN `user` b ON b.rekening = rekening_pengirim WHERE a.rekening = rekening_penerima;
-END$$
-
-DELIMITER ;
-
 -- --------------------------------------------------------
 
 --
@@ -74,15 +36,6 @@ CREATE TABLE `gaji` (
   `keterangan` varchar(50) DEFAULT NULL COMMENT 'Berisi keterangan asal gaji',
   `status` smallint(1) NOT NULL COMMENT 'Berisi status apakah sudah diambil atau belum.\r\n0 - Belum diambil\r\n1 - Sudah diambil'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `gaji`
---
-
-INSERT INTO `gaji` (`id_gaji`, `id_user`, `nominal`, `tanggal`, `keterangan`, `status`) VALUES
-(1, 22, 1000, '2020-05-23 14:24:15', NULL, 1),
-(2, 22, 50, '2020-05-23 14:24:32', NULL, 1),
-(3, 22, 100, '2020-05-26 13:09:48', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -102,14 +55,6 @@ CREATE TABLE `house` (
   `icon_y` varchar(255) NOT NULL,
   `icon_z` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `house`
---
-
-INSERT INTO `house` (`id_house`, `id_user`, `level`, `harga`, `setharga`, `kunci`, `jual`, `icon_x`, `icon_y`, `icon_z`) VALUES
-(1, 24, 3, 10000, 0, 1, 0, '841.189392', '-1471.353149', '14.312580'),
-(2, 22, 1, 100, 0, 1, 0, '822.442566', '-1505.515015', '14.397550');
 
 -- --------------------------------------------------------
 
@@ -165,14 +110,6 @@ CREATE TABLE `papan` (
   `font_size` int(3) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `papan`
---
-
-INSERT INTO `papan` (`id_papan`, `id_model`, `pos_x`, `pos_y`, `pos_z`, `rot_x`, `rot_y`, `rot_z`, `text`, `font_size`) VALUES
-(1, 5846, 691.718, -1182.78, 17.6628, 0, 0, -24.1, '{000000}Selamat datang di satuan pembersih jalan.\nSilahkan mengantri untuk mendapatkan giliran anda.\nPastikan anda tidak memotong. :)', 13),
-(2, 5846, 715.661, -1154.27, 24.375, 0, 0, 0, '{000000}Hallo nama sa\nasldalksd', 24);
-
 -- --------------------------------------------------------
 
 --
@@ -199,13 +136,6 @@ CREATE TABLE `pengambilan_sim` (
   `tanggal_ambil` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
---
--- Dumping data for table `pengambilan_sim`
---
-
-INSERT INTO `pengambilan_sim` (`id`, `id_user`, `tanggal_buat`, `tanggal_ambil`) VALUES
-(1, 22, '2020-05-26 12:54:01', '2020-05-26 13:24:01');
-
 -- --------------------------------------------------------
 
 --
@@ -221,17 +151,6 @@ CREATE TABLE `sms` (
   `tanggal_dikirim` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `sms`
---
-
-INSERT INTO `sms` (`id_sms`, `id_user_pengirim`, `id_user_penerima`, `id_pemilik_pesan`, `pesan`, `tanggal_dikirim`) VALUES
-(3, 22, 24, 22, 'LASD LAJSDLKAJSLKAJ DAS KJQW \\nakj LKDSJ ASKLDJ ASD ', '2020-05-04 00:44:23'),
-(10, 30, 22, 30, 'Halo bambang', '2020-05-26 20:07:25'),
-(11, 30, 22, 22, 'Halo bambang', '2020-05-26 20:07:25'),
-(12, 30, 24, 30, 'Hallo', '2020-05-26 20:08:00'),
-(13, 30, 24, 24, 'Hallo', '2020-05-26 20:08:00');
-
 -- --------------------------------------------------------
 
 --
@@ -246,43 +165,6 @@ CREATE TABLE `trans_atm` (
   `tanggal` datetime NOT NULL COMMENT 'Berisi tanggal transaksi',
   `keterangan` text DEFAULT NULL COMMENT 'Berisi keterangan dari pengirim'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `trans_atm`
---
-
-INSERT INTO `trans_atm` (`id`, `id_user`, `id_pengirim_penerima`, `nominal`, `tanggal`, `keterangan`) VALUES
-(1, 22, NULL, 2000, '2020-05-19 11:52:04', 'tes'),
-(2, 22, NULL, 10, '2020-05-19 12:20:34', 'Deposit tabungan'),
-(3, 22, NULL, -10, '2020-05-20 22:29:34', 'Penarikan uang'),
-(4, 22, NULL, 1050, '2020-05-23 14:50:16', 'Pencairan gaji'),
-(5, 22, NULL, -100, '2020-05-23 14:50:48', 'Penarikan uang'),
-(6, 22, NULL, -100, '2020-05-23 14:50:55', 'Penarikan uang'),
-(7, 22, NULL, 400, '2020-05-23 14:51:28', 'Deposit tabungan'),
-(8, 22, NULL, 70, '2020-05-23 14:51:56', 'Deposit tabungan'),
-(9, 22, NULL, -3000, '2020-05-23 14:52:11', 'Penarikan uang'),
-(10, 22, NULL, 2800, '2020-05-23 21:55:28', 'Deposit tabungan'),
-(11, 22, NULL, -20, '2020-05-25 16:01:41', 'Pembelian Air Minum Mineral sebanyak 10'),
-(12, 22, NULL, -3000, '2020-05-25 16:06:31', 'Penarikan uang'),
-(13, 22, NULL, -10, '2020-05-25 16:07:54', 'Pembelian Steak sebanyak 1'),
-(14, 22, NULL, -2, '2020-05-25 16:09:06', 'Pembelian Air Minum Mineral sebanyak 1'),
-(15, 22, NULL, -2, '2020-05-25 16:09:13', 'Pembelian Air Minum Mineral sebanyak 1'),
-(16, 22, NULL, -2, '2020-05-25 16:09:35', 'Pembelian Air Minum Mineral sebanyak 1'),
-(17, 22, NULL, -2, '2020-05-25 16:09:42', 'Pembelian Air Minum Mineral sebanyak 1'),
-(18, 22, NULL, -2, '2020-05-25 16:09:48', 'Pembelian Air Minum Mineral sebanyak 1'),
-(19, 22, NULL, -2, '2020-05-25 16:09:56', 'Pembelian Air Minum Mineral sebanyak 1'),
-(20, 22, NULL, -2, '2020-05-25 16:10:05', 'Pembelian Air Minum Mineral sebanyak 1'),
-(21, 22, NULL, -2, '2020-05-25 16:10:11', 'Pembelian Air Minum Mineral sebanyak 1'),
-(22, 22, NULL, -2, '2020-05-25 16:20:31', 'Pembelian Air Minum Mineral sebanyak 1'),
-(23, 22, NULL, 0, '2020-05-25 16:24:24', 'Pembelian Steak sebanyak 0'),
-(24, 22, NULL, 0, '2020-05-25 16:24:50', 'Pembelian Steak sebanyak 0'),
-(25, 22, NULL, -2, '2020-05-25 16:26:34', 'Pembelian Air Minum Mineral sebanyak 1'),
-(26, 22, NULL, -20, '2020-05-25 18:28:51', 'Pembelian Air Minum Mineral sebanyak 10'),
-(27, 22, NULL, 2000, '2020-05-26 13:12:46', 'Deposit tabungan'),
-(28, 22, NULL, 1000, '2020-05-26 14:15:57', 'Deposit tabungan'),
-(29, 22, NULL, -100, '2020-05-26 14:16:05', 'Penarikan uang'),
-(30, 22, NULL, -1000, '2020-05-26 14:16:14', 'Penarikan uang'),
-(31, 22, NULL, -250, '2020-05-30 14:23:01', 'biaya perbaikan Windsor');
 
 -- --------------------------------------------------------
 
@@ -314,23 +196,9 @@ CREATE TABLE `user` (
   `last_hp` float DEFAULT NULL COMMENT 'Berisi jumlah hp pemain',
   `last_armour` float DEFAULT NULL COMMENT 'Berisi jumlah armour pemain',
   `last_stats_makan` float DEFAULT NULL COMMENT 'Berisi jumlah status makan',
-  `last_stats_minum` float DEFAULT NULL COMMENT 'Berisi jumlah status minum'
+  `last_stats_minum` float DEFAULT NULL COMMENT 'Berisi jumlah status minum',
+  `playtime` bigint(20) DEFAULT NULL COMMENT 'Berisi jumlah waktu bermain dalam detik'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `user`
---
-
-INSERT INTO `user` (`id`, `nama`, `password`, `current_skin`, `jumlah_login`, `join_date`, `uang`, `jenis_kelamin`, `email`, `account_status`, `last_x`, `last_y`, `last_z`, `last_a`, `last_int`, `last_vw`, `nomor_handphone`, `use_phone`, `rekening`, `save_house`, `last_hp`, `last_armour`, `last_stats_makan`, `last_stats_minum`) VALUES
-(22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 28, 192, '2020-04-24 21:12:03', 212, 0, 'nathan@gmail.com', 0, '1063.152588', '-1699.880371', '14.367188', '61.367470', '0', '0', '621234', 4, '12345678', 0, 88, 0, 80, 24),
-(23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', 100, 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL),
-(24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 91, '2020-04-30 15:31:48', 174940, 0, 'natan@gmail.com', 0, '1519.263184', '-1696.209229', '13.292188', '109.391800', '0', '0', '629876', 1, NULL, 0, NULL, NULL, NULL, NULL),
-(25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', 0, 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, 0, NULL, 0, NULL, NULL, NULL, NULL),
-(26, 'cosinec', '4673452E1D20E8417166B9FF852DC48246F1D1D24FD11076976A3DCB4307675B', 298, 3, '2020-05-03 16:56:12', 0, 1, 'nathan@gmail.com', 0, '188.238831', '-1935.149414', '-0.552782', '273.730988', '0', '0', NULL, 0, NULL, 0, NULL, NULL, NULL, NULL),
-(27, 'cosiozo', 'EEF3ABEA0977171744D9AC2BF8A4761A389F8C55136BDC00B02E9E49524340B1', 9, 1, '2020-05-10 16:59:42', 100, 1, 'asd2@gmail.com', 0, '285.288879', '-1863.428467', '2.890330', '309.904419', '0', '0', NULL, 0, NULL, 0, NULL, NULL, NULL, NULL),
-(28, 'cosine_xx', 'FE1F21653A573338CC45562B2F50BD5F0F4B5DBC7AE9E67DD7702A3FEA265DB2', 25, 3, '2020-05-13 14:14:19', 100, 0, 'natan@gmail.com', 0, '597.599731', '-1747.577515', '37.244843', '312.951660', '0', '0', NULL, 0, NULL, 0, NULL, NULL, NULL, NULL),
-(29, 'xoxo', 'FC922095F45335113D9195483EA4E2F6CBA407DAB53BF08D7F1C8B58177FD0EB', 172, 2, '2020-05-23 17:35:10', 100, 1, 'xoxo@gmail.com', 0, '329.041931', '-1804.449341', '4.580854', '307.374207', '0', '0', '621234', 0, NULL, 0, NULL, NULL, NULL, NULL),
-(30, 'sin', '406F041ABFCF5AFC6A7A6A4FF6F7D4FAED5707AC7E4DD6A50B77950E19339215', 17, 2, '2020-05-26 20:05:42', 100, 0, 'fasda@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', '621234', 3, NULL, 0, 100, 0, 80, 80);
 
 -- --------------------------------------------------------
 
@@ -342,38 +210,9 @@ CREATE TABLE `user_item` (
   `id_user_item` bigint(20) UNSIGNED NOT NULL,
   `id_item` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
-  `jumlah` int(255) DEFAULT 1
+  `jumlah` int(255) DEFAULT 1,
+  `kunci` tinyint(4) NOT NULL DEFAULT 0 COMMENT 'Status terkunci (agar tidak bisa dihapus)\r\n- 0 = Tidak terkunci\r\n- 1 = Terkunci'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `user_item`
---
-
-INSERT INTO `user_item` (`id_user_item`, `id_item`, `id_user`, `jumlah`) VALUES
-(1, 1, 1, 2),
-(3, 2, 1, 4),
-(7, 3, 1, 1),
-(8, 4, 22, 1),
-(10, 1, 22, 3),
-(17, 2, 22, 1),
-(26, 1, 23, 8),
-(27, 1, 25, 2),
-(30, 1, 24, 0),
-(31, 5, 24, 8),
-(32, 3, 24, 1),
-(33, 6, 24, 14),
-(34, 7, 24, 1),
-(35, 5, 22, 14),
-(36, 6, 22, 6),
-(37, 7, 22, 1),
-(38, 8, 22, 0),
-(39, 11, 22, 13),
-(40, 12, 22, 17),
-(41, 9, 22, 9),
-(42, 10, 22, 4),
-(45, 14, 22, 5),
-(46, 13, 22, 0),
-(48, 3, 30, 0);
 
 -- --------------------------------------------------------
 
@@ -387,25 +226,6 @@ CREATE TABLE `user_skin` (
   `id_skin` int(20) NOT NULL,
   `jumlah` int(10) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `user_skin`
---
-
-INSERT INTO `user_skin` (`id`, `id_user`, `id_skin`, `jumlah`) VALUES
-(31, 22, 125, 2),
-(32, 22, 28, 0),
-(33, 23, 24, 1),
-(34, 24, 21, 1),
-(35, 25, 76, 1),
-(36, 26, 298, 1),
-(37, 27, 9, 1),
-(38, 24, 73, 1),
-(39, 24, 17, 1),
-(40, 24, 19, 6),
-(41, 28, 25, 1),
-(42, 29, 172, 1),
-(43, 30, 17, 1);
 
 -- --------------------------------------------------------
 
@@ -442,14 +262,6 @@ CREATE TABLE `vehicle` (
   `is_reparasi` tinyint(1) DEFAULT 0 COMMENT 'Nyimpan status kendaraan apakah sedang di reparasi.\r\n\r\n0 - untuk tidak\r\n1 - untuk sedang reparasi (sedang didalam tempat reparasi karena rusak dan harus diambil)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `vehicle`
---
-
-INSERT INTO `vehicle` (`id`, `id_pemilik`, `id_model`, `pos_x`, `pos_y`, `pos_z`, `pos_a`, `color_1`, `color_2`, `paintjob`, `veh_mod_1`, `veh_mod_2`, `veh_mod_3`, `veh_mod_4`, `veh_mod_5`, `veh_mod_6`, `veh_mod_7`, `veh_mod_8`, `veh_mod_9`, `veh_mod_10`, `veh_mod_11`, `veh_mod_12`, `veh_mod_13`, `veh_mod_14`, `darah`, `is_reparasi`) VALUES
-(1, 22, 555, 1082.25, -1700.47, 13.2316, 268.374, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 996.423, 2),
-(2, 22, 521, 1071.29, -1699.55, 13.117, 4.91281, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 732.602, 0);
-
 -- --------------------------------------------------------
 
 --
@@ -467,13 +279,6 @@ CREATE TABLE `vehicle_dealer` (
   `color_2` int(3) DEFAULT 0 COMMENT 'Warna 2 kendaraan',
   `harga` bigint(50) DEFAULT NULL COMMENT 'Harga kendaraan'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `vehicle_dealer`
---
-
-INSERT INTO `vehicle_dealer` (`id`, `id_model`, `pos_x`, `pos_y`, `pos_z`, `pos_a`, `color_1`, `color_2`, `harga`) VALUES
-(1, 415, 530.936, -1291.21, 17.014, 357.776, 0, 0, 10000);
 
 --
 -- Indexes for dumped tables
@@ -568,13 +373,13 @@ ALTER TABLE `vehicle_dealer`
 -- AUTO_INCREMENT for table `gaji`
 --
 ALTER TABLE `gaji`
-  MODIFY `id_gaji` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_gaji` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `house`
 --
 ALTER TABLE `house`
-  MODIFY `id_house` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_house` int(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `item`
@@ -586,61 +391,61 @@ ALTER TABLE `item`
 -- AUTO_INCREMENT for table `papan`
 --
 ALTER TABLE `papan`
-  MODIFY `id_papan` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_papan` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pengambilan_ktp`
 --
 ALTER TABLE `pengambilan_ktp`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pengambilan_sim`
 --
 ALTER TABLE `pengambilan_sim`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `sms`
 --
 ALTER TABLE `sms`
-  MODIFY `id_sms` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_sms` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `trans_atm`
 --
 ALTER TABLE `trans_atm`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID Player', AUTO_INCREMENT=31;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID Player';
 
 --
 -- AUTO_INCREMENT for table `user_item`
 --
 ALTER TABLE `user_item`
-  MODIFY `id_user_item` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id_user_item` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user_skin`
 --
 ALTER TABLE `user_skin`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `vehicle`
 --
 ALTER TABLE `vehicle`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `vehicle_dealer`
 --
 ALTER TABLE `vehicle_dealer`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
