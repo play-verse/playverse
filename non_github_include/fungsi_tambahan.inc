@@ -52,6 +52,10 @@ server_message(playerid, const message[]){
     return SendClientMessage(playerid, COLOR_ORANGE, pesan);
 }
 
+getTotalLamaBermain(playerid){
+    return gettime() - PlayerInfo[playerid][waktuSaatLogin] + PlayerInfo[playerid][lamaBermain]; 
+}
+
 addGajiPemain(playerid, nominal, const keterangan[]){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `gaji`(id_user, nominal, tanggal, status, keterangan) VALUES('%d', '%d', NOW(), '0', '%e')", PlayerInfo[playerid][pID], nominal, keterangan);
     mysql_tquery(koneksi, pQuery[playerid]);
@@ -87,11 +91,11 @@ dialogMsgUangTdkCukup(playerid){
     return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf saat ini uang yang anda miliki tidak mencukupi untuk melakukan transaksi!", "Ok", "Batal");
 }
 
-getModelByIdItem(id_item){
-    new nama_variabel[50];
-    format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
-    return GetSVarInt(nama_variabel);
-}
+// getModelByIdItem(id_item){
+//     new nama_variabel[50];
+//     format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
+//     return GetSVarInt(nama_variabel);
+// }
 
 getIDbyModelItem(id_model){
     new nama_variabel[50];
@@ -99,11 +103,11 @@ getIDbyModelItem(id_model){
     return GetSVarInt(nama_variabel);
 }
 
-getKeteranganByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
-    new nama_variabel[50];
-    format(nama_variabel, sizeof(nama_variabel), "kIt_%d", id_item);
-    GetSVarString(nama_variabel, destinasi, len);
-}
+// getKeteranganByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
+//     new nama_variabel[50];
+//     format(nama_variabel, sizeof(nama_variabel), "kIt_%d", id_item);
+//     GetSVarString(nama_variabel, destinasi, len);
+// }
 
 getNamaByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     new nama_variabel[50];
@@ -111,11 +115,11 @@ getNamaByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     GetSVarString(nama_variabel, destinasi, len);
 }
 
-getFungsiByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
-    new nama_variabel[50];
-    format(nama_variabel, sizeof(nama_variabel), "fIt_%d", id_item);
-    GetSVarString(nama_variabel, destinasi, len);
-}
+// getFungsiByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
+//     new nama_variabel[50];
+//     format(nama_variabel, sizeof(nama_variabel), "fIt_%d", id_item);
+//     GetSVarString(nama_variabel, destinasi, len);
+// }
 
 getSaldoPlayer(playerid, const fungsi_callback[]){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(nominal), 0) as saldo FROM `trans_atm` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);

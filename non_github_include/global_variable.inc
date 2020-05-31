@@ -26,6 +26,8 @@ enum pInfo
     uang,
     jenisKelamin, // 0 - Laki , 1 - Perempuan
 
+    Cache:tempCache, // digunakan untuk menyimpan temporary cache : Misalnya cache inventory, cache skin. Jangan gunakan untuk yang penting
+
     // Save status
     // Position
     Float:last_x,
@@ -50,6 +52,9 @@ enum pInfo
     sHouse, // Berisi ID Rumah, untuk spawn dirumah jika tidak 0
     nomorHP[12], // Berisi 62 + 4 kode
     nomorRekening[10], // Berisi 8 digit kode rekening
+    
+    waktuSaatLogin, // menyimpan gettickcount yang didapat saat login (untuk menghitung lama bermain sejak login)
+    lamaBermain, // menyimpan waktu (dalam detik) yang didapat dari database
 
     // Tambang
     sisaPalu,
@@ -206,7 +211,7 @@ new const POSISI_NAMBANG[][COORD_OBJ] = {
 
 new const POSISI_ATM[][COORD_OBJ] = {
 	{1412.3097,-987.6777,-55.2764, 1, 1},
-	{1166.8647,-1445.9028,15.7981, 0, 0}
+	{1154.9031,-1464.9263,15.7981, 0, 0}
 };
 
 new const POSISI_BELI_BARANG_MARKET[][COORD_OBJ] = {

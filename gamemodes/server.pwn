@@ -51,14 +51,15 @@ public OnPlayerConnect(playerid)
 {
 	removeBangunanUntukMapping(playerid);
 	loadTextDrawPemain(playerid);
-	/*
-	Removes vending machines
+
+	// Removes vending machines - SA-MP Official scripts
 	RemoveBuildingForPlayer(playerid, 1302, 0.0, 0.0, 0.0, 6000.0);
 	RemoveBuildingForPlayer(playerid, 1209, 0.0, 0.0, 0.0, 6000.0);
 	RemoveBuildingForPlayer(playerid, 955, 0.0, 0.0, 0.0, 6000.0);
 	RemoveBuildingForPlayer(playerid, 1775, 0.0, 0.0, 0.0, 6000.0);
 	RemoveBuildingForPlayer(playerid, 1776, 0.0, 0.0, 0.0, 6000.0);
-	*/
+	// End Remove vending machines
+
 	SetPlayerColor(playerid, COLOR_WHITE);
 	
 	resetPlayerVariable(playerid);
@@ -88,22 +89,26 @@ public OnPlayerDisconnect(playerid, reason){
 		printf("OnPlayerDisconnect terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif	
 
-	if(IsPlayerInAnyVehicle(playerid)){
-		new vehicleid = GetPlayerVehicleID(playerid);
-		if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
-			new Float:darah;
-			GetVehicleHealth(vehicleid, darah);
+	if(PlayerInfo[playerid][sudahLogin]) {
+		updateOnPlayerDisconnect(playerid);
 
-			if(!IsVehicleFlipped(vehicleid) && darah > 300)
-			{
-				new idpv = IDVehToPVeh[vehicleid];
-				GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
-				GetVehicleZAngle(vehicleid, PVeh[idpv][pVehCoord][3]);
-				PVeh[idpv][pVehDarah] = darah;
-				UpdatePosisiDarahVehiclePlayer(vehicleid);
+		if(IsPlayerInAnyVehicle(playerid)){
+			new vehicleid = GetPlayerVehicleID(playerid);
+			if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
+				new Float:darah;
+				GetVehicleHealth(vehicleid, darah);
+
+				if(!IsVehicleFlipped(vehicleid) && darah > 300)
+				{
+					new idpv = IDVehToPVeh[vehicleid];
+					GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
+					GetVehicleZAngle(vehicleid, PVeh[idpv][pVehCoord][3]);
+					PVeh[idpv][pVehDarah] = darah;
+					UpdatePosisiDarahVehiclePlayer(vehicleid);
+				}
 			}
 		}
-	} 
+	}
 
 
 	ResetPVarTemporary(playerid);
@@ -127,7 +132,6 @@ public OnPlayerDisconnect(playerid, reason){
 
 	resetPVarInventory(playerid);
 	resetPlayerToDo(playerid);
-	if(PlayerInfo[playerid][sudahLogin]) updateOnPlayerDisconnect(playerid);
 	resetPlayerVariable(playerid);
 	// hideTextDrawUang(playerid);
 	ResetPlayerMoney(playerid);
@@ -146,9 +150,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if( strlen(inputtext) >= 8 && strlen(inputtext) <= 24 )
 				{
 					format(registerInfo[playerid][registerPassword], 25, "%s", inputtext);
-			        return ShowPlayerDialog(playerid, DIALOG_REPEAT_PASSWORD, DIALOG_STYLE_PASSWORD,WHITE"SILAHKAN ULANGI PASSWORD",WHITE"{FFFFFF}Silahkan ulangi kembali password!","Konfirmasi","Keluar");
+			        return ShowPlayerDialog(playerid, DIALOG_REPEAT_PASSWORD, DIALOG_STYLE_PASSWORD,WHITE"Silahkan ulangi password",WHITE"Silahkan ulangi kembali password yang anda tulis tadi untuk mengkonfirmasi kebeneran password.","Konfirmasi","Keluar");
 				} else {
-			        return ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD,""WHITE"SILAHKAN DAFTAR",RED"Password harus berisi 8 hingga 24 karakter!\n"WHITE"{FFFFFF}Kamu {FF0000}belum {FFFFFF}terdaftar di server","Daftar","Keluar");
+			        return ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD,""WHITE"SILAHKAN DAFTAR",RED"Password harus berisi 8 hingga 24 karakter!\n"WHITE"Kamu {FF0000}belum terdaftar "WHITE"di server","Daftar","Keluar");
 				}
             }
             else 
@@ -187,16 +191,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					mysql_tquery(koneksi, pQuery[playerid]);
 
 					PlayerInfo[playerid][loginKe]++;
-					format(msg, sizeof(msg), "~r~Selamat ~y~datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %d ~w~!", PlayerInfo[playerid][loginKe]);
-					GameTextForPlayer(playerid, msg, 4000, 3);
+
+					PlayerInfo[playerid][waktuSaatLogin] = gettime();
 
 					// tampilkanTextDrawUang(playerid);
 					LoadVehiclePlayer(playerid);
 
 					// Set player uang tanpa menambahkan di database - maka diset false untuk parameter terakhir
 					setUangPlayer(playerid, PlayerInfo[playerid][uang], false);
+					#if defined DEBUG_MODE_FOR_PLAYER
 					print("Spawn Called in Login Success");
+					#endif
 					spawnPemain(playerid);
+
+					format(msg, sizeof(msg), "~w~Selamat datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %i ~w~!", PlayerInfo[playerid][loginKe]);
+					GameTextForPlayer(playerid, msg, 4000, 3);
 					return 1;
 				}
 				else
@@ -264,9 +273,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0: // Item
 					{
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT b.id_item, b.nama_item, a.jumlah FROM `user_item` a LEFT JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0", PlayerInfo[playerid][pID]);
-
-						mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryBarangPlayer", "i", playerid);
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListItem(playerid);
 					}
 					case 1: // Skin
 					{
@@ -305,8 +313,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new id = strval(inputtext);
 				SetPVarInt(playerid, "veh_select_id", id);
 				ShowPlayerDialog(playerid, DIALOG_OPTION_KENDARAAN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi:", "Tampilkan Lokasi Kendaraan", "Pilih", "Batal");
-			}else
-				cmd_inventory(playerid, "");
+			}else{
+				resetPVarInventory(playerid);
+				showDialogMenuInventory(playerid);
+			}
 			return 1;
 		}
 		case DIALOG_OPTION_KENDARAAN_INVENTORY:
@@ -342,6 +352,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new id_skin = strval(inputtext);
 				SetPVarInt(playerid, "inv_model", id_skin);
 				SetPVarString(playerid, "inv_keterangan", "Jenis skin biasa, yang dapat digunakan jika kamu memilikinya.");
+			}else{
+				resetPVarInventory(playerid);
+				showDialogMenuInventory(playerid);
 			}
 			return 1;
 		}
@@ -493,9 +506,38 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_PILIH_ITEM:
 		{
 			if(response){
-				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT jumlah FROM `user_item` WHERE id_user = '%d' AND id_item = '%d'", PlayerInfo[playerid][pID], strval(inputtext));
-				mysql_tquery(koneksi, pQuery[playerid], "cekJumlahItem", "dd", playerid, strval(inputtext));
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					showDialogListItem(playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						showDialogListItem(playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListItem(playerid);
+					}
+					return 1;
+				}
+
+				// mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT jumlah FROM `user_item` WHERE id_user = '%d' AND id_item = '%d'", PlayerInfo[playerid][pID], strval(inputtext));
+				// mysql_tquery(koneksi, pQuery[playerid], "cekJumlahItem", "ii", playerid, strval(inputtext));
+
+				SetPVarInt(playerid, "inv_indexlist", listitem);
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				new temp_kunci;
+				cache_get_value_name_int(listitem, "kunci", temp_kunci);
+				cache_unset_active();
+
+				if(temp_kunci)
+					format(pDialog[playerid], sizePDialog, GREEN"Pakai Item\n"WHITE"Beritahu Item\nInfo Item\n"GREEN"Buka Item "RED"(sedang terkunci)\n"RED"Buang Item");
+				else
+					format(pDialog[playerid], sizePDialog, GREEN"Pakai Item\n"WHITE"Beritahu Item\nInfo Item\n"RED"Kunci Item "GREEN"(sedang terbuka)\n"RED"Buang Item");
+
+				ShowPlayerDialog(playerid, DIALOG_OPTION_ITEM_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", pDialog[playerid], "Ok", "Keluar");
 			}else{
+				showDialogMenuInventory(playerid);
 				resetPVarInventory(playerid);
 			}
 			return 1;
@@ -506,25 +548,131 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						new id_item = GetPVarInt(playerid, "inv_indexlist");
-						new fungsi[101];
-						getFungsiByIdItem(id_item, fungsi);
+						new id_item, fungsi[50];
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", id_item);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "fungsi", fungsi);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
 						CallRemoteFunction(fungsi, "ii", playerid, id_item);
+						resetPVarInventory(playerid);
 					}
 					case 1:
 					{
+						new modelid, keterangan[100];
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "model_id", modelid);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+						SetPVarString(playerid, "inv_keterangan", keterangan);
+						SetPVarInt(playerid, "inv_model", modelid);
+
 						ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
 					}
 					case 2:
 					{
-						// Tampilkan Textdraw
-						new string[500];
-						GetPVarString(playerid, "inv_keterangan", string, sizeof(string));
-						tampilkanTextDrawShowItem(playerid, GetPVarInt(playerid, "inv_model"), GetPVarInt(playerid, "inv_jumlah"), string, PlayerInfo[playerid][pPlayerName]);
+						new modelid, keterangan[100], jumlah;
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "model_id", modelid);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+						tampilkanTextDrawShowItem(playerid, modelid, jumlah, keterangan, PlayerInfo[playerid][pPlayerName]);
 
 						resetPVarInventory(playerid);
 					}
+					case 3: // Kunci/Buka Kunci
+					{
+						new id_item, temp_kunci;
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", id_item);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "kunci", temp_kunci);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+						
+						updateStatusKunciItem(playerid, id_item, (temp_kunci + 1) % 2);
+
+						if(temp_kunci == 0){ // Jika sebelumnya terbuka berarti sekarang terkunci
+							format(pDialog[playerid], sizePDialog, WHITE"Barang anda kini "RED"terkunci.\n"YELLOW"Note : Penguncian barang berguna untuk menghindari barang anda dari pembuangan item tanpa disengaja.\n");
+							strcat(pDialog[playerid], "Terkadang kita tidak menyadari bahwa kita tidak sengaja menekan hal tersebut\nsehingga terbuang dan juga menghindari penjualan dan pemberian barang tanpa disengaja.\n"WHITE"Untuk dapat melakukan hal yang tersebut silahkan "GREEN"buka "WHITE"kembali item anda.");
+							ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil "WHITE"mengubah status kunci barang", pDialog[playerid], "Ok", "");
+						}else{ // Sebaliknya
+							format(pDialog[playerid], sizePDialog, WHITE"Barang anda kini "GREEN"terbuka.\n"YELLOW"Note : Penguncian barang berguna untuk menghindari barang anda dari pembuangan item tanpa disengaja.\n");
+							strcat(pDialog[playerid], "Terkadang kita tidak menyadari bahwa kita tidak sengaja menekan hal tersebut\nsehingga terbuang dan juga menghindari penjualan dan pemberian barang tanpa disengaja.\n"WHITE"Untuk dapat menghindari hal yang tersebut silahkan "RED"kunci "WHITE"kembali item anda.");
+							ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil "WHITE"mengubah status kunci barang", pDialog[playerid], "Ok", "");
+						}
+						resetPVarInventory(playerid);
+					}
+					case 4: // Buang item
+					{
+						new jumlah, nama_item[50], temp_kunci;
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "kunci", temp_kunci);
+						cache_unset_active();
+
+						if(temp_kunci){
+							// Selalu hapus cache setelah dipakai (tidak perlu di unset_active kalau mau langsung di hapus)
+							cache_delete(PlayerInfo[playerid][tempCache]);
+							PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE; // Selalu set jadi invalid_cache saat sudah di hapus kalau gak nanti ga ke deteksi bahwa udah di hapus
+
+							resetPVarInventory(playerid);
+
+							ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, ORANGE"Item tidak dapat dibuang", WHITE"Item ini "RED"dikunci.\n\n"YELLOW"Note : Item yang dikunci tidak dapat dibuang/dijual/diberi kepada orang lain.\nJika tetap ingin melakukan hal tersebut silahkan buka item terlebih dahulu.", "Ok", "");
+							return 1;
+						}
+
+						format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah item yang ingin dibuang.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, jumlah);
+						strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
+						ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+					}
 				}
+			}else{
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_BUANG_ITEM:
+		{
+			if(response){
+				new jumlah, nama_item[50], input_jumlah, item_id;
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", item_id);
+				cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+				if(sscanf(inputtext, "i", input_jumlah)) {
+					cache_unset_active(); // Unset_active agar tidak terjadi hal yang tidak diinginkan
+
+					format(pDialog[playerid], sizePDialog, RED"Masukan inputan yang benar.\n"WHITE"Silahkan masukan jumlah item yang ingin dibuang.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, jumlah);
+					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
+					return ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+				}
+				if(input_jumlah < 1 || input_jumlah > jumlah){
+					cache_unset_active(); // Unset_active agar tidak terjadi hal yang tidak diinginkan
+
+					format(pDialog[playerid], sizePDialog, RED"Jumlah yang ingin anda buang salah.\n"WHITE"Silahkan masukan jumlah item yang ingin dibuang.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, jumlah);
+					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
+					return ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+				}
+				
+				// Buang item player (beri player dalam jumlah minus)
+				tambahItemPlayer(playerid, item_id, -input_jumlah);
+
+				format(pDialog[playerid], sizePDialog, GREEN"Berhasil membuang item.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah yng dibuang : "RED"%d", nama_item, input_jumlah);
+				strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuang item", pDialog[playerid], "Ok", "");
+				
+				// Selalu hapus cache setelah dipakai (tidak perlu di unset_active kalau mau langsung di hapus)
+				cache_delete(PlayerInfo[playerid][tempCache]);
+				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE; // Selalu set jadi invalid_cache saat sudah di hapus kalau gak nanti ga ke deteksi bahwa udah di hapus
+
+				resetPVarInventory(playerid);
 			}else{
 				resetPVarInventory(playerid);
 			}
@@ -544,11 +692,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					// Kotak Masuk
 					case 1:
 					{
+						SetPVarInt(playerid, "halaman", 0);
 						tampilkanKotakMasuk(playerid);
 					}
 					// Kotak Terkirim
 					case 2:
 					{
+						SetPVarInt(playerid, "halaman", 0);
 						tampilkanKotakTerkirim(playerid);
 					}
 					case 3:
@@ -597,6 +747,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new Float:pos[3];
 				GetPlayerPos(dari_id, pos[0], pos[1], pos[2]);
 				SetPlayerCheckpoint(playerid, pos[0], pos[1], pos[2], 5.0);
+				PlayerInfo[playerid][activeMarker] = true;
 
 				format(string, 256, "[SHARELOCK] "BLUE"%s "WHITE"telah "GREEN"menerima "WHITE"sharelock yang ingin anda berikan. "YELLOW"Lokasi anda sekarang berhasil dibagikan.", PlayerInfo[playerid][pPlayerName]);
 				SendClientMessage(dari_id, COLOR_ORANGE, string);
@@ -636,27 +787,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 2: // History
 					{
-						inline responseDialogHistoryATM(){
-							new rows;
-							cache_get_row_count(rows);
-							if(rows){
-								new idx = 0, subString[150], string[1700] = "Pengirim/Penerima\tNominal\tTanggal\tKeterangan\n", temp_tanggal[20], rekening_temp[10], keterangan[60], nominal_temp;
-								while(idx < rows){
-									cache_get_value_name(idx, "rekening", rekening_temp);
-									cache_get_value_name(idx, "keterangan", keterangan);
-									cache_get_value_name(idx, "tanggal", temp_tanggal);
-									cache_get_value_name_int(idx, "nominal", nominal_temp);
-									format(subString, sizeof(subString), "%s\t%d\t%s\t%s\n", rekening_temp, nominal_temp, temp_tanggal, keterangan);
-									strcat(string, subString);
-									idx++;
-								}
-								ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY_EBANK, DIALOG_STYLE_TABLIST_HEADERS, "Informasi History ATM Banking", string, "Kembali", "Tutup");
-							}else{
-								ShowPlayerDialog(playerid, DIALOG_INFO_SALDO_HISTORY_EBANK, DIALOG_STYLE_MSGBOX, "Informasi History ATM Banking", "Tidak ada history ATM untuk saat ini.", "Kembali", "Tutup");
-							}							
-						}
-
-						MySQL_TQueryInline(koneksi, using inline responseDialogHistoryATM, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT 10", PlayerInfo[playerid][pID]);
+						SetPVarInt(playerid, "halaman", 0);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "halaman") * BANYAK_DATA_PER_PAGE, BANYAK_DATA_PER_PAGE);
+						mysql_tquery(koneksi, pQuery[playerid], "historyATMPemain_EBank", "i", playerid);
 						return 1;
 					}
 				}
@@ -664,6 +797,34 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				showDialogEPhone(playerid);
 			return 1;
 		}
+		case DIALOG_INFO_HISTORY_EBANK:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "halaman") * BANYAK_DATA_PER_PAGE, BANYAK_DATA_PER_PAGE);
+					mysql_tquery(koneksi, pQuery[playerid], "historyATMPemain_EBank", "i", playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+						
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "halaman") * BANYAK_DATA_PER_PAGE, BANYAK_DATA_PER_PAGE);
+						mysql_tquery(koneksi, pQuery[playerid], "historyATMPemain_EBank", "i", playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "halaman") * BANYAK_DATA_PER_PAGE, BANYAK_DATA_PER_PAGE);
+						mysql_tquery(koneksi, pQuery[playerid], "historyATMPemain_EBank", "i", playerid);
+					}
+					return 1;
+				}
+
+				showDialogEBank(playerid);
+			}
+			return 1;
+		}		
 		case DIALOG_INFO_SALDO_HISTORY_EBANK:
 		{
 			if(response){
@@ -715,6 +876,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_KOTAK_TERKIRIM:
 		{
 			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					tampilkanKotakTerkirim(playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						tampilkanKotakTerkirim(playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						tampilkanKotakTerkirim(playerid);						
+					}
+					return 1;
+				}
+
 				SetPVarInt(playerid, "sms_id_list_pesan", listitem);
 				SetPVarInt(playerid, "sms_id_pesan", strval(inputtext));
 				ShowPlayerDialog(playerid, DIALOG_OPSI_KOTAK_TERKIRIM, DIALOG_STYLE_LIST, "Opsi kotak terkirim :","Baca Pesan\nHapus Pesan", "Pilih", "Keluar");
@@ -771,6 +947,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_KOTAK_MASUK:
 		{
 			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					tampilkanKotakMasuk(playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						tampilkanKotakMasuk(playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						tampilkanKotakMasuk(playerid);						
+					}
+					return 1;
+				}
+
 				SetPVarInt(playerid, "sms_id_list_pesan", listitem);
 				SetPVarInt(playerid, "sms_id_pesan", strval(inputtext));
 				ShowPlayerDialog(playerid, DIALOG_OPSI_KOTAK_MASUK, DIALOG_STYLE_LIST, "Opsi kotak masuk :","Baca Pesan\nHapus Pesan", "Pilih", "Keluar");
@@ -1675,7 +1866,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 3: // History ATM
 					{
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT 10", PlayerInfo[playerid][pID]);
+						SetPVarInt(playerid, "halaman", 0);
+
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "halaman") * BANYAK_DATA_PER_PAGE, BANYAK_DATA_PER_PAGE);
 						mysql_tquery(koneksi, pQuery[playerid], "historyATMPemain", "i", playerid);
 						return 1;
 					}
@@ -1782,6 +1975,34 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_INFO_HISTORY_ATM:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "halaman") * BANYAK_DATA_PER_PAGE, BANYAK_DATA_PER_PAGE);
+					mysql_tquery(koneksi, pQuery[playerid], "historyATMPemain", "i", playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+						
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "halaman") * BANYAK_DATA_PER_PAGE, BANYAK_DATA_PER_PAGE);
+						mysql_tquery(koneksi, pQuery[playerid], "historyATMPemain", "i", playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "halaman") * BANYAK_DATA_PER_PAGE, BANYAK_DATA_PER_PAGE);
+						mysql_tquery(koneksi, pQuery[playerid], "historyATMPemain", "i", playerid);
+					}
+					return 1;
+				}
+
+				showDialogATM(playerid);
+			}
+			return 1;
+		}
 		case DIALOG_TANYA_TAMBANG:
 		{
 			if(response){
@@ -1809,13 +2030,43 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 1: // Lihat gaji
 					{
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT nominal, tanggal, keterangan FROM `gaji` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC", PlayerInfo[playerid][pID]);
+						SetPVarInt(playerid, "halaman", 0);
+
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT nominal, tanggal, keterangan FROM `gaji` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
 						mysql_tquery(koneksi, pQuery[playerid], "showHistoryGajiPemain", "i", playerid);
 						return 1;
 					}
 				}
 			}else
 				ShowPlayerDialog(playerid, DIALOG_MENU_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan gaji :", WHITE"Ambil Gaji\nLihat Gaji", "Pilih", "Kembali");
+			return 1;
+		}
+		case DIALOG_LIHAT_GAJI:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT nominal, tanggal, keterangan FROM `gaji` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+					mysql_tquery(koneksi, pQuery[playerid], "showHistoryGajiPemain", "i", playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+							
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT nominal, tanggal, keterangan FROM `gaji` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+						mysql_tquery(koneksi, pQuery[playerid], "showHistoryGajiPemain", "i", playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT nominal, tanggal, keterangan FROM `gaji` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+						mysql_tquery(koneksi, pQuery[playerid], "showHistoryGajiPemain", "i", playerid);
+					}
+					return 1;
+				}
+
+				ShowPlayerDialog(playerid, DIALOG_MENU_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan gaji :", WHITE"Ambil Gaji\nLihat Gaji", "Pilih", "Kembali");
+			}
 			return 1;
 		}
 		case DIALOG_PILIHAN_AMBIL_GAJI:
@@ -1968,8 +2219,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						getSudahBuatSIM(playerid, "cekSudahBisaAmbilSIM", false);
 					}
 				}
-			}else{
-				showDialogSimRegis(playerid);
 			}
 			return 1;
 		}
@@ -2433,7 +2682,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(Iter_Contains(PVehIterator, idpv)){
 					if(PVeh[idpv][pVehPemilik] == PlayerInfo[playerid][pID]){
 						if(IsValidDynamicCP(GetPlayerVisibleDynamicCP(playerid)) && CP_spawnReparasi[0] <= GetPlayerVisibleDynamicCP(playerid) && CP_spawnReparasi[sizeof(CP_spawnReparasi) - 1] >= GetPlayerVisibleDynamicCP(playerid)){
-							PVeh[idpv][pVehIsReparasi] = 0;
+							PVeh[idpv][pVehIsReparasi] = STATUS_KENDARAAN_TIDAK_RUSAK;
+							updatePVehReparasi(PVeh[idpv][pVehID], STATUS_KENDARAAN_TIDAK_RUSAK);
+
 							new id_cp = GetPlayerVisibleDynamicCP(playerid) - CP_spawnReparasi[0];
 							new idveh = CreateVehicle(PVeh[idpv][pVehModel], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_X], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_Y], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_Z], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_A], PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1], -1);
 
@@ -2518,7 +2769,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		}else{
 			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - 0.5);
 		}
-	}else if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER && PRESSED(  KEY_CROUCH)){
+	}else if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER && PRESSED(KEY_SUBMISSION)){
 		new engine, lights, alarm, doors, bonnet, boot, objective;
 		GetVehicleParamsEx(GetPlayerVehicleID(playerid), engine, lights, alarm, doors, bonnet, boot, objective);
 		if(engine) {
@@ -3223,11 +3474,6 @@ public OnVehicleDeath(vehicleid, killerid){
 	if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
 		PVeh[IDVehToPVeh[vehicleid]][pVehIsReparasi] = STATUS_KENDARAAN_RUSAK;
 		updatePVehReparasi(PVeh[IDVehToPVeh[vehicleid]][pVehID], STATUS_KENDARAAN_RUSAK);
-
-		DestroyVehicle(vehicleid);
-		IDVehToPVeh[vehicleid] = 0;
-		Iter_Remove(IDVehToPVehIterator, vehicleid);
-
 		// Kirim Pesan ke pemain
 		foreach(new i : Player){
 			if(PVeh[IDVehToPVeh[vehicleid]][pVehPemilik] == PlayerInfo[i][pID] && IsPlayerConnected(i)){
@@ -3237,6 +3483,10 @@ public OnVehicleDeath(vehicleid, killerid){
 				break;
 			}
 		}
+
+		DestroyVehicle(vehicleid);
+		IDVehToPVeh[vehicleid] = 0;
+		Iter_Remove(IDVehToPVehIterator, vehicleid);
 	}
 	return 1;
 }

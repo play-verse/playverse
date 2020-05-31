@@ -3,6 +3,11 @@ showDialogResepsionis(playerid){
     return ShowPlayerDialog(playerid, DIALOG_RESPSIONIS_PEMERINTAH, DIALOG_STYLE_LIST, "Pilihan tindakan pengurusan data", "KTP", "Pilih", "Batal");
 }
 
+showDialogListItem(playerid){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT b.id_item, b.nama_item, b.keterangan, b.fungsi, b.model_id, a.kunci, a.id_user_item, a.jumlah FROM `user_item` a LEFT JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0 ORDER BY nama_item ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+    mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryBarangPlayer", "i", playerid);    
+}
+
 showDialogRespsionisKTP(playerid){
     return ShowPlayerDialog(playerid, DIALOG_RESPSIONIS_PILIH_KTP, DIALOG_STYLE_LIST, "Pilihan tindakan KTP", "Buat KTP\nAmbil KTP yang sudah selesai", "Pilih", "Kembali");
 }
@@ -36,6 +41,10 @@ showDialogAmbilMobilReparasi(playerid){
         showDialogPesan(playerid, RED"Tidak terdapat kendaraan", WHITE"Tidak terdapat kendaraan apapun yang sudah diperbaiki.\nJika anda mencari kendaraan anda yang rusak, silahkan bayar terlebih dahulu di bank kemudian ambil disini.");
     }else
         ShowPlayerDialog(playerid, DIALOG_AMBIL_KENDARAAN_REPARASI, DIALOG_STYLE_TABLIST_HEADERS, "Kendaraan yang tersedia.", string, "Pilih", "Batal");
+}
+
+showDialogMenuInventory(playerid){
+    ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", "Item\nSkin\nKendaraan", "Pilih", "Batal");
 }
 
 showDialogEPhone(playerid){

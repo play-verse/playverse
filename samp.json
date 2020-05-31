@@ -4,7 +4,8 @@
 	],
 	"filterscripts": [
 		"gl_actions",
-		"vspawner"
+		"vspawner",
+		"ls_mall"
 	],
 	"plugins": [
 		"crashdetect",

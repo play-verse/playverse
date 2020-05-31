@@ -44,7 +44,7 @@ CMD:spawn(playerid, params[]){
 }
 
 CMD:inventory(playerid, const params[]){
-    ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", "Item\nSkin\nKendaraan", "Pilih", "Batal");
+    showDialogMenuInventory(playerid);
     return 1;
 }
 
