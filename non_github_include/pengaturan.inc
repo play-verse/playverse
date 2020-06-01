@@ -30,6 +30,8 @@
 
 #define BANYAK_DATA_PER_PAGE 10
 
+#define DEFAULT_LIMIT_ITEM 150
+
 #define STRING_SEBELUMNYA "<< Sebelumnya"
 #define STRING_SELANJUTNYA "Selanjutnya >>"
 

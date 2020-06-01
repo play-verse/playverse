@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 31, 2020 at 04:18 PM
+-- Generation Time: Jun 01, 2020 at 06:51 PM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.10
 
@@ -54,6 +54,43 @@ CREATE TABLE `house` (
   `icon_x` varchar(255) NOT NULL,
   `icon_y` varchar(255) NOT NULL,
   `icon_z` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `house_furniture`
+--
+
+CREATE TABLE `house_furniture` (
+  `id_furniture` bigint(20) UNSIGNED NOT NULL,
+  `id_house` bigint(20) NOT NULL,
+  `id_object` int(10) NOT NULL,
+  `pos_x` float DEFAULT NULL,
+  `pos_y` float DEFAULT NULL,
+  `pos_z` float DEFAULT NULL,
+  `rot_x` varchar(255) DEFAULT NULL,
+  `rot_y` varchar(255) DEFAULT NULL,
+  `rot_z` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `house_interior`
+--
+
+CREATE TABLE `house_interior` (
+  `id_level` int(10) UNSIGNED NOT NULL,
+  `nama_level` varchar(255) NOT NULL,
+  `pickup_out_x` float NOT NULL,
+  `pickup_out_y` float NOT NULL,
+  `pickup_out_z` float NOT NULL,
+  `spawn_in_x` float NOT NULL,
+  `spawn_in_y` float NOT NULL,
+  `spawn_in_z` float NOT NULL,
+  `spawn_in_a` float NOT NULL,
+  `spawn_in_interior` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -139,6 +176,25 @@ CREATE TABLE `pengambilan_sim` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `skill`
+--
+
+CREATE TABLE `skill` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `nama_skill` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `skill`
+--
+
+INSERT INTO `skill` (`id`, `nama_skill`) VALUES
+(1, 'Mekanik'),
+(2, 'Cheff');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `sms`
 --
 
@@ -212,6 +268,32 @@ CREATE TABLE `user_item` (
   `id_user` bigint(20) UNSIGNED NOT NULL,
   `jumlah` int(255) DEFAULT 1,
   `kunci` tinyint(4) NOT NULL DEFAULT 0 COMMENT 'Status terkunci (agar tidak bisa dihapus)\r\n- 0 = Tidak terkunci\r\n- 1 = Terkunci'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_item_limit`
+--
+
+CREATE TABLE `user_item_limit` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_user` bigint(20) UNSIGNED NOT NULL,
+  `jumlah` int(10) NOT NULL,
+  `expired` datetime DEFAULT NULL COMMENT 'Jika null berarti permanent'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_skill`
+--
+
+CREATE TABLE `user_skill` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_skill` bigint(20) UNSIGNED NOT NULL,
+  `id_user` bigint(20) UNSIGNED NOT NULL,
+  `exp` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Pada skill kita tidak memakai level, tapi exp.\r\nDimana pembagian melalui exp.\r\nMisalnya exp  >= 1000 maka di asumsikan dia ada level 1 atau jika exp >= 2000 maka level 2, dst\r\n\r\n'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -297,6 +379,18 @@ ALTER TABLE `house`
   ADD PRIMARY KEY (`id_house`);
 
 --
+-- Indexes for table `house_furniture`
+--
+ALTER TABLE `house_furniture`
+  ADD PRIMARY KEY (`id_furniture`);
+
+--
+-- Indexes for table `house_interior`
+--
+ALTER TABLE `house_interior`
+  ADD PRIMARY KEY (`id_level`);
+
+--
 -- Indexes for table `item`
 --
 ALTER TABLE `item`
@@ -319,6 +413,12 @@ ALTER TABLE `pengambilan_ktp`
 --
 ALTER TABLE `pengambilan_sim`
   ADD PRIMARY KEY (`id`) USING BTREE;
+
+--
+-- Indexes for table `skill`
+--
+ALTER TABLE `skill`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `sms`
@@ -346,6 +446,18 @@ ALTER TABLE `user`
 ALTER TABLE `user_item`
   ADD PRIMARY KEY (`id_user_item`),
   ADD UNIQUE KEY `id_item` (`id_item`,`id_user`);
+
+--
+-- Indexes for table `user_item_limit`
+--
+ALTER TABLE `user_item_limit`
+  ADD PRIMARY KEY (`id`) USING BTREE;
+
+--
+-- Indexes for table `user_skill`
+--
+ALTER TABLE `user_skill`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `user_skin`
@@ -382,6 +494,18 @@ ALTER TABLE `house`
   MODIFY `id_house` int(20) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `house_furniture`
+--
+ALTER TABLE `house_furniture`
+  MODIFY `id_furniture` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `house_interior`
+--
+ALTER TABLE `house_interior`
+  MODIFY `id_level` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
@@ -406,6 +530,12 @@ ALTER TABLE `pengambilan_sim`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `skill`
+--
+ALTER TABLE `skill`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `sms`
 --
 ALTER TABLE `sms`
@@ -428,6 +558,18 @@ ALTER TABLE `user`
 --
 ALTER TABLE `user_item`
   MODIFY `id_user_item` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `user_item_limit`
+--
+ALTER TABLE `user_item_limit`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `user_skill`
+--
+ALTER TABLE `user_skill`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user_skin`

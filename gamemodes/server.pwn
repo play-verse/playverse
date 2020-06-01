@@ -78,7 +78,7 @@ public OnPlayerConnect(playerid)
 		printf("OnPlayerConnect terpanggil (%d - %s)", playerid, nama);
 	#endif
 
-    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user` WHERE `nama` = '%e'", PlayerInfo[playerid][pPlayerName]);
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.*, sum(b.jumlah) as limit_item FROM `user` a LEFT JOIN user_item_limit b ON b.id_user = a.id WHERE nama = '%e' AND (b.expired > NOW() OR b.expired IS NULL)", PlayerInfo[playerid][pPlayerName]);
 	mysql_tquery(koneksi, pQuery[playerid], "isRegistered", "d", playerid);
 
 	return 1;
@@ -150,9 +150,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if( strlen(inputtext) >= 8 && strlen(inputtext) <= 24 )
 				{
 					format(registerInfo[playerid][registerPassword], 25, "%s", inputtext);
-			        return ShowPlayerDialog(playerid, DIALOG_REPEAT_PASSWORD, DIALOG_STYLE_PASSWORD,WHITE"Silahkan ulangi password",WHITE"Silahkan ulangi kembali password yang anda tulis tadi untuk mengkonfirmasi kebeneran password.","Konfirmasi","Keluar");
+					return ShowPlayerDialog(playerid, DIALOG_REPEAT_PASSWORD, DIALOG_STYLE_PASSWORD,WHITE"Silahkan ulangi password",WHITE"Silahkan ulangi kembali password yang anda tulis tadi untuk mengkonfirmasi kebeneran password.","Konfirmasi","Keluar");
 				} else {
-			        return ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD,""WHITE"SILAHKAN DAFTAR",RED"Password harus berisi 8 hingga 24 karakter!\n"WHITE"Kamu {FF0000}belum terdaftar "WHITE"di server","Daftar","Keluar");
+					return ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD,""WHITE"SILAHKAN DAFTAR",RED"Password harus berisi 8 hingga 24 karakter!\n"WHITE"Kamu {FF0000}belum terdaftar "WHITE"di server","Daftar","Keluar");
 				}
             }
             else 
@@ -168,9 +168,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					dialogEmail(playerid);
 					return 1;
 				} else {
-			        return ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD,""WHITE"SILAHKAN DAFTAR",RED"Password konfirmasi salah! Silahkan ulangi kembali!\n"WHITE"{FFFFFF}Kamu {FF0000}belum {FFFFFF}terdaftar di server","Daftar","Keluar");
+					return ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD,""WHITE"SILAHKAN DAFTAR",RED"Password konfirmasi salah! Silahkan ulangi kembali!\n"WHITE"{FFFFFF}Kamu {FF0000}belum {FFFFFF}terdaftar di server","Daftar","Keluar");
 				}
-
 			}
             else
 				Kick(playerid);			
@@ -1489,14 +1488,25 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new harga = jumlah * BARANG_MARKET[index_barang][hargaBarang];
 				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi.", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
 
-				tambahItemPlayer(playerid, getIDbyModelItem(BARANG_MARKET[index_barang][idModelBarang]), jumlah);
-				givePlayerUang(playerid, -harga);
+				inline responseQuery(){
+					new total_item;
+					cache_get_value_name_int(0, "total_item", total_item);
+					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
+						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
 
-				format(pDialog[playerid], sizePDialog, "Anda berhasil membeli "YELLOW"%s"WHITE".\nSebanyak "YELLOW"%d"WHITE" dengan harga "GREEN"%d", BARANG_MARKET[index_barang][namaBarang], jumlah, harga);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli barang", pDialog[playerid], "Ok", "");
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					}else{
+						tambahItemPlayer(playerid, getIDbyModelItem(BARANG_MARKET[index_barang][idModelBarang]), jumlah);
+						givePlayerUang(playerid, -harga);
 
-				DeletePVar(playerid, "bBarang_index");
-				DeletePVar(playerid, "bBarang_jumlah");
+						format(pDialog[playerid], sizePDialog, "Anda berhasil membeli "YELLOW"%s"WHITE".\nSebanyak "YELLOW"%d"WHITE" dengan harga "GREEN"%d", BARANG_MARKET[index_barang][namaBarang], jumlah, harga);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli barang", pDialog[playerid], "Ok", "");
+
+						DeletePVar(playerid, "bBarang_index");
+						DeletePVar(playerid, "bBarang_jumlah");
+					}
+				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 			}
 			else{
 				DeletePVar(playerid, "bBarang_index");
@@ -1529,12 +1539,23 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				harga = jumlah * harga;
 				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
 
-				// 5 adalah id item untuk pas foto
-				tambahItemPlayer(playerid, 5, jumlah);
-				givePlayerUang(playerid, -harga);
+				inline responseQuery(){
+					new total_item;
+					cache_get_value_name_int(0, "total_item", total_item);
+					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
+						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
 
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli foto", WHITE"Anda berhasil membeli foto, foto anda sudah masuk inventory.\nSilahkan cek pada inventory anda.", "Ok", "");
-				DeletePVar(playerid, "foto_jumlahFoto");
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					}else{
+						// 5 adalah id item untuk pas foto
+						tambahItemPlayer(playerid, 5, jumlah);
+						givePlayerUang(playerid, -harga);
+
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli foto", WHITE"Anda berhasil membeli foto, foto anda sudah masuk inventory.\nSilahkan cek pada inventory anda.", "Ok", "");
+						DeletePVar(playerid, "foto_jumlahFoto");
+					}
+				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);				
 				return 1;
 			}else{
 				DeletePVar(playerid, "foto_jumlahFoto");
@@ -2008,14 +2029,26 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				if(PlayerAction[playerid][sedangNambang]) return error_command(playerid, "Anda sedang menambang, tunggu beberapa saat.");
 				if(getStatusMakanPemain(playerid) <= 10) return error_command(playerid, "Anda kehabisan energi, silahkan makan terlebih dahulu untuk dapat bekerja kembali.");
-				PlayerAction[playerid][timerNambang] = SetTimerEx("selesaiNambang", 3000, 0, "i", playerid);
-				PlayerAction[playerid][sedangNambang] = true;
-				GameTextForPlayer(playerid, "~w~Sedang ~y~menambang...", 3000, 3);
 
-				SetPlayerAttachedObject(playerid, MINING_ATTACH_INDEX, 19631, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
-				TogglePlayerControllable(playerid, 0);
-				SetPlayerArmedWeapon(playerid, 0);
-				ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
+				inline responseQuery(){
+					new total_item;
+					cache_get_value_name_int(0, "total_item", total_item);
+					if((total_item + 1) > PlayerInfo[playerid][limitItem]){
+						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan minimal "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).\nKosongkan ruang item anda sebelum memulai menambang kembali.", 1, total_item, PlayerInfo[playerid][limitItem]);
+
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					}else{
+						PlayerAction[playerid][timerNambang] = SetTimerEx("selesaiNambang", 3000, 0, "i", playerid);
+						PlayerAction[playerid][sedangNambang] = true;
+						GameTextForPlayer(playerid, "~w~Sedang ~y~menambang...", 3000, 3);
+
+						SetPlayerAttachedObject(playerid, MINING_ATTACH_INDEX, 19631, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
+						TogglePlayerControllable(playerid, 0);
+						SetPlayerArmedWeapon(playerid, 0);
+						ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
+					}
+				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 			}
 			return 1;
 		}
@@ -2131,11 +2164,22 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						DeletePVar(playerid, "bmakan_jumlah");
 						if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
 
-						givePlayerUang(playerid, -harga);
-						tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
+						inline responseQuery(){
+							new total_item;
+							cache_get_value_name_int(0, "total_item", total_item);
+							if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
+								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
 
-						format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_MAKANAN[idx][namaMakanan], jumlah, harga);
-						showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
+								ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+							}else{
+								givePlayerUang(playerid, -harga);
+								tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
+
+								format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_MAKANAN[idx][namaMakanan], jumlah, harga);
+								showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
+							}
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);		
 						return 1;
 					}
 					case 1: // Via E-Banking
@@ -2173,7 +2217,19 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(pDialog[playerid], sizePDialog, RED"Nomor rekening yang anda masukan tidak benar."WHITE"\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
 					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_MAKANAN_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");	
 				}
-				getSaldoPlayer(playerid, "pembayaranMakananATM");
+
+				inline responseQuery(){
+					new total_item;
+					cache_get_value_name_int(0, "total_item", total_item);
+					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
+						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
+
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					}else{
+						getSaldoPlayer(playerid, "pembayaranMakananATM");
+					}
+				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);	
 			}else{
 				DeletePVar(playerid, "bmakan_index");
 				DeletePVar(playerid, "bmakan_jumlah");				

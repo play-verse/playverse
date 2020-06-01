@@ -16,6 +16,9 @@ publicFor: isRegistered(playerid)
 		cache_get_value_name_int(0, "use_phone", PlayerInfo[playerid][ePhone]);
 		cache_get_value_name_int(0, "save_house", PlayerInfo[playerid][sHouse]);
 
+		// Limit Item
+		cache_get_value_name_int(0, "limit_item", PlayerInfo[playerid][limitItem]);
+
 		cache_is_value_name_null(0, "nomor_handphone", is_null);
 		if(is_null){
 			// EOS = End Of String - '\0' sama
@@ -165,25 +168,28 @@ publicFor: registerUser(playerid)
 	new EncryptedPassword[65];
 	SHA256_PassHash(registerInfo[playerid][registerPassword], PlayerInfo[playerid][pPlayerName], EncryptedPassword, 64);
 
-	new Cache:result;
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `user` (`nama`, `password`, `jumlah_login`, `join_date`, `jenis_kelamin`, `email`, `account_status`, `current_skin`) VALUES ('%e', '%e', '1', NOW(), '%d', '%e', '0', '%d')", PlayerInfo[playerid][pPlayerName], EncryptedPassword, registerInfo[playerid][jenisKelamin], registerInfo[playerid][email], registerInfo[playerid][freeSkinID]);
-	result = mysql_query(koneksi, pQuery[playerid]);
-	PlayerInfo[playerid][pID] = cache_insert_id();
-	PlayerInfo[playerid][loginKe] = 1;
-	PlayerInfo[playerid][jenisKelamin] = registerInfo[playerid][jenisKelamin];
-	PlayerInfo[playerid][skinID] = registerInfo[playerid][freeSkinID];
-    cache_delete(result);
+	inline responseQuery(){
+		PlayerInfo[playerid][pID] = cache_insert_id();
+		PlayerInfo[playerid][loginKe] = 1;
+		PlayerInfo[playerid][jenisKelamin] = registerInfo[playerid][jenisKelamin];
+		PlayerInfo[playerid][skinID] = registerInfo[playerid][freeSkinID];
+	
+		PlayerInfo[playerid][sudahLogin] = true;
+		PlayerInfo[playerid][waktuSaatLogin] = gettime();
+		PlayerInfo[playerid][lamaBermain] = 0;
 
-	PlayerInfo[playerid][sudahLogin] = true;
-	PlayerInfo[playerid][waktuSaatLogin] = gettime();
-	PlayerInfo[playerid][lamaBermain] = 0;
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_item_limit(id_user, jumlah, expired) VALUES('%d', '%d', NULL)", PlayerInfo[playerid][pID], DEFAULT_LIMIT_ITEM);
+		mysql_tquery(koneksi, pQuery[playerid]);
+		PlayerInfo[playerid][limitItem] = DEFAULT_LIMIT_ITEM;
 
-	setUangPlayer(playerid, 100);
-	// tampilkanTextDrawUang(playerid);
+		setUangPlayer(playerid, 100);
+		// tampilkanTextDrawUang(playerid);
 
-	tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID], 1, true);
+		tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID], 1, true);
 
-	spawnPemain(playerid);
+		spawnPemain(playerid);
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `user` (nama, password, jumlah_login, join_date, jenis_kelamin, email, account_status, current_skin) VALUES ('%e', '%e', '1', NOW(), '%d', '%e', '0', '%d')", PlayerInfo[playerid][pPlayerName], EncryptedPassword, registerInfo[playerid][jenisKelamin], registerInfo[playerid][email], registerInfo[playerid][freeSkinID]);
 	return 1;
 }
 

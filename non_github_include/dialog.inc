@@ -44,7 +44,18 @@ showDialogAmbilMobilReparasi(playerid){
 }
 
 showDialogMenuInventory(playerid){
-    ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", "Item\nSkin\nKendaraan", "Pilih", "Batal");
+    inline responseQuery(){
+        new total_item, string[500];
+        cache_get_value_name_int(0, "total_item", total_item);
+        if(total_item >= PlayerInfo[playerid][limitItem]){
+            format(string, 500, WHITE"Item\t"RED"(%i/%i)\nSkin\nKendaraan", total_item, PlayerInfo[playerid][limitItem]);
+            ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", string, "Pilih", "Batal");
+        }else{
+            format(string, 500, WHITE"Item\t"GREEN"(%i/%i)\nSkin\nKendaraan", total_item, PlayerInfo[playerid][limitItem]);
+            ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", string, "Pilih", "Batal");
+        }
+    }
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);    
 }
 
 showDialogEPhone(playerid){

@@ -25,6 +25,7 @@ enum pInfo
     loginKe, // Mencatat jumlah login
     uang,
     jenisKelamin, // 0 - Laki , 1 - Perempuan
+    limitItem, // Menyimpan limit dari inventory
 
     Cache:tempCache, // digunakan untuk menyimpan temporary cache : Misalnya cache inventory, cache skin. Jangan gunakan untuk yang penting
 
