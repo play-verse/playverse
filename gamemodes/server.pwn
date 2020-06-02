@@ -80,7 +80,6 @@ public OnPlayerConnect(playerid)
 
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user` WHERE `nama` = '%e'", PlayerInfo[playerid][pPlayerName]);
 	mysql_tquery(koneksi, pQuery[playerid], "isRegistered", "d", playerid);
-
 	return 1;
 }
 
@@ -2186,12 +2185,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					RemovePlayerFromVehicle(playerid);
 					return 1;
 				}
+				new vehid = GetPlayerVehicleID(playerid);
 				sweeperJob[playerid] = 1;
+				sweeperId[playerid] = vehid;
+				usedSweeper[vehid] = 1;
 				SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper1, CP_sweeper2, 3.0);
 				SendClientMessage(playerid, COLOR_GREEN, "[JOB] "YELLOW"Anda berhasil bekerja sebagai "GREEN"Sweeper"YELLOW"!");
+				SendClientMessage(playerid, COLOR_GREEN, "[JOB] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
+				todoTimeout[playerid] = SetTimerEx("todoExit", 600000, false, "ii", playerid, vehid);
 			}else{
-				sweeperJob[playerid] = 0;
-				sweeperId[playerid] = -1;
 				RemovePlayerFromVehicle(playerid);
 			}
 			return 1;
@@ -2952,10 +2954,18 @@ public OnGameModeInit()
     vehicleSweeper[0] = CreateVehicle(574, 708.4822, -1193.1827, 15.0324, 0.0000, -1, -1, 60);
 	vehicleSweeper[1] = CreateVehicle(574, 706.6257, -1196.5216, 14.9840, 0.0000, -1, -1, 60);
 	vehicleSweeper[2] = CreateVehicle(574, 704.5869, -1199.6705, 14.9557, 0.0000, -1, -1, 60);
+	Iter_Add(vehicleSweeper, vehicleSweeper[0]);
+	Iter_Add(vehicleSweeper, vehicleSweeper[1]);
+	Iter_Add(vehicleSweeper, vehicleSweeper[2]);
 
+
+	// SIM Vehicle
 	vehicleSIM[0] = CreateVehicle(596, 1584.9463, -1606.8075, 13.1038, 180.6711, -1, -1, 60);
 	vehicleSIM[1] = CreateVehicle(596, 1580.1217, -1607.0674, 13.1037, 179.7378, -1, -1, 60);
 	vehicleSIM[2] = CreateVehicle(596, 1575.1067, -1606.8228, 13.1040, 179.4362, -1, -1, 60);
+	Iter_Add(vehicleSIM, vehicleSIM[0]);
+	Iter_Add(vehicleSIM, vehicleSIM[1]);
+	Iter_Add(vehicleSIM, vehicleSIM[2]);
 	return 1;
 }
 
@@ -3006,31 +3016,34 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 		error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang dijual.");
 		RemovePlayerFromVehicle(playerid);
 	}
-
 	if(newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER){
 		ShowPlayerSpeedo(playerid);
 	}
-	if(oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER && newstate == PLAYER_STATE_ONFOOT){
+	else if(oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER && newstate == PLAYER_STATE_ONFOOT){
 		HidePlayerSpeedo(playerid);
 	}
-	for(new v = 0; v < 3; v++){
-		if(vehicleSIM[v]){
-			if(GetPlayerVehicleID(playerid) == vehicleSIM[v] && testSim[playerid] != 1 || GetPlayerVehicleID(playerid) != vehicleIdSIM[playerid] && testSim[playerid] == 1){
+	if(oldstate == PLAYER_STATE_ONFOOT && newstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_ONFOOT && newstate == PLAYER_STATE_PASSENGER){
+		if(Iter_Contains(vehicleSIM, vehid)){
+			if(testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehid){
+				KillTimer(todoTimer[playerid]);
+			}else if(testSim[playerid] == 1 && vehicleIdSIM[playerid] != vehid){
+				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
+				RemovePlayerFromVehicle(playerid);
+			}else if(testSim[playerid] == 0){
+				error_command(playerid, "Tidak dapat menumpangi kendaraan untuk praktik pengujian SIM.");
 				RemovePlayerFromVehicle(playerid);
 			}
-			if(newstate == PLAYER_STATE_DRIVER && GetPlayerVehicleID(playerid) == vehicleIdSIM[playerid] && testSim[playerid] == 1){
-				KillTimer(todoTimer[playerid]);
-			}
-		}
-		if(vehicleSweeper[v]){
-			if(GetPlayerVehicleID(playerid) == vehicleSweeper[v] && sweeperJob[playerid] == 1 && sweeperId[playerid] != GetPlayerVehicleID(playerid)){
-				RemovePlayerFromVehicle(playerid);
-			}
-			if(newstate == PLAYER_STATE_DRIVER && GetPlayerVehicleID(playerid) == vehicleSweeper[v] && sweeperJob[playerid] == 1){
-				KillTimer(todoTimer[playerid]);
-			}else if(newstate == PLAYER_STATE_DRIVER && GetPlayerVehicleID(playerid) == vehicleSweeper[v] && sweeperJob[playerid] == 0){
-				sweeperId[playerid] = GetPlayerVehicleID(playerid);
+		}else if(Iter_Contains(vehicleSweeper, vehid)){
+			if(sweeperJob[playerid] == 0 && usedSweeper[vehid] != 1){
 				ShowPlayerDialog(playerid, DIALOG_JOB_SWEEPER, DIALOG_STYLE_MSGBOX, "Sweeper Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Sweeper"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+			}else if(sweeperJob[playerid] == 1 && sweeperId[playerid] == vehid){
+				KillTimer(todoTimer[playerid]);
+			}else if(sweeperJob[playerid] == 1 && sweeperId[playerid] != vehid){
+				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
+				RemovePlayerFromVehicle(playerid);
+			}else if(sweeperJob[playerid] == 0 && usedSweeper[vehid] == 1){
+				error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang melakukan pekerjaan Sweeper.");
+				RemovePlayerFromVehicle(playerid);
 			}
 		}
 	}
@@ -3039,10 +3052,10 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 
 public OnPlayerExitVehicle(playerid, vehicleid)
 {
-	if(vehicleid == sweeperId[playerid] && sweeperJob[playerid] == 1){
+	if(Iter_Contains(vehicleSweeper, vehicleid) && sweeperJob[playerid] == 1 && sweeperId[playerid] == vehicleid){
 		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda keluar dari kendaraan, silahkan kembali bekerja! "WHITE"Sebelum 30 detik atau anda berhenti bekerja.");
 		todoTimer[playerid] = SetTimerEx("todoExit", 30000, false, "ii", playerid, sweeperId[playerid]);
-	}else if(vehicleid == vehicleIdSIM[playerid] && testSim[playerid] == 1){
+	}else if(Iter_Contains(vehicleSIM, vehicleid) && testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehicleid){
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda keluar dari kendaraan, silahkan kembali praktik! "WHITE"Sebelum 30 detik atau anda gagal praktik pengujian SIM.");
 		todoTimer[playerid] = SetTimerEx("todoExit", 30000, false, "ii", playerid, vehicleIdSIM[playerid]);
 	}else if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
@@ -3214,7 +3227,8 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 }
 
 public OnPlayerEnterRaceCheckpoint(playerid){
-	if(GetVehicleModel(GetPlayerVehicleID(playerid)) == 574 && sweeperJob[playerid] == 1){
+	new vehid = GetPlayerVehicleID(playerid);
+	if(Iter_Contains(vehicleSweeper, vehid) && sweeperJob[playerid] == 1 && sweeperId[playerid] == vehid){
 		if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper1)){
 			SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper2, CP_sweeper3, 3.0);
 			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
@@ -3323,11 +3337,14 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$100\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", "Ok", "");
 			DisablePlayerRaceCheckpoint(playerid);
 			SetVehicleToRespawn(sweeperId[playerid]);
+			KillTimer(todoTimer[playerid]);
+			KillTimer(todoTimeout[playerid]);
 			sweeperJob[playerid] = 0;
 			sweeperId[playerid] = -1;
+			usedSweeper[vehid] = 0;
 		}
 	}
-	if(GetPlayerVehicleID(playerid) == vehicleIdSIM[playerid] && testSim[playerid] == 1){
+	if(Iter_Contains(vehicleSIM, vehid) && testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehid){
 		if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS1)){
 			SetPlayerRaceCheckpoint(playerid, 0, CP_simLS2, CP_simLS3, 3.0);
 			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
@@ -3450,9 +3467,12 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal Praktik SIM", pDialog[playerid], "Ok", "");
 				DisablePlayerRaceCheckpoint(playerid);
 				SetVehicleToRespawn(vehicleIdSIM[playerid]);
+				KillTimer(todoTimer[playerid]);
+				KillTimer(todoTimeout[playerid]);
 				testSim[playerid] = 0;
-				vehicleIdSIM[playerid] = -1;
 				poinSim[playerid] = 0;
+				vehicleIdSIM[playerid] = -1;
+				limitVehSIM[vehid] = 0;
 			}else{
 				prosesPembuatanSIM(playerid, 30);
 				givePlayerUang(playerid, -100);
@@ -3461,9 +3481,12 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Praktik SIM", pDialog[playerid], "Ok", "");
 				DisablePlayerRaceCheckpoint(playerid);
 				SetVehicleToRespawn(vehicleIdSIM[playerid]);
+				KillTimer(todoTimer[playerid]);
+				KillTimer(todoTimeout[playerid]);
 				testSim[playerid] = 0;
-				vehicleIdSIM[playerid] = -1;
 				poinSim[playerid] = 0;
+				vehicleIdSIM[playerid] = -1;
+				limitVehSIM[vehid] = 0;
 			}
 		}
 	}

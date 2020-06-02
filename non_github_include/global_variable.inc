@@ -289,17 +289,22 @@ new PU_tempatFoto_in[2],
     Job / Aktifitas
 */
 new todoTimer[MAX_PLAYERS];
+new todoTimeout[MAX_PLAYERS];
 
 /* Sweeper */
-new vehicleSweeper[3],
+new Iterator:vehicleSweeper<MAX_VEHICLES>,
     sweeperJob[MAX_PLAYERS],
-    sweeperId[MAX_PLAYERS];
+    sweeperId[MAX_PLAYERS] = {-1},
+    vehicleSweeper[3],
+    usedSweeper[MAX_VEHICLES];
 
 /* SIM Kendaraan */
-new vehicleSIM[3],
-    vehicleIdSIM[MAX_PLAYERS],
+new Iterator:vehicleSIM<MAX_VEHICLES>,
     testSim[MAX_PLAYERS],
     poinSim[MAX_PLAYERS],
+    vehicleIdSIM[MAX_PLAYERS] = {-1},
+    vehicleSIM[3],
+    limitVehSIM[MAX_VEHICLES],
     Float:oldVehicleHealth[MAX_VEHICLES], 
     Float:newVehicleHealth[MAX_VEHICLES];
 
