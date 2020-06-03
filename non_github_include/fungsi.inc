@@ -1381,6 +1381,7 @@ forward todoExit(playerid, paramid);
 public todoExit(playerid, paramid){
 	if(sweeperJob[playerid] == 1){
 		sweeperJob[playerid] = 0;
+		usedSweeper[sweeperId[playerid]] = 0;
 		sweeperId[playerid] = -1;
 		DisablePlayerRaceCheckpoint(playerid);
 		SetVehicleToRespawn(paramid);
@@ -1389,6 +1390,7 @@ public todoExit(playerid, paramid){
 	if(testSim[playerid] == 1){
 		testSim[playerid] = 0;
 		vehicleIdSIM[playerid] = -1;
+		limitVehSIM[paramid] = 0;
 		DisablePlayerRaceCheckpoint(playerid);
 		SetVehicleToRespawn(paramid);
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan praktik pengujian SIM, silahkan coba lagi!");
@@ -1399,42 +1401,46 @@ public todoExit(playerid, paramid){
 resetPlayerToDo(playerid){
 	if(sweeperJob[playerid] == 1){
 		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda telah berhenti bekerja!");
-		KillTimer(todoTimer[playerid]);
 		SetVehicleToRespawn(sweeperId[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
+		KillTimer(todoTimer[playerid]);
+		KillTimer(todoTimeout[playerid]);
 		sweeperJob[playerid] = 0;
+		usedSweeper[sweeperId[playerid]] = 0;
 		sweeperId[playerid] = -1;
 	}
 	if(testSim[playerid] == 1){
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan praktik pengujian SIM, silahkan coba lagi!");
-		KillTimer(todoTimer[playerid]);
 		SetVehicleToRespawn(vehicleIdSIM[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
+		KillTimer(todoTimer[playerid]);
+		KillTimer(todoTimeout[playerid]);
 		testSim[playerid] = 0;
+		poinSim[playerid] = 0;
+		limitVehSIM[vehicleIdSIM[playerid]] = 0;
 		vehicleIdSIM[playerid] = -1;
 	}
 	return 1;
 }
 
 mulaiPembuatanSIM(playerid){
-	for(new i = 0; i < MAX_PLAYERS; i++){
-		for(new v = 0; v < 3; v++){
-			if(vehicleSIM[v]){
-				if(!IsPlayerInVehicle(i, vehicleSIM[v])){
-					testSim[playerid] = 1;
-					poinSim[playerid] = 100;
-					PutPlayerInVehicle(playerid, vehicleSIM[v], 0);
-					vehicleIdSIM[playerid] = GetPlayerVehicleID(playerid);
-					SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
-					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan praktik mengemudi kendaraan.\nSilahkan ikuti aturan dan arah jalan dengan benar sebagai berikut.\nAturan:\n"YELLOW"- Maksimal kecepatan "GREEN"80 KmpH\n"YELLOW"- Kendaraan tidak boleh menabrak apapun disekitar\n- Minimal poin "GREEN"80", "Ok", "");
-					goto label_berhenti_sim;
-				}else if(v == 1 && v == 2 && v == 3 && IsPlayerInVehicle(i, vehicleSIM[v])){
-					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
-					goto label_berhenti_sim;
-				}
+	foreach(new i : Player){
+		foreach(new v : vehicleSIM){
+			if(limitVehSIM[v] != 1){
+				testSim[playerid] = 1;
+				poinSim[playerid] = 100;
+				PutPlayerInVehicle(playerid, v, 0);
+				vehicleIdSIM[playerid] = v;
+				limitVehSIM[v] = 1;
+				SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan praktik mengemudi kendaraan.\nSilahkan ikuti aturan dan arah jalan dengan benar sebagai berikut.\nAturan:\n"YELLOW"- Maksimal kecepatan "GREEN"80 KmpH\n"YELLOW"- Kendaraan tidak boleh menabrak apapun disekitar\n- Minimal poin "GREEN"80", "Ok", "");
+				SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
+				todoTimeout[playerid] = SetTimerEx("todoExit", 600000, false, "ii", playerid, v);
+				goto label_berhenti_sim;
 			}
 		}
 	}
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
 	label_berhenti_sim:
 	return 1;	
 }
@@ -1863,7 +1869,7 @@ UpdateVehicleDealer(vehicleid){
 forward OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth);
 public OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth){
   if(newhealth < oldhealth){
-    if(testSim[playerid] == 1){
+    if(testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehicleid){
 		poinSim[playerid]--;
     	GameTextForPlayer(playerid, "~y~Kesehatan Kendaraan~n~~r~Poin -1", 1000, 3);
 	}
