@@ -283,21 +283,33 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 2: // Kendaraan
 					{
 						new string[250 * BANYAK_DATA_PER_PAGE + 200];
-						format(string, sizeof(string), "Kode\tNama\tJarak\n");
+						format(string, sizeof(string), "Kode\tNama\tJarak\tSisa Waktu Kunci\n");
 						
 						foreach(new i : PVehIterator){
 							if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID]){
-								if(PVeh[i][pVehIsReparasi]){ // Jika mobil sedang dalam reparasi (telah rusak)
-									format(string, sizeof(string), "%s%d\t%s\tReparasi\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]));
+								if(PVeh[i][pVehIsReparasi] == 1){ // Jika mobil sedang dalam reparasi (telah rusak) dan belum diperbaiki dan dibayar
+									format(string, sizeof(string), "%s%d\t%s\t"RED"Rusak total\t"GREEN"Permanen\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]));
+								}else if(PVeh[i][pVehIsReparasi] == 2){ // Jika mobil sedang dalam reparasi namun telah siap diambil
+									format(string, sizeof(string), "%s%d\t%s\t"YELLOW"Telah direcovery\t"GREEN"Permanen\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]));
 								}else{
 									new Float:pos[3];
 									GetVehiclePos(PVeh[i][pVehicle], pos[0], pos[1], pos[2]);
-									format(string, sizeof(string), "%s%d\t%s\t%0.2fm\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]));
+									format(string, sizeof(string), "%s%d\t%s\t%0.2fm\t"GREEN"Permanen\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]));
+								}
+							}else if(Iter_Contains(PVehKeys[playerid], i) && PVehKeysTime[playerid][i] > gettime()){
+								if(PVeh[i][pVehIsReparasi] == 1){ // Jika mobil sedang dalam reparasi (telah rusak) dan belum diperbaiki dan dibayar
+									format(string, sizeof(string), "%s%d\t%s\t"RED"Rusak total\t"YELLOW"%i\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), (PVehKeysTime[playerid][i] - gettime()) / 60);
+								}else if(PVeh[i][pVehIsReparasi] == 2){ // Jika mobil sedang dalam reparasi namun telah siap diambil
+									format(string, sizeof(string), "%s%d\t%s\t"YELLOW"Telah direcovery\t"YELLOW"%i\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), (PVehKeysTime[playerid][i] - gettime()) / 60);
+								}else{
+									new Float:pos[3];
+									GetVehiclePos(PVeh[i][pVehicle], pos[0], pos[1], pos[2]);
+									format(string, sizeof(string), "%s%d\t%s\t%0.2fm\t"YELLOW"%i\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]), (PVehKeysTime[playerid][i] - gettime()) / 60);
 								}
 							}
 						}
 
-						if(strcmp(string, "Kode\tNama\tJarak\n") == 0){
+						if(strcmp(string, "Kode\tNama\tJarak\tSisa Waktu Kunci\n") == 0){
 							showDialogPesan(playerid, RED"Tidak terdapat kendaraan", WHITE"Tidak terdapat kendaraan apapun yang anda miliki.\nPastikan untuk memiliki kendaraan untuk dapat mengakses menu ini.");
 						}else
 							ShowPlayerDialog(playerid, DIALOG_PILIH_KENDARAAN, DIALOG_STYLE_TABLIST_HEADERS, "Kendaraan yang anda miliki.", string, "Pilih", "Kembali");
@@ -311,7 +323,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new id = strval(inputtext);
 				SetPVarInt(playerid, "veh_select_id", id);
-				ShowPlayerDialog(playerid, DIALOG_OPTION_KENDARAAN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi:", "Tampilkan Lokasi Kendaraan", "Pilih", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_OPTION_KENDARAAN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi:", "Tampilkan Lokasi Kendaraan\nPinjamkan Kunci kepada orang", "Pilih", "Batal");
 			}else{
 				resetPVarInventory(playerid);
 				showDialogMenuInventory(playerid);
@@ -337,9 +349,137 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SendClientMessage(playerid, COLOR_PINK, "[GPS] "YELLOW"Penggunaan fitur ini akan menggantikan marker yang sebelumnya ada.");
 						return 1;
 					}
+					case 1:
+					{
+						new id = GetPVarInt(playerid, "veh_select_id");
+
+						if(PVeh[id][pVehPemilik] != PlayerInfo[playerid][pID]){
+							return showDialogPesan(playerid, RED"Kendaraan tidak dapat dipinjamkan", WHITE"Kendaraan tidak dapat dipinjamkan, kendaraan ini bukanlah milik anda.\n"YELLOW"Anda hanya dapat meminjamkan kendaraan milik anda sendiri.");
+						}
+						inline responseQuery(){
+							new total;
+							cache_get_value_name_int(0, "total", total);
+							if(total < MAXIMUM_PINJAMKAN_KEY){
+								ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_PLAYERID, DIALOG_STYLE_INPUT, YELLOW"Masukan ID pemain", YELLOW"Silahkan masukan ID Pemain yang akan dipinjamkan kunci kendaraan.\n"WHITE"Hanya dapat meminjamkan kunci kepada pemain yang berada maksimal 2 meter.\n"WHITE"Pastikan player yang anda tuju belum dipinjami kendaraan yang sama.", "Pilih", "Batal");
+							}else{
+								format(pDialog[playerid], sizePDialog, YELLOW"Anda tidak dapat meminjamkan kunci lagi,\n"WHITE"Kendaraan yang anda pilih telah mencapai batas peminjaman kunci.\n"ORANGE"Batas peminjaman kunci adalah %i orang.", MAXIMUM_PINJAMKAN_KEY);
+								showDialogPesan(playerid, RED"Tidak dapat meminjamnkan kunci", pDialog[playerid]);
+							}
+
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT COUNT(id) as total FROM vehicle_keys WHERE id_vehicle = '%d' AND UNIX_TIMESTAMP(NOW()) < expired", PVeh[id][pVehID]);
+					}
 				}
 			}else{
 				DeletePVar(playerid, "veh_select_id");
+			}
+			return 1;
+		}
+		case DIALOG_PINJAMIN_KUNCI_PLAYERID:
+		{
+			if(response){
+				new target_id;
+				if(sscanf(inputtext, "u", target_id)) {
+					return ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_PLAYERID, DIALOG_STYLE_INPUT, YELLOW"Masukan ID pemain", RED"ID pemain invalid.\n"YELLOW"Silahkan masukan ID Pemain yang akan dipinjamkan kunci kendaraan.\n"WHITE"Hanya dapat meminjamkan kunci kepada pemain yang berada maksimal 2 meter.\n"WHITE"Pastikan player yang anda tuju belum dipinjami kendaraan yang sama.", "Pilih", "Batal");
+				}
+				if(!IsPlayerConnected(target_id) || target_id == INVALID_PLAYER_ID) {
+					return ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_PLAYERID, DIALOG_STYLE_INPUT, YELLOW"Masukan ID pemain", RED"Pemain dengan id tersebut tidak ada.\n"YELLOW"Silahkan masukan ID Pemain yang akan dipinjamkan kunci kendaraan.\n"WHITE"Hanya dapat meminjamkan kunci kepada pemain yang berada maksimal 2 meter.\n"WHITE"Pastikan player yang anda tuju belum dipinjami kendaraan yang sama.", "Pilih", "Batal");
+				}
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				if(!IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+					return ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_PLAYERID, DIALOG_STYLE_INPUT, YELLOW"Masukan ID pemain", RED"Pemain harus berada didekat anda.\n"YELLOW"Silahkan masukan ID Pemain yang akan dipinjamkan kunci kendaraan.\n"WHITE"Hanya dapat meminjamkan kunci kepada pemain yang berada maksimal 2 meter.\n"WHITE"Pastikan player yang anda tuju belum dipinjami kendaraan yang sama.", "Pilih", "Batal");
+				}
+
+				inline responseQuery(){
+					new total;
+					cache_get_value_name_int(0, "total", total);
+					if(total > 0){
+						showDialogPesan(playerid, RED"Pemain sudah menerima kunci", YELLOW"Pemain yang anda tuju telah memiliki kunci kendaraan yang anda pilih.\nSilahkan pilih pemain lain lagi.");
+					}else{
+						SetPVarInt(playerid, "pinjam_kunci_target", target_id);
+						format(pDialog[playerid], sizePDialog, WHITE"Pemain "GREEN"%s "WHITE"akan menerima kunci pinjaman dari anda.\nSilahkan masukan lama waktu peminjaman dalam "ORANGE"satuan menit.\n"YELLOW"Minimal %i menit dan maksimal %i menit (setara dengan %i hari)", PlayerInfo[target_id][pPlayerName], MINIMUM_LAMA_PINJAMKAN_KEY, MAXIMUM_LAMA_PINJAMKAN_KEY, MAXIMUM_LAMA_PINJAMKAN_KEY / 1440);
+
+						ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_WAKTU, DIALOG_STYLE_INPUT, YELLOW"Masukan lama waktu", pDialog[playerid], "Pilih", "Batal");
+					}
+				}
+
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT COUNT(*) as total FROM vehicle_keys WHERE id_user = '%d' AND id_vehicle = '%d' AND UNIX_TIMESTAMP(NOW()) < expired", PlayerInfo[target_id][pID], PVeh[GetPVarInt(playerid, "veh_select_id")][pVehID]);
+			}else{
+				DeletePVar(playerid, "veh_select_id");		
+			}
+			return 1;
+		}
+		case DIALOG_PINJAMIN_KUNCI_WAKTU:
+		{
+			if(response){
+				new lama_waktu, target_id = GetPVarInt(playerid, "pinjam_kunci_target");
+				if(!IsPlayerConnected(target_id)){
+					return showDialogPesan(playerid, RED"Pemain yang dituju offline", YELLOW"Pemain yang dituju telah offline, tidak dapat melanjutkan.");
+				}
+				if(sscanf(inputtext, "i", lama_waktu)) {
+					format(pDialog[playerid], sizePDialog, RED"Menit yang diinput invalid.\n"WHITE"Pemain "GREEN"%s "WHITE"akan menerima kunci pinjaman dari anda.\nSilahkan masukan lama waktu peminjaman dalam "ORANGE"satuan menit.\n"YELLOW"Minimal %i menit dan maksimal %i menit (setara dengan %i hari)", PlayerInfo[target_id][pPlayerName], MINIMUM_LAMA_PINJAMKAN_KEY, MAXIMUM_LAMA_PINJAMKAN_KEY, MAXIMUM_LAMA_PINJAMKAN_KEY / 1440);
+
+					return ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_WAKTU, DIALOG_STYLE_INPUT, YELLOW"Masukan lama waktu", pDialog[playerid], "Pilih", "Batal");
+				}
+				if(lama_waktu < MINIMUM_LAMA_PINJAMKAN_KEY || lama_waktu > MAXIMUM_LAMA_PINJAMKAN_KEY){
+					format(pDialog[playerid], sizePDialog, RED"Menit yang diinput melebihi batas.\n"WHITE"Pemain "GREEN"%s "WHITE"akan menerima kunci pinjaman dari anda.\nSilahkan masukan lama waktu peminjaman dalam "ORANGE"satuan menit.\n"YELLOW"Minimal %i menit dan maksimal %i menit (setara dengan %i hari)", PlayerInfo[target_id][pPlayerName], MINIMUM_LAMA_PINJAMKAN_KEY, MAXIMUM_LAMA_PINJAMKAN_KEY, MAXIMUM_LAMA_PINJAMKAN_KEY / 1440);
+
+					return ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_WAKTU, DIALOG_STYLE_INPUT, YELLOW"Masukan lama waktu", pDialog[playerid], "Pilih", "Batal");					
+				}
+
+				SetPVarInt(playerid, "pinjam_kunci_waktu", lama_waktu);
+				SetPVarInt(playerid, "pinjam_kunci_idpv", GetPVarInt(playerid, "veh_select_id"));
+
+				format(pDialog[playerid], sizePDialog, WHITE"Pemain "GREEN"%s "WHITE"akan menerima kunci pinjaman dari anda.\nDengan lama peminjaman "ORANGE"%i menit.\n"YELLOW"Apakah anda yakin?\n"WHITE"Setelah waktu telah melebihi batas waktu yang telah ditentukan\n"WHITE"maka kunci akan otomatis hilang dari pemain tersebut.", PlayerInfo[target_id][pPlayerName], lama_waktu);
+				ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_KONFIRMASI, DIALOG_STYLE_MSGBOX, YELLOW"Konfirmasi peminjaman kunci", pDialog[playerid], "Ok", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_PINJAMIN_KUNCI_KONFIRMASI:
+		{
+			if(response){
+				new lama_waktu = GetPVarInt(playerid, "pinjam_kunci_waktu"), target_id = GetPVarInt(playerid, "pinjam_kunci_target"), idpv = GetPVarInt(playerid, "pinjam_kunci_idpv");
+
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan dipinjamkan kunci kendaraan "GREEN"%s "WHITE"oleh "GREEN"%s\n"WHITE"Dengan lama waktu peminjaman "YELLOW"%i menit.\nApakah anda ingin menyetujuinya?", GetVehicleNameFromModel(PVeh[idpv][pVehModel]), PlayerInfo[playerid][pPlayerName], lama_waktu);
+
+				SetPVarInt(target_id, "pinjam_kunci_dari", playerid);
+				ShowPlayerDialog(target_id, DIALOG_PINJAMAN_KUNCI_CONF_TARGET, DIALOG_STYLE_MSGBOX, YELLOW"Peminjaman kunci", pDialog[playerid], "Terima", "Batal");
+
+				showDialogPesan(playerid, GREEN"Berhasil mengirim request", WHITE"Request peminjaman kunci kepada pemain tertuju, berhasil dikirimkan.");
+			}
+			return 1;
+		}
+		case DIALOG_PINJAMAN_KUNCI_CONF_TARGET:
+		{
+			new target_id = GetPVarInt(playerid, "pinjam_kunci_dari");
+			if(response){
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				
+				if(IsPlayerConnected(target_id) && IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+					format(pDialog[playerid], sizePDialog, "[KUNCI] "WHITE"Pemain %s berhasil menerima kunci dari anda.", PlayerInfo[playerid][pPlayerName]);
+					SendClientMessage(target_id, COLOR_ORANGE, pDialog[playerid]);
+
+					format(pDialog[playerid], sizePDialog, "[KUNCI] "WHITE"Anda berhasil menerima kunci dari %s.", PlayerInfo[playerid][pPlayerName]);
+					SendClientMessage(playerid, COLOR_ORANGE, pDialog[playerid]);
+
+					ApplyAnimation(target_id, "SHOP", "SHP_Rob_GiveCash", 4.1, 0, 1, 1, 0, 1);
+					ApplyAnimation(playerid, "VENDING", "VEND_Use", 4.1, 0, 1, 1, 0, 1);
+
+					new lama_waktu = GetPVarInt(target_id, "pinjam_kunci_waktu"), idpv = GetPVarInt(target_id, "pinjam_kunci_idpv");
+
+					PinjamkanKunciKePemain(playerid, idpv, lama_waktu);
+				}else{
+					format(pDialog[playerid], sizePDialog, "[KUNCI] "WHITE"Pemain %s tidak bisa menerima kunci, karena berada terlalu jauh.", PlayerInfo[playerid][pPlayerName]);
+					SendClientMessage(target_id, COLOR_ORANGE, pDialog[playerid]);
+
+					SendClientMessage(playerid, COLOR_ORANGE, "[KUNCI] "WHITE"Anda tidak dapat menerima kunci, karena berada terlalu jauh.");
+					return 1;
+				}
+			}else{
+				format(pDialog[playerid], sizePDialog, "[KUNCI] "WHITE"Pemain %s menolak request peminjaman dari anda.", PlayerInfo[playerid][pPlayerName]);
+				SendClientMessage(target_id, COLOR_ORANGE, pDialog[playerid]);
 			}
 			return 1;
 		}
@@ -2826,15 +2966,24 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - 0.5);
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER && PRESSED(KEY_SUBMISSION)){
+		new vehid = GetPlayerVehicleID(playerid);
+		if(Iter_Contains(PVehIterator, IDVehToPVeh[vehid])){
+			new idpv = IDVehToPVeh[vehid];
+			if(PVeh[idpv][pVehPemilik] != PlayerInfo[playerid][pID] && !( Iter_Contains(PVehKeys[playerid], idpv) && PVehKeysTime[playerid][idpv] > gettime() )){
+				server_message(playerid, "Anda tidak memiliki kunci mobil ini.");
+				return 1;
+			}
+		}
+
 		new engine, lights, alarm, doors, bonnet, boot, objective;
-		GetVehicleParamsEx(GetPlayerVehicleID(playerid), engine, lights, alarm, doors, bonnet, boot, objective);
+		GetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
 		if(engine) {
 			GameTextForPlayer(playerid, "~w~Mesin kendaraan ~r~dimatikan", 1000, 3);
-			SetVehicleParamsEx(GetPlayerVehicleID(playerid), 0, 0, alarm, doors, bonnet, boot, objective);
+			SetVehicleParamsEx(vehid, 0, 0, alarm, doors, bonnet, boot, objective);
 		}
 		else {
 			GameTextForPlayer(playerid, "~w~Mesin kendaraan ~g~dihidupkan", 1000, 3);
-			SetVehicleParamsEx(GetPlayerVehicleID(playerid), 1, 1, alarm, doors, bonnet, boot, objective);
+			SetVehicleParamsEx(vehid, 1, 1, alarm, doors, bonnet, boot, objective);
 		}
 	}
     return 1;
@@ -2930,6 +3079,9 @@ main( ) { }
 
 public OnGameModeInit()
 {
+	// Initializing iterator
+	Iter_Init(PVehKeys);
+
 	koneksi = mysql_connect_file();
 	errno = mysql_errno(koneksi);
 	if(errno != 0){

@@ -407,4 +407,6 @@ new
     Iterator:IDVehToPVehIterator<MAX_VEHICLES>, // Menyimpan iterator vehicle player yang sedang aktif (TERSPAWN)
     IDVehToPVeh[MAX_VEHICLES], // Menyimpan index PVeh berdasarkan id vehicle
     Iterator:PVehIterator<MAX_VEHICLES>,
-    PVeh[MAX_VEHICLES][PlayerVehicleInfo]; // Nyimpan data vehicle berdasarkan ID vehicle
+    PVeh[MAX_VEHICLES][PlayerVehicleInfo],
+    Iterator:PVehKeys[MAX_PLAYERS]<MAX_VEHICLES>, // Nyimpan data vehicle berdasarkan ID vehicle (playerid, idpv)
+    PVehKeysTime[MAX_PLAYERS][MAX_VEHICLES]; // Nyimpan waktu expired terhadap waktu (playerid, idpv) - Standart penghitungan menggunakan UNIX_TIMESTAMP

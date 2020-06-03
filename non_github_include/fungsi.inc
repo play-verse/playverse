@@ -1520,11 +1520,33 @@ LoadVehiclePlayer(playerid){
 		new rows;
 		cache_get_row_count(rows);
 		if(rows){
-			new idx = 0, idveh, idpv;
+			new idx = 0, idveh, idpv, temp_id, already_loaded, temp_time;
 
 			while(idx < rows){
+				already_loaded = -1; // Bakal menyimpan idpv kendaraan
+				cache_get_value_name_int(idx, "id", temp_id);
+
+
+				// Cek apakah sudah ada sebelumnya
+				foreach(new i : PVehIterator){
+					if(PVeh[i][pVehID] == temp_id) {
+						already_loaded = i;
+						break;
+					}
+				}
+				cache_get_value_name_int(idx, "expired", temp_time); // Dalam unix_timestamp
+				if(already_loaded != -1) {
+					
+					// Simpan waktu
+					Iter_Add(PVehKeys[playerid], already_loaded);
+					PVehKeysTime[playerid][already_loaded] = temp_time;
+					idx++;
+					continue;
+				}		
+
+				// load kendaraan
 				idpv = Iter_Free(PVehIterator);
-				cache_get_value_name_int(idx, "id", PVeh[idpv][pVehID]);
+				PVeh[idpv][pVehID] = temp_id;
 				cache_get_value_name_int(idx, "id_pemilik", PVeh[idpv][pVehPemilik]);
 				cache_get_value_name_float(idx, "darah", PVeh[idpv][pVehDarah]);
 
@@ -1536,6 +1558,10 @@ LoadVehiclePlayer(playerid){
 				cache_get_value_name_int(idx, "color_1", PVeh[idpv][pVehColor][0]);
 				cache_get_value_name_int(idx, "color_2", PVeh[idpv][pVehColor][1]);				
 				cache_get_value_name_int(idx, "is_reparasi", PVeh[idpv][pVehIsReparasi]);
+
+				// Sign waktu kunci
+				Iter_Add(PVehKeys[playerid], idpv);
+				PVehKeysTime[playerid][idpv] = temp_time;		
 
 				if(!PVeh[idpv][pVehIsReparasi]) {
 					idveh = CreateVehicle(PVeh[idpv][pVehModel], PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2], PVeh[idpv][pVehCoord][3], PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1], -1);
@@ -1582,7 +1608,17 @@ LoadVehiclePlayer(playerid){
 			}
 		}
 	}
-	MySQL_TQueryInline(koneksi, using inline responseLoadVehicle, "SELECT * FROM vehicle WHERE id_pemilik = '%d'", PlayerInfo[playerid][pID]);
+	MySQL_TQueryInline(koneksi, using inline responseLoadVehicle, "SELECT a.*, b.expired FROM vehicle a LEFT JOIN vehicle_keys b ON b.id_vehicle = a.id WHERE (b.id_user = '%d' AND b.expired > UNIX_TIMESTAMP(NOW())) OR a.id_pemilik = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+}
+
+PinjamkanKunciKePemain(playerid, idpveh, menit){
+	new temp_query[500];
+	mysql_format(koneksi, temp_query, 500, "INSERT INTO vehicle_keys(id_user, id_vehicle, expired) VALUES('%d', '%d', UNIX_TIMESTAMP(NOW()) + %d)", PlayerInfo[playerid][pID], PVeh[idpveh][pVehID], menit * 60);
+	mysql_tquery(koneksi, temp_query);
+
+	// Simpan waktu
+	Iter_Add(PVehKeys[playerid], idpveh);
+	PVehKeysTime[playerid][idpveh] = gettime() + menit * 60;
 }
 
 LoadModifVehiclePlayer(vehicleid){
@@ -1602,16 +1638,32 @@ dialogMetodeBayar(playerid, nominal, const fungsi_callback_success[], const kete
 }
 
 UnloadVehiclePlayer(playerid){
-	new id = PlayerInfo[playerid][pID], temp_nama[24];
+	new id = PlayerInfo[playerid][pID], temp_nama[24], hancurkan;
 	format(temp_nama, 24, "%s", PlayerInfo[playerid][pPlayerName]);
 	static const kosong_pveh[PlayerVehicleInfo];
 	foreach(new i : PVehIterator){
-		if(PVeh[i][pVehPemilik] == id) {
+		if(PVeh[i][pVehPemilik] == id || Iter_Contains(PVehKeys[playerid], i)) {
+			hancurkan = 1;
+			
+			foreach(new j : Player){
+				if(j == playerid) continue;
+				if(PVeh[i][pVehPemilik] == PlayerInfo[j][pID] || Iter_Contains(PVehKeys[j], i)){
+					hancurkan = 0;
+					break;
+				}
+			}
+
+			// Bersihkan iterator
+			Iter_Remove(PVehKeys[playerid], i);
+			PVehKeysTime[playerid][i] = 0;
+
+			if(hancurkan == 0) continue;
+
 			new cur = i;
 			#if defined DEBUG_SERVER_LOAD
 			printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) unloaded.", temp_nama, PVeh[id][pVehID], i);
 			#endif
-			if(PVeh[i][pVehicle] != INVALID_VEHICLE_ID && Iter_Contains(IDVehToPVehIterator, PVeh[i][pVehicle]))
+			if(IsValidVehicle(PVeh[i][pVehicle]) && Iter_Contains(IDVehToPVehIterator, PVeh[i][pVehicle]))
 			{
 				Iter_Remove(IDVehToPVehIterator, PVeh[i][pVehicle]);
 				IDVehToPVeh[PVeh[i][pVehicle]] = 0;
