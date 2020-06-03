@@ -48,6 +48,8 @@ enum pInfo
     Float:statusMakan,
     Float:statusMinum,
 
+    preloadAnim, // Preload anim
+
     // Equiped Item
     ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
     sHouse, // Berisi ID Rumah, untuk spawn dirumah jika tidak 0
@@ -397,6 +399,7 @@ enum PlayerVehicleInfo
 {
     pVehID, // Primary Key
     pVehPemilik,
+    pVehNamaPemilik[MAX_PLAYER_NAME],
     pVehicle, // Menyimpan id vehicle
     pVehModel,
     Float:pVehCoord[4],

@@ -37,15 +37,16 @@
 
 #define BIAYA_PERBAIKI_KENDARAAN 250
 
-// Jangan buat pinjamkan key permanent, ntar jadi bisa 1 mobil bagi ramai-ramai dong
-#define MAXIMUM_PINJAMKAN_KEY 2 // Setiap Vehicle hanya bisa dipinjamkan kepada 2 orang
-#define MAXIMUM_LAMA_PINJAMKAN_KEY 4320 // dalam ukuran menit - (4320 = 3 Hari)
-#define MINIMUM_LAMA_PINJAMKAN_KEY 30 // dalam ukuran menit
-
 #define STATUS_KENDARAAN_TIDAK_RUSAK 0
 #define STATUS_KENDARAAN_RUSAK 1
 #define STATUS_KENDARAAN_RUSAK_DAN_SUDAH_DIPERBAIKI 2 // Tinggal Ambil di pusat reparasi
 
+#define MAX_KENDARAAN_PER_PEMAIN 3
+
+// Jangan buat pinjamkan key permanent, ntar jadi bisa 1 mobil bagi ramai-ramai dong
+#define MAXIMUM_PINJAMKAN_KEY 2 // Setiap Vehicle hanya bisa dipinjamkan kepada 2 orang
+#define MAXIMUM_LAMA_PINJAMKAN_KEY 4320 // dalam ukuran menit - (4320 = 3 Hari)
+#define MINIMUM_LAMA_PINJAMKAN_KEY 30 // dalam ukuran menit
 /**
 	INDEX ATTACHED OBJECT PLAYER
  */
@@ -160,6 +161,9 @@
 #define DIALOG_PINJAMAN_KUNCI_CONF_TARGET 101
 #define DIALOG_PINJAMIN_KUNCI_PLAYERID 102
 #define DIALOG_PINJAMIN_KUNCI_WAKTU 103
+#define DIALOG_PILIH_PEMINJAMAN_KEY 104
+#define DIALOG_PILIH_PEMINJAMAN_KEY_OPT 105
+#define DIALOG_MENU_DALAM_VEHICLE 106
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR

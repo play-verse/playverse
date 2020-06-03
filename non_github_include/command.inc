@@ -48,6 +48,11 @@ CMD:inventory(playerid, const params[]){
     return 1;
 }
 
+CMD:inv(playerid, params[]){
+    cmd_inventory(playerid, "");
+    return 1;
+}
+
 CMD:beliskin(playerid, params[]){    
     if(!IsPlayerAdmin(playerid)) return 0;
     new subString[16];
@@ -120,6 +125,23 @@ CMD:givemoney(playerid, params[]){
 
 CMD:infosaya(playerid, params[]){
     tampilkanTextDrawMyInfo(playerid);
+    return 1;
+}
+
+CMD:v(playerid, const params[]){
+    if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak menggunakan perintah ini saat tidak didalam kendaraan.");
+
+    new vehid = GetPlayerVehicleID(playerid);
+    if(Iter_Contains(IDVehToPVehIterator, vehid)){
+        ShowPlayerDialog(playerid, DIALOG_MENU_DALAM_VEHICLE, DIALOG_STYLE_LIST, "Pilih aksi :", "Info Kendaraan", "Pilih", "Batal");
+    }else{
+        return error_command(playerid, "Kendaraan ini bukan milik siapapun. Tidak dapat menggunakan perintah ini.");
+    }
+    return 1;
+}
+
+CMD:vehicle(playerid, params[]){
+    cmd_v(playerid, "");
     return 1;
 }
 

@@ -112,6 +112,8 @@ resetPlayerVariable(playerid){
     PlayerInfo[playerid][nomorHP][0] = EOS;
     PlayerInfo[playerid][nomorRekening][0] = EOS;
 
+	PlayerInfo[playerid][preloadAnim] = 0;
+
 	PlayerInfo[playerid][lastGlobalChat] = 0;
 	PlayerInfo[playerid][reply] = -1;
 	PlayerInfo[playerid][sudahLogin] = false;
@@ -1565,6 +1567,9 @@ LoadVehiclePlayer(playerid){
 				cache_get_value_name_int(idx, "color_2", PVeh[idpv][pVehColor][1]);				
 				cache_get_value_name_int(idx, "is_reparasi", PVeh[idpv][pVehIsReparasi]);
 
+				format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
+
+
 				// Sign waktu kunci
 				Iter_Add(PVehKeys[playerid], idpv);
 				PVehKeysTime[playerid][idpv] = temp_time;		
@@ -1831,6 +1836,7 @@ publicFor: pembayaranKendaraanATM(playerid){
 
 	PVeh[idpv][pVehID] = primary_id;
 	PVeh[idpv][pVehPemilik] = PlayerInfo[playerid][pID];
+	format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
 	PVeh[idpv][pVehicle] = vehid;
 	PVeh[idpv][pVehModel] = DVeh[idpv][dVehModel];
 	PVeh[idpv][pVehCoord][0] = DVeh[idpv][dVehCoord][0];

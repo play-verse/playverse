@@ -330,3 +330,8 @@ stock IsVehicleFlipped(vehicleid)
     GetVehicleRotationQuat(vehicleid, Quat[0], Quat[1], Quat[0], Quat[0]);
     return (Quat[1] >= 0.60 || Quat[1] <= -0.60);
 }
+
+PreloadAnimLib(playerid, const animlib[])
+{
+	ApplyAnimation(playerid, animlib, "null", 0.0, 0, 0, 0, 0, 0);
+}
