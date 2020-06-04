@@ -7,6 +7,13 @@ stock SetPlayerMoney(playerid, jumlah){
     GivePlayerMoney(playerid, jumlah);
 }
 
+// Link YSI Secret - https://forum.sa-mp.com/showthread.php?t=570949
+sendPesan(playerid, warna, const pesan[], {Float,_}:...){ // Bisa juga menggunakan GLOBAL_TAG_TYPES:... dari YSI
+    new temp_string[128];
+    format(temp_string, 128, pesan, ___(2));
+    return SendClientMessage(playerid, warna, temp_string);
+}
+
 stock strreplace(sstring[], const search[], const replacement[], bool:ignorecase = false, pos = 0, limit = -1, maxlength = sizeof(sstring)) 
 {
     if (limit == 0)

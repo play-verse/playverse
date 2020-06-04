@@ -371,6 +371,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 2:
 					{
 						new id = GetPVarInt(playerid, "veh_select_id");
+						if(PVeh[id][pVehPemilik] != PlayerInfo[playerid][pID]){
+							return showDialogPesan(playerid, RED"Kendaraan tidak milik anda", WHITE"Kendaraan ini tidak dapat dilihat siapa yang meminjam, kendaraan ini bukanlah milik anda.\n"YELLOW"Anda hanya dapat melihat kendaraan milik anda sendiri.");
+						}						
 						inline responseQuery(){
 							new rows;
 							cache_get_row_count(rows);
@@ -391,7 +394,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								return showDialogPesan(playerid, RED"Kendaraan tidak dipinjamkan", pDialog[playerid]);
 							}
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT a.id, a.expired, b.nama FROM vehicle_keys a LEFT JOIN `user` b ON a.id_user = b.id WHERE a.id_vehicle = '%d'", PVeh[id][pVehID]);
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT a.id, a.expired, b.nama FROM vehicle_keys a LEFT JOIN `user` b ON a.id_user = b.id WHERE a.id_vehicle = '%d' AND a.expired > UNIX_TIMESTAMP(NOW())", PVeh[id][pVehID]);
 					}
 				}
 			}else{
@@ -413,7 +416,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new temp_nama[24];
 				GetPVarString(playerid, "peminjam_username", temp_nama, sizeof(temp_nama));
 				DeletePVar(playerid, "peminjam_username");
-				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM vehicle_keys a LEFT JOIN `user` b ON a.id_user = b.id WHERE a.id_vehicle = '%d' AND a.expired > UNIX_TIMESTAMP(NOW()) AND b.nama = '%e'", PVeh[GetPVarInt(playerid, "veh_select_id")][pVehID], temp_nama);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE a FROM vehicle_keys a LEFT JOIN `user` b ON a.id_user = b.id WHERE a.id_vehicle = '%d' AND a.expired > UNIX_TIMESTAMP(NOW()) AND b.nama = '%e'", PVeh[GetPVarInt(playerid, "veh_select_id")][pVehID], temp_nama);
 				mysql_tquery(koneksi, pQuery[playerid]);
 
 				foreach(new i : Player){
@@ -523,8 +526,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(pDialog[playerid], sizePDialog, "[KUNCI] "WHITE"Anda berhasil menerima kunci dari %s.", PlayerInfo[playerid][pPlayerName]);
 					SendClientMessage(playerid, COLOR_ORANGE, pDialog[playerid]);
 
-					ApplyAnimation(target_id, "SHOP", "SHP_Rob_GiveCash", 4.1, 0, 1, 1, 0, 2000);
-					ApplyAnimation(playerid, "VENDING", "VEND_Use", 4.1, 0, 1, 1, 0, 2000);
+					ApplyAnimation(target_id, "SHOP", "SHP_Rob_GiveCash", 4.1, 0, 1, 1, 0, 2000, 1);
+					ApplyAnimation(playerid, "VENDING", "VEND_Use", 4.1, 0, 1, 1, 0, 2000, 1);
 
 					new lama_waktu = GetPVarInt(target_id, "pinjam_kunci_waktu"), idpv = GetPVarInt(target_id, "pinjam_kunci_idpv");
 
@@ -926,7 +929,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				// Apakah perlu dicounter bahwa si player yang dituju harus memiliki minimal ePhone 3 ?
 				if(!PlayerInfo[target_id][ePhone]) return ShowPlayerDialog(playerid, DIALOG_SHARELOCK_HP, DIALOG_STYLE_INPUT, "Sharelock", RED"Pemain yang anda tuju tidak memiliki HP yang sedang terpakai.\n"WHITE"Silahkan masukan "GREEN"ID Pemain "WHITE"yang ingin anda bagikan lokasi anda.\n"ORANGE"Note : Pastikan pemain yang anda ingin bagikan memiliki HP yang terpakai (minimal ePhone 3)\n** Pada saat anda membagikan lokasi anda, pemain tersebut "GREEN" dapat melihat anda di peta mereka.", "Pilih", "Batal");
 
-				SendClientMessage(playerid, COLOR_ORANGE, "[SHARELOCK] "WHITE"Berhasil mengirimkan request ke pada pemain yang anda tuju, anda akan dapat informasi jika dia menyetujui sharelock anda.");
+				sendPesan(playerid, COLOR_ORANGE, "[SHARELOCK] "WHITE"Berhasil mengirimkan request ke pada "GREEN"%s"WHITE".", PlayerInfo[target_id][pPlayerName]);
+				sendPesan(playerid, COLOR_WHITE, "Anda akan dapat informasi jika "GREEN"%s "WHITE"menyetujui sharelock anda.", PlayerInfo[target_id][pPlayerName]);
 
 				format(pDialog[playerid], sizePDialog, GREEN"%s "WHITE"ingin membagikan lokasinya kepada anda. Apakah anda ingin menerimanya?\n"YELLOW"Menerima sharelock dari orang lain akan menghilangkan marker merah anda yang sedang aktif, marker merah tersebut akan digantikan dengan marker merah yang baru\nyang mengarah kepada lokasi "GREEN"%s "YELLOW"sekarang berada.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pPlayerName]);
 				ShowPlayerDialog(target_id, DIALOG_KONFIRMASI_TERIMA_SHARELOCK, DIALOG_STYLE_MSGBOX, "Konfirmasi Sharelock", pDialog[playerid], GREEN"Terima", RED"Tidak");
