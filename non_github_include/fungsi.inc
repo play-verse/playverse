@@ -971,7 +971,7 @@ getSudahBuatSIM(playerid, const fungsi_callback[], bool:cek_untuk_buat = true)
 
 prosesPembuatanSIM(playerid, interval_menit){
 	// Interval dalam menit
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE pengambilan_sim SET tanggal_buat = NOW(), tanggal_ambil = NOW() + INTERVAL %d MINUTE WHERE id_user = '%d'", interval_menit, PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 }
 
@@ -982,9 +982,12 @@ hapusSetelahPengambilanSIM(playerid){
 
 publicFor: cekPembuatanSIM(playerid, ada){
 	if(ada){
-		mulaiPembuatanSIM(playerid);
+		givePlayerUang(playerid, -100);
+		SetPVarInt(playerid, "sim_soal", 0);
+		SetPlayerVirtualWorld(playerid, playerid+2);
+		ShowPlayerDialog(playerid, DIALOG_SIM_SOAL, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan Ujian Teori SIM. Silahkan baca panduan agar anda dapat mengisinya.\nPanduan:\n"YELLOW"- Ketika anda mengendarai kendaraan, anda harus fokus dan menaati peraturan.\n- Gunakan jalur kanan ketika sedang berkendara.\n- Berhenti jika lampu lalu lintas merah, berhati-hati jika kuning.\n- Kurangi kecepatan jika ada player / kendaraan yang sedang lewat / menyalip.\n- Jika ingin menyalip kendaraan ambil jalur kiri dan jika ingin mengurangi kecepatan ambil jalur kanan.\n- Kecepatan normal dibawah "GREEN"80 KmpH"YELLOW", jika lebih maka anda harus mengurangi kecepatan.\n"WHITE"Note: Minimal poin yang didapat "GREEN"10", "Mengerti", "Batal");
 	}else{
-		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Anda harus memiliki KTP terlebih dahulu untuk dapat mendaftarkan praktik pengujian SIM.", "Ok", "");
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Anda harus memiliki KTP terlebih dahulu untuk dapat mendaftarkan Ujian Praktik SIM.", "Ok", "");
 	}
 	return 1;
 }
@@ -1089,7 +1092,7 @@ publicFor: cekSudahPunyaSIM(playerid){
 	new tanggal_pengambilan[50];
 	if(cache_num_rows()){
 		cache_get_value_name(0, "tanggal_ambil", tanggal_pengambilan);
-		format(pDialog[playerid], sizePDialog, WHITE"SIM anda sedang dalam proses pembuatan, silahkan kembali pada tanggal :\n"YELLOW"%s\n"WHITE"Pengambilan SIM dapat anda lakukan dengan memilih menu "GREEN"Ambil SIM "WHITE"\nAnda akan mendapatkan SIM pada saat itu juga.", tanggal_pengambilan);
+		format(pDialog[playerid], sizePDialog, WHITE"SIM anda sedang dalam proses pembuatan, silahkan ke Kantor Polisi Los Santos pada tanggal :\n"YELLOW"%s\n"WHITE"Pengambilan SIM dapat anda lakukan dengan memilih menu "GREEN"Ambil SIM "WHITE"\nAnda akan mendapatkan SIM pada saat itu juga.", tanggal_pengambilan);
 
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"SIM sedang diproses", pDialog[playerid], "Ok", "");
 	}else{
@@ -1118,9 +1121,36 @@ publicFor: isBisaBuatSIM(playerid, tidak_bisa){
 	if(tidak_bisa){
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Anda telah memiliki SIM", WHITE"Maaf anda telah memiliki SIM, anda tidak dapat membuatnya lagi.", "Ok", "");
 	}else{
-		ShowPlayerDialog(playerid, DIALOG_DAFTAR_SIM_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi Pembuatan SIM", WHITE"Anda akan membuat SIM dengan syarat berikut.\nPersyaratan:\n"YELLOW"- Biaya administrasi sebesar "GREEN"$100"YELLOW"\n- Memiliki KTP", "Daftar", "Batal");
+		new sim_polisi[16];
+		GetPVarString(playerid, "sim_polisi", sim_polisi, 16);
+		if(sama("buat_sim", sim_polisi)){
+			new Cache:result;
+			mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT status_teori FROM `pengambilan_sim` WHERE `id_user` = '%d' AND status_teori = 1", PlayerInfo[playerid][pID]);
+			result = mysql_query(koneksi, pQuery[playerid]);
+			if(cache_num_rows()){
+				showDialogPesan(playerid, RED"Anda Sudah Ujian Teori", WHITE"Maaf anda sudah melakukan Ujian Teori SIM, anda tidak dapat melakukannya kembali!\nSilahkan melanjutkan ke tempat Ujian Praktik SIM berada di sebelah Kantor Polisi Los Santos (Parkiran).");
+			}else{
+				ShowPlayerDialog(playerid, DIALOG_DAFTAR_SIM_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi Pembuatan SIM", WHITE"Anda akan membuat SIM dengan syarat berikut.\nPersyaratan:\n"YELLOW"- Biaya administrasi sebesar "GREEN"$100"YELLOW"\n- Memiliki KTP", "Daftar", "Batal");
+			}
+			cache_delete(result);
+		}else if(sama("mulai_praktik", sim_polisi)){
+			new Cache:result;
+			mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `pengambilan_sim` WHERE `id_user` = '%d' AND status_teori = 1", PlayerInfo[playerid][pID]);
+			result = mysql_query(koneksi, pQuery[playerid]);
+			if(!cache_num_rows()){
+				showDialogPesan(playerid, RED"Anda Belum Ujian Teori", WHITE"Maaf anda belum melakukan Ujian Teori SIM, anda tidak dapat melakukan Ujian Praktik SIM!\nSilahkan melakukan Ujian Teori SIM terlebih dahulu, tempat Ujian Teori SIM berada di Kantor Polisi Los Santos.");
+			}else{
+				new tgl_buat[11];
+				cache_get_value_name(0, "tanggal_dibuat", tgl_buat);
+				if(sama("0000-00-00", tgl_buat)){
+					ShowPlayerDialog(playerid, DIALOG_PRAKTIK_SIM_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan praktik mengemudi kendaraan.\nSilahkan ikuti aturan dan arah jalan dengan benar sebagai berikut.\nAturan:\n"YELLOW"- Maksimal kecepatan "GREEN"80 KmpH\n"YELLOW"- Kendaraan tidak boleh menabrak apapun disekitar\n- Minimal poin "GREEN"80", "Ok", "Batal");
+				}else{
+					showDialogPesan(playerid, RED"Anda Sudah Ujian Praktik", WHITE"Maaf anda sudah melakukan Ujian Praktik SIM, anda tidak dapat melakukan kembali Ujian Praktik SIM!\nSilahkan ambil SIM di Kantor Polisi Los Santos.");
+				}
+			}
+			cache_delete(result);
+		}
 	}
-	return 1;
 }
 
 /**
@@ -1367,7 +1397,7 @@ todoActive(playerid){
 		return 1;
 	}
 	if(testSim[playerid] == 1){
-		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Maaf anda sedang melakukan praktik pengujian SIM, silahkan kembali praktik!");
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Maaf anda sedang melakukan Ujian Praktik SIM, silahkan kembali praktik!");
 		return 1;
 	}
 	return 0;
@@ -1395,7 +1425,7 @@ public todoExit(playerid, paramid){
 		limitVehSIM[paramid] = 0;
 		DisablePlayerRaceCheckpoint(playerid);
 		SetVehicleToRespawn(paramid);
-		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan praktik pengujian SIM, silahkan coba lagi!");
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan Ujian Praktik SIM, silahkan coba lagi!");
 	}
 	return 1;
 }
@@ -1412,7 +1442,7 @@ resetPlayerToDo(playerid){
 		sweeperId[playerid] = -1;
 	}
 	if(testSim[playerid] == 1){
-		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan praktik pengujian SIM, silahkan coba lagi!");
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan Ujian Praktik SIM, silahkan coba lagi!");
 		SetVehicleToRespawn(vehicleIdSIM[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
 		KillTimer(todoTimer[playerid]);
@@ -1425,7 +1455,7 @@ resetPlayerToDo(playerid){
 	return 1;
 }
 
-mulaiPembuatanSIM(playerid){
+mulaiPraktikSIM(playerid){
 	foreach(new i : Player){
 		foreach(new v : vehicleSIM){
 			if(limitVehSIM[v] != 1){
@@ -1435,14 +1465,13 @@ mulaiPembuatanSIM(playerid){
 				vehicleIdSIM[playerid] = v;
 				limitVehSIM[v] = 1;
 				SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan praktik mengemudi kendaraan.\nSilahkan ikuti aturan dan arah jalan dengan benar sebagai berikut.\nAturan:\n"YELLOW"- Maksimal kecepatan "GREEN"80 KmpH\n"YELLOW"- Kendaraan tidak boleh menabrak apapun disekitar\n- Minimal poin "GREEN"80", "Ok", "");
 				SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
 				todoTimeout[playerid] = SetTimerEx("todoExit", 600000, false, "ii", playerid, v);
 				goto label_berhenti_sim;
 			}
 		}
 	}
-	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk Ujian Praktik SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
 	label_berhenti_sim:
 	return 1;	
 }

@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.1
+-- version 5.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 02, 2020 at 06:44 PM
--- Server version: 10.4.8-MariaDB
--- PHP Version: 7.3.10
+-- Generation Time: Jun 08, 2020 at 02:00 PM
+-- Server version: 10.4.11-MariaDB
+-- PHP Version: 7.4.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -71,7 +71,6 @@ CREATE TABLE `gaji` (
   `id_user` bigint(20) UNSIGNED NOT NULL,
   `nominal` bigint(50) NOT NULL,
   `tanggal` datetime NOT NULL,
-  `keterangan` varchar(50) DEFAULT NULL COMMENT 'Berisi keterangan asal gaji',
   `status` smallint(1) NOT NULL COMMENT 'Berisi status apakah sudah diambil atau belum.\r\n0 - Belum diambil\r\n1 - Sudah diambil'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -208,7 +207,8 @@ CREATE TABLE `pengambilan_sim` (
   `id` bigint(20) NOT NULL,
   `id_user` bigint(20) NOT NULL,
   `tanggal_buat` datetime NOT NULL,
-  `tanggal_ambil` datetime NOT NULL
+  `tanggal_ambil` datetime NOT NULL,
+  `status_teori` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
@@ -290,8 +290,7 @@ CREATE TABLE `user` (
   `last_hp` float DEFAULT NULL COMMENT 'Berisi jumlah hp pemain',
   `last_armour` float DEFAULT NULL COMMENT 'Berisi jumlah armour pemain',
   `last_stats_makan` float DEFAULT NULL COMMENT 'Berisi jumlah status makan',
-  `last_stats_minum` float DEFAULT NULL COMMENT 'Berisi jumlah status minum',
-  `playtime` bigint(20) DEFAULT NULL COMMENT 'Berisi jumlah waktu bermain dalam detik'
+  `last_stats_minum` float DEFAULT NULL COMMENT 'Berisi jumlah status minum'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -304,8 +303,7 @@ CREATE TABLE `user_item` (
   `id_user_item` bigint(20) UNSIGNED NOT NULL,
   `id_item` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
-  `jumlah` int(255) DEFAULT 1,
-  `kunci` tinyint(4) NOT NULL DEFAULT 0 COMMENT 'Status terkunci (agar tidak bisa dihapus)\r\n- 0 = Tidak terkunci\r\n- 1 = Terkunci'
+  `jumlah` int(255) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -532,18 +530,6 @@ ALTER TABLE `house`
   MODIFY `id_house` int(20) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `house_furniture`
---
-ALTER TABLE `house_furniture`
-  MODIFY `id_furniture` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `house_interior`
---
-ALTER TABLE `house_interior`
-  MODIFY `id_level` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
@@ -559,19 +545,13 @@ ALTER TABLE `papan`
 -- AUTO_INCREMENT for table `pengambilan_ktp`
 --
 ALTER TABLE `pengambilan_ktp`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `pengambilan_sim`
 --
 ALTER TABLE `pengambilan_sim`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `skill`
---
-ALTER TABLE `skill`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `sms`
@@ -596,18 +576,6 @@ ALTER TABLE `user`
 --
 ALTER TABLE `user_item`
   MODIFY `id_user_item` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `user_item_limit`
---
-ALTER TABLE `user_item_limit`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `user_skill`
---
-ALTER TABLE `user_skill`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user_skin`

@@ -263,8 +263,9 @@ new CP_tempatFoto,
     CP_ATM[sizeof(POSISI_ATM)],
     CP_Tambang[sizeof(POSISI_NAMBANG)],
     CP_beliMakanCepatSaji,
-    CP_simPoliceRegis[1],
-    CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)];
+    CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)],
+    CP_simRegis[1],
+    CP_simPraktik[1];
 
 /**
     PICKUP VARIABEL
@@ -277,7 +278,9 @@ new PU_tempatFoto_in[2],
     PU_cityHallKeluar,
     PU_bankLS[2],
     PU_tempatMakan_in[2],
-    PU_tempatMakan_out;
+    PU_tempatMakan_out,
+    PU_policeDept_in[1],
+    PU_policeDept_out[1];
 
 /*
     Virtual World untuk ngebedain pickup
@@ -310,6 +313,25 @@ new Iterator:vehicleSIM<MAX_VEHICLES>,
     limitVehSIM[MAX_VEHICLES],
     Float:oldVehicleHealth[MAX_VEHICLES], 
     Float:newVehicleHealth[MAX_VEHICLES];
+
+enum INFO_SOAL {
+    simQuestion[16],
+    simAnswer1[240],
+    simAnswer2[240],
+    simAnswer3[240],
+    simAnswer4[240],
+    simAnswerTrue,
+    simQuestionMSG[240]
+};
+
+new SIM_SOAL[][INFO_SOAL] = {
+    {"Pertanyaan 1", "A. Jalur tengah", "B. Jalur kiri", "C. Jalur kanan", "D. Semua salah", 1, GREEN"[HALO Polisi] "WHITE"Saat berkendara kita harus memilih jalur?"},
+    {"Pertanyaan 2", "A. 80 KmpH", "B. 35 KmpH", "C. 75 KmpH", "D. 50 KmpH", 2, GREEN"[HALO Polisi] "WHITE"Batas kecepatan saat mengendarai kendaraan?"},
+    {"Pertanyaan 3", "A. Membawa surat lengkap", "B. Jalur kanan untuk mengurangi kecepatan", "C. Berhenti jika lampu lalu lintas merah", "D. Semua benar", 3, GREEN"[HALO Polisi] "WHITE"Berikut merupakan aturan berkendara yang benar?"},
+    {"Pertanyaan 4", "A. Ambil jalur kanan", "B. Tidak menyalip", "C. Memberi tanda klakson", "D. Tetap menyalip", 4, GREEN"[HALO Polisi] "WHITE"Jika anda ingin menyalip ketika ada kendaraan dijalur kiri, apa yang anda lakukan?"},
+    {"Pertanyaan 5", "A. Siapa saja", "B. Satpol PP", "C. Satpam", "D. Polisi", 3, GREEN"[HALO Polisi] "WHITE"Siapa yang berhak menindak pelanggaran lalu lintas?"},
+    {"Pertanyaan 6", "A. Siapa saja", "B. Satpol PP", "C. Satpam", "D. Polisi", 2, GREEN"[HALO Polisi] "WHITE"Siapa yang berhak menasehati pelanggar lalu lintas?"}
+};
 
 /**
     Speedometer
