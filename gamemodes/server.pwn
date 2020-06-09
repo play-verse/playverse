@@ -2648,11 +2648,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					// Buat SIM
 					case 0:
 					{
-						// Eksekusi fungsi pengecekan, 
-						// yang akan langsung mengeksekusi pembuatan jika memungkinkan
 						if(todoActive(playerid) == 1){
 							return 1;
 						}
+						SetPVarString(playerid, "sim_polisi", "buat_sim");
 						getSudahBuatSIM(playerid, "cekSudahPunyaSIM");
 					}
 					// Ambil SIM yang sudah selesai
@@ -2661,7 +2660,32 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(todoActive(playerid) == 1){
 							return 1;
 						}
-						getSudahBuatSIM(playerid, "cekSudahBisaAmbilSIM", false);
+						new Cache:result;
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_buat FROM `pengambilan_sim` WHERE `id_user` = '%d' AND tanggal_buat = '0000-00-00'", PlayerInfo[playerid][pID]);
+						result = mysql_query(koneksi, pQuery[playerid]);
+						if(cache_num_rows()){
+							showDialogPesan(playerid, RED"Anda Belum Ujian Praktik", WHITE"Maaf anda belum melakukan Ujian Praktik SIM, anda belum dapat mengambil SIM!\nSilahkan melakukan Ujian Praktik SIM terlebih dahulu, tempat Ujian Praktik SIM berada di sebelah Kantor Polisi Los Santos (Parkiran).");
+						}else{
+							getSudahBuatSIM(playerid, "cekSudahBisaAmbilSIM", false);
+						}
+						cache_delete(result);
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_SIM_PRAKTIK_MENU:
+		{
+			if(response){
+				switch(listitem){
+					// Mulai Praktik
+					case 0:
+					{
+						if(todoActive(playerid) == 1){
+							return 1;
+						}
+						SetPVarString(playerid, "sim_polisi", "mulai_praktik");
+						getSudahBuatSIM(playerid, "cekSudahPunyaSIM");
 					}
 				}
 			}
@@ -2675,6 +2699,82 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}else{
 					cekKetersediaanItem(playerid, 7, 1, "cekPembuatanSIM");
 				}
+				DeletePVar(playerid, "sim_polisi");
+			}
+			return 1;
+		}
+		case DIALOG_PRAKTIK_SIM_KONFIRMASI:
+		{
+			if(response){
+				mulaiPraktikSIM(playerid);
+			}
+			DeletePVar(playerid, "sim_polisi");
+			return 1;
+		}
+		case DIALOG_SIM_SOAL:
+		{
+			if(response){
+				new noSoal = GetPVarInt(playerid, "sim_soal");
+				printf("noSoal %d", noSoal);
+				if(noSoal == 0){
+					poinSim[playerid] = 0;
+				}
+				if(noSoal >= 1){
+					printf("noSoal %d", noSoal);
+					if(sama(SIM_SOAL[0][simAnswer3], inputtext) && noSoal == 1){
+						poinSim[playerid] += SIM_SOAL[0][simAnswerTrue];
+						printf("1 %d", poinSim[playerid]);
+					}else if(sama(SIM_SOAL[1][simAnswer1], inputtext) && noSoal == 2){
+						poinSim[playerid] += SIM_SOAL[1][simAnswerTrue];
+						printf("2 %d", poinSim[playerid]);
+					}else if(sama(SIM_SOAL[2][simAnswer4], inputtext) && noSoal == 3){
+						poinSim[playerid] += SIM_SOAL[2][simAnswerTrue];
+						printf("3 %d", poinSim[playerid]);
+					}else if(sama(SIM_SOAL[3][simAnswer3], inputtext) && noSoal == 4){
+						poinSim[playerid] += SIM_SOAL[3][simAnswerTrue];
+						printf("4 %d", poinSim[playerid]);
+					}else if(sama(SIM_SOAL[4][simAnswer4], inputtext) && noSoal == 5){
+						poinSim[playerid] += SIM_SOAL[4][simAnswerTrue];
+						printf("5 %d", poinSim[playerid]);
+					}else if(sama(SIM_SOAL[5][simAnswer1], inputtext) && noSoal == 6){
+						poinSim[playerid] += SIM_SOAL[5][simAnswerTrue];
+						printf("6 %d", poinSim[playerid]);
+					}else{
+						poinSim[playerid] += 0;
+					}
+				}
+				if(noSoal == 6){
+					if(poinSim[playerid] < 10){
+						GameTextForPlayer(playerid, "~g~Ujian Teori Selesai", 2000, 3);
+						format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan mencoba kembali ketika anda sudah siap.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal Ujian Teori SIM", pDialog[playerid], "Ok", "");
+						poinSim[playerid] = 0;
+						DeletePVar(playerid, "sim_soal");
+						SetPlayerVirtualWorld(playerid, 1);
+						return 1;
+					}else{
+						GameTextForPlayer(playerid, "~g~Ujian Teori Selesai", 2000, 3);
+						format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan melanjutkan untuk Ujian Praktik SIM."WHITE"\nTempat Ujian Praktik SIM berada di sebelah Kantor Polisi Los Santos (Parkiran).\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Ujian Teori SIM", pDialog[playerid], "Ok", "");
+						poinSim[playerid] = 0;
+						DeletePVar(playerid, "sim_soal");
+						SetPlayerVirtualWorld(playerid, 1);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,status_teori) VALUES('%d',1)", PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid]);
+						return 1;
+					}
+				}
+				if(noSoal != 6){
+					printf("noSoal %d", noSoal);
+					format(pDialog[playerid], sizePDialog, "%s\n%s\n%s\n%s", SIM_SOAL[noSoal][simAnswer1], SIM_SOAL[noSoal][simAnswer2], SIM_SOAL[noSoal][simAnswer3], SIM_SOAL[noSoal][simAnswer4]);
+					SendClientMessage(playerid, -1, SIM_SOAL[noSoal][simQuestionMSG]);
+					ShowPlayerDialog(playerid, DIALOG_SIM_SOAL, DIALOG_STYLE_LIST, SIM_SOAL[noSoal][simQuestion], pDialog[playerid], "Lanjut", "Batal");
+					SetPVarInt(playerid, "sim_soal", noSoal+1);
+				}
+			}else{
+				poinSim[playerid] = 0;
+				DeletePVar(playerid, "sim_soal");
+				SetPlayerVirtualWorld(playerid, 1);
 			}
 			return 1;
 		}
@@ -3875,7 +3975,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
 				RemovePlayerFromVehicle(playerid);
 			}else if(testSim[playerid] == 0){
-				error_command(playerid, "Tidak dapat menumpangi kendaraan untuk praktik pengujian SIM.");
+				error_command(playerid, "Tidak dapat menumpangi kendaraan untuk Ujian Praktik SIM.");
 				RemovePlayerFromVehicle(playerid);
 			}
 		}else if(Iter_Contains(vehicleSweeper, vehid)){
@@ -3901,7 +4001,7 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda keluar dari kendaraan, silahkan kembali bekerja! "WHITE"Sebelum 30 detik atau anda berhenti bekerja.");
 		todoTimer[playerid] = SetTimerEx("todoExit", 30000, false, "ii", playerid, sweeperId[playerid]);
 	}else if(Iter_Contains(vehicleSIM, vehicleid) && testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehicleid){
-		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda keluar dari kendaraan, silahkan kembali praktik! "WHITE"Sebelum 30 detik atau anda gagal praktik pengujian SIM.");
+		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda keluar dari kendaraan, silahkan kembali praktik! "WHITE"Sebelum 30 detik atau anda gagal Ujian Praktik SIM.");
 		todoTimer[playerid] = SetTimerEx("todoExit", 30000, false, "ii", playerid, vehicleIdSIM[playerid]);
 	}else if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
 		new Float:darah;
@@ -4019,6 +4119,12 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		new id_rumah = GetPlayerVirtualWorld(playerid);
 		pindahkanPemain(playerid, houseInfo[id_rumah][icon_x], houseInfo[id_rumah][icon_y], houseInfo[id_rumah][icon_z], houseInfo[id_rumah][last_a], 0, 0, true);
 		return 1;
+	}else if(pickupid == PU_policeDept_in[0]){
+		pindahkanPemain(playerid, 246.6298,64.2289,1003.6406,6.9548, 6, 1, false);
+		return 1;
+	}else if(pickupid == PU_policeDept_out[0]){
+		pindahkanPemain(playerid, 1552.9425,-1675.7598,16.1953,92.6288, 0, 0, false);
+		return 1;
 	}
 	return 1;
 }
@@ -4068,9 +4174,11 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 	}else if(checkpointid == CP_beliMakanCepatSaji){
 		showDialogTempatMakan(playerid);
 		return 1;
-	}else if(checkpointid == CP_simPoliceRegis[0]){
+	}else if(checkpointid == CP_simRegis[0]){
 		showDialogSimRegis(playerid);
 		return 1;
+	}else if(checkpointid == CP_simPraktik[0]){
+		showDialogSimPraktik(playerid);
 	}
 	return 1;
 }
