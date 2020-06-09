@@ -117,6 +117,36 @@ new housePickup[MAX_HOUSES] = {-1};
 new houseId[MAX_HOUSES] = {-1};
 new houseNotif[MAX_PLAYERS];
 
+enum hLevelInfo {
+    namaLevel[50],
+    Float:intSpawn[4], // x, y, z, a
+    intSpawnInterior,
+    houseItemCapacity
+}
+new HouseLevel[MAX_HOUSES_LEVEL + 1][hLevelInfo]; // Dimana house level 0 tidak diisi dan index sampai MAX + 1
+new Iterator:HouseLevelIterator<MAX_HOUSES_LEVEL>;
+
+/**
+    House Furniture
+*/
+enum    e_furniture
+{
+	fID,
+	fHouseID,
+	fFurnitureID,
+	Float: fPosX,
+	Float: fPosY,
+	Float: fPosZ,
+	Float: fRotX,
+	Float: fRotY,
+	Float: fRotZ
+};
+
+#define EDITING_NONE 0
+#define EDITING_FURNITURE 1
+#define EDITING_BOARD 2
+new EditingObject[MAX_PLAYERS] = {EDITING_NONE, ...};
+
 /**
     Textdraw Variable For Player
 */
@@ -218,10 +248,10 @@ new const POSISI_ATM[][COORD_OBJ] = {
 };
 
 new const POSISI_BELI_BARANG_MARKET[][COORD_OBJ] = {
-    {-4.2324, -176.4322, 1003.5469, -1, 17},
-    {-9.7521, -169.9181, 1003.5469, -1, 17},
-    {-34.2435, -182.2766, 1003.5469, -1, 17},
-    {-34.2461, -172.7712, 1003.5469, -1, 17},
+    {-4.2324, -176.4322, 1003.5469, 17, -1},
+    {-9.7521, -169.9181, 1003.5469, 17, -1},
+    {-34.2435, -182.2766, 1003.5469, 17, -1},
+    {-34.2461, -172.7712, 1003.5469, 17, -1},
     {1166.8647, -1445.9028, 15.7981, 0, 0},
     {1175.0690, -1438.7549, 15.7981, 0, 0},
     {1166.0021, -1432.7262, 15.7981, 0, 0}
@@ -277,7 +307,8 @@ new PU_tempatFoto_in[2],
     PU_cityHallKeluar,
     PU_bankLS[2],
     PU_tempatMakan_in[2],
-    PU_tempatMakan_out;
+    PU_tempatMakan_out,
+    PU_tempatKeluarRumah[2]; // Hanya menyimpan ID terkecil dan Terbesar
 
 /*
     Virtual World untuk ngebedain pickup
@@ -338,7 +369,7 @@ enum boardInfo
 new BoardInfo[MAX_BOARDS][boardInfo];
 new jumlahBoard = 0; // Menyimpan jumlah Board
 
-new bEditID[MAX_PLAYERS] = {0, ...};
+new bEditID[MAX_PLAYERS];
 new Float:bCPos[MAX_PLAYERS][3];
 new Float:bCRot[MAX_PLAYERS][3];
 

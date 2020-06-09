@@ -220,6 +220,16 @@ CMD:apapan(playerid, params[]){
     showDialogAdminPapan(playerid);
     return 1;
 }
+
+CMD:rumah(playerid, params[]){
+    // VW menandakan ID rumah - INT Menandakan didalam interior rumah atau engga
+    new vw = GetPlayerVirtualWorld(playerid), int = GetPlayerInterior(playerid);
+    if(int == 0) return error_command(playerid, "Anda tidak didalam rumah manapun.");
+    if(houseInfo[vw][hOwner] != PlayerInfo[playerid][pID]) return error_command(playerid, "Anda bukan pemilik rumah.");
+    ShowPlayerDialog(playerid, DIALOG_MENU_RUMAH, DIALOG_STYLE_LIST, "Menu Rumah : ", "Inventory Rumah\nSemua Furniture", "Pilih", "Tutup");
+    return 1;
+}
+
 CMD:arumah(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
     if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada diluar Interior atau Virtual World 0!");

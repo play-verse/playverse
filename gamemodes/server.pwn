@@ -293,7 +293,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								}else{
 									new Float:pos[3];
 									GetVehiclePos(PVeh[i][pVehicle], pos[0], pos[1], pos[2]);
-									format(string, sizeof(string), "%s%d\t%s\t%0.2fm\t"GREEN"Milik Sendiri\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]));
+									format(string, sizeof(string), "%s%d\t%s\t%.2fm\t"GREEN"Milik Sendiri\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]));
 								}
 							}else if(Iter_Contains(PVehKeys[playerid], i) && PVehKeysTime[playerid][i] > gettime()){
 								if(PVeh[i][pVehIsReparasi] == 1){ // Jika mobil sedang dalam reparasi (telah rusak) dan belum diperbaiki dan dibayar
@@ -303,7 +303,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								}else{
 									new Float:pos[3];
 									GetVehiclePos(PVeh[i][pVehicle], pos[0], pos[1], pos[2]);
-									format(string, sizeof(string), "%s%d\t%s\t%0.2fm\t"YELLOW"%i menit\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]), (PVehKeysTime[playerid][i] - gettime()) / 60);
+									format(string, sizeof(string), "%s%d\t%s\t%.2fm\t"YELLOW"%i menit\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]), (PVehKeysTime[playerid][i] - gettime()) / 60);
 								}
 							}
 						}
@@ -312,6 +312,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							showDialogPesan(playerid, RED"Tidak terdapat kendaraan", WHITE"Tidak terdapat kendaraan apapun yang anda miliki.\nPastikan untuk memiliki kendaraan untuk dapat mengakses menu ini.");
 						}else
 							ShowPlayerDialog(playerid, DIALOG_PILIH_KENDARAAN, DIALOG_STYLE_TABLIST_HEADERS, "Kendaraan yang anda miliki.", string, "Pilih", "Kembali");
+					}
+					case 3: // Furniture
+					{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListFurniturePemain(playerid);
 					}
 				}
 			}
@@ -444,7 +449,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sscanf(inputtext, "u", target_id)) {
 					return ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_PLAYERID, DIALOG_STYLE_INPUT, YELLOW"Masukan ID pemain", RED"ID pemain invalid.\n"YELLOW"Silahkan masukan ID Pemain yang akan dipinjamkan kunci kendaraan.\n"WHITE"Hanya dapat meminjamkan kunci kepada pemain yang berada maksimal 2 meter.\n"WHITE"Pastikan player yang anda tuju belum dipinjami kendaraan yang sama.", "Pilih", "Batal");
 				}
-				if(!IsPlayerConnected(target_id) || target_id == INVALID_PLAYER_ID) {
+				if(!IsPlayerConnected(target_id) || target_id == INVALID_PLAYER_ID || target_id == playerid) {
 					return ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_PLAYERID, DIALOG_STYLE_INPUT, YELLOW"Masukan ID pemain", RED"Pemain dengan id tersebut tidak ada.\n"YELLOW"Silahkan masukan ID Pemain yang akan dipinjamkan kunci kendaraan.\n"WHITE"Hanya dapat meminjamkan kunci kepada pemain yang berada maksimal 2 meter.\n"WHITE"Pastikan player yang anda tuju belum dipinjami kendaraan yang sama.", "Pilih", "Batal");
 				}
 				new Float:pos[3];
@@ -704,6 +709,124 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_PILIH_FURNITURE:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					showDialogListFurniturePemain(playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						showDialogListFurniturePemain(playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListFurniturePemain(playerid);
+					}
+					return 1;
+				}
+
+				SetPVarInt(playerid, "inv_indexlist", listitem);
+				format(pDialog[playerid], sizePDialog, GREEN"Gunakan Furniture\n"WHITE"Beritahu Furniture\nInfo Furniture\n"RED"Buang Furniture");
+
+				ShowPlayerDialog(playerid, DIALOG_OPTION_FURNITURE_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", pDialog[playerid], "Ok", "Keluar");
+			}else{
+				showDialogMenuInventory(playerid);
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_OPTION_FURNITURE_INVENTORY:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						new id_object, id_furniture;
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_object", id_object);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_furniture", id_furniture);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+						if(isPlayerInOwnedHouse(playerid)){
+							new Float:pos[3];
+							GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+							GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 3.0);
+
+							inline responseQuery(){
+								new objectid = CreateDynamicObject(id_object, pos[0], pos[1], pos[2], 0.0, 0.0, 0.0, GetPlayerVirtualWorld(playerid), GetPlayerInterior(playerid));
+
+								new data[e_furniture];
+								data[fID] = cache_insert_id();
+								data[fHouseID] = GetPlayerVirtualWorld(playerid);
+								data[fFurnitureID] = id_furniture;
+								data[fPosX] = pos[0];
+								data[fPosY] = pos[1];
+								data[fPosZ] = pos[2];
+								data[fRotX] = 0.0;
+								data[fRotY] = 0.0;
+								data[fRotZ] = 0.0;
+
+								Streamer_SetArrayData(STREAMER_TYPE_OBJECT, objectid, E_STREAMER_EXTRA_ID, data);
+								EditingObject[playerid] = EDITING_FURNITURE;
+								EditDynamicObject(playerid, objectid);
+
+								tambahFurniturePlayer(playerid, id_furniture, -1);
+							}
+							MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO house_furniture(id_house, id_furniture, pos_x, pos_y, pos_z) VALUES('%d', '%d', '%f', '%f', '%f')", GetPlayerVirtualWorld(playerid), id_furniture, pos[0], pos[1], pos[2]);
+						}else{
+							return server_message(playerid, "Anda tidak berada didalam rumah anda sendiri.");
+						}
+						resetPVarInventory(playerid);
+					}
+					case 1:
+					{
+						new modelid, keterangan[100];
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_object", modelid);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+						SetPVarString(playerid, "inv_keterangan", keterangan);
+						SetPVarInt(playerid, "inv_model", modelid);
+
+						ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",WHITE"Masukan ID player yang akan kamu tampilkan furniture.","Show","Keluar");
+					}
+					case 2:
+					{
+						new modelid, keterangan[100], jumlah;
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_object", modelid);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+						tampilkanTextDrawShowItem(playerid, modelid, jumlah, keterangan, PlayerInfo[playerid][pPlayerName]);
+
+						resetPVarInventory(playerid);
+					}
+					case 3: // Buang item
+					{
+						new jumlah, nama_furniture[50];
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_furniture", nama_furniture);
+						cache_unset_active();
+
+						format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah furniture yang ingin dibuang.\n\nNama Furniture : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_furniture, jumlah);
+						strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang furniture,\n"RED"Furniture yang telah dibuang tidak dapat dikembalikan lagi.");
+						ShowPlayerDialog(playerid, DIALOG_BUANG_FURNITURE, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+					}
+				}
+			}else{
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
 		case DIALOG_PILIH_ITEM:
 		{
 			if(response){
@@ -752,7 +875,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						new id_item, fungsi[50];
 						cache_set_active(PlayerInfo[playerid][tempCache]);
 						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", id_item);
-						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "fungsi", fungsi);
+
+						new bool:is_null;
+						cache_is_value_name_null(GetPVarInt(playerid, "inv_indexlist"), "fungsi", is_null);
+						if(is_null) format(fungsi, 50, "itemTidakDapatDipakai");
+						else cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "fungsi", fungsi);
+
 						cache_delete(PlayerInfo[playerid][tempCache]);
 						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
 
@@ -834,6 +962,46 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
 					}
 				}
+			}else{
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_BUANG_FURNITURE:
+		{
+			if(response){
+				new jumlah, nama_furniture[50], input_jumlah, furniture_id;
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_furniture", furniture_id);
+				cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_furniture", nama_furniture);
+				if(sscanf(inputtext, "i", input_jumlah)) {
+					cache_unset_active(); // Unset_active agar tidak terjadi hal yang tidak diinginkan
+
+					format(pDialog[playerid], sizePDialog, RED"Masukan inputan yang benar.\n"WHITE"Silahkan masukan jumlah furniture yang ingin dibuang.\n\nNama Furniture : "PINK"%s\n"WHITE"Jumlah Furniture : "GREEN"%d", nama_furniture, jumlah);
+					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang furniture,\n"RED"Furniture yang telah dibuang tidak dapat dikembalikan lagi.");
+					return ShowPlayerDialog(playerid, DIALOG_BUANG_FURNITURE, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+				}
+				if(input_jumlah < 1 || input_jumlah > jumlah){
+					cache_unset_active(); // Unset_active agar tidak terjadi hal yang tidak diinginkan
+
+					format(pDialog[playerid], sizePDialog, RED"Jumlah yang ingin anda buang salah.\n"WHITE"Silahkan masukan jumlah furniture yang ingin dibuang.\n\nNama Furniture : "PINK"%s\n"WHITE"Jumlah Furniture : "GREEN"%d", nama_furniture, jumlah);
+					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang furniture,\n"RED"Furniture yang telah dibuang tidak dapat dikembalikan lagi.");
+					return ShowPlayerDialog(playerid, DIALOG_BUANG_FURNITURE, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+				}
+				
+				// Buang furniture player (beri player dalam jumlah minus)
+				tambahFurniturePlayer(playerid, furniture_id, -input_jumlah);
+
+				format(pDialog[playerid], sizePDialog, GREEN"Berhasil membuang Furniture.\n\nNama Furniture : "PINK"%s\n"WHITE"Jumlah yang dibuang : "RED"%d", nama_furniture, input_jumlah);
+				strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang furniture,\n"RED"Furniture yang telah dibuang tidak dapat dikembalikan lagi.");
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuang furniture", pDialog[playerid], "Ok", "");
+				
+				// Selalu hapus cache setelah dipakai (tidak perlu di unset_active kalau mau langsung di hapus)
+				cache_delete(PlayerInfo[playerid][tempCache]);
+				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE; // Selalu set jadi invalid_cache saat sudah di hapus kalau gak nanti ga ke deteksi bahwa udah di hapus
+
+				resetPVarInventory(playerid);
 			}else{
 				resetPVarInventory(playerid);
 			}
@@ -1223,7 +1391,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						ShowPlayerDialog(playerid, DIALOG_LEVEL_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", WHITE"Silahkan input Level Rumah yang ingin dibuat [1-3].", "Lanjut", "Batal");
+						format(pDialog[playerid], sizePDialog, WHITE"Silahkan input Level Rumah yang ingin dibuat [1-%i].", MAX_HOUSES_LEVEL);
+						ShowPlayerDialog(playerid, DIALOG_LEVEL_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", pDialog[playerid], "Lanjut", "Batal");
 					}
 					case 1:
 					{
@@ -1518,13 +1687,24 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(houseLevel < MAX_HOUSES_LEVEL){
 								new upgradeRate = getHousePrice(id, "upgrade");
 								if(getUangPlayer(playerid) < upgradeRate) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
-								givePlayerUang(playerid, -upgradeRate);
-							    houseInfo[id][hLevel] = houseLevel+1;
-							    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
-							    mysql_tquery(koneksi, pQuery[playerid]);
-							    reloadHouseLabel(id);
-							    format(msg, sizeof(msg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil upgrade rumah ke level ("YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hLevel], upgradeRate);
-							    SendClientMessage(playerid, COLOR_WHITE, msg);
+
+								inline responseQuery(){
+									new terpasang;
+									cache_get_value_name_int(0, "terpasang", terpasang);
+									if(!terpasang){
+										givePlayerUang(playerid, -upgradeRate);
+										houseInfo[id][hLevel] = houseLevel+1;
+										mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
+										mysql_tquery(koneksi, pQuery[playerid]);
+										reloadHouseLabel(id);
+										format(msg, sizeof(msg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil upgrade rumah ke level ("YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hLevel], upgradeRate);
+										SendClientMessage(playerid, COLOR_WHITE, msg);
+										return 1;
+									}else{
+										return sendPesan(playerid, COLOR_GREEN, "[RUMAH] "RED"Anda harus melepas semua furniture didalam rumah terlebih dahulu!");
+									}
+								}
+								MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT COUNT(*) as terpasang FROM house_furniture WHERE id_house = '%d'", id);
 							}else{
 								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf level rumah anda sudah maksimal!");
 							}
@@ -1631,10 +1811,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						case 1:
 						{
 							label_masuk_rumah:
+							new id_level = houseInfo[id][hLevel];
 							if(houseInfo[id][hKunci] != 1){
+								pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
 								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
 							}else{
 								if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
+									pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
 									SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
 								}else{
 									SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf rumah terkunci dan tidak dapat masuk!");
@@ -1709,7 +1892,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						DeletePVar(playerid, "bBarang_jumlah");
 					}
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
 			}
 			else{
 				DeletePVar(playerid, "bBarang_index");
@@ -1758,7 +1941,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						DeletePVar(playerid, "foto_jumlahFoto");
 					}
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);				
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);				
 				return 1;
 			}else{
 				DeletePVar(playerid, "foto_jumlahFoto");
@@ -2251,7 +2434,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
 					}
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
 			}
 			return 1;
 		}
@@ -2382,7 +2565,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
 							}
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);		
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);		
 						return 1;
 					}
 					case 1: // Via E-Banking
@@ -2432,7 +2615,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						getSaldoPlayer(playerid, "pembayaranMakananATM");
 					}
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);	
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);	
 			}else{
 				DeletePVar(playerid, "bmakan_index");
 				DeletePVar(playerid, "bmakan_jumlah");				
@@ -2598,6 +2781,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(!BoardInfo[i][bModel]) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_EDIT_ID, DIALOG_STYLE_INPUT, "Edit Posisi Papan", RED"ID Papan tidak ada.\n"WHITE"Silahkan masukan id papan yang mau di edit posisinya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
 				if(!IsPlayerInRangeOfPoint(playerid, 10, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_EDIT_ID, DIALOG_STYLE_INPUT, "Edit Posisi Papan", RED"Papan tidak berada disekitar anda.\n"WHITE"Silahkan masukan id papan yang mau di edit posisinya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
 
+				EditingObject[playerid] = EDITING_BOARD;
 				bEditID[playerid] = i;
 				GetDynamicObjectPos(BoardInfo[i][bBoard], bCPos[playerid][0], bCPos[playerid][1], bCPos[playerid][2]);
 				GetDynamicObjectRot(BoardInfo[i][bBoard], bCRot[playerid][0], bCRot[playerid][1], bCRot[playerid][2]);
@@ -2615,6 +2799,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(!BoardInfo[i][bModel]) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ETEXT_ID, DIALOG_STYLE_INPUT, "Edit Text Papan", RED"ID Papan tidak ada.\n"WHITE"Silahkan masukan id papan yang mau di edit textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
 				if(!IsPlayerInRangeOfPoint(playerid, 10, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ETEXT_ID, DIALOG_STYLE_INPUT, "Edit Text Papan", RED"Papan tidak berada disekitar anda.\n"WHITE"Silahkan masukan id papan yang mau di edit textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
 
+				EditingObject[playerid] = EDITING_BOARD;
 				bEditID[playerid] = i;
 				ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ETEXT_TEXT, DIALOG_STYLE_INPUT, "Edit Text", "Silahkan isi text yang diinginkan.\nPastikan text tidak melebihi 1000 karakter dan minimal memiliki sebuah karakter.", "OK", "Batal");
 			}else
@@ -2634,6 +2819,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SendClientMessage(playerid, COLOR_BLUE, "* Anda berhasil mengubah text pada papan.");
 				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
 				bEditID[playerid] = 0;
+				EditingObject[playerid] = EDITING_NONE;
 			}
 			return 1;
 		}
@@ -2647,6 +2833,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(!IsPlayerInRangeOfPoint(playerid, 10, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ESIZE_ID, DIALOG_STYLE_INPUT, "Edit Ukuran Text", RED"Papan tidak berada disekitar anda.\n"WHITE"Silahkan masukan id papan yang mau di edit ukuran textnya.\nPastikan papan tersebut berada maksimal 10 meter dari anda.", "Ok", "Kembali");
 
 				bEditID[playerid] = i;
+				EditingObject[playerid] = EDITING_BOARD;
 				ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_ESIZE_SIZE, DIALOG_STYLE_INPUT, "Input ukuran text", "Silahkan masukan ukuran text yang diinginkan.", "Ok", "Batal");
 			}else
 				showDialogAdminPapan(playerid);
@@ -2663,8 +2850,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
 				bEditID[playerid] = 0;
-			}else
+				EditingObject[playerid] = EDITING_NONE;
+			}else{
 				bEditID[playerid] = 0;
+				EditingObject[playerid] = EDITING_NONE;
+			}
 			return 1;
 		}
 		case DIALOG_ADMIN_PAPAN_HAPUS:
@@ -3017,6 +3207,300 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_MENU_RUMAH:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Inventory rumah
+					{
+						new house_id = GetPlayerVirtualWorld(playerid);
+						inline responseQuery(){
+							new total_item, kapasitas = HouseLevel[houseInfo[house_id][hLevel]][houseItemCapacity];
+							cache_get_value_name_int(0, "total_item", total_item);
+							if(total_item >= kapasitas){
+								format(pDialog[playerid], sizePDialog, "Simpan Item\t"ORANGE"(%i/%i)\nAmbil Item", total_item, kapasitas);
+							}else{
+								format(pDialog[playerid], sizePDialog, "Simpan Item\t"GREEN"(%i/%i)\nAmbil Item", total_item, kapasitas);
+							}
+							ShowPlayerDialog(playerid, DIALOG_MENU_RUMAH_INVENTORY, DIALOG_STYLE_LIST, "Silahkan pilih aksi inventory rumah anda :", pDialog[playerid], "Pilih", "Batal");
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT IFNULL(SUM(a.jumlah * b.kapasitas), 0) as total_item FROM house_inv_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_house = '%d'", house_id);
+					}
+					case 1: // Semua Furniture
+					{
+						SetPVarInt(playerid, "halaman", 0);
+						tampilFurnitureHousePlayer(playerid, GetPlayerVirtualWorld(playerid), DIALOG_PILIH_FURNITURE_RUMAH);
+						return 1;
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_FURNITURE_RUMAH:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					tampilFurnitureHousePlayer(playerid, GetPlayerVirtualWorld(playerid), DIALOG_PILIH_FURNITURE_RUMAH);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+						tampilFurnitureHousePlayer(playerid, GetPlayerVirtualWorld(playerid), DIALOG_PILIH_FURNITURE_RUMAH);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						tampilFurnitureHousePlayer(playerid, GetPlayerVirtualWorld(playerid), DIALOG_PILIH_FURNITURE_RUMAH);
+					}
+					return 1;
+				}
+
+				SetPVarInt(playerid, "inv_indexlist", listitem);
+				format(pDialog[playerid], sizePDialog, "Furniture terpilih "PINK"%s", inputtext);
+				ShowPlayerDialog(playerid, DIALOG_OPTION_FURNITURE_RUMAH, DIALOG_STYLE_LIST, pDialog[playerid], "Tampilkan letak furniture\nEdit Furniture\nLepas dan simpan di inventory", "Pilih", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_OPTION_FURNITURE_RUMAH:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "inv_indexlist");
+				new Float:pos[3], nama_furniture[50], id_house_furniture, id_furniture;
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(idx, "id", id_house_furniture);
+				cache_get_value_name_int(idx, "id_furniture", id_furniture);
+				cache_get_value_name(idx, "nama_furniture", nama_furniture);
+				cache_get_value_name_float(idx, "pos_x", pos[0]);
+				cache_get_value_name_float(idx, "pos_y", pos[1]);
+				cache_get_value_name_float(idx, "pos_z", pos[2]);
+				cache_delete(PlayerInfo[playerid][tempCache]);
+				switch(listitem){
+					case 0: // Tampilkan letak furniture
+					{
+						SetPlayerCheckpoint(playerid, pos[0], pos[1], pos[2], 2.0);
+						PlayerInfo[playerid][activeMarker] = true;
+						sendPesan(playerid, COLOR_PINK, "[FURNITURE] "WHITE"letak "GREEN"%s "WHITE" telah ditampilkan pada marker merah.", nama_furniture);
+					}
+					case 1: // Edit furniture
+					{
+						if(!IsPlayerInRangeOfPoint(playerid, 10.0, pos[0], pos[1], pos[2])){
+							SendClientMessage(playerid, COLOR_PINK, "[FURNITURE] "WHITE"Anda harus berada minimal 10 meter dari furniture.");
+							SendClientMessage(playerid, COLOR_PINK, "[FURNITURE] "WHITE"Gunakan fitur tampilkan lokasi untuk mengetahui letak furniture.");
+							return 1;
+						}
+						new data[e_furniture];
+						for(new i, maxval = Streamer_GetUpperBound(STREAMER_TYPE_OBJECT); i <= maxval; ++i)
+						{
+							if(!IsValidDynamicObject(i)) continue;
+							Streamer_GetArrayData(STREAMER_TYPE_OBJECT, i, E_STREAMER_EXTRA_ID, data);
+							if(data[fID] == id_house_furniture) {
+								EditingObject[playerid] = EDITING_FURNITURE;
+								EditDynamicObject(playerid, i);
+								return 1;
+							}
+						}
+					}
+					case 2: // Lepas dan simpan di inventory
+					{
+						tambahFurniturePlayer(playerid, id_furniture, 1);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM house_furniture WHERE id = '%d'", id_house_furniture);
+						mysql_tquery(koneksi, pQuery[playerid]);
+						new data[e_furniture];
+						for(new i, maxval = Streamer_GetUpperBound(STREAMER_TYPE_OBJECT); i <= maxval; ++i)
+						{
+							if(!IsValidDynamicObject(i)) continue;
+							Streamer_GetArrayData(STREAMER_TYPE_OBJECT, i, E_STREAMER_EXTRA_ID, data);
+							if(data[fID] == id_house_furniture) {
+								DestroyDynamicObject(i);
+								SendClientMessage(playerid, COLOR_PINK, "[FURNITURE] "WHITE"Berhasil melepas dan memindahkan furniture ke inventory.");
+								return 1;
+							}
+						}
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_MENU_RUMAH_INVENTORY:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Simpan Item dari Inventory tas
+					{
+						SetPVarInt(playerid, "halaman", 0);
+						tampilInventoryItemPlayer(playerid, DIALOG_SIMPAN_ITEM_RUMAH);
+					}
+					case 1: // Ambil Item dari Inventory rumah
+					{
+						SetPVarInt(playerid, "halaman", 0);
+						new house_id = GetPlayerVirtualWorld(playerid);
+						tampilInventoryHousePlayer(playerid, house_id, DIALOG_AMBIL_ITEM_RUMAH, "Pilih item dari inventory rumah");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_SIMPAN_ITEM_RUMAH:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					tampilInventoryItemPlayer(playerid, DIALOG_SIMPAN_ITEM_RUMAH);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+						tampilInventoryItemPlayer(playerid, DIALOG_SIMPAN_ITEM_RUMAH);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						tampilInventoryItemPlayer(playerid, DIALOG_SIMPAN_ITEM_RUMAH);
+					}
+					return 1;
+				}
+
+				SetPVarInt(playerid, "inv_indexlist", listitem);
+				new nama_item[50], jumlah;
+
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+				cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+				cache_unset_active();
+
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan menyimpan item "GREEN"%s "WHITE"dari inventory anda ke inventory rumah.\n"WHITE"Banyak item yang tersedia "GREEN"%d\n"WHITE"Silahkan masukan jumlah yang ingin simpan :", nama_item, jumlah);
+				ShowPlayerDialog(playerid, DIALOG_SIMPAN_ITEM_RUMAH_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah item yang ingin disimpan", pDialog[playerid], "Ambil", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_SIMPAN_ITEM_RUMAH_JUMLAH:
+		{
+			if(response){
+				new nama_item[50], jumlah, id_item;
+
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", id_item);
+				cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+				cache_unset_active();
+
+				new input_jumlah;
+				if(sscanf(inputtext, "i", input_jumlah)) {
+					format(pDialog[playerid], sizePDialog, RED"Inputan anda tidak valid\n"WHITE"Anda akan menyimpan item "GREEN"%s "WHITE"dari inventory anda ke inventory rumah.\n"WHITE"Banyak item yang tersedia "GREEN"%d\n"WHITE"Silahkan masukan jumlah yang ingin simpan :", nama_item, jumlah);
+					return ShowPlayerDialog(playerid, DIALOG_SIMPAN_ITEM_RUMAH_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah item yang ingin disimpan", pDialog[playerid], "Ambil", "Batal");
+				}
+				if(input_jumlah < 1 || input_jumlah > jumlah){
+					format(pDialog[playerid], sizePDialog, RED"Jumlah yang anda masukan tidak tepat\n"WHITE"Anda akan menyimpan item "GREEN"%s "WHITE"dari inventory anda ke inventory rumah.\n"WHITE"Banyak item yang tersedia "GREEN"%d\n"WHITE"Silahkan masukan jumlah yang ingin simpan :", nama_item, jumlah);
+					return ShowPlayerDialog(playerid, DIALOG_SIMPAN_ITEM_RUMAH_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah item yang ingin disimpan", pDialog[playerid], "Ambil", "Batal");
+				}
+				// Karena sudah fix melewati yang sebelumnya maka bersihkan
+				if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+				
+				// inline responseCek(){
+				// 	printf("Masuk 1");
+				// 	new total_item;
+				// 	cache_get_value_name_int(0, "total_item", total_item);
+				// 	printf("total item %d", total_item);
+				// 	if((total_item + input_jumlah) > HouseLevel[houseInfo[GetPlayerVirtualWorld(playerid)][hLevel]][houseItemCapacity]){						
+				// 		printf("Masuk 2");
+				// 		format(pDialog[playerid], sizePDialog, "Maaf inventory rumah item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", input_jumlah, total_item, HouseLevel[houseInfo[GetPlayerVirtualWorld(playerid)][hLevel]][houseItemCapacity]);
+
+				// 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory rumah anda penuh", pDialog[playerid], "Ok", "");
+				// 	}else{
+				// 		printf("Masuk 3");
+				// 		tambahItemHouse(GetPlayerVirtualWorld(playerid), id_item, input_jumlah);
+				// 		tambahItemPlayer(playerid, id_item, -input_jumlah);
+
+				// 		format(pDialog[playerid], sizePDialog, "Anda berhasil menyimpan "YELLOW"%s"WHITE" ke dalam inventory rumah.\nSebanyak "YELLOW"%d"WHITE".\nAnda dapat mengambilnya kembali.", nama_item, input_jumlah);
+				// 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menyimpan barang", pDialog[playerid], "Ok", "");
+				// 	}
+				// 	resetPVarInventory(playerid);
+				// }
+				new house_id = GetPlayerVirtualWorld(playerid);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(a.jumlah * b.kapasitas), 0) as total_item FROM house_inv_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_house = '%d'", house_id);
+				mysql_tquery(koneksi, pQuery[playerid], "simpanItemKeInvenRumah", "iiiis", playerid, HouseLevel[houseInfo[GetPlayerVirtualWorld(playerid)][hLevel]][houseItemCapacity], id_item, input_jumlah, nama_item);
+				// MySQL_TQueryInline(koneksi, using inline responseCek, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM house_inv_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_house = '%d'", house_id);
+			}
+			return 1;
+		}
+		case DIALOG_AMBIL_ITEM_RUMAH:
+		{
+			if(response){
+				new house_id = GetPlayerVirtualWorld(playerid);
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					tampilInventoryHousePlayer(playerid, house_id, DIALOG_AMBIL_ITEM_RUMAH, "Pilih item dari inventory rumah");
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+
+						tampilInventoryHousePlayer(playerid, house_id, DIALOG_AMBIL_ITEM_RUMAH, "Pilih item dari inventory rumah");
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						tampilInventoryHousePlayer(playerid, house_id, DIALOG_AMBIL_ITEM_RUMAH, "Pilih item dari inventory rumah");
+					}
+					return 1;
+				}
+
+				SetPVarInt(playerid, "inv_indexlist", listitem);
+				new nama_item[50], jumlah;
+
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+				cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+				cache_unset_active();
+
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan mengambil item "GREEN"%s "WHITE"dari inventory rumah anda.\n"WHITE"Banyak item yang tersedia "GREEN"%d\n"WHITE"Silahkan masukan jumlah yang ingin diambil :", nama_item, jumlah);
+				ShowPlayerDialog(playerid, DIALOG_AMBIL_ITEM_RUMAH_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah item yang ingin diambil", pDialog[playerid], "Ambil", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_AMBIL_ITEM_RUMAH_JUMLAH:
+		{
+			if(response){
+				new nama_item[50], jumlah, id_item;
+
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", id_item);
+				cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+				cache_unset_active();
+
+				new input_jumlah;
+				if(sscanf(inputtext, "i", input_jumlah)) {
+					format(pDialog[playerid], sizePDialog, RED"Inputan anda tidak valid\n"WHITE"Anda akan mengambil item "GREEN"%s "WHITE"dari inventory rumah anda.\n"WHITE"Banyak item yang tersedia "GREEN"%d\n"WHITE"Silahkan masukan jumlah yang ingin diambil :", nama_item, jumlah);
+					return ShowPlayerDialog(playerid, DIALOG_AMBIL_ITEM_RUMAH_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah item yang ingin diambil", pDialog[playerid], "Ambil", "Batal");
+				}
+				if(input_jumlah < 1 || input_jumlah > jumlah){
+					format(pDialog[playerid], sizePDialog, RED"Jumlah yang anda masukan tidak tepat\n"WHITE"Anda akan mengambil item "GREEN"%s "WHITE"dari inventory rumah anda.\n"WHITE"Banyak item yang tersedia "GREEN"%d\n"WHITE"Silahkan masukan jumlah yang ingin diambil :", nama_item, jumlah);
+					return ShowPlayerDialog(playerid, DIALOG_AMBIL_ITEM_RUMAH_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah item yang ingin diambil", pDialog[playerid], "Ambil", "Batal");
+				}
+
+				// Karena sudah fix melewati yang sebelumnya maka bersihkan
+				cache_delete(PlayerInfo[playerid][tempCache]);
+				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+				
+				// inline responseQuery(){
+				// 	new total_item;
+				// 	cache_get_value_name_int(0, "total_item", total_item);
+				// 	if((total_item + input_jumlah) > PlayerInfo[playerid][limitItem]){						
+				// 		format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", input_jumlah, total_item, PlayerInfo[playerid][limitItem]);
+
+				// 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+				// 	}else{
+				// 		tambahItemHouse(GetPlayerVirtualWorld(playerid), id_item, -input_jumlah);
+				// 		tambahItemPlayer(playerid, id_item, input_jumlah);
+
+				// 		format(pDialog[playerid], sizePDialog, "Anda berhasil mengambil "YELLOW"%s"WHITE" dari dalam inventory rumah.\nSebanyak "YELLOW"%d"WHITE".\nAnda dapat menyimpannya kembali selama anda memiliki cukup ruang.", nama_item, input_jumlah);
+				// 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mengambil barang", pDialog[playerid], "Ok", "");
+				// 	}
+				// 	resetPVarInventory(playerid);
+				// }
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(a.jumlah * b.kapasitas), 0) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid], "ambilItemDariInvenRumah", "iiis", playerid, id_item, input_jumlah, nama_item);
+				// MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -3088,6 +3572,32 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			GameTextForPlayer(playerid, "~w~Mesin kendaraan ~g~dihidupkan", 1000, 3);
 			SetVehicleParamsEx(vehid, 1, 1, alarm, doors, bonnet, boot, objective);
 		}
+	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO)){
+		if(lastHousePickup[playerid] < 0 || lastHousePickup[playerid] >= MAX_HOUSES) return 1;
+		new id,
+			Float:x,
+			Float:y,
+			Float:z;
+		id = houseId[lastHousePickup[playerid]];
+
+		x = houseInfo[id][icon_x];
+		y = houseInfo[id][icon_y];
+		z = houseInfo[id][icon_z];
+		if(IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) {
+			new id_level = houseInfo[id][hLevel];
+			if(houseInfo[id][hKunci] != 1){
+				pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
+				SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
+			}else{
+				if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
+					pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
+					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
+				}else{
+					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf rumah terkunci dan tidak dapat masuk!");
+				}
+			}
+		}
+		return 1;
 	}
     return 1;
 }
@@ -3218,7 +3728,6 @@ public OnGameModeInit()
 	}else{
 		printf("[SUCCESS] Berhasil Koneksi ke database!");
 	}
-
 	printf("[MAPPING] Load semua mappingan...");
 	loadAllMapingan();
 	printf("[MAPPING] Sukses load mapping!");
@@ -3239,6 +3748,10 @@ public OnGameModeInit()
 	loadAllMapIcon();
 	printf("[MAP ICON] Sukses load map icon!");
 
+	printf("[HOUSE LEVEL] Load semua HOUSE LEVEL...");
+	loadAllHouseLevel();
+	printf("[HOUSE LEVEL] Sukses load HOUSE LEVEL!");
+
 	printf("[HOUSE] Load semua house...");
 	resetAllHouse();
 	printf("[HOUSE] Sukses load house!");
@@ -3258,7 +3771,6 @@ public OnGameModeInit()
 	SetNameTagDrawDistance(40.0);
 	EnableStuntBonusForAll(0);
 	DisableInteriorEnterExits();
-	UsePlayerPedAnims();
 	
 	printf("[TEXTDRAW] Load textdraw global..");
 	loadTextdrawGlobal();
@@ -3502,6 +4014,10 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	}else if(pickupid == PU_bankLS[EXIT_PICKUP]){
 		new rand_idx = random(sizeof(SP_OUT_BANK_LS));
 		pindahkanPemain(playerid, SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_X],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_Y],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_Z],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_A], SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_INTERIOR], SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_VW], true);
+		return 1;
+	}else if(pickupid >= PU_tempatKeluarRumah[0] && pickupid <= PU_tempatKeluarRumah[1]){
+		new id_rumah = GetPlayerVirtualWorld(playerid);
+		pindahkanPemain(playerid, houseInfo[id_rumah][icon_x], houseInfo[id_rumah][icon_y], houseInfo[id_rumah][icon_z], houseInfo[id_rumah][last_a], 0, 0, true);
 		return 1;
 	}
 	return 1;
@@ -3892,39 +4408,76 @@ task updateWorldTime[1000]()
 public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)
 {
 	new idx = bEditID[playerid];
-	if(response == EDIT_RESPONSE_UPDATE)
-	{
-		SetDynamicObjectPos(objectid, x, y, z);
-		SetDynamicObjectRot(objectid, rx, ry, rz);
-	}
-	else if(response == EDIT_RESPONSE_CANCEL)
-	{
-		SetDynamicObjectPos(objectid, bCPos[playerid][0], bCPos[playerid][1], bCPos[playerid][2]);
-		SetDynamicObjectRot(objectid, bCRot[playerid][0], bCRot[playerid][1],bCRot[playerid][2]);
-		bCPos[playerid][0] = bCPos[playerid][1] = bCPos[playerid][2] = 0;
-		bCRot[playerid][0] = bCRot[playerid][1] = bCRot[playerid][2] = 0;
+	if(EditingObject[playerid] == EDITING_BOARD){
+		if(response == EDIT_RESPONSE_UPDATE)
+		{
+			SetDynamicObjectPos(objectid, x, y, z);
+			SetDynamicObjectRot(objectid, rx, ry, rz);
+		}
+		else if(response == EDIT_RESPONSE_CANCEL)
+		{
+			SetDynamicObjectPos(objectid, bCPos[playerid][0], bCPos[playerid][1], bCPos[playerid][2]);
+			SetDynamicObjectRot(objectid, bCRot[playerid][0], bCRot[playerid][1],bCRot[playerid][2]);
+			bCPos[playerid][0] = bCPos[playerid][1] = bCPos[playerid][2] = 0;
+			bCRot[playerid][0] = bCRot[playerid][1] = bCRot[playerid][2] = 0;
 
-		format(pDialog[playerid], sizePDialog, "* Anda membatalkan edit board id : %d.", idx);
-		SendClientMessage(playerid, COLOR_BLUE, pDialog[playerid]);
-	}
-	else if(response == EDIT_RESPONSE_FINAL)
-	{
-		SetDynamicObjectPos(objectid, x, y, z);
-		SetDynamicObjectRot(objectid, rx, ry, rz);
+			format(pDialog[playerid], sizePDialog, "* Anda membatalkan edit board id : %d.", idx);
+			SendClientMessage(playerid, COLOR_BLUE, pDialog[playerid]);
+		}
+		else if(response == EDIT_RESPONSE_FINAL)
+		{
+			SetDynamicObjectPos(objectid, x, y, z);
+			SetDynamicObjectRot(objectid, rx, ry, rz);
 
-		BoardInfo[idx][bCX] = x;
-		BoardInfo[idx][bCY] = y;
-		BoardInfo[idx][bCZ] = z;
-		BoardInfo[idx][bCRX] = rx;
-		BoardInfo[idx][bCRY] = ry;
-		BoardInfo[idx][bCRZ] = rz;
+			BoardInfo[idx][bCX] = x;
+			BoardInfo[idx][bCY] = y;
+			BoardInfo[idx][bCZ] = z;
+			BoardInfo[idx][bCRX] = rx;
+			BoardInfo[idx][bCRY] = ry;
+			BoardInfo[idx][bCRZ] = rz;
 
-		bEditID[playerid] = 0;
-		BoardInfo[idx][bStatus] = 0;
-		
-		SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
-		format(pDialog[playerid], sizePDialog, "* Kamu berhasil mengedit posisi dari board ID : %d.", idx);
-		SendClientMessage(playerid, COLOR_GREEN, pDialog[playerid]);
+			bEditID[playerid] = 0;
+			EditingObject[playerid] = EDITING_NONE;
+			BoardInfo[idx][bStatus] = 0;
+			
+			SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
+			format(pDialog[playerid], sizePDialog, "* Kamu berhasil mengedit posisi dari board ID : %d.", idx);
+			SendClientMessage(playerid, COLOR_GREEN, pDialog[playerid]);
+		}
+	}else if(EditingObject[playerid] == EDITING_FURNITURE){
+		switch(response)
+		{
+			case EDIT_RESPONSE_CANCEL:
+			{
+				new data[e_furniture];
+				Streamer_GetArrayData(STREAMER_TYPE_OBJECT, objectid, E_STREAMER_EXTRA_ID, data);
+				SetDynamicObjectPos(objectid, data[fPosX], data[fPosY], data[fPosZ]);
+				SetDynamicObjectRot(objectid, data[fRotX], data[fRotY], data[fRotZ]);
+
+				EditingObject[playerid] = EDITING_NONE;
+			}
+
+			case EDIT_RESPONSE_FINAL:
+			{
+				new data[e_furniture];
+				Streamer_GetArrayData(STREAMER_TYPE_OBJECT, objectid, E_STREAMER_EXTRA_ID, data);
+				data[fPosX] = x;
+				data[fPosY] = y;
+				data[fPosZ] = z;
+				data[fRotX] = rx;
+				data[fRotY] = ry;
+				data[fRotZ] = rz;
+				SetDynamicObjectPos(objectid, data[fPosX], data[fPosY], data[fPosZ]);
+				SetDynamicObjectRot(objectid, data[fRotX], data[fRotY], data[fRotZ]);
+				Streamer_SetArrayData(STREAMER_TYPE_OBJECT, objectid, E_STREAMER_EXTRA_ID, data);
+
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE house_furniture SET pos_x=%f, pos_y=%f, pos_z=%f, rot_x=%f, rot_y=%f, rot_z=%f WHERE id=%d", data[fPosX], data[fPosY], data[fPosZ], data[fRotX], data[fRotY], data[fRotZ], data[fID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+				EditingObject[playerid] = EDITING_NONE;
+
+				SendClientMessage(playerid, COLOR_PINK, "[FURNITURE] "WHITE"Berhasil menyimpan posisi furniture.");
+			}
+		}
 	}
 	return 1;
 }

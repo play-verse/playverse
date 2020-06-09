@@ -804,7 +804,7 @@ static Prev_FetchListitemData(const listitem[], &modelid, text[], &Float:rx, &Fl
 	do {
 	    next = strfind(modelstr, ",", false, pos);
 
-	    strmid(valuestr, modelstr, pos, ((next == -1) ? strlen(modelstr) : next), sizeof(valuestr));
+	    strmid(valuestr, modelstr, ((count == 0) ? (pos + 1) : pos), ((next == -1) ? (strlen(modelstr) - 1) : next), sizeof(valuestr));
 
   		pos = (next == -1) ? -1 : (next + 1);
 

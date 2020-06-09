@@ -10,8 +10,21 @@ stock SetPlayerMoney(playerid, jumlah){
 // Link YSI Secret - https://forum.sa-mp.com/showthread.php?t=570949
 sendPesan(playerid, warna, const pesan[], {Float,_}:...){ // Bisa juga menggunakan GLOBAL_TAG_TYPES:... dari YSI
     new temp_string[128];
-    format(temp_string, 128, pesan, ___(2));
+    format(temp_string, 128, pesan, ___(3));
     return SendClientMessage(playerid, warna, temp_string);
+}
+
+strcatEx(dest[], len_dest, const source[], {Float,_}:...){
+    new temp_string[1000];
+    format(temp_string, sizeof(temp_string), source, ___(3));
+    strcat(dest, temp_string, len_dest);
+}
+
+isPlayerInOwnedHouse(playerid){
+    if(GetPlayerInterior(playerid) > 0 && GetPlayerVirtualWorld(playerid) <= MAX_HOUSES){
+        if(houseInfo[GetPlayerVirtualWorld(playerid)][hOwner] == PlayerInfo[playerid][pID]) return 1;
+    }
+    return 0;
 }
 
 stock strreplace(sstring[], const search[], const replacement[], bool:ignorecase = false, pos = 0, limit = -1, maxlength = sizeof(sstring)) 
@@ -341,4 +354,14 @@ stock IsVehicleFlipped(vehicleid)
 PreloadAnimLib(playerid, const animlib[])
 {
 	ApplyAnimation(playerid, animlib, "null", 0.0, 0, 0, 0, 0, 0);
+}
+
+stock GetXYInFrontOfPlayer(playerid, &Float:x, &Float:y, Float:distance)
+{
+	new Float: a;
+	GetPlayerPos(playerid, x, y, a);
+	GetPlayerFacingAngle(playerid, a);
+	if (GetPlayerVehicleID(playerid)) GetVehicleZAngle(GetPlayerVehicleID(playerid), a);
+	x += (distance * floatsin(-a, degrees));
+	y += (distance * floatcos(-a, degrees));
 }

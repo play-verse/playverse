@@ -4,8 +4,13 @@ showDialogResepsionis(playerid){
 }
 
 showDialogListItem(playerid){
-    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT b.id_item, b.nama_item, b.keterangan, b.fungsi, b.model_id, a.kunci, a.id_user_item, a.jumlah FROM `user_item` a LEFT JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0 ORDER BY nama_item ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT b.id_item, b.nama_item, b.keterangan, b.fungsi, b.model_id, a.kunci, a.id_user_item, a.jumlah FROM `user_item` a INNER JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0 ORDER BY nama_item ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
     mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryBarangPlayer", "i", playerid);    
+}
+
+showDialogListFurniturePemain(playerid){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.id, b.nama_furniture, b.id_object, a.id_furniture, a.jumlah, b.keterangan FROM user_furniture a INNER JOIN furniture b ON a.id_furniture = b.id WHERE a.id_user = '%d' AND a.jumlah > 0 ORDER BY b.nama_furniture ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+    mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryFurniturePlayer", "i", playerid);
 }
 
 showDialogRespsionisKTP(playerid){
@@ -48,14 +53,14 @@ showDialogMenuInventory(playerid){
         new total_item, string[500];
         cache_get_value_name_int(0, "total_item", total_item);
         if(total_item >= PlayerInfo[playerid][limitItem]){
-            format(string, 500, WHITE"Item\t"RED"(%i/%i)\nSkin\nKendaraan", total_item, PlayerInfo[playerid][limitItem]);
+            format(string, 500, WHITE"Item\t"RED"(%i/%i)\nSkin\nKendaraan\nFurniture", total_item, PlayerInfo[playerid][limitItem]);
             ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", string, "Pilih", "Batal");
         }else{
-            format(string, 500, WHITE"Item\t"GREEN"(%i/%i)\nSkin\nKendaraan", total_item, PlayerInfo[playerid][limitItem]);
+            format(string, 500, WHITE"Item\t"GREEN"(%i/%i)\nSkin\nKendaraan\nFurniture", total_item, PlayerInfo[playerid][limitItem]);
             ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", string, "Pilih", "Batal");
         }
     }
-	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);    
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 }
 
 showDialogEPhone(playerid){
@@ -89,8 +94,8 @@ showDialogEPhone(playerid){
 }
 
 showDialogBeliBarang(playerid){
-	new subString[45];
-    static string[sizeof(BARANG_MARKET) * 45];
+	new subString[100];
+    static string[sizeof(BARANG_MARKET) * 100];
 
     if(string[0] == EOS){
 		for(new i = 0; i < sizeof(BARANG_MARKET); i++){

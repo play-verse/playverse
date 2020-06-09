@@ -142,6 +142,8 @@ resetPlayerVariable(playerid){
 
 	KillTimer(PlayerAction[playerid][timerNambang]);
 	PlayerAction[playerid][sedangNambang] = false;
+
+	EditingObject[playerid] = EDITING_NONE;
 }
 
 ResetPVarTemporary(playerid){
@@ -493,6 +495,38 @@ publicFor: hitungGaji(playerid, tipe){
 	return 1;
 }
 
+publicFor: tampilInventoryFurniturePlayer(playerid){
+	new rows, jumlah, nama_furniture[100];
+	cache_get_row_count(rows);
+	new string[1500] = "Nama\tJumlah\n"WHITE;
+	if(rows){
+		for(new i = 0; i < rows; i++){
+			cache_get_value_name_int(i, "jumlah", jumlah);
+			cache_get_value_name(i, "nama_furniture", nama_furniture);
+			strcatEx(string, sizeof(string), "%s\t%i\n", nama_furniture, jumlah);
+		}
+		strcat(string, ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+		// Save cache
+		// IMPORTANT - PASTIKAN UNTUK SELALU MENGHAPUS SEBELUM MENYIMPAN CACHE YANG BARU
+		if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+		PlayerInfo[playerid][tempCache] = cache_save();
+
+		new subString[64];
+		format(subString, 64, WHITE"Pilih furniture anda : "GREEN"(page : %d)", GetPVarInt(playerid, "halaman") + 1);
+		ShowPlayerDialog(playerid, DIALOG_PILIH_FURNITURE, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Kembali");
+	}else{
+		if(GetPVarInt(playerid, "halaman") < 1)
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory furniture "RED"kosong", WHITE"Maaf saat ini inventory furniture anda tidak berisi apapun!\n"YELLOW"Anda bisa mendapatkan furniture dari berbelanja ataupun saling bertukar furniture kepada player lain!", "Ok", "");
+		else{ // Kembalikan ke halaman sebelumnya
+			SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+			showDialogListFurniturePemain(playerid);
+		}
+	}
+
+	return 1; // For deleteing cache tquery
+}
+
 publicFor: tampilInventoryBarangPlayer(playerid){
 	new rows, subString[64], jumlah, nama_item[100];
 	cache_get_row_count(rows);
@@ -524,9 +558,23 @@ publicFor: tampilInventoryBarangPlayer(playerid){
 	return 1; // For deleteing cache tquery
 }
 
+publicFor: tambahItemHouse(house_id, itemid, jumlah){
+	// Pakai trigger procedure
+	new temp_query[100];
+	mysql_format(koneksi, temp_query, sizeof(temp_query), "CALL tambah_item_house(%d, %d, %d)", house_id, itemid, jumlah);
+	mysql_tquery(koneksi, temp_query);
+	return 1;
+}
+
 publicFor: tambahItemPlayer(playerid, itemid, jumlah){
 	// Pakai trigger procedure
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "CALL tambah_item(%d, %d, %d)", PlayerInfo[playerid][pID], itemid, jumlah);
+	mysql_tquery(koneksi, pQuery[playerid]);
+	return 1;
+}
+
+publicFor: tambahFurniturePlayer(playerid, furnitureid, jumlah){
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "CALL tambah_furniture(%d, %d, %d)", PlayerInfo[playerid][pID], furnitureid, jumlah);
 	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }
@@ -723,6 +771,118 @@ publicFor: tampilSaldoPlayer(playerid){
 	}
 	else
 		printf("[ERROR] #03 Error fungsi tampil saldo (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
+	return 1;
+}
+
+tampilInventoryItemPlayer(playerid, dialog_id, const judul[] = "Pilih item"){
+	inline responseQuery(){
+		new rows, jumlah, nama_item[100];
+		cache_get_row_count(rows);
+		new string[1500] = "Nama\tJumlah\n"WHITE;
+		if(rows){
+			for(new i = 0; i < rows; i++){
+				cache_get_value_name_int(i, "jumlah", jumlah);
+				cache_get_value_name(i, "nama_item", nama_item);
+
+				strcatEx(string, sizeof(string), "%s\t%i\n", nama_item, jumlah);
+			}
+			strcat(string, ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+			// IMPORTANT untuk selalu menghapus cache yang lama setiap ingin menyimpannya dengan yang baru
+			if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+			PlayerInfo[playerid][tempCache] = cache_save();
+
+			new subString[64];
+			format(subString, 64, WHITE"%s : "GREEN"(page : %d)", judul, GetPVarInt(playerid, "halaman") + 1);
+			ShowPlayerDialog(playerid, dialog_id, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Kembali");
+		}else{
+			if(GetPVarInt(playerid, "halaman") < 1)
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item anda "RED"kosong", WHITE"Maaf saat ini inventory item anda tidak berisi apapun!", "Ok", "");
+			else{ // Kembalikan ke halaman sebelumnya
+				SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+				tampilInventoryItemPlayer(playerid, dialog_id, judul); // Recursive
+			}
+		}
+		return 1;
+	}
+
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT b.id_item, b.nama_item, b.keterangan, b.fungsi, b.model_id, a.kunci, a.id_user_item, a.jumlah FROM `user_item` a INNER JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0 ORDER BY nama_item ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+
+	return 1;
+}
+
+tampilInventoryHousePlayer(playerid, house_id, dialog_id, const judul[] = "Pilih item"){
+	inline responseQuery(){
+		new rows, jumlah, nama_item[100];
+		cache_get_row_count(rows);
+		new string[1500] = "Nama\tJumlah\n"WHITE;
+		if(rows){
+			for(new i = 0; i < rows; i++){
+				cache_get_value_name_int(i, "jumlah", jumlah);
+				cache_get_value_name(i, "nama_item", nama_item);
+
+				strcatEx(string, sizeof(string), "%s\t%i\n", nama_item, jumlah);
+			}
+			strcat(string, ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+			// IMPORTANT untuk selalu menghapus cache yang lama setiap ingin menyimpannya dengan yang baru
+			if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+			PlayerInfo[playerid][tempCache] = cache_save();
+
+			new subString[64];
+			format(subString, 64, WHITE"%s : "GREEN"(page : %d)", judul, GetPVarInt(playerid, "halaman") + 1);
+			ShowPlayerDialog(playerid, dialog_id, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Kembali");
+		}else{
+			if(GetPVarInt(playerid, "halaman") < 1)
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item rumah anda "RED"kosong", WHITE"Maaf saat ini inventory item anda tidak berisi apapun!\n"YELLOW"Anda dapat menyimpan dari inventory didalam tas anda!", "Ok", "");
+			else{ // Kembalikan ke halaman sebelumnya
+				SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+				tampilInventoryHousePlayer(playerid, house_id, dialog_id, judul); // Recursive
+			}
+		}
+		return 1;
+	}
+
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT b.id_item, b.nama_item, a.id, a.jumlah FROM `house_inv_item` a INNER JOIN `item` b ON a.id_item = b.id_item WHERE a.id_house = '%d' AND a.jumlah > 0 ORDER BY b.nama_item ASC LIMIT %i, %i", house_id, BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+
+	return 1;
+}
+
+tampilFurnitureHousePlayer(playerid, house_id, dialog_id, const judul[] = "Pilih furniture"){
+	inline responseQuery(){
+		new rows, Float:pos_obj[3], nama_furniture[100];
+		cache_get_row_count(rows);
+		new string[1500] = "Nama\tJarak dari anda\n"WHITE;
+		if(rows){
+			for(new i = 0; i < rows; i++){
+				cache_get_value_name_float(i, "pos_x", pos_obj[0]);
+				cache_get_value_name_float(i, "pos_y", pos_obj[1]);
+				cache_get_value_name_float(i, "pos_z", pos_obj[2]);
+				cache_get_value_name(i, "nama_furniture", nama_furniture);
+
+				strcatEx(string, sizeof(string), "%s\t%.2fm\n", nama_furniture, GetPlayerDistanceFromPoint(playerid, pos_obj[0], pos_obj[1], pos_obj[2]));
+			}
+			strcat(string, ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+			// IMPORTANT untuk selalu menghapus cache yang lama setiap ingin menyimpannya dengan yang baru
+			if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+			PlayerInfo[playerid][tempCache] = cache_save();
+
+			new subString[64];
+			format(subString, 64, WHITE"%s : "GREEN"(page : %d)", judul, GetPVarInt(playerid, "halaman") + 1);
+			ShowPlayerDialog(playerid, dialog_id, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Kembali");
+		}else{
+			if(GetPVarInt(playerid, "halaman") < 1)
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Furniture rumah "RED"kosong", WHITE"Maaf saat ini furniture didalam rumah anda tidak ada!\n"YELLOW"Anda dapat memasangnya dari furniture yang ada di inventory anda!", "Ok", "");
+			else{ // Kembalikan ke halaman sebelumnya
+				SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+				tampilFurnitureHousePlayer(playerid, house_id, dialog_id, judul); // Recursive
+			}
+		}
+		return 1;
+	}
+
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT a.id, a.id_furniture, a.pos_x, a.pos_y, a.pos_z, b.nama_furniture FROM house_furniture a INNER JOIN furniture b ON a.id_furniture = b.id WHERE a.id_house = '%d' ORDER BY b.nama_furniture ASC LIMIT %i, %i", house_id, BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
 	return 1;
 }
 
@@ -1214,6 +1374,77 @@ loadAllItem(){
 	cache_delete(result);
 }
 
+publicFor: ambilItemDariInvenRumah(playerid, id_item, input_jumlah, const nama_item[]){
+ 	new total_item;
+	cache_get_value_name_int(0, "total_item", total_item);
+	if((total_item + input_jumlah) > PlayerInfo[playerid][limitItem]){						
+		format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", input_jumlah, total_item, PlayerInfo[playerid][limitItem]);
+
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+	}else{
+		tambahItemHouse(GetPlayerVirtualWorld(playerid), id_item, -input_jumlah);
+		tambahItemPlayer(playerid, id_item, input_jumlah);
+
+		format(pDialog[playerid], sizePDialog, "Anda berhasil mengambil "YELLOW"%s"WHITE" dari dalam inventory rumah.\nSebanyak "YELLOW"%d"WHITE".\nAnda dapat menyimpannya kembali selama anda memiliki cukup ruang.", nama_item, input_jumlah);
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mengambil barang", pDialog[playerid], "Ok", "");
+	}
+	resetPVarInventory(playerid);
+	return 1;
+}
+
+publicFor: simpanItemKeInvenRumah(playerid, max_slot, id_item, input_jumlah, const nama_item[])
+{
+	new total_item;
+	cache_get_value_name_int(0, "total_item", total_item);
+	if((total_item + input_jumlah) > max_slot){						
+		format(pDialog[playerid], sizePDialog, "Maaf inventory rumah item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", input_jumlah, total_item, max_slot);
+
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory rumah anda penuh", pDialog[playerid], "Ok", "");
+	}else{
+		tambahItemHouse(GetPlayerVirtualWorld(playerid), id_item, input_jumlah);
+		tambahItemPlayer(playerid, id_item, -input_jumlah);
+
+		format(pDialog[playerid], sizePDialog, "Anda berhasil menyimpan "YELLOW"%s"WHITE" ke dalam inventory rumah.\nSebanyak "YELLOW"%d"WHITE".\nAnda dapat mengambilnya kembali.", nama_item, input_jumlah);
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menyimpan barang", pDialog[playerid], "Ok", "");
+	}
+	resetPVarInventory(playerid);
+	return 1;
+}
+
+loadAllHouseLevel(){
+	new Cache:result = mysql_query(koneksi, "SELECT * FROM house_interior"), idx = 0, temp_str[50], Float:temp_fl[3], rows, id;
+	cache_get_row_count(rows);
+	while(idx < rows){
+		cache_get_value_name_int(idx, "id_level", id);
+		Iter_Add(HouseLevelIterator, id);
+		cache_get_value_name(idx, "nama_level", temp_str);
+		format(HouseLevel[id][namaLevel], 50, "%s", temp_str);
+		cache_get_value_name_float(idx, "pickup_out_x", temp_fl[0]);
+		cache_get_value_name_float(idx, "pickup_out_y", temp_fl[1]);
+		cache_get_value_name_float(idx, "pickup_out_z", temp_fl[2]);
+		if(idx == 0) PU_tempatKeluarRumah[0] = CreateDynamicPickup(1318, 1, temp_fl[0], temp_fl[1], temp_fl[2]);
+		else PU_tempatKeluarRumah[1] = CreateDynamicPickup(1318, 1, temp_fl[0], temp_fl[1], temp_fl[2]);
+		cache_get_value_name_float(idx, "spawn_in_x", HouseLevel[id][intSpawn][0]);
+		cache_get_value_name_float(idx, "spawn_in_y", HouseLevel[id][intSpawn][1]);
+		cache_get_value_name_float(idx, "spawn_in_z", HouseLevel[id][intSpawn][2]);
+		cache_get_value_name_float(idx, "spawn_in_a", HouseLevel[id][intSpawn][3]);
+		cache_get_value_name_int(idx, "spawn_in_interior", HouseLevel[id][intSpawnInterior]);
+		cache_get_value_name_int(idx, "limit_item", HouseLevel[id][houseItemCapacity]);
+
+		#if defined DEBUG_SERVER_LOAD
+		printf("House Level %s berhasil load.", temp_str);
+		#endif
+
+		idx++;
+	}
+	if(PU_tempatKeluarRumah[0] + rows - 1 != PU_tempatKeluarRumah[1]){
+		printf("[ERROR] #012 Pickup House Level tidak memiliki ID yang simetris.");
+        SendRconCommand("exit");
+	}
+
+	cache_delete(result);
+}
+
 loadAllHouse(){
 	new house_Id, userId, houseLevel, houseHarga, houseSetHarga, houseKunci, houseJual, hX[256], hY[256], hZ[256];
 	new Cache:result, row, idx = 0;
@@ -1232,6 +1463,7 @@ loadAllHouse(){
 		cache_get_value_name(idx, "icon_y", hY);
 		cache_get_value_name(idx, "icon_z", hZ);
 		createHouse(house_Id, userId, houseLevel, houseHarga, houseSetHarga, houseKunci, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));
+		loadHouseFurniture(house_Id);
 		cache_set_active(result);
 		
 		#if DEBUG_SERVER_LOAD == true
@@ -1241,6 +1473,40 @@ loadAllHouse(){
 		idx++;
 	}
 	cache_delete(result);
+}
+
+loadHouseFurniture(house_id){
+	inline responseQuery(){
+		new rows, idx = 0;
+		cache_get_row_count(rows);
+		if(rows){
+			new data[e_furniture], id_object, interior;
+
+			while(idx < rows){
+				cache_get_value_name_int(idx, "id", data[fID]);
+				cache_get_value_name_int(idx, "id_furniture", data[fFurnitureID]);
+				cache_get_value_name_int(idx, "id_object", id_object);
+				cache_get_value_name_int(idx, "spawn_in_interior", interior);
+				data[fHouseID] = house_id;
+				cache_get_value_name_float(idx, "pos_x", data[fPosX]);
+				cache_get_value_name_float(idx, "pos_y", data[fPosY]);
+				cache_get_value_name_float(idx, "pos_z", data[fPosZ]);
+				cache_get_value_name_float(idx, "rot_x", data[fRotX]);
+				cache_get_value_name_float(idx, "rot_y", data[fRotY]);
+				cache_get_value_name_float(idx, "rot_z", data[fRotZ]);
+
+				new objectid = CreateDynamicObject(id_object, data[fPosX], data[fPosY], data[fPosZ], data[fRotZ], data[fRotY], data[fRotZ], house_id, interior);
+
+				#if defined DEBUG_SERVER_LOAD
+				printf("House furniture (%d) - House ID(%d) - Object", data[fID], house_id, objectid);
+				#endif
+
+				Streamer_SetArrayData(STREAMER_TYPE_OBJECT, objectid, E_STREAMER_EXTRA_ID, data);
+				idx++;
+			}
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT a.*, b.id_object, d.spawn_in_interior FROM house_furniture a INNER JOIN furniture b ON a.id_furniture = b.id INNER JOIN house c ON c.id_house = a.id_house INNER JOIN house_interior d ON d.id_level = c.level WHERE a.id_house = %d", house_id);
 }
 
 unloadAllHouse(){
@@ -1307,32 +1573,35 @@ reloadHouseLabel(house_Id){
 	if(houseInfo[house_Id][hJual] == 1){
 		if(houseInfo[house_Id][hOwner] != -1){
 			if(houseInfo[house_Id][hJual] == 1){
-				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], ownerName, beliRate);
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nLevel : "PURPLE"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], ownerName, HouseLevel[houseInfo[house_Id][hLevel]][namaLevel], beliRate);
 			}else{
-				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"%s", houseInfo[house_Id][hID], ownerName);
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nLevel : "PURPLE"%s", houseInfo[house_Id][hID], ownerName, HouseLevel[houseInfo[house_Id][hLevel]][namaLevel]);
 			}
 		}else{
 			if(houseInfo[house_Id][hJual] == 1){
-				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], beliRate);
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nLevel : "PURPLE"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], HouseLevel[houseInfo[house_Id][hLevel]][namaLevel], beliRate);
 			}else{
-				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada", houseInfo[house_Id][hID]);
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nLevel : "PURPLE"%s", houseInfo[house_Id][hID], HouseLevel[houseInfo[house_Id][hLevel]][namaLevel]);
 			}
 		}
 	}else{
 		if(houseInfo[house_Id][hOwner] != -1){
 			if(houseInfo[house_Id][hJual] == 1){
-				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], ownerName, beliRate);
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nLevel : "PURPLE"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], ownerName, HouseLevel[houseInfo[house_Id][hLevel]][namaLevel], beliRate);
 			}else{
-				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"%s", houseInfo[house_Id][hID], ownerName);
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"%s"WHITE"\nLevel : "PURPLE"%s", houseInfo[house_Id][hID], ownerName, HouseLevel[houseInfo[house_Id][hLevel]][namaLevel]);
 			}
 		}else{
 			if(houseInfo[house_Id][hJual] == 1){
-				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], beliRate);
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nLevel : "PURPLE"%s"WHITE"\nHarga : "GREEN"%d", houseInfo[house_Id][hID], HouseLevel[houseInfo[house_Id][hLevel]][namaLevel], beliRate);
 			}else{
-				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada", houseInfo[house_Id][hID]);
+				format(text_info, 256, WHITE"["GREEN"Rumah"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"Tidak Dijual"WHITE"\nPemilik : "GREEN"Tidak Ada"WHITE"\nLevel : "PURPLE"%s", houseInfo[house_Id][hID], HouseLevel[houseInfo[house_Id][hLevel]][namaLevel]);
 			}
 		}
 	}
+	
+	strcat(text_info, "\n"WHITE"Tekan "GREEN"N "WHITE"untuk masuk");
+	
     houseTextInfo[house_Id] = CreateDynamic3DTextLabel(text_info, COLOR_WHITE, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z]+0.75, 20);
 }
 
@@ -1438,12 +1707,11 @@ mulaiPembuatanSIM(playerid){
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan praktik mengemudi kendaraan.\nSilahkan ikuti aturan dan arah jalan dengan benar sebagai berikut.\nAturan:\n"YELLOW"- Maksimal kecepatan "GREEN"80 KmpH\n"YELLOW"- Kendaraan tidak boleh menabrak apapun disekitar\n- Minimal poin "GREEN"80", "Ok", "");
 				SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
 				todoTimeout[playerid] = SetTimerEx("todoExit", 600000, false, "ii", playerid, v);
-				goto label_berhenti_sim;
+				return 1;
 			}
 		}
 	}
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
-	label_berhenti_sim:
 	return 1;	
 }
 
@@ -1544,10 +1812,11 @@ LoadVehiclePlayer(playerid){
 				}
 				cache_get_value_name_int(idx, "expired", temp_time); // Dalam unix_timestamp
 				if(already_loaded != -1) {
-					
-					// Simpan waktu
-					Iter_Add(PVehKeys[playerid], already_loaded);
-					PVehKeysTime[playerid][already_loaded] = temp_time;
+					if(temp_time != 0){
+						// Simpan waktu
+						Iter_Add(PVehKeys[playerid], already_loaded);
+						PVehKeysTime[playerid][already_loaded] = temp_time;
+					}
 					idx++;
 					continue;
 				}		
@@ -1569,10 +1838,11 @@ LoadVehiclePlayer(playerid){
 
 				format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
 
-
-				// Sign waktu kunci
-				Iter_Add(PVehKeys[playerid], idpv);
-				PVehKeysTime[playerid][idpv] = temp_time;		
+				if(temp_time != 0){
+					// Sign waktu kunci
+					Iter_Add(PVehKeys[playerid], idpv);
+					PVehKeysTime[playerid][idpv] = temp_time;
+				}
 
 				if(!PVeh[idpv][pVehIsReparasi]) {
 					idveh = CreateVehicle(PVeh[idpv][pVehModel], PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2], PVeh[idpv][pVehCoord][3], PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1], -1);
@@ -1619,7 +1889,7 @@ LoadVehiclePlayer(playerid){
 			}
 		}
 	}
-	MySQL_TQueryInline(koneksi, using inline responseLoadVehicle, "SELECT a.*, b.expired FROM vehicle a LEFT JOIN vehicle_keys b ON b.id_vehicle = a.id WHERE (b.id_user = '%d' AND b.expired > UNIX_TIMESTAMP(NOW())) OR a.id_pemilik = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
+	MySQL_TQueryInline(koneksi, using inline responseLoadVehicle, "SELECT a.*, IFNULL(b.expired, 0) as expired FROM vehicle a LEFT JOIN vehicle_keys b ON b.id_vehicle = a.id WHERE (b.id_user = '%d' AND b.expired > UNIX_TIMESTAMP(NOW())) OR a.id_pemilik = '%d'", PlayerInfo[playerid][pID], PlayerInfo[playerid][pID]);
 }
 
 PinjamkanKunciKePemain(playerid, idpveh, menit){
