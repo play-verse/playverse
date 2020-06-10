@@ -1,9 +1,14 @@
 publicFor: isRegistered(playerid)
 {
-	if(cache_num_rows()) // IsRegistered
+	// Cek jika field id user kosong - maka dianggap belum ada user
+	new bool:is_null = true;
+	if(cache_num_rows()) cache_is_value_name_null(0, "id", is_null);
+
+	// Jika id user tidak kosong
+	if(cache_num_rows() && is_null == false) // IsRegistered
 	{
 		// Untuk string harus disimpan dlu ke variable, gabisa langsung masuk enum
-		new temp_value[256], bool:is_null;
+		new temp_value[256];
 		cache_get_value_name_int(0, "id", PlayerInfo[playerid][pID]);
 		cache_get_value_name_int(0, "current_skin", PlayerInfo[playerid][skinID]);
 		cache_get_value_name(0, "password", temp_value);
@@ -1301,8 +1306,8 @@ publicFor: isBisaBuatSIM(playerid, tidak_bisa){
 				showDialogPesan(playerid, RED"Anda Belum Ujian Teori", WHITE"Maaf anda belum melakukan Ujian Teori SIM, anda tidak dapat melakukan Ujian Praktik SIM!\nSilahkan melakukan Ujian Teori SIM terlebih dahulu, tempat Ujian Teori SIM berada di Kantor Polisi Los Santos.");
 			}else{
 				new tgl_buat[11];
-				cache_get_value_name(0, "tanggal_dibuat", tgl_buat);
-				if(sama("0000-00-00", tgl_buat)){
+				cache_get_value_name(0, "tanggal_buat", tgl_buat);
+				if(sama("0000-00-00 00:00:00", tgl_buat)){
 					ShowPlayerDialog(playerid, DIALOG_PRAKTIK_SIM_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan praktik mengemudi kendaraan.\nSilahkan ikuti aturan dan arah jalan dengan benar sebagai berikut.\nAturan:\n"YELLOW"- Maksimal kecepatan "GREEN"80 KmpH\n"YELLOW"- Kendaraan tidak boleh menabrak apapun disekitar\n- Minimal poin "GREEN"80", "Ok", "Batal");
 				}else{
 					showDialogPesan(playerid, RED"Anda Sudah Ujian Praktik", WHITE"Maaf anda sudah melakukan Ujian Praktik SIM, anda tidak dapat melakukan kembali Ujian Praktik SIM!\nSilahkan ambil SIM di Kantor Polisi Los Santos.");

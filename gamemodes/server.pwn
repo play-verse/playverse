@@ -2661,7 +2661,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							return 1;
 						}
 						new Cache:result;
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_buat FROM `pengambilan_sim` WHERE `id_user` = '%d' AND tanggal_buat = '0000-00-00'", PlayerInfo[playerid][pID]);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_buat FROM `pengambilan_sim` WHERE `id_user` = '%d' AND tanggal_buat = '0000-00-00 00:00:00'", PlayerInfo[playerid][pID]);
 						result = mysql_query(koneksi, pQuery[playerid]);
 						if(cache_num_rows()){
 							showDialogPesan(playerid, RED"Anda Belum Ujian Praktik", WHITE"Maaf anda belum melakukan Ujian Praktik SIM, anda belum dapat mengambil SIM!\nSilahkan melakukan Ujian Praktik SIM terlebih dahulu, tempat Ujian Praktik SIM berada di sebelah Kantor Polisi Los Santos (Parkiran).");
