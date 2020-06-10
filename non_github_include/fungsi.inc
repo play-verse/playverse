@@ -1305,8 +1305,9 @@ publicFor: isBisaBuatSIM(playerid, tidak_bisa){
 			if(!cache_num_rows()){
 				showDialogPesan(playerid, RED"Anda Belum Ujian Teori", WHITE"Maaf anda belum melakukan Ujian Teori SIM, anda tidak dapat melakukan Ujian Praktik SIM!\nSilahkan melakukan Ujian Teori SIM terlebih dahulu, tempat Ujian Teori SIM berada di Kantor Polisi Los Santos.");
 			}else{
-				new tgl_buat[11];
+				new tgl_buat[30];
 				cache_get_value_name(0, "tanggal_buat", tgl_buat);
+				printf("tanggal_buat = %s", tgl_buat);
 				if(sama("0000-00-00 00:00:00", tgl_buat)){
 					ShowPlayerDialog(playerid, DIALOG_PRAKTIK_SIM_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan praktik mengemudi kendaraan.\nSilahkan ikuti aturan dan arah jalan dengan benar sebagai berikut.\nAturan:\n"YELLOW"- Maksimal kecepatan "GREEN"80 KmpH\n"YELLOW"- Kendaraan tidak boleh menabrak apapun disekitar\n- Minimal poin "GREEN"80", "Ok", "Batal");
 				}else{
