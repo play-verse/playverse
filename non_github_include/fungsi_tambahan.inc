@@ -88,7 +88,7 @@ buatPickupDanLabel(modelid, Float:x, Float:y, Float:z, const text[]){
 
 buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, interiorid = -1){
     CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
-    return CreateDynamicCP(x, y, z, ukuran, vw, interiorid, -1, 20.0);
+    return CreateDynamicCP(x, y, z, ukuran, vw, interiorid, -1, 5.0);
 }
 
 pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:preload_dynamic_map = false){

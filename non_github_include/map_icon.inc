@@ -26,4 +26,7 @@ loadAllMapIcon(){
 
     // Reparasi
     CreateDynamicMapIcon(997.6110,-1701.3304,14.5905, 34, 1, 0, 0, -1, 100.0);
+
+    // Pusat Properti
+    CreateDynamicMapIcon(1087.9688,-1529.9100,22.7421, 12, 1, 0, 0, -1, 100.0);
 }

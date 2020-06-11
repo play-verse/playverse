@@ -891,6 +891,48 @@ tampilFurnitureHousePlayer(playerid, house_id, dialog_id, const judul[] = "Pilih
 	return 1;
 }
 
+tampilSemuaRumahTerjual(playerid, dialog_id, const judul[] = "Pilih Rumah"){
+	inline responseQuery(){
+		new rows, id_house, nama_pemilik[100], harga;
+		cache_get_row_count(rows);
+		new string[1500] = "Level\tNama Pemilik\tHarga\tJarak\n"WHITE;
+		if(rows){
+			for(new i = 0; i < rows; i++){
+				cache_get_value_name_int(i, "id_house", id_house);
+				cache_get_value_name(i, "nama", nama_pemilik);
+
+				if(houseInfo[id_house][hSetHarga] != 0)
+					harga = houseInfo[id_house][hSetHarga];
+				else
+					harga = houseInfo[id_house][hHarga];
+
+				strcatEx(string, sizeof(string), "%s\t%s\t%d\t%.2fm\n", HouseLevel[houseInfo[id_house][hLevel]][namaLevel], nama_pemilik, harga, GetPlayerDistanceFromPoint(playerid, houseInfo[id_house][icon_x], houseInfo[id_house][icon_y], houseInfo[id_house][icon_z]));
+			}
+			strcat(string, ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+			// IMPORTANT untuk selalu menghapus cache yang lama setiap ingin menyimpannya dengan yang baru
+			if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+			PlayerInfo[playerid][tempCache] = cache_save();
+
+			new subString[64];
+			format(subString, 64, WHITE"%s : "GREEN"(page : %d)", judul, GetPVarInt(playerid, "halaman") + 1);
+			ShowPlayerDialog(playerid, dialog_id, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Kembali");
+		}else{
+			if(GetPVarInt(playerid, "halaman") < 1)
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Tidak ada rumah "RED"sedang dijual", WHITE"Maaf saat ini tidak ada rumah yang berstatus sedang dijual!\n"YELLOW"Anda dapat menunggu beberapa saat dan mengecek disini kembali.", "Ok", "");
+			else{ // Kembalikan ke halaman sebelumnya
+				SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+				tampilSemuaRumahTerjual(playerid, dialog_id, judul); // Recursive
+			}
+		}
+		return 1;
+	}
+
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT a.id_house, IFNULL(b.nama, \"Server\") as nama FROM `house` a LEFT JOIN `user` b ON a.id_user = b.id WHERE a.jual = 1 ORDER BY a.harga ASC LIMIT %i, %i", BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+
+	return 1;
+}
+
 publicFor: historyATMPemain(playerid){
 	new rows;
 	cache_get_row_count(rows);
@@ -1240,15 +1282,14 @@ publicFor: pembayaranMakananATM(playerid){
 }
 
 publicFor: pakaiMakanan(playerid, itemid){
-	switch(itemid){
-		case 14: // Steak
-		{
-			tambahItemPlayer(playerid, itemid, -1);
-			ApplyAnimation(playerid, "FOOD", "EAT_Burger", 4.1, 0, 1, 1, 0, 0, 1);
-			setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) + 80);
+	tambahItemPlayer(playerid, itemid, -1);
+	ApplyAnimation(playerid, "FOOD", "EAT_Burger", 4.1, 0, 1, 1, 0, 0, 1);
+
+	for(new i = 0; i < sizeof(MENU_MAKANAN); i++){
+		if(MENU_MAKANAN[i][idItemMakanan] == itemid){
+			setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) + MENU_MAKANAN[i][energiNambah]);
+			break;
 		}
-		default:
-			return 1;
 	}
 	return 1;
 }
@@ -1268,16 +1309,14 @@ publicFor: cekSudahPunyaSIM(playerid){
 }
 
 publicFor: pakaiMinuman(playerid, itemid){
-	switch(itemid)
-	{
-		case 13: // Air minum mineral
-		{
-			tambahItemPlayer(playerid, itemid, -1);
-			ApplyAnimation(playerid, "BAR", "dnk_stndM_loop", 4.1, 0, 1, 1, 0, 0, 1);
-			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) + 5);
+	tambahItemPlayer(playerid, itemid, -1);
+	ApplyAnimation(playerid, "BAR", "dnk_stndM_loop", 4.1, 0, 1, 1, 0, 0, 1);
+
+	for(new i = 0; i < sizeof(MENU_MAKANAN); i++){
+		if(MENU_MAKANAN[i][idItemMakanan] == itemid){
+			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) + MENU_MAKANAN[i][energiNambah]);
+			break;
 		}
-		default :
-			return 1;
 	}
 	return 1;
 }
@@ -1543,6 +1582,15 @@ loadHouseFurniture(house_id){
 		}
 	}
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT a.*, b.id_object, d.spawn_in_interior FROM house_furniture a INNER JOIN furniture b ON a.id_furniture = b.id INNER JOIN house c ON c.id_house = a.id_house INNER JOIN house_interior d ON d.id_level = c.level WHERE a.id_house = %d", house_id);
+}
+
+publicFor: tutupToll(tollid){
+	if(tollid == 0){
+		MoveDynamicObject(palangToll[0], 48.55240, -1523.09351, 4.81230, 2.5, 0.00000, 0.00000, 85.00000);
+	}else{
+		MoveDynamicObject(palangToll[1], 58.10060, -1539.95105, 5.09970, 2.5, 0.00000, 0.00000, 85.00000);
+	}
+	isTollUsed[tollid] = 0;
 }
 
 unloadAllHouse(){

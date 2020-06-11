@@ -57,4 +57,6 @@ loadAllCP(){
      // Buat SIM
     CP_simRegis[0] = buatCPDanLabel(253.9280,69.7131,1003.6406, "Polisi Metro Los Santos\nPelayanan SIM\n"GREEN"Registrasi", 1.0);
     CP_simPraktik[0] = buatCPDanLabel(1580.3300,-1635.5547,13.5601, "Polisi Metro Los Santos\nPelayanan SIM\n"GREEN"Praktik", 1.0);
+
+    CP_pusatProperti[0] = buatCPDanLabel(1087.9688,-1529.9100,22.7421, "Pusat Properti cabang LS Mall\n"GREEN"Hubungi disini.", 1.0);
 }

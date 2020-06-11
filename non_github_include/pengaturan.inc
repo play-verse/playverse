@@ -22,6 +22,8 @@
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
 
+#define HARGA_TOLL 2 // 2 DOLLAR
+
 #define MAX_HOUSES 1000 // Maksimal rumah yang dapat dibuat
 #define MAX_HOUSES_LEVEL 8 // Maksimal level rumah
 
@@ -179,6 +181,9 @@
 #define DIALOG_SIM_PRAKTIK_MENU 118
 #define DIALOG_PRAKTIK_SIM_KONFIRMASI 119
 #define DIALOG_SIM_SOAL 120
+#define DIALOG_MENU_PUSAT_PROPERTI 121
+#define DIALOG_PILIH_RUMAH_DIJUAL 122
+#define DIALOG_OPTION_PILIH_RUMAH_DIJUAL 123
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR

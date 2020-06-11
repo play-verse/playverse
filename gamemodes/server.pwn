@@ -33,6 +33,7 @@
 #include <pickup> // Pickup Function Loader
 #include <map_icon> // Map Icon Function Loader
 #include <checkpoint> // CP Function Loader
+#include <area> // Area loader
 #include <dialog> // Function Dialog Loader
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
@@ -3601,6 +3602,64 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_MENU_PUSAT_PROPERTI:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						SetPVarInt(playerid, "halaman", 0);
+						tampilSemuaRumahTerjual(playerid, DIALOG_PILIH_RUMAH_DIJUAL);
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_RUMAH_DIJUAL:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					tampilSemuaRumahTerjual(playerid, DIALOG_PILIH_RUMAH_DIJUAL);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+						tampilSemuaRumahTerjual(playerid, DIALOG_PILIH_RUMAH_DIJUAL);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						tampilSemuaRumahTerjual(playerid, DIALOG_PILIH_RUMAH_DIJUAL);
+					}
+					return 1;
+				}
+
+				SetPVarInt(playerid, "index_terpilih", listitem);
+				ShowPlayerDialog(playerid, DIALOG_OPTION_PILIH_RUMAH_DIJUAL, DIALOG_STYLE_LIST, "Pilih hal yang ingin dilakukan", "Tampilkan lokasi rumah pada map", "Pilih", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_OPTION_PILIH_RUMAH_DIJUAL:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Tampilkan lokasi rumah pada map
+					{
+						new id_house;
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "index_terpilih"), "id_house", id_house);
+						// Selalu delete cache setelah digunakan
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+						SetPlayerCheckpoint(playerid, houseInfo[id_house][icon_x], houseInfo[id_house][icon_y], houseInfo[id_house][icon_z], 3.0);
+						PlayerInfo[playerid][activeMarker] = true;
+
+						server_message(playerid, WHITE"Lokasi rumah telah ditampilkan pada map.");
+					}
+				}
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -3671,6 +3730,26 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		else {
 			GameTextForPlayer(playerid, "~w~Mesin kendaraan ~g~dihidupkan", 1000, 3);
 			SetVehicleParamsEx(vehid, 1, 1, alarm, doors, bonnet, boot, objective);
+		}
+	}else if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER && PRESSED(KEY_YES)){
+		if(IsPlayerInDynamicArea(playerid, areaToll[0]) && !isTollUsed[0]){
+			if(getUangPlayer(playerid) < HARGA_TOLL) {
+				return sendPesan(playerid, COLOR_RED, "[TOLL] "WHITE"Uang anda tidak cukup, harga toll "GREEN"$%d", HARGA_TOLL);
+			}
+			givePlayerUang(playerid, -HARGA_TOLL);
+			GameTextForPlayer(playerid, "~w~Silahkan ~g~lewat", 1500, 3);
+			MoveDynamicObject(palangToll[0], 48.61440, -1518.50549, 4.97830, 4.0, 0.00000, 90.00000, 85.00000);
+			isTollUsed[0] = 1;
+			SetTimerEx("tutupToll", 3000, 0, "i", 0);
+		}else if(IsPlayerInDynamicArea(playerid, areaToll[1]) && !isTollUsed[1]){
+			if(getUangPlayer(playerid) < HARGA_TOLL) {
+				return sendPesan(playerid, COLOR_RED, "[TOLL] "WHITE"Uang anda tidak cukup, harga toll "GREEN"$%d", HARGA_TOLL);
+			}
+			givePlayerUang(playerid, -HARGA_TOLL);
+			GameTextForPlayer(playerid, "~w~Silahkan ~g~lewat", 1500, 3);
+			MoveDynamicObject(palangToll[1], 58.10060, -1545.19714, 5.09970, 4.0, 0.00000, -90.00000, 85.00000);
+			isTollUsed[1] = 1;
+			SetTimerEx("tutupToll", 3000, 0, "i", 1);
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO)){
 		if(lastHousePickup[playerid] < 0 || lastHousePickup[playerid] >= MAX_HOUSES) return 1;
@@ -3843,6 +3922,10 @@ public OnGameModeInit()
 	printf("[CHECKPOINT] Load semua checkpoint...");
 	loadAllCP();
 	printf("[CHECKPOINT] Sukses load checkpoint!");
+
+	printf("[AREA] Load semua area...");
+	loadAllArea();
+	printf("[AREA] Sukses load area!");
 
 	printf("[MAP ICON] Load semua map icon...");
 	loadAllMapIcon();
@@ -4179,6 +4262,10 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		return 1;
 	}else if(checkpointid == CP_simPraktik[0]){
 		showDialogSimPraktik(playerid);
+		return 1;
+	}else if(checkpointid == CP_pusatProperti[0]){
+		ShowPlayerDialog(playerid, DIALOG_MENU_PUSAT_PROPERTI, DIALOG_STYLE_LIST, "Apa yang ingin anda tanya :", "Lihat semua rumah yang terjual", "Ok", "Batal");
+		return 1;
 	}
 	return 1;
 }

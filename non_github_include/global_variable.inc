@@ -183,7 +183,7 @@ enum SPAWN_POINT_INFO {
 }
 new const SPAWN_POINT[][SPAWN_POINT_INFO] = {
     {154.0393, -1942.6648, 3.7734, 359.4115, 0, 0},
-    {299.0191, -2026.3314, 1.4131, 1.1118, 0, 0}
+    {288.4492, -1985.4537, 2.4633, 357.8315, 0, 0}
 };
 
 new const SPAWN_POINT_OUT_CH[][SPAWN_POINT_INFO] = {
@@ -273,12 +273,29 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
 enum INFO_MENU_MAKANAN {
     idItemMakanan,
     namaMakanan[100],
-    hargaMakanan
+    hargaMakanan,
+    Float:energiNambah
 }
 
+/*  
+    $1 Minuman = 5%
+    $1 Food = 2.5% 
+*/
 new const MENU_MAKANAN[][INFO_MENU_MAKANAN] = {
-    {14, "Steak", 10},
-    {13, "Air Minum Mineral", 2}
+// Makanan
+    {14, "Steak", 20, 50.0},
+    {16, "Nasi Bungkus", 15, 37.5},
+    {17, "Sate", 12, 30.0},
+    {23, "Roti", 10, 25.0},
+    {24, "Telur Dadar", 5, 12.5},
+
+// Minuman
+    {13, "Air Mineral", 1, 5.0},
+    {18, "Jus Jeruk", 5, 25.0},
+    {19, "Es Teh Manis", 4, 20.0},
+    {20, "Kopi Panas", 7, 35.0},
+    {21, "Kopi Dingin", 7, 35.0},
+    {22, "Minuman Soda", 6, 30.0}
 };
 
 /**
@@ -295,7 +312,8 @@ new CP_tempatFoto,
     CP_beliMakanCepatSaji,
     CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)],
     CP_simRegis[1],
-    CP_simPraktik[1];
+    CP_simPraktik[1],
+    CP_pusatProperti[1];
 
 /**
     PICKUP VARIABEL
@@ -312,6 +330,17 @@ new PU_tempatFoto_in[2],
     PU_tempatKeluarRumah[2], // Hanya menyimpan ID terkecil dan Terbesar
     PU_policeDept_in[1],
     PU_policeDept_out[1];
+
+/**
+    Area
+ */
+new areaToll[2];
+
+/**
+    OBJECT TOLL
+ */
+new palangToll[2],
+    isTollUsed[2];
 
 /*
     Virtual World untuk ngebedain pickup
