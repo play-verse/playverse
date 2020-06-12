@@ -20,6 +20,7 @@
 //SIM Kantor Polisi Los Santos
 //Sweeper Job Los Santos
 //Palang Toll LS bawah
+//Palang Toll LS LV
 //Stasiun LS
 //Toko Perabot
 
@@ -46,6 +47,7 @@ loadAllMapingan(){
     simKantorPolisiLS();
     sweeperJobLS();
     palangTollLSBawah();
+    palangTollLSLV();
     stasiunLS();
     tokoPerabot();
 }
@@ -2204,16 +2206,13 @@ pintuTolLSLV(){
     CreateDynamicObject(19377, 1735.78040, 558.23901, 28.98146,   0.00000, 90.00000, -17.90001);
     CreateDynamicObject(19377, 1762.67761, 550.04706, 28.98146,   0.00000, 90.00000, -17.90001);
     CreateDynamicObject(19377, 1762.51697, 549.55200, 28.98146,   0.00000, 90.00000, -17.90001);
-    CreateDynamicObject(7914, 1749.07678, 554.38000, 34.27032,   0.00000, 0.00000, -17.99999);
     CreateDynamicObject(19447, 1749.07544, 554.19891, 33.73288,   0.00000, 0.00000, -108.00000);
     CreateDynamicObject(19482, 1733.94775, 564.29150, 25.22247,   11.60000, 0.00000, 71.49996);
     CreateDynamicObject(19482, 1733.94995, 564.28015, 25.20087,   11.60000, 0.00000, 71.49996);
     CreateDynamicObject(18762, 1759.62305, 554.70502, 32.05330,   0.00000, 90.00000, -108.00000);
     CreateDynamicObject(18762, 1748.78040, 555.27863, 32.05330,   0.00000, 90.00000, -108.00000);
-    CreateDynamicObject(968, 1748.26379, 559.67621, 25.40680,   0.00000, 270.00000, -18.00000);
-    CreateDynamicObject(966, 1748.06897, 559.73309, 24.55967,   0.00000, 0.00000, -18.00000);
+    CreateDynamicObject(966, 1745.47461, 551.09521, 25.17970,   0.00000, 0.00000, -18.00000);
     CreateDynamicObject(966, 1753.63940, 558.00244, 24.55970,   0.00000, 0.00000, -198.00000);
-    CreateDynamicObject(968, 1753.44653, 558.05688, 25.40680,   0.00000, 270.00000, -198.00000);
     CreateDynamicObject(1566, 1763.51672, 544.25049, 26.38930,   0.00000, 0.00000, -18.00000);
     CreateDynamicObject(1566, 1730.32568, 555.00903, 26.38930,   0.00000, 0.00000, -18.00000);
     CreateDynamicObject(19377, 1737.18494, 557.97241, 26.79509,   0.00000, 0.00000, -18.00000);
@@ -2261,6 +2260,7 @@ pintuTolLSLV(){
     CreateDynamicObject(1215, 1753.44702, 552.63611, 35.42878,   0.00000, 0.00000, 0.00000);
     CreateDynamicObject(1215, 1750.12537, 553.71661, 35.42878,   0.00000, 0.00000, 0.00000);
     CreateDynamicObject(1215, 1747.23474, 554.66644, 35.42878,   0.00000, 0.00000, 0.00000);
+    CreateDynamicObject(19447, 1747.08386, 554.79773, 26.37690,   0.00000, 0.00000, -18.00000);
 }
 
 removePintuTolLSBawah(playerid){
@@ -5279,6 +5279,11 @@ palangTollLSBawah(){
     palangToll[1] = CreateDynamicObject(3578, 58.10060, -1539.95105, 5.09970, 0.00000, 0.00000, 85.00000);
 
     // MoveDynamicObject(palangToll[1], 58.10060, -1545.19714, 5.09970, 2000, 0.00000, -90.00000, 85.00000);
+}
+
+palangTollLSLV(){
+    palangToll_LSLV[0] = CreateDynamicObject(968, 1745.46155, 551.11792, 26.02680,   0.00000, 270.00000, -18.16000); // Tol masuk ke LS dari LV
+    palangToll_LSLV[1] = CreateDynamicObject(968, 1753.44653, 558.05688, 25.40680,   0.00000, 270.00000, -198.00000); // Tol keluar dari LS ke LV
 }
 
 stasiunLS(){

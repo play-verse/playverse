@@ -13,21 +13,36 @@
 		"pBlueG/SA-MP-MySQL:R41-4",
 		"Southclaws/zcmd",
 		"maddinat0r/sscanf:v2.8.3",
-		"BigETI/pawn-memory:2.0.1"
+		"BigETI/pawn-memory:2.0.1",
+		"bmisiak/samp-precise-timers:v2.0.0"
 	],
 	"builds": [
 		{
 			"name": "dev",
-			"args": ["-;+", "-(+", "-d3", "-Z+"],
-			"includes": ["./non_github_include/"],
+			"args": [
+				"-;+",
+				"-(+",
+				"-d3",
+				"-Z+"
+			],
+			"includes": [
+				"./non_github_include/"
+			],
 			"constants": {
 				"MAX_PLAYERS": "10"
 			}
 		},
 		{
 			"name": "prod",
-			"args": ["-;+", "-(+", "-O2", "-Z+"],
-			"includes": ["./non_github_include/"],
+			"args": [
+				"-;+",
+				"-(+",
+				"-O2",
+				"-Z+"
+			],
+			"includes": [
+				"./non_github_include/"
+			],
 			"constants": {
 				"MAX_PLAYERS": "50"
 			}

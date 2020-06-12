@@ -11,6 +11,7 @@
 #include <sscanf2>
 #include <streamer>
 #include <progress2>
+#include <samp-precise-timers>
 
 #include <a_mysql>
 #include <zcmd>
@@ -2425,7 +2426,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
 					}else{
-						PlayerAction[playerid][timerNambang] = SetTimerEx("selesaiNambang", 3000, 0, "i", playerid);
+						PlayerAction[playerid][timerNambang] = SetPreciseTimer("selesaiNambang", 3000, 0, "i", playerid);
 						PlayerAction[playerid][sedangNambang] = true;
 						GameTextForPlayer(playerid, "~w~Sedang ~y~menambang...", 3000, 3);
 
@@ -2636,7 +2637,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper1, CP_sweeper2, 3.0);
 				SendClientMessage(playerid, COLOR_GREEN, "[JOB] "YELLOW"Anda berhasil bekerja sebagai "GREEN"Sweeper"YELLOW"!");
 				SendClientMessage(playerid, COLOR_GREEN, "[JOB] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
-				todoTimeout[playerid] = SetTimerEx("todoExit", 600000, false, "ii", playerid, vehid);
+				todoTimeout[playerid] = SetPreciseTimer("todoExit", 600000, false, "ii", playerid, vehid);
 			}else{
 				RemovePlayerFromVehicle(playerid);
 			}
@@ -3740,7 +3741,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			GameTextForPlayer(playerid, "~w~Silahkan ~g~lewat", 1500, 3);
 			MoveDynamicObject(palangToll[0], 48.61440, -1518.50549, 4.97830, 4.0, 0.00000, 90.00000, 85.00000);
 			isTollUsed[0] = 1;
-			SetTimerEx("tutupToll", 3000, 0, "i", 0);
+			SetPreciseTimer("tutupToll", 3000, false, "i", 0);
 		}else if(IsPlayerInDynamicArea(playerid, areaToll[1]) && !isTollUsed[1]){
 			if(getUangPlayer(playerid) < HARGA_TOLL) {
 				return sendPesan(playerid, COLOR_RED, "[TOLL] "WHITE"Uang anda tidak cukup, harga toll "GREEN"$%d", HARGA_TOLL);
@@ -3749,7 +3750,29 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			GameTextForPlayer(playerid, "~w~Silahkan ~g~lewat", 1500, 3);
 			MoveDynamicObject(palangToll[1], 58.10060, -1545.19714, 5.09970, 4.0, 0.00000, -90.00000, 85.00000);
 			isTollUsed[1] = 1;
-			SetTimerEx("tutupToll", 3000, 0, "i", 1);
+			SetPreciseTimer("tutupToll", 3000, 0, "i", 1);
+
+		// TOLL LS LV
+		}else if(IsPlayerInDynamicArea(playerid, areaToll_LSLV[0]) && !isTollUsed_LSLV[0]){
+			// Masuk ke LS dari LV
+			if(getUangPlayer(playerid) < HARGA_TOLL) {
+				return sendPesan(playerid, COLOR_RED, "[TOLL] "WHITE"Uang anda tidak cukup, harga toll "GREEN"$%d", HARGA_TOLL);
+			}
+			givePlayerUang(playerid, -HARGA_TOLL);
+			GameTextForPlayer(playerid, "~w~Silahkan ~g~lewat", 1500, 3);
+			MoveDynamicObject(palangToll_LSLV[0], 1745.46155, 551.11792, 26.02680, 1.0, 0.00000, 0.00000, -18.16000);
+			isTollUsed_LSLV[0] = 1;
+			SetPreciseTimer("tutupToll", 3000, 0, "i", 3);
+		}else if(IsPlayerInDynamicArea(playerid, areaToll_LSLV[1]) && !isTollUsed_LSLV[1]){
+			// Masuk ke LV dari LS
+			if(getUangPlayer(playerid) < HARGA_TOLL) {
+				return sendPesan(playerid, COLOR_RED, "[TOLL] "WHITE"Uang anda tidak cukup, harga toll "GREEN"$%d", HARGA_TOLL);
+			}
+			givePlayerUang(playerid, -HARGA_TOLL);
+			GameTextForPlayer(playerid, "~w~Silahkan ~g~lewat", 1500, 3);
+			MoveDynamicObject(palangToll_LSLV[1], 1753.44653, 558.05688, 25.40680, 1.0, 0.00000, 0.00000, -198.00000);
+			isTollUsed_LSLV[1] = 1;
+			SetPreciseTimer("tutupToll", 3000, 0, "i", 4);
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO)){
 		if(lastHousePickup[playerid] < 0 || lastHousePickup[playerid] >= MAX_HOUSES) return 1;
@@ -4082,10 +4105,10 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 {
 	if(Iter_Contains(vehicleSweeper, vehicleid) && sweeperJob[playerid] == 1 && sweeperId[playerid] == vehicleid){
 		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda keluar dari kendaraan, silahkan kembali bekerja! "WHITE"Sebelum 30 detik atau anda berhenti bekerja.");
-		todoTimer[playerid] = SetTimerEx("todoExit", 30000, false, "ii", playerid, sweeperId[playerid]);
+		todoTimer[playerid] = SetPreciseTimer("todoExit", 30000, false, "ii", playerid, sweeperId[playerid]);
 	}else if(Iter_Contains(vehicleSIM, vehicleid) && testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehicleid){
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda keluar dari kendaraan, silahkan kembali praktik! "WHITE"Sebelum 30 detik atau anda gagal Ujian Praktik SIM.");
-		todoTimer[playerid] = SetTimerEx("todoExit", 30000, false, "ii", playerid, vehicleIdSIM[playerid]);
+		todoTimer[playerid] = SetPreciseTimer("todoExit", 30000, false, "ii", playerid, vehicleIdSIM[playerid]);
 	}else if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
 		new Float:darah;
 		GetVehicleHealth(vehicleid, darah);

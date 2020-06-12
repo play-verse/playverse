@@ -10,6 +10,7 @@
 	"plugins": [
 		"crashdetect",
 		"mysql",
+		"samp-precise-timers",
 		"pawn-memory",
 		"sscanf",
 		"streamer"

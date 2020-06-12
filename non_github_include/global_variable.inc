@@ -334,13 +334,16 @@ new PU_tempatFoto_in[2],
 /**
     Area
  */
-new areaToll[2];
+new areaToll[2],
+    areaToll_LSLV[2];
 
 /**
     OBJECT TOLL
  */
 new palangToll[2],
-    isTollUsed[2];
+    isTollUsed[2],
+    palangToll_LSLV[2],
+    isTollUsed_LSLV[2];
 
 /*
     Virtual World untuk ngebedain pickup

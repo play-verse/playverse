@@ -232,7 +232,7 @@ publicFor: spawnPemain(playerid)
 		pindahkanPemain(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], PlayerInfo[playerid][last_int], PlayerInfo[playerid][last_vw], true);
 
 		TogglePlayerControllable(playerid, 0);
-		SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
+		SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 		
 		if(PlayerInfo[playerid][lastHp] > 0) {
 			SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
@@ -257,7 +257,7 @@ publicFor: spawnPemain(playerid)
 			pindahkanPemain(playerid, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, true);
 
 			TogglePlayerControllable(playerid, 0);
-			SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
+			SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 
 			if(PlayerInfo[playerid][lastHp] > 0) {
 				SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
@@ -282,7 +282,7 @@ publicFor: spawnPemain(playerid)
 			pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
 
 			TogglePlayerControllable(playerid, 0);
-			SetTimerEx("GantiSkinSaatSpawn", 2000, false, "i", playerid);
+			SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 		}
 	}
 	// Sinkronkan uang pemain
@@ -1587,10 +1587,17 @@ loadHouseFurniture(house_id){
 publicFor: tutupToll(tollid){
 	if(tollid == 0){
 		MoveDynamicObject(palangToll[0], 48.55240, -1523.09351, 4.81230, 2.5, 0.00000, 0.00000, 85.00000);
-	}else{
+		isTollUsed[0] = 0;
+	}else if(tollid == 1){
 		MoveDynamicObject(palangToll[1], 58.10060, -1539.95105, 5.09970, 2.5, 0.00000, 0.00000, 85.00000);
+		isTollUsed[1] = 0;
+	}else if(tollid == 3){
+		MoveDynamicObject(palangToll_LSLV[0], 1745.46155, 551.11792, 26.02680, 2.5, 0.00000, 270.00000, -18.16000);
+		isTollUsed_LSLV[0] = 0;
+	}else if(tollid == 4){
+		MoveDynamicObject(palangToll_LSLV[1], 1753.44653, 558.05688, 25.40680, 2.5, 0.00000, 270.00000, -198.00000);
+		isTollUsed_LSLV[1] = 0;
 	}
-	isTollUsed[tollid] = 0;
 }
 
 unloadAllHouse(){
@@ -1789,7 +1796,7 @@ mulaiPraktikSIM(playerid){
 				limitVehSIM[v] = 1;
 				SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
 				SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
-				todoTimeout[playerid] = SetTimerEx("todoExit", 600000, false, "ii", playerid, v);
+				todoTimeout[playerid] = SetPreciseTimer("todoExit", 600000, false, "ii", playerid, v);
 				return 1;
 			}
 		}
@@ -1799,7 +1806,7 @@ mulaiPraktikSIM(playerid){
 }
 
 ShowPlayerSpeedo(playerid){
-    SpeedoTimer[playerid] = SetTimerEx("SpeedoUpdate", 1000, 1, "i", playerid);
+    SpeedoTimer[playerid] = SetPreciseTimer("SpeedoUpdate", 1000, 1, "i", playerid);
     PlayerTextDrawShow(playerid, SpeedoTextDraws[playerid]);
     return 1;
 }
