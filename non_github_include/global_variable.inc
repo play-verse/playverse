@@ -63,6 +63,9 @@ enum pInfo
     sisaPalu,
     bool:activeMarker,
 
+    // Settings
+    bool:tampilHUDStats,
+
     bool:sudahSpawn,
     bool:sudahLogin,
     Cache:kotakPesan,

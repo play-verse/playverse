@@ -54,16 +54,16 @@ stock strreplace(sstring[], const search[], const replacement[], bool:ignorecase
 
 
 error_syntax(playerid, const syntax[]){
-    new pesan[256] = "[{FF0000}Invalid{FFFFFF}] {FF0000}Gunakan {FFFFFF}: ";
+    new pesan[256] = "INVALID"GREY" : Gunakan "WHITE"";
 
     strcat(pesan, syntax);
-    return SendClientMessage(playerid, COLOR_WHITE, pesan);
+    return SendClientMessage(playerid, COLOR_RED, pesan);
 }
 
 error_command(playerid, const message[]){
-    new pesan[256] = "[{FF0000}Error{FFFFFF}] : ";
+    new pesan[256] = "ERROR"GREY" : ";
     strcat(pesan, message);
-    return SendClientMessage(playerid, COLOR_WHITE, pesan);
+    return SendClientMessage(playerid, COLOR_RED, pesan);
 }
 
 server_message(playerid, const message[]){

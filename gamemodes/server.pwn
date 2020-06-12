@@ -202,6 +202,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					#if defined DEBUG_MODE_FOR_PLAYER
 					print("Spawn Called in Login Success");
 					#endif
+					
+					PlayerInfo[playerid][tampilHUDStats] = true;
 					spawnPemain(playerid);
 
 					format(msg, sizeof(msg), "~w~Selamat datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %i ~w~!", PlayerInfo[playerid][loginKe]);
@@ -3661,6 +3663,27 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_PENGATURAN:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Hud stats
+					{
+						PlayerInfo[playerid][tampilHUDStats] = !PlayerInfo[playerid][tampilHUDStats];	
+
+						if(PlayerInfo[playerid][tampilHUDStats]){
+							tampilkanHUDStats(playerid);
+							server_message(playerid, "Berhasil menampilkan HUD status");
+						}
+						else{
+							hideHUDStats(playerid);
+							server_message(playerid, "Berhasil menyembunyikan HUD status");
+						}
+					}
+				}
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -3760,7 +3783,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			}
 			givePlayerUang(playerid, -HARGA_TOLL);
 			GameTextForPlayer(playerid, "~w~Silahkan ~g~lewat", 1500, 3);
-			MoveDynamicObject(palangToll_LSLV[0], 1745.46155, 551.11792, 26.02680, 1.0, 0.00000, 0.00000, -18.16000);
+			MoveDynamicObject(palangToll_LSLV[0], 1745.46155, 551.11792, 26.0269, 0.0001, 0.00000, 0.00000, -18.16000);
 			isTollUsed_LSLV[0] = 1;
 			SetPreciseTimer("tutupToll", 3000, 0, "i", 3);
 		}else if(IsPlayerInDynamicArea(playerid, areaToll_LSLV[1]) && !isTollUsed_LSLV[1]){
@@ -3770,7 +3793,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			}
 			givePlayerUang(playerid, -HARGA_TOLL);
 			GameTextForPlayer(playerid, "~w~Silahkan ~g~lewat", 1500, 3);
-			MoveDynamicObject(palangToll_LSLV[1], 1753.44653, 558.05688, 25.40680, 1.0, 0.00000, 0.00000, -198.00000);
+			MoveDynamicObject(palangToll_LSLV[1], 1753.44653, 558.05688, 25.4069, 0.0001, 0.00000, 0.00000, -198.00000);
 			isTollUsed_LSLV[1] = 1;
 			SetPreciseTimer("tutupToll", 3000, 0, "i", 4);
 		}
@@ -3853,7 +3876,9 @@ public OnPlayerDeath(playerid, killerid, reason)
 	#endif
 
 	PlayerInfo[playerid][sudahSpawn] = false;
+
 	hideHUDStats(playerid);
+	PlayerInfo[playerid][tampilHUDStats] = false;
 	
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
 

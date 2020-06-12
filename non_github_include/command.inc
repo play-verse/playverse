@@ -29,6 +29,13 @@ CMD:bc(playerid, params[]){
     return 1;
 }
 
+CMD:settings(playerid, params[]){
+    pDialog[playerid][0] = EOS;
+    strcatEx(pDialog[playerid], sizePDialog, "%s HUD Status\n", ((PlayerInfo[playerid][tampilHUDStats] == true) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
+    ShowPlayerDialog(playerid, DIALOG_PENGATURAN, DIALOG_STYLE_LIST, "Pilihan pengaturan : ", pDialog[playerid], "Pilih", "Batal");
+    return 1;
+}
+
 CMD:jetpack(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
     SetPlayerSpecialAction(playerid, 2);

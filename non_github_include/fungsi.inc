@@ -126,6 +126,8 @@ resetPlayerVariable(playerid){
 
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
 
+	PlayerInfo[playerid][tampilHUDStats] = false;
+
 	if(PlayerInfo[playerid][activeMarker]) DisablePlayerCheckpoint(playerid);
 	PlayerInfo[playerid][activeMarker] = false;
 
@@ -211,7 +213,9 @@ publicFor: spawnPemain(playerid)
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	PlayerInfo[playerid][sudahSpawn] = true;
 	new house_Id = PlayerInfo[playerid][sHouse];
-	tampilkanHUDStats(playerid);
+
+	// Tampilkan hanya jika settingan hidup
+	if(PlayerInfo[playerid][tampilHUDStats]) tampilkanHUDStats(playerid);
 
 	if(PlayerInfo[playerid][last_stats_makan] == 0 && PlayerInfo[playerid][last_stats_minum] == 0){
 		setStatusMakanPemain(playerid, 80);
@@ -1570,7 +1574,7 @@ loadHouseFurniture(house_id){
 				cache_get_value_name_float(idx, "rot_y", data[fRotY]);
 				cache_get_value_name_float(idx, "rot_z", data[fRotZ]);
 
-				new objectid = CreateDynamicObject(id_object, data[fPosX], data[fPosY], data[fPosZ], data[fRotZ], data[fRotY], data[fRotZ], house_id, interior);
+				new objectid = CreateDynamicObject(id_object, data[fPosX], data[fPosY], data[fPosZ], data[fRotX], data[fRotY], data[fRotZ], house_id, interior);
 
 				#if defined DEBUG_SERVER_LOAD
 				printf("House furniture (%d) - House ID(%d) - Object", data[fID], house_id, objectid);
@@ -1592,10 +1596,10 @@ publicFor: tutupToll(tollid){
 		MoveDynamicObject(palangToll[1], 58.10060, -1539.95105, 5.09970, 2.5, 0.00000, 0.00000, 85.00000);
 		isTollUsed[1] = 0;
 	}else if(tollid == 3){
-		MoveDynamicObject(palangToll_LSLV[0], 1745.46155, 551.11792, 26.02680, 2.5, 0.00000, 270.00000, -18.16000);
+		MoveDynamicObject(palangToll_LSLV[0], 1745.46155, 551.11792, 26.02680, 0.0001, 0.00000, 270.00000, -18.16000);
 		isTollUsed_LSLV[0] = 0;
 	}else if(tollid == 4){
-		MoveDynamicObject(palangToll_LSLV[1], 1753.44653, 558.05688, 25.40680, 2.5, 0.00000, 270.00000, -198.00000);
+		MoveDynamicObject(palangToll_LSLV[1], 1753.44653, 558.05688, 25.40680, 0.0001, 0.00000, 270.00000, -198.00000);
 		isTollUsed_LSLV[1] = 0;
 	}
 }
