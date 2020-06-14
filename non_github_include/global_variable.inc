@@ -471,3 +471,32 @@ new
     PVeh[MAX_VEHICLES][PlayerVehicleInfo],
     Iterator:PVehKeys[MAX_PLAYERS]<MAX_VEHICLES>, // Nyimpan data vehicle berdasarkan ID vehicle (playerid, idpv)
     PVehKeysTime[MAX_PLAYERS][MAX_VEHICLES]; // Nyimpan waktu expired terhadap waktu (playerid, idpv) - Standart penghitungan menggunakan UNIX_TIMESTAMP
+
+/**
+    Lumberjack
+*/
+enum TreeInfo
+{
+    treeID,
+    treeTimer,
+    treeObjID,
+    Text3D:treeLabel,
+    treeCP,
+    treeSecs,
+    treeAmbil,
+    treeAngkut,
+    bool: treeTumbang,
+    Float: treeX,
+    Float: treeY,
+    Float: treeZ,
+    Float: treeRX,
+    Float: treeRY,
+    Float: treeRZ
+}
+new Iterator:TreeIterator<MAX_TREES>,
+    DTree[MAX_TREES][TreeInfo],
+    vehDTree[MAX_VEHICLES][TreeInfo],
+    CuttingTreeID[MAX_PLAYERS] = {-1, ...},
+    CuttingTimer[MAX_PLAYERS] = {-1, ...},
+    PlayerBar: CuttingBar[MAX_PLAYERS] = {INVALID_PLAYER_BAR_ID, ...},
+    treeEditID[MAX_PLAYERS] = {-1, ...};

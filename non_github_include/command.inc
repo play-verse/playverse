@@ -325,3 +325,20 @@ CMD:inforumah(playerid, const params[]){
     ShowPlayerDialog(playerid, DIALOG_INFO_RUMAH, DIALOG_STYLE_LIST, WHITE"Info Rumah :", string, "Pilih", "Batal");
     return 1;
 }
+
+CMD:alumber(playerid, params[]){
+    if(!IsPlayerAdmin(playerid)) return 0;
+    ShowPlayerDialog(playerid, DIALOG_LUMBER_ADMIN, DIALOG_STYLE_LIST, WHITE"Lumberjack System :", "Buat Pohon\nEdit Pohon\nReset Pohon\nHapus Pohon", "Pilih", "Batal");
+    return 1;
+}
+CMD:lumberjack(playerid, params[]){
+    ShowPlayerDialog(playerid, DIALOG_LUMBER, DIALOG_STYLE_LIST, WHITE"Lumberjack System :", "Cari Pohon\nPotong Pohon\nPindahkan Pohon\nTurunkan Pohon\nCek Muatan Pohon\nTempat Pemotongan Pohon", "Pilih", "Batal");
+    return 1;
+}
+CMD:chainsaw(playerid, params[]){
+    new Float:x, Float:y, Float:z;
+    GetPlayerPos(playerid, x, y, z);
+    GivePlayerWeapon(playerid, WEAPON_CHAINSAW, 1);
+    CreateVehicle(422, x, y, z, 0.0, 1, 1, 120);
+    return 1;
+}
