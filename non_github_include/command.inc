@@ -105,20 +105,23 @@ CMD:giveitem(playerid, params[]){
 
     if(string[0] == EOS){
         format(string, sizeof(string), "Kode\tNama\n"WHITE);
-        new Cache:result, rows, id_item, nama_item[256];
-        result = mysql_query(koneksi, "SELECT * FROM `item`");
-        cache_get_row_count(rows);
+        new rows, id_item, nama_item[256];
 
-        for(new i = 0; i < rows; i++){
-            cache_get_value_name_int(i, "id_item", id_item);
-            cache_get_value_name(i, "nama_item", nama_item);
+        inline responseQuery(){
+            cache_get_row_count(rows);
 
-            format(subString, sizeof(subString), "%i\t%s\n", id_item, nama_item);
-            strcat(string, subString);
+            for(new i = 0; i < rows; i++){
+                cache_get_value_name_int(i, "id_item", id_item);
+                cache_get_value_name(i, "nama_item", nama_item);
+
+                format(subString, sizeof(subString), "%i\t%s\n", id_item, nama_item);
+                strcat(string, subString);
+            }
+            ShowPlayerDialog(playerid, DIALOG_ADMIN_GIVE_ITEM, DIALOG_STYLE_TABLIST_HEADERS, "Pilih item yang ingin diberi :", string, "Pilih", "Keluar");
         }
-        cache_delete(result);
-    }
-	ShowPlayerDialog(playerid, DIALOG_ADMIN_GIVE_ITEM, DIALOG_STYLE_TABLIST_HEADERS, "Pilih item yang ingin diberi :", string, "Pilih", "Keluar");
+        MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM `item`");
+    }else
+        ShowPlayerDialog(playerid, DIALOG_ADMIN_GIVE_ITEM, DIALOG_STYLE_TABLIST_HEADERS, "Pilih item yang ingin diberi :", string, "Pilih", "Keluar");
     return 1;
 }
 

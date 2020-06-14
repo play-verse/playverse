@@ -146,21 +146,13 @@ getSaldoPlayer(playerid, const fungsi_callback[]){
     mysql_tquery(koneksi, pQuery[playerid], fungsi_callback, "i", playerid);
 }
 
-getUangPlayer(playerid, bool:useDb = false)
+getUangPlayer(playerid)
 {
+    // Set Tampilan uang player jika tidak sync dengan variabel 
     if(GetPlayerMoney(playerid) != PlayerInfo[playerid][uang])
         SetPlayerMoney(playerid, PlayerInfo[playerid][uang]);
 
-    if(useDb){
-        new jumlah_uang, Cache:result;
-        mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT `uang` FROM `user` WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
-        result = mysql_query(koneksi, pQuery[playerid]);    
-        cache_get_value_name_int(0, "uang", jumlah_uang);
-        cache_delete(result);
-        return jumlah_uang;
-    }else{
-        return PlayerInfo[playerid][uang];
-    }
+    return PlayerInfo[playerid][uang];
 }
 
 givePlayerUang(playerid, jumlah, bool:simpanDb = true){
@@ -364,4 +356,45 @@ stock GetXYInFrontOfPlayer(playerid, &Float:x, &Float:y, Float:distance)
 	if (GetPlayerVehicleID(playerid)) GetVehicleZAngle(GetPlayerVehicleID(playerid), a);
 	x += (distance * floatsin(-a, degrees));
 	y += (distance * floatcos(-a, degrees));
+}
+
+stock GetZoneName(Float: x, Float: y, Float: z)
+{
+	new zone[28];
+    for(new i = 0; i < sizeof(SAZones); i++)
+    {
+		if(x >= SAZones[i][SAZONE_AREA][0] && x <= SAZones[i][SAZONE_AREA][3] && y >= SAZones[i][SAZONE_AREA][1] && y <= SAZones[i][SAZONE_AREA][4] && z >= SAZones[i][SAZONE_AREA][2] && z <= SAZones[i][SAZONE_AREA][5])
+		{
+            strcat(zone, SAZones[i][SAZONE_NAME]);
+            return zone;
+		}
+	}
+
+	strcat(zone, "Tidak diketahui");
+	return zone;
+}
+
+stock GetCityName(Float: x, Float: y, Float: z)
+{
+	new city[28];
+	for(new i = 356; i < sizeof(SAZones); i++)
+	{
+		if(x >= SAZones[i][SAZONE_AREA][0] && x <= SAZones[i][SAZONE_AREA][3] && y >= SAZones[i][SAZONE_AREA][1] && y <= SAZones[i][SAZONE_AREA][4] && z >= SAZones[i][SAZONE_AREA][2] && z <= SAZones[i][SAZONE_AREA][5])
+		{
+            strcat(city, SAZones[i][SAZONE_NAME]);
+            return city;
+		}
+	}
+
+	strcat(city, "San Andreas");
+	return city;
+}
+
+stock formatHarga(nominal_uang, const pemisah[] = "."){
+    new stringTemp[16];
+    format(stringTemp, 16, "%d", nominal_uang);
+    for(new i = strlen(stringTemp) - 3; i > 0; i -= 3){
+        strins(stringTemp, pemisah, i);
+    }
+    return stringTemp;
 }
