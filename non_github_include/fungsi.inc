@@ -130,6 +130,7 @@ resetPlayerVariable(playerid){
 	PlayerInfo[playerid][activeMarker] = false;
 
 	PlayerInfo[playerid][sisaPalu] = 0;
+	PlayerInfo[playerid][sisaGergaji] = 0;
 
 	PlayerInfo[playerid][lamaBermain] = 0;
 	PlayerInfo[playerid][waktuSaatLogin] = 0;
@@ -669,6 +670,14 @@ publicFor: pakaiPaluTambang(playerid){
 	PlayerInfo[playerid][sisaPalu] += 15;
 
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Palu Tambang = "GREEN"Penambahan kesempatan menambang sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan menambang anda direset jadi 0.", "Ok", "");
+	return 1;
+}
+
+publicFor: pakaiGergajiMesin(playerid){
+	tambahItemPlayer(playerid, 17, -1);
+	PlayerInfo[playerid][sisaGergaji] += 15;
+
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Gergaji Mesin = "GREEN"Penambahan kesempatan memotong sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan memotong anda direset jadi 0.", "Ok", "");
 	return 1;
 }
 
@@ -2299,18 +2308,16 @@ GetClosestTree(playerid, Float: range = 2.0){
 Player_ResetCutting(playerid){
     if(!IsPlayerConnected(playerid) || CuttingTreeID[playerid] == -1) return 0;
     new id = CuttingTreeID[playerid];
-
     if(DTree[id][treeSecs] < 1) Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[id][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
-
     ClearAnimations(playerid);
     TogglePlayerControllable(playerid, 1);
+	if(IsPlayerAttachedObjectSlotUsed(playerid, CUTTING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX);
     CuttingTreeID[playerid] = -1;
-   
+	PlayerInfo[playerid][sisaGergaji]--;
     if(CuttingTimer[playerid] != -1){
         KillTimer(CuttingTimer[playerid]);
         CuttingTimer[playerid] = -1;
     }
-   
     SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
     HidePlayerProgressBar(playerid, CuttingBar[playerid]);
     return 1;

@@ -61,6 +61,7 @@ enum pInfo
 
     // Tambang
     sisaPalu,
+    sisaGergaji,
     bool:activeMarker,
 
     bool:sudahSpawn,
@@ -267,7 +268,8 @@ enum INFO_BARANG_MARKET {
 
 new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
     {2059, "Materai", 5}, // Materai
-    {19631, "Palu Tambang", 10} // Materai
+    {19631, "Palu Tambang", 10}, // Palu Tambang
+    {341, "Gergaji Mesin", 10} // Gergaji Mesin
 };
 
 enum INFO_MENU_MAKANAN {

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 14, 2020 at 09:27 PM
+-- Generation Time: Jun 14, 2020 at 10:31 PM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.2
 
@@ -242,7 +242,8 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (13, 'Air Minum Mineral', 2647, 'Air minum mineral untuk minum', 'pakaiMinuman', 1),
 (14, 'Steak', 19882, 'Steak sapi untuk makan, dapat dikonsumsi sehingga menambah status Makan', 'pakaiMakanan', 1),
 (15, 'SIM', 1581, 'SIM sebagai identitas kelayakan berkendara.', NULL, 1),
-(16, 'Kayu', 19793, 'Kayu adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1);
+(16, 'Kayu', 19793, 'Kayu adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1),
+(17, 'Gergaji Mesin', 341, 'Gergaji Mesin digunakan untuk memotong pohon.', 'pakaiGergajiMesin', 1);
 
 -- --------------------------------------------------------
 
@@ -259,6 +260,15 @@ CREATE TABLE `lumber` (
   `treeRY` varchar(32) NOT NULL,
   `treeRZ` varchar(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `lumber`
+--
+
+INSERT INTO `lumber` (`id`, `treeX`, `treeY`, `treeZ`, `treeRX`, `treeRY`, `treeRZ`) VALUES
+(0, '2374.425293', '-661.560547', '127.419678', '0.0', '0.0', '0.0'),
+(1, '2379.692871', '-664.465576', '127.569733', '0.0', '0.0', '0.0'),
+(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0');
 
 -- --------------------------------------------------------
 
@@ -389,6 +399,13 @@ CREATE TABLE `user` (
   `playtime` bigint(20) DEFAULT NULL COMMENT 'Berisi jumlah waktu bermain dalam detik'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`id`, `nama`, `password`, `current_skin`, `jumlah_login`, `join_date`, `uang`, `jenis_kelamin`, `email`, `account_status`, `last_x`, `last_y`, `last_z`, `last_a`, `last_int`, `last_vw`, `nomor_handphone`, `use_phone`, `rekening`, `save_house`, `last_hp`, `last_armour`, `last_stats_makan`, `last_stats_minum`, `playtime`) VALUES
+(0, 'yaya_toure', '68F7031A760F119992F825B7224D5D401FBE5B599DDECC5FA0AD209B8D4DCEED', 1, 2, '2020-06-15 03:17:51', 1090, 0, 'test@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -416,6 +433,13 @@ CREATE TABLE `user_item` (
   `kunci` tinyint(4) NOT NULL DEFAULT 0 COMMENT 'Status terkunci (agar tidak bisa dihapus)\r\n- 0 = Tidak terkunci\r\n- 1 = Terkunci'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `user_item`
+--
+
+INSERT INTO `user_item` (`id_user_item`, `id_item`, `id_user`, `jumlah`, `kunci`) VALUES
+(0, 17, 0, 0, 0);
+
 -- --------------------------------------------------------
 
 --
@@ -428,6 +452,13 @@ CREATE TABLE `user_item_limit` (
   `jumlah` int(10) NOT NULL,
   `expired` datetime DEFAULT NULL COMMENT 'Jika null berarti permanent'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `user_item_limit`
+--
+
+INSERT INTO `user_item_limit` (`id`, `id_user`, `jumlah`, `expired`) VALUES
+(0, 0, 150, NULL);
 
 -- --------------------------------------------------------
 
@@ -454,6 +485,13 @@ CREATE TABLE `user_skin` (
   `id_skin` int(20) NOT NULL,
   `jumlah` int(10) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `user_skin`
+--
+
+INSERT INTO `user_skin` (`id`, `id_user`, `id_skin`, `jumlah`) VALUES
+(0, 0, 1, 1);
 
 -- --------------------------------------------------------
 

@@ -3769,7 +3769,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1:
 					{
 						// Potong Pohon
-						if(GetPlayerWeapon(playerid) == WEAPON_CHAINSAW && CuttingTreeID[playerid] == -1){
+						if(PlayerInfo[playerid][sisaGergaji] >= 0 && CuttingTreeID[playerid] == -1){
 							new tid = GetClosestTree(playerid);
 							if(tid != -1){
 								if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
@@ -3784,6 +3784,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
 										TogglePlayerControllable(playerid, 0);
 										SetPlayerArmedWeapon(playerid, WEAPON_CHAINSAW);
+										GameTextForPlayer(playerid, "~w~Sedang ~y~memotong...", 3000, 3);
+										SetPlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX, 341, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
 										ApplyAnimation(playerid, "CHAINSAW", "WEAPON_csaw", 4.1, 1, 0, 0, 1, 0, 1);
 										DTree[tid][treeTumbang] = true;
 									}

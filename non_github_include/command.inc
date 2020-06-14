@@ -335,10 +335,3 @@ CMD:lumberjack(playerid, params[]){
     ShowPlayerDialog(playerid, DIALOG_LUMBER, DIALOG_STYLE_LIST, WHITE"Lumberjack System :", "Cari Pohon\nPotong Pohon\nPindahkan Pohon\nTurunkan Pohon\nCek Muatan Pohon\nTempat Pemotongan Pohon", "Pilih", "Batal");
     return 1;
 }
-CMD:chainsaw(playerid, params[]){
-    new Float:x, Float:y, Float:z;
-    GetPlayerPos(playerid, x, y, z);
-    GivePlayerWeapon(playerid, WEAPON_CHAINSAW, 1);
-    CreateVehicle(422, x, y, z, 0.0, 1, 1, 120);
-    return 1;
-}
