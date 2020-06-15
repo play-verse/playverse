@@ -803,7 +803,7 @@ tampilInventoryItemPlayer(playerid, dialog_id, const judul[] = "Pilih item"){
 
 			new subString[64];
 			format(subString, 64, WHITE"%s : "GREEN"(page : %d)", judul, GetPVarInt(playerid, "halaman") + 1);
-			ShowPlayerDialog(playerid, dialog_id, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Kembali");
+			return ShowPlayerDialog(playerid, dialog_id, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Kembali");
 		}else{
 			if(GetPVarInt(playerid, "halaman") < 1)
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item anda "RED"kosong", WHITE"Maaf saat ini inventory item anda tidak berisi apapun!", "Ok", "");

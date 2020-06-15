@@ -2734,30 +2734,22 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				new noSoal = GetPVarInt(playerid, "sim_soal");
-				printf("noSoal %d", noSoal);
 				if(noSoal == 0){
 					poinSim[playerid] = 0;
 				}
 				if(noSoal >= 1){
-					printf("noSoal %d", noSoal);
 					if(sama(SIM_SOAL[0][simAnswer3], inputtext) && noSoal == 1){
 						poinSim[playerid] += SIM_SOAL[0][simAnswerTrue];
-						printf("1 %d", poinSim[playerid]);
 					}else if(sama(SIM_SOAL[1][simAnswer1], inputtext) && noSoal == 2){
 						poinSim[playerid] += SIM_SOAL[1][simAnswerTrue];
-						printf("2 %d", poinSim[playerid]);
 					}else if(sama(SIM_SOAL[2][simAnswer4], inputtext) && noSoal == 3){
 						poinSim[playerid] += SIM_SOAL[2][simAnswerTrue];
-						printf("3 %d", poinSim[playerid]);
 					}else if(sama(SIM_SOAL[3][simAnswer3], inputtext) && noSoal == 4){
 						poinSim[playerid] += SIM_SOAL[3][simAnswerTrue];
-						printf("4 %d", poinSim[playerid]);
 					}else if(sama(SIM_SOAL[4][simAnswer4], inputtext) && noSoal == 5){
 						poinSim[playerid] += SIM_SOAL[4][simAnswerTrue];
-						printf("5 %d", poinSim[playerid]);
 					}else if(sama(SIM_SOAL[5][simAnswer1], inputtext) && noSoal == 6){
 						poinSim[playerid] += SIM_SOAL[5][simAnswerTrue];
-						printf("6 %d", poinSim[playerid]);
 					}else{
 						poinSim[playerid] += 0;
 					}
@@ -2784,7 +2776,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 				}
 				if(noSoal != 6){
-					printf("noSoal %d", noSoal);
 					format(pDialog[playerid], sizePDialog, "%s\n%s\n%s\n%s", SIM_SOAL[noSoal][simAnswer1], SIM_SOAL[noSoal][simAnswer2], SIM_SOAL[noSoal][simAnswer3], SIM_SOAL[noSoal][simAnswer4]);
 					SendClientMessage(playerid, -1, SIM_SOAL[noSoal][simQuestionMSG]);
 					ShowPlayerDialog(playerid, DIALOG_SIM_SOAL, DIALOG_STYLE_LIST, SIM_SOAL[noSoal][simQuestion], pDialog[playerid], "Lanjut", "Batal");
@@ -3502,7 +3493,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				new nama_item[50], jumlah, id_item;
-
 				cache_set_active(PlayerInfo[playerid][tempCache]);
 				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
 				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", id_item);
@@ -3523,17 +3513,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
 				
 				// inline responseCek(){
-				// 	printf("Masuk 1");
 				// 	new total_item;
 				// 	cache_get_value_name_int(0, "total_item", total_item);
-				// 	printf("total item %d", total_item);
 				// 	if((total_item + input_jumlah) > HouseLevel[houseInfo[GetPlayerVirtualWorld(playerid)][hLevel]][houseItemCapacity]){						
-				// 		printf("Masuk 2");
 				// 		format(pDialog[playerid], sizePDialog, "Maaf inventory rumah item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", input_jumlah, total_item, HouseLevel[houseInfo[GetPlayerVirtualWorld(playerid)][hLevel]][houseItemCapacity]);
 
 				// 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory rumah anda penuh", pDialog[playerid], "Ok", "");
 				// 	}else{
-				// 		printf("Masuk 3");
 				// 		tambahItemHouse(GetPlayerVirtualWorld(playerid), id_item, input_jumlah);
 				// 		tambahItemPlayer(playerid, id_item, -input_jumlah);
 
