@@ -53,10 +53,10 @@ showDialogMenuInventory(playerid){
         new total_item, string[500];
         cache_get_value_name_int(0, "total_item", total_item);
         if(total_item >= PlayerInfo[playerid][limitItem]){
-            format(string, 500, WHITE"Item\t"RED"(%i/%i)\nSkin\nKendaraan\nFurniture", total_item, PlayerInfo[playerid][limitItem]);
+            format(string, 500, WHITE"Item\t"RED"(%i/%i)\nSkin\nKendaraan\nFurniture\nRumah", total_item, PlayerInfo[playerid][limitItem]);
             ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", string, "Pilih", "Batal");
         }else{
-            format(string, 500, WHITE"Item\t"GREEN"(%i/%i)\nSkin\nKendaraan\nFurniture", total_item, PlayerInfo[playerid][limitItem]);
+            format(string, 500, WHITE"Item\t"GREEN"(%i/%i)\nSkin\nKendaraan\nFurniture\nRumah", total_item, PlayerInfo[playerid][limitItem]);
             ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", string, "Pilih", "Batal");
         }
     }

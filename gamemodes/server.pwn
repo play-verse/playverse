@@ -323,6 +323,65 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SetPVarInt(playerid, "halaman", 0);
 						showDialogListFurniturePemain(playerid);
 					}
+					case 4:
+					{
+						inline responseQuery(){
+							new rows;
+							cache_get_row_count(rows);
+							if(rows){
+								new idx = 0, id_house, temp_string[50];
+								format(pDialog[playerid], sizePDialog, "Alamat\tNama Level\tJarak\n");
+								while(idx < rows){
+									cache_get_value_name_int(idx, "id_house", id_house);
+									format(temp_string, sizeof(temp_string), "%d, %s, %s", id_house, GetZoneName(houseInfo[id_house][icon_x], houseInfo[id_house][icon_y], houseInfo[id_house][icon_z]), GetCityName(houseInfo[id_house][icon_x], houseInfo[id_house][icon_y], houseInfo[id_house][icon_z]));
+
+									strcatEx(pDialog[playerid], sizePDialog, ORANGE"%s\t"PURPLE"%s\t"GREEN"%.2fm\n", temp_string, HouseLevel[houseInfo[id_house][hLevel]][namaLevel], GetPlayerDistanceFromPoint(playerid, houseInfo[id_house][icon_x], houseInfo[id_house][icon_y], houseInfo[id_house][icon_z]));
+									idx++;
+								}
+
+								/**
+									PASTIKAN UNTUK SELALU HAPUS SEBELUM MENYIMPAN CACHE BARU
+								*/
+								if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+								PlayerInfo[playerid][tempCache] = cache_save();
+
+								ShowPlayerDialog(playerid, DIALOG_PILIH_RUMAH, DIALOG_STYLE_TABLIST_HEADERS, "Daftar rumah anda", pDialog[playerid], "Pilih", "Kembali");
+							}else
+								showDialogPesan(playerid, RED"Anda tidak memiliki rumah", WHITE"Anda tidak memiliki rumah saat ini.\n"YELLOW"Anda dapat membelinya ke sesama player atau pun membeli rumah yang tak berpenghuni.");
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT id_house FROM house WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_RUMAH:
+		{
+			if(response){
+				SetPVarInt(playerid, "index_terpilih", listitem);
+				ShowPlayerDialog(playerid, DIALOG_OPTION_RUMAH_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi :", "Tampilkan Lokasi Rumah", "Pilih", "Batal");
+			}else{
+				resetPVarInventory(playerid);
+				showDialogMenuInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_OPTION_RUMAH_INVENTORY:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Tampilkan lokasi rumah
+					{
+						new id;
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "index_terpilih"), "id_house", id);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+						SetPlayerCheckpoint(playerid, houseInfo[id][icon_x], houseInfo[id][icon_y], houseInfo[id][icon_z], 3.0);
+						PlayerInfo[playerid][activeMarker] = true;
+						server_message(playerid, WHITE"Rumah yang terpilih telah ditampilkan pada marker anda.");
+					}
 				}
 			}
 			return 1;
