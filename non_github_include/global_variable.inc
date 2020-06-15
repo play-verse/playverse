@@ -61,6 +61,7 @@ enum pInfo
 
     // Tambang
     sisaPalu,
+    sisaGergaji,
     bool:activeMarker,
 
     // Settings
@@ -271,7 +272,8 @@ enum INFO_BARANG_MARKET {
 
 new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
     {2059, "Materai", 5}, // Materai
-    {19631, "Palu Tambang", 10} // Materai
+    {19631, "Palu Tambang", 10}, // Palu Tambang
+    {341, "Gergaji Mesin", 10} // Gergaji Mesin
 };
 
 enum INFO_MENU_MAKANAN {
@@ -882,3 +884,31 @@ new
 		{"Flint County",                {-1213.90,-2892.90,-242.90,44.60,-768.00,900.00}},
 		{"Whetstone",                   {-2997.40,-2892.90,-242.90,-1213.90,-1115.50,900.00}}
 	};
+/**
+    Lumberjack
+*/
+enum TreeInfo
+{
+    treeID,
+    treeTimer,
+    treeObjID,
+    Text3D:treeLabel,
+    treeCP,
+    treeSecs,
+    treeAmbil,
+    treeAngkut,
+    bool: treeTumbang,
+    Float: treeX,
+    Float: treeY,
+    Float: treeZ,
+    Float: treeRX,
+    Float: treeRY,
+    Float: treeRZ
+}
+new Iterator:TreeIterator<MAX_TREES>,
+    DTree[MAX_TREES][TreeInfo],
+    vehDTree[MAX_VEHICLES][TreeInfo],
+    CuttingTreeID[MAX_PLAYERS] = {-1, ...},
+    CuttingTimer[MAX_PLAYERS] = {-1, ...},
+    PlayerBar: CuttingBar[MAX_PLAYERS] = {INVALID_PLAYER_BAR_ID, ...},
+    treeEditID[MAX_PLAYERS] = {-1, ...};

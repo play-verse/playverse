@@ -28,4 +28,7 @@ loadAllPickup(){
     // Police Dept
     PU_policeDept_in[0] = buatPickupDanLabel(1318, 1555.4991,-1675.5791,16.1953, "Polisi Metro Los Santos\n"GREEN"Pintu Masuk");
     PU_policeDept_out[0] = buatPickupDanLabel(1318, 246.8544,62.3242,1003.6406, "Polisi Metro Los Santos\n"GREEN"Pintu Keluar");
+
+    // Lumberjack
+    buatPickupDanLabel(1239, 2351.5806,-659.4711,128.1192, "Lumberjack Los Santos\n"GREEN"Tempat Pemotongan Kayu");
 }

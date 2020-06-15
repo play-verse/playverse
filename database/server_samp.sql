@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.1
+-- version 5.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 09, 2020 at 03:30 PM
--- Server version: 10.4.8-MariaDB
--- PHP Version: 7.3.10
+-- Generation Time: Jun 14, 2020 at 10:31 PM
+-- Server version: 10.4.11-MariaDB
+-- PHP Version: 7.4.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -241,7 +241,34 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (12, 'Perak', 16134, 'Perak adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1),
 (13, 'Air Minum Mineral', 2647, 'Air minum mineral untuk minum', 'pakaiMinuman', 1),
 (14, 'Steak', 19882, 'Steak sapi untuk makan, dapat dikonsumsi sehingga menambah status Makan', 'pakaiMakanan', 1),
-(15, 'SIM', 1581, 'SIM sebagai identitas kelayakan berkendara.', NULL, 1);
+(15, 'SIM', 1581, 'SIM sebagai identitas kelayakan berkendara.', NULL, 1),
+(16, 'Kayu', 19793, 'Kayu adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1),
+(17, 'Gergaji Mesin', 341, 'Gergaji Mesin digunakan untuk memotong pohon.', 'pakaiGergajiMesin', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lumber`
+--
+
+CREATE TABLE `lumber` (
+  `id` int(20) NOT NULL,
+  `treeX` varchar(32) NOT NULL,
+  `treeY` varchar(32) NOT NULL,
+  `treeZ` varchar(32) NOT NULL,
+  `treeRX` varchar(32) NOT NULL,
+  `treeRY` varchar(32) NOT NULL,
+  `treeRZ` varchar(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `lumber`
+--
+
+INSERT INTO `lumber` (`id`, `treeX`, `treeY`, `treeZ`, `treeRX`, `treeRY`, `treeRZ`) VALUES
+(0, '2374.425293', '-661.560547', '127.419678', '0.0', '0.0', '0.0'),
+(1, '2379.692871', '-664.465576', '127.569733', '0.0', '0.0', '0.0'),
+(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0');
 
 -- --------------------------------------------------------
 
@@ -372,6 +399,13 @@ CREATE TABLE `user` (
   `playtime` bigint(20) DEFAULT NULL COMMENT 'Berisi jumlah waktu bermain dalam detik'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`id`, `nama`, `password`, `current_skin`, `jumlah_login`, `join_date`, `uang`, `jenis_kelamin`, `email`, `account_status`, `last_x`, `last_y`, `last_z`, `last_a`, `last_int`, `last_vw`, `nomor_handphone`, `use_phone`, `rekening`, `save_house`, `last_hp`, `last_armour`, `last_stats_makan`, `last_stats_minum`, `playtime`) VALUES
+(0, 'yaya_toure', '68F7031A760F119992F825B7224D5D401FBE5B599DDECC5FA0AD209B8D4DCEED', 1, 2, '2020-06-15 03:17:51', 1090, 0, 'test@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -399,6 +433,13 @@ CREATE TABLE `user_item` (
   `kunci` tinyint(4) NOT NULL DEFAULT 0 COMMENT 'Status terkunci (agar tidak bisa dihapus)\r\n- 0 = Tidak terkunci\r\n- 1 = Terkunci'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `user_item`
+--
+
+INSERT INTO `user_item` (`id_user_item`, `id_item`, `id_user`, `jumlah`, `kunci`) VALUES
+(0, 17, 0, 0, 0);
+
 -- --------------------------------------------------------
 
 --
@@ -411,6 +452,13 @@ CREATE TABLE `user_item_limit` (
   `jumlah` int(10) NOT NULL,
   `expired` datetime DEFAULT NULL COMMENT 'Jika null berarti permanent'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `user_item_limit`
+--
+
+INSERT INTO `user_item_limit` (`id`, `id_user`, `jumlah`, `expired`) VALUES
+(0, 0, 150, NULL);
 
 -- --------------------------------------------------------
 
@@ -437,6 +485,13 @@ CREATE TABLE `user_skin` (
   `id_skin` int(20) NOT NULL,
   `jumlah` int(10) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `user_skin`
+--
+
+INSERT INTO `user_skin` (`id`, `id_user`, `id_skin`, `jumlah`) VALUES
+(0, 0, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -579,205 +634,6 @@ ALTER TABLE `skill`
 --
 ALTER TABLE `sms`
   ADD PRIMARY KEY (`id_sms`);
-
---
--- Indexes for table `trans_atm`
---
-ALTER TABLE `trans_atm`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `user`
---
-ALTER TABLE `user`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `nama` (`nama`),
-  ADD UNIQUE KEY `rekening` (`rekening`);
-
---
--- Indexes for table `user_furniture`
---
-ALTER TABLE `user_furniture`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `user_item`
---
-ALTER TABLE `user_item`
-  ADD PRIMARY KEY (`id_user_item`),
-  ADD UNIQUE KEY `id_item` (`id_item`,`id_user`);
-
---
--- Indexes for table `user_item_limit`
---
-ALTER TABLE `user_item_limit`
-  ADD PRIMARY KEY (`id`) USING BTREE;
-
---
--- Indexes for table `user_skill`
---
-ALTER TABLE `user_skill`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `user_skin`
---
-ALTER TABLE `user_skin`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `vehicle`
---
-ALTER TABLE `vehicle`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `vehicle_dealer`
---
-ALTER TABLE `vehicle_dealer`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `vehicle_keys`
---
-ALTER TABLE `vehicle_keys`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `furniture`
---
-ALTER TABLE `furniture`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `gaji`
---
-ALTER TABLE `gaji`
-  MODIFY `id_gaji` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `house`
---
-ALTER TABLE `house`
-  MODIFY `id_house` int(20) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `house_furniture`
---
-ALTER TABLE `house_furniture`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `house_interior`
---
-ALTER TABLE `house_interior`
-  MODIFY `id_level` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- AUTO_INCREMENT for table `house_inv_item`
---
-ALTER TABLE `house_inv_item`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `item`
---
-ALTER TABLE `item`
-  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
-
---
--- AUTO_INCREMENT for table `papan`
---
-ALTER TABLE `papan`
-  MODIFY `id_papan` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `pengambilan_ktp`
---
-ALTER TABLE `pengambilan_ktp`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `pengambilan_sim`
---
-ALTER TABLE `pengambilan_sim`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `skill`
---
-ALTER TABLE `skill`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `sms`
---
-ALTER TABLE `sms`
-  MODIFY `id_sms` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `trans_atm`
---
-ALTER TABLE `trans_atm`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `user`
---
-ALTER TABLE `user`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID Player';
-
---
--- AUTO_INCREMENT for table `user_furniture`
---
-ALTER TABLE `user_furniture`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `user_item`
---
-ALTER TABLE `user_item`
-  MODIFY `id_user_item` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `user_item_limit`
---
-ALTER TABLE `user_item_limit`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `user_skill`
---
-ALTER TABLE `user_skill`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `user_skin`
---
-ALTER TABLE `user_skin`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `vehicle`
---
-ALTER TABLE `vehicle`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `vehicle_dealer`
---
-ALTER TABLE `vehicle_dealer`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `vehicle_keys`
---
-ALTER TABLE `vehicle_keys`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

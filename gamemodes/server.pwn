@@ -36,6 +36,7 @@
 #include <checkpoint> // CP Function Loader
 #include <area> // Area loader
 #include <dialog> // Function Dialog Loader
+#include <EVF> // Fungsi tambahan vehicle
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
 
@@ -3615,6 +3616,256 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_LUMBER_ADMIN:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+                        // Buat Pohon
+                        new id = Iter_Free(TreeIterator);
+                        if(id == -1) error_command(playerid, "Tidak dapat membuat pohon lagi.");
+                        new Float: x, Float: y, Float: z, Float: a;
+                        GetPlayerPos(playerid, x, y, z);
+                        GetPlayerFacingAngle(playerid, a);
+                        x += (3.0 * floatsin(-a, degrees));
+                        y += (3.0 * floatcos(-a, degrees));
+                        z -= 1.0;
+
+                        createTree(id, x, y, z, 0.0, 0.0, 0.0);
+
+                        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `lumber` (id, treeX, treeY, treeZ, treeRX, treeRY, treeRZ) VALUES ('%d', '%f', '%f', '%f', '0.0', '0.0', '0.0')", id, x, y, z);
+				        new Cache:result = mysql_query(koneksi, pQuery[playerid]);
+                        if(result){
+                            treeEditID[playerid] = id;
+                            EditDynamicObject(playerid, DTree[id][treeObjID]);
+
+                            SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil membuat pohon!");
+                            SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda dapat mengedit pohon sekarang atau batal untuk mengedit lain kali.");
+                        }
+						cache_delete(result);
+					}
+					case 1:
+					{
+                        // Edit Pohon
+						ShowPlayerDialog(playerid, DIALOG_LUMBER_EDIT, DIALOG_STYLE_INPUT, "Edit Pohon", WHITE"Silahkan input ID pohon yang ingin diedit.", "Lanjut", "Batal");
+					}
+					case 2:
+					{
+                        // Reset Pohon
+						ShowPlayerDialog(playerid, DIALOG_LUMBER_RESET, DIALOG_STYLE_INPUT, "Reset Pohon", WHITE"Apakah anda yakin ingin mereset semua rumah?\nKetik "GREEN"RESET"WHITE" jika setuju.", "Lanjut", "Batal");
+					}
+                    case 3:
+					{
+                        // Hapus Pohon
+						ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS, DIALOG_STYLE_LIST, WHITE"Hapus Pohon", "Hapus ID Pohon\nHapus Semua Pohon", "Pilih", "Batal");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_LUMBER_EDIT:
+		{
+			if(response){
+				new id = strval(inputtext);
+				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_LUMBER_EDIT, DIALOG_STYLE_INPUT, "Edit Pohon", RED"ID tidak boleh kosong!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
+				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_LUMBER_EDIT, DIALOG_STYLE_INPUT, "Edit Pohon", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
+                if(treeEditID[playerid] != -1) return ShowPlayerDialog(playerid, DIALOG_LUMBER_EDIT, DIALOG_STYLE_INPUT, "Edit Pohon", RED"Anda sedang mengedit!\n"WHITE"Batalkan edit pohon sebelumnya, untuk melakukannya kembali.", "Lanjut", "Batal");
+                if(!Iter_Contains(TreeIterator, id)) return ShowPlayerDialog(playerid, DIALOG_LUMBER_EDIT, DIALOG_STYLE_INPUT, "Edit Pohon", RED"ID tidak valid!\n"WHITE"ID pohon tidak tersedia.", "Lanjut", "Batal");
+                if(DTree[id][treeTumbang]) return ShowPlayerDialog(playerid, DIALOG_LUMBER_EDIT, DIALOG_STYLE_INPUT, "Edit Pohon", RED"Pohon sedang tumbang!\n"WHITE"ID pohon tersebut sedang tumbang, tunggu hingga pulih.", "Lanjut", "Batal");
+                if(!IsPlayerInRangeOfPoint(playerid, 30.0, DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ])) return ShowPlayerDialog(playerid, DIALOG_LUMBER_EDIT, DIALOG_STYLE_INPUT, "Edit Pohon", RED"Pohon diluar jangkauan!\n"WHITE"ID pohon tersebut diluar jangkauan, silahkan lebih dekat dengan pohon tersebut.", "Lanjut", "Batal");
+                treeEditID[playerid] = id;
+                EditDynamicObject(playerid, DTree[id][treeObjID]);
+			}
+			return 1;
+		}
+		case DIALOG_LUMBER_RESET:
+		{
+			if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_RESET_RUMAH, DIALOG_STYLE_INPUT, "Reset Rumah", RED"Input tidak boleh kosong!\n"WHITE"Silahkan ketik "GREEN"RESET"WHITE" untuk setuju.", "Lanjut", "Batal");
+			if(!sama("RESET", inputtext)) return ShowPlayerDialog(playerid, DIALOG_RESET_RUMAH, DIALOG_STYLE_INPUT, "Reset Pohon", RED"Input tidak valid!\n"WHITE"Anda harus mengetik "GREEN"RESET"WHITE" untuk setuju.", "Lanjut", "Batal");
+			foreach(new i : TreeIterator){
+				DTree[i][treeSecs] = 0;
+				DTree[i][treeTimer] = -1;
+				reloadTreeLabel(i);
+			}
+			SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil mereset semua pohon!");
+		}
+		case DIALOG_LUMBER_HAPUS:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Pohon", WHITE"Silahkan input ID pohon yang ingin dihapus.", "Lanjut", "Batal");
+					}
+					case 1:
+					{
+						ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ALL, DIALOG_STYLE_INPUT, "Hapus Pohon", WHITE"Apakah anda yakin ingin menghapus semua pohon? Ketik "GREEN"HAPUS"WHITE" untuk setuju.", "Lanjut", "Batal");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_LUMBER_HAPUS_ID:
+		{
+			if(response){
+				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"ID tidak boleh kosong!\n"WHITE"Silahkan input ID berupa angka.", "Lanjut", "Batal");
+				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
+				new Cache:result, pmsg[256], id = strval(inputtext);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `lumber` WHERE `id` = '%d'", id);
+				result = mysql_query(koneksi, pQuery[playerid]);
+				if(cache_num_rows()){
+					DestroyDynamicObject(DTree[id][treeObjID]);
+					DestroyDynamicCP(DTree[id][treeCP]);
+					DestroyDynamic3DTextLabel(DTree[id][treeLabel]);
+					
+					DTree[id][treeSecs] = 0;
+					DTree[id][treeObjID] = DTree[id][treeTimer] = -1;
+					DTree[id][treeLabel] = Text3D: -1;
+					Iter_Remove(TreeIterator, id);
+					
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `lumber` WHERE `id` = '%d'", id);
+					mysql_query(koneksi, pQuery[playerid]);
+					format(pmsg, sizeof(pmsg),  GREEN"[LUMBERJACK] "WHITE"Anda berhasil menghapus pohon (id:"YELLOW"%d"WHITE")!", id);
+				    SendClientMessage(playerid, COLOR_WHITE, pmsg);
+				}else{
+					ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Pohon", RED"ID tidak valid!\n"WHITE"ID pohon tidak tersedia.", "Lanjut", "Batal");
+				}
+				cache_delete(result);
+			}
+			return 1;
+		}
+		case DIALOG_LUMBER_HAPUS_ALL:
+		{
+			if(response){
+				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ALL, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"Input tidak boleh kosong!\n"WHITE"Silahkan ketik "GREEN"HAPUS"WHITE" untuk setuju.", "Lanjut", "Batal");
+				if(!sama("HAPUS", inputtext)) return ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ALL, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"Input tidak valid!\n"WHITE"Anda harus mengetik "GREEN"HAPUS"WHITE" untuk setuju.", "Lanjut", "Batal");
+				foreach(new i : TreeIterator){
+					if (Iter_Contains(TreeIterator, i)){
+						DestroyDynamicObject(DTree[i][treeObjID]);
+						DestroyDynamicCP(DTree[i][treeCP]);
+						DestroyDynamic3DTextLabel(DTree[i][treeLabel]);
+						
+						DTree[i][treeSecs] = 0;
+						DTree[i][treeObjID] = DTree[i][treeTimer] = -1;
+						DTree[i][treeLabel] = Text3D: -1;
+						Iter_SafeRemove(TreeIterator, i, i);
+					}
+				}
+
+				mysql_query(koneksi, "TRUNCATE TABLE `lumber`");
+				SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil menghapus semua pohon!");
+			}
+			return 1;
+		}
+		case DIALOG_LUMBER:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+                        // Cari Pohon
+						new status[256], subString[100], string[1500] = "ID\tJarak\tStatus\n"WHITE, Float:tempdist;
+						foreach(new i : TreeIterator){
+        					tempdist = GetPlayerDistanceFromPoint(playerid, DTree[i][treeX], DTree[i][treeY], DTree[i][treeZ]);
+							if(DTree[i][treeSecs] < 1){
+								format(status, sizeof(status), GREEN"Tersedia");
+							}else{
+								format(status, sizeof(status), YELLOW"%s menit", ConvertToMinutes(DTree[i][treeSecs]));
+							}
+							format(subString, sizeof(subString), "%d\t%d meter\t%s\n", i, floatround(tempdist, floatround_round), status);
+							strcat(string, subString);
+						}
+
+						format(subString, 64, WHITE"Cari Pohon");
+						ShowPlayerDialog(playerid, DIALOG_PILIH_TREE, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Batal");
+					}
+					case 1:
+					{
+						// Potong Pohon
+						if(PlayerInfo[playerid][sisaGergaji] >= 0 && CuttingTreeID[playerid] == -1){
+							new tid = GetClosestTree(playerid);
+							if(tid != -1){
+								if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
+									if(IsPlayerInDynamicCP(playerid, DTree[tid][treeCP])){
+										new vehid = GetPlayerVehicleID(playerid);
+										if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda berada didalam kendaraan.");
+										SetPlayerLookAt(playerid, DTree[tid][treeX], DTree[tid][treeY]);
+										Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[tid][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
+										CuttingTimer[playerid] = SetTimerEx("CutTree", 1000, true, "i", playerid);
+										CuttingTreeID[playerid] = tid;
+										SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+										ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+										TogglePlayerControllable(playerid, 0);
+										SetPlayerArmedWeapon(playerid, WEAPON_CHAINSAW);
+										GameTextForPlayer(playerid, "~w~Sedang ~y~memotong...", 3000, 3);
+										SetPlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX, 341, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
+										ApplyAnimation(playerid, "CHAINSAW", "WEAPON_csaw", 4.1, 1, 0, 0, 1, 0, 1);
+										DTree[tid][treeTumbang] = true;
+									}
+								}
+							}
+						}
+					}
+					case 2:
+					{
+						// Pindahkan Pohon
+						new pid = GetClosestTree(playerid);
+						if(pid == -1) return error_command(playerid, "Anda tidak berada disekitar pohon.");
+						if(!DTree[pid][treeTumbang]) return error_command(playerid, "Anda tidak berada disekitar pohon tumbang.");
+						new vid = GetNearestVehicleToPlayer(playerid);
+						if(GetVehicleModel(vid) != 422) return error_command(playerid, "Anda tidak berada disekitar mobil pick up.");
+						new Float: x, Float: y, Float: z;
+						GetVehicleBoot(vid, x, y, z);
+						if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Anda tidak berada tepat dibelakang mobil pick up.");
+						if(vehDTree[vid][treeAngkut] >= VEH_TREE_LIMIT) return error_command(playerid, "Anda tidak dapat menambahkan pohon lagi ke mobil pick up.");
+						SetDynamicObjectPos(DTree[pid][treeObjID], DTree[pid][treeX], DTree[pid][treeY], DTree[pid][treeZ]-50.0);
+						ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 1, 1, 0, 0, 1);
+						SetPlayerLookAt(playerid, x, y);
+						vehDTree[vid][treeAngkut]++;
+						DTree[pid][treeTumbang] = false;
+						DTree[pid][treeAmbil] = true;
+						reloadTreeLabel(pid);
+						SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda berhasil mengangkut pohon ke dalam mobil pick up.");
+					}
+					case 3:
+					{
+						new vehid = GetPlayerVehicleID(playerid);
+						if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada didalam kendaraan.");
+						if(GetVehicleModel(vehid) != 422) return error_command(playerid, "Anda tidak berada didalam kendaraan pick up.");
+						if(!IsPlayerInRangeOfPoint(playerid, 3.0, 2351.5806, -659.4711, 128.1192)) return error_command(playerid, "Anda tidak berada ditempat pemotongan kayu.");
+						if(vehDTree[vehid][treeAngkut] <= 0) return error_command(playerid, "Anda tidak memiliki muatan pohon.");
+						format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil melakukan pemotongan "GREEN"%d"WHITE" buah pohon, dan mendapatkan total kayu "GREEN"%d"WHITE" buah.", vehDTree[vehid][treeAngkut], vehDTree[vehid][treeAngkut]*3);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Pemotongan Pohon", pDialog[playerid], "Ok", "");
+						tambahItemPlayer(playerid, 25, vehDTree[vehid][treeAngkut]*3);
+						vehDTree[vehid][treeAngkut] = 0;
+					}
+					case 4:
+					{
+						new vehid = GetPlayerVehicleID(playerid);
+						if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada didalam kendaraan.");
+						if(GetVehicleModel(vehid) != 422) return error_command(playerid, "Anda tidak berada didalam kendaraan pick up.");
+						format(pDialog[playerid], sizePDialog, WHITE"Kendaraan anda memiliki muatan pohon sebanyak "GREEN"%d"WHITE" buah.", vehDTree[vehid][treeAngkut]);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Muatan Pohon", pDialog[playerid], "Ok", "");
+					}
+					case 5:
+					{
+						SetPlayerCheckpoint(playerid, 2351.5806, -659.4711, 128.1192, 5.0);
+						SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda telah berhasil menandai Tempat Pemotongan Pohon.");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_TREE:
+		{
+			if(response){
+				new id = strval(inputtext);
+				SetPlayerCheckpoint(playerid, DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ], 5.0);
+				SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda telah berhasil menandai pohon.");
+			}
+			return 1;
+		}
 		case DIALOG_MENU_PUSAT_PROPERTI:
 		{
 			if(response){
@@ -4005,6 +4256,10 @@ public OnGameModeInit()
 	LoadVehicleDealer();
 	printf("[VEHICLE] Sukses load vehicle dealer.");
 	
+	printf("[LUMBERJACK] Load semua pohon");
+	loadAllTree();
+	printf("[LUMBERJACK] Sukses load semua pohon.");
+
 	SetGameModeText("EL v0.5");
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
 	ShowNameTags(1);
@@ -4045,9 +4300,9 @@ public OnGameModeInit()
 
 
 	// SIM Vehicle
-	vehicleSIM[0] = CreateVehicle(596, 1584.9463, -1606.8075, 13.1038, 180.6711, -1, -1, 60);
-	vehicleSIM[1] = CreateVehicle(596, 1580.1217, -1607.0674, 13.1037, 179.7378, -1, -1, 60);
-	vehicleSIM[2] = CreateVehicle(596, 1575.1067, -1606.8228, 13.1040, 179.4362, -1, -1, 60);
+	vehicleSIM[0] = CreateVehicle(410, 1584.9463, -1606.8075, 13.1038, 180.6711, -1, -1, 60);
+	vehicleSIM[1] = CreateVehicle(410, 1580.1217, -1607.0674, 13.1037, 179.7378, -1, -1, 60);
+	vehicleSIM[2] = CreateVehicle(410, 1575.1067, -1606.8228, 13.1040, 179.4362, -1, -1, 60);
 	Iter_Add(vehicleSIM, vehicleSIM[0]);
 	Iter_Add(vehicleSIM, vehicleSIM[1]);
 	Iter_Add(vehicleSIM, vehicleSIM[2]);
@@ -4612,6 +4867,9 @@ public OnVehicleDeath(vehicleid, killerid){
 		IDVehToPVeh[vehicleid] = 0;
 		Iter_Remove(IDVehToPVehIterator, vehicleid);
 	}
+	if(GetVehicleModel(vehicleid) == 422){
+		vehDTree[vehicleid][treeAngkut] = 0;
+	}
 	return 1;
 }
 
@@ -4731,6 +4989,39 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 			}
 		}
 	}
+	if(treeEditID[playerid] != -1 && Iter_Contains(TreeIterator, treeEditID[playerid])){
+        if(response == EDIT_RESPONSE_FINAL){
+            new id = treeEditID[playerid];
+            DTree[id][treeX] = x;
+            DTree[id][treeY] = y;
+            DTree[id][treeZ] = z;
+            DTree[id][treeRX] = rx;
+            DTree[id][treeRY] = ry;
+            DTree[id][treeRZ] = rz;
+ 
+            SetDynamicObjectPos(objectid, DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ]);
+            SetDynamicObjectRot(objectid, DTree[id][treeRX], DTree[id][treeRY], DTree[id][treeRZ]);
+ 
+            Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[id][treeLabel], E_STREAMER_X, DTree[id][treeX]);
+            Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[id][treeLabel], E_STREAMER_Y, DTree[id][treeY]);
+            Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[id][treeLabel], E_STREAMER_Z, DTree[id][treeZ] + 1.5);
+
+			Streamer_SetFloatData(STREAMER_TYPE_CP, DTree[id][treeCP], E_STREAMER_X, DTree[id][treeX]);
+            Streamer_SetFloatData(STREAMER_TYPE_CP, DTree[id][treeCP], E_STREAMER_Y, DTree[id][treeY]);
+            Streamer_SetFloatData(STREAMER_TYPE_CP, DTree[id][treeCP], E_STREAMER_Z, DTree[id][treeZ]);
+			
+            mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE lumber SET treeX=%f, treeY=%f, treeZ=%f, treeRX=%f, treeRY=%f, treeRZ=%f WHERE id=%d", DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ], DTree[id][treeRX], DTree[id][treeRY], DTree[id][treeRZ], id);
+			mysql_tquery(koneksi, pQuery[playerid]);
+ 
+            treeEditID[playerid] = -1;
+        }
+        if(response == EDIT_RESPONSE_CANCEL){
+            new id = treeEditID[playerid];
+            SetDynamicObjectPos(objectid, DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ]);
+            SetDynamicObjectRot(objectid, DTree[id][treeRX], DTree[id][treeRY], DTree[id][treeRZ]);
+            treeEditID[playerid] = -1;
+        }
+    }
 	return 1;
 }
 

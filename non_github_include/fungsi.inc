@@ -132,6 +132,7 @@ resetPlayerVariable(playerid){
 	PlayerInfo[playerid][activeMarker] = false;
 
 	PlayerInfo[playerid][sisaPalu] = 0;
+	PlayerInfo[playerid][sisaGergaji] = 0;
 
 	PlayerInfo[playerid][lamaBermain] = 0;
 	PlayerInfo[playerid][waktuSaatLogin] = 0;
@@ -673,6 +674,14 @@ publicFor: pakaiPaluTambang(playerid){
 	PlayerInfo[playerid][sisaPalu] += 15;
 
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Palu Tambang = "GREEN"Penambahan kesempatan menambang sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan menambang anda direset jadi 0.", "Ok", "");
+	return 1;
+}
+
+publicFor: pakaiGergajiMesin(playerid){
+	tambahItemPlayer(playerid, 26, -1);
+	PlayerInfo[playerid][sisaGergaji] += 15;
+
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Gergaji Mesin = "GREEN"Penambahan kesempatan memotong sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan memotong anda direset jadi 0.", "Ok", "");
 	return 1;
 }
 
@@ -1769,6 +1778,14 @@ resetPlayerToDo(playerid){
 		limitVehSIM[vehicleIdSIM[playerid]] = 0;
 		vehicleIdSIM[playerid] = -1;
 	}
+	if(CuttingTreeID[playerid] != -1){
+		CuttingTreeID[playerid] = -1;
+		CuttingTimer[playerid] = -1;
+		treeEditID[playerid] = -1;
+	}
+	CuttingBar[playerid] = CreatePlayerProgressBar(playerid, 498.0, 104.0, 113.0, 6.2, COLOR_YELLOW, CUTTING_TIME, 0);
+	ApplyAnimation(playerid, "CHAINSAW", "null", 0.0, 0, 0, 0, 0, 0, 0);
+	ApplyAnimation(playerid, "CARRY", "null", 0.0, 0, 0, 0, 0, 0, 0);
 	return 1;
 }
 
@@ -2249,3 +2266,139 @@ public SpeedoUpdate(playerid)
 	}
     return 1;
 }
+
+loadAllTree(){
+	new tree_Id, tX[32], tY[32], tZ[32], tRX[32], tRY[32], tRZ[32];
+	new Cache:result, row, idx = 0;
+	result = mysql_query(koneksi, "SELECT * FROM `lumber`");
+	cache_get_row_count(row);
+	while(idx < row){
+		result = cache_save();
+		cache_get_value_name_int(idx, "id", tree_Id);
+		cache_get_value_name(idx, "treeX", tX);
+		cache_get_value_name(idx, "treeY", tY);
+		cache_get_value_name(idx, "treeZ", tZ);
+		cache_get_value_name(idx, "treeRX", tRX);
+		cache_get_value_name(idx, "treeRY", tRY);
+		cache_get_value_name(idx, "treeRZ", tRZ);
+		createTree(tree_Id, floatstr(tX), floatstr(tY), floatstr(tZ), floatstr(tRX), floatstr(tRY), floatstr(tRZ));
+		cache_set_active(result);
+		
+		#if DEBUG_SERVER_LOAD == true
+			printf("Tree load id(%d)", tree_Id);
+		#endif
+
+		idx++;
+	}
+	cache_delete(result);
+}
+
+createTree(tree_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ)
+{
+	if(tree_Id < MAX_TREES ){
+		DTree[tree_Id][treeX] = tX;
+		DTree[tree_Id][treeY] = tY;
+		DTree[tree_Id][treeZ] = tZ;
+		DTree[tree_Id][treeRX] = tRX;
+		DTree[tree_Id][treeRY] = tRY;
+		DTree[tree_Id][treeRZ] = tRZ;
+	
+		DTree[tree_Id][treeObjID] = CreateDynamicObject(657, DTree[tree_Id][treeX], DTree[tree_Id][treeY], DTree[tree_Id][treeZ], DTree[tree_Id][treeRX], DTree[tree_Id][treeRY], DTree[tree_Id][treeRZ]);
+		
+		new label[256];
+		format(label, sizeof(label), WHITE"["GREEN"Pohon"WHITE"]\nNo : "GREEN"%d\n\n"WHITE"Ketik "GREEN"/lumberjack"WHITE" (pilih menu "GREEN"Potong Pohon"WHITE")\nUntuk memotong pohon", tree_Id);
+		DTree[tree_Id][treeLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, DTree[tree_Id][treeX], DTree[tree_Id][treeY], DTree[tree_Id][treeZ]+1.5, 3.0);
+		DTree[tree_Id][treeCP] = CreateDynamicCP(DTree[tree_Id][treeX], DTree[tree_Id][treeY], DTree[tree_Id][treeZ], 3.0, -1, -1, -1, 20.0);
+		DTree[tree_Id][treeTumbang] = false;
+		Iter_Add(TreeIterator, tree_Id);
+		reloadTreeLabel(tree_Id);
+	}else{
+		print("Pohon mencapai limit!");
+	}
+}
+
+reloadTreeLabel(tree_Id){
+	new label[256];
+	if(!DTree[tree_Id][treeTumbang] && DTree[tree_Id][treeAmbil]){
+		format(label, sizeof(label), WHITE"["GREEN"Pohon"WHITE"]\nNo : "GREEN"%d\n"WHITE"Waktu Pulih : "GREEN"%s menit", tree_Id, ConvertToMinutes(DTree[tree_Id][treeSecs]));
+	}else if(DTree[tree_Id][treeTumbang] && !DTree[tree_Id][treeAmbil]){
+		format(label, sizeof(label), WHITE"["GREEN"Pohon"WHITE"]\nNo : "GREEN"%d\n"WHITE"Waktu Pulih : "GREEN"%s menit\n\n"WHITE"Ketik "GREEN"/lumberjack"WHITE" (pilih menu "GREEN"Pindahkan Pohon"WHITE")\nUntuk memindahkan pohon ke mobil pickup", tree_Id, ConvertToMinutes(DTree[tree_Id][treeSecs]));
+	}else{
+		format(label, sizeof(label), WHITE"["GREEN"Pohon"WHITE"]\nNo : "GREEN"%d\n\n"WHITE"Ketik "GREEN"/lumberjack"WHITE" (pilih menu "GREEN"Potong Pohon"WHITE")\nUntuk memotong pohon", tree_Id);
+	}
+	UpdateDynamic3DTextLabelText(DTree[tree_Id][treeLabel], COLOR_WHITE, label);
+}
+
+GetClosestTree(playerid, Float: range = 2.0){
+    new id = -1, Float: dist = range, Float: tempdist;
+    foreach(new i : TreeIterator){
+        tempdist = GetPlayerDistanceFromPoint(playerid, DTree[i][treeX], DTree[i][treeY], DTree[i][treeZ]);
+        if(tempdist > range) continue;
+        if(tempdist <= dist){
+            dist = tempdist;
+            id = i;
+        }
+    }
+    return id;
+}
+
+Player_ResetCutting(playerid){
+    if(!IsPlayerConnected(playerid) || CuttingTreeID[playerid] == -1) return 0;
+    new id = CuttingTreeID[playerid];
+    if(DTree[id][treeSecs] < 1) Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[id][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
+    ClearAnimations(playerid);
+    TogglePlayerControllable(playerid, 1);
+	if(IsPlayerAttachedObjectSlotUsed(playerid, CUTTING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX);
+    CuttingTreeID[playerid] = -1;
+	PlayerInfo[playerid][sisaGergaji]--;
+    if(CuttingTimer[playerid] != -1){
+        KillTimer(CuttingTimer[playerid]);
+        CuttingTimer[playerid] = -1;
+    }
+    SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+    HidePlayerProgressBar(playerid, CuttingBar[playerid]);
+    return 1;
+}
+
+forward CutTree(playerid);
+public CutTree(playerid){
+    if(CuttingTreeID[playerid] != -1){
+        new id = CuttingTreeID[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + 1.0;
+        if(value >= CUTTING_TIME){
+            Player_ResetCutting(playerid);
+            MoveDynamicObject(DTree[id][treeObjID], DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ] + 0.03, 0.025, DTree[id][treeRX], DTree[id][treeRY] - 80.0, DTree[id][treeRZ]);
+
+            DTree[id][treeSecs] = TREE_RESPAWN;
+			DTree[id][treeAmbil] = false;
+			DTree[id][treeTimer] = SetTimerEx("RespawnTree", 1000, true, "i", id);
+            reloadTreeLabel(id);
+        }else{
+            SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+        }
+    }
+    return 1;
+}
+
+forward RespawnTree(tree_Id);
+public RespawnTree(tree_Id){
+    if(DTree[tree_Id][treeSecs] > 1) {
+        DTree[tree_Id][treeSecs]--;
+        reloadTreeLabel(tree_Id);
+    }else if(DTree[tree_Id][treeSecs] == 1) {
+        KillTimer(DTree[tree_Id][treeTimer]);
+        DTree[tree_Id][treeSecs] = 0;
+        DTree[tree_Id][treeTimer] = -1;
+       	DTree[tree_Id][treeTumbang] = false;
+		DTree[tree_Id][treeAmbil] = false;
+        SetDynamicObjectPos(DTree[tree_Id][treeObjID], DTree[tree_Id][treeX], DTree[tree_Id][treeY], DTree[tree_Id][treeZ]);
+        SetDynamicObjectRot(DTree[tree_Id][treeObjID], DTree[tree_Id][treeRX], DTree[tree_Id][treeRY], DTree[tree_Id][treeRZ]);
+        reloadTreeLabel(tree_Id);
+    }
+    return 1;
+}
+
+Tree_BeingEdited(tree_Id){
+    if(!Iter_Contains(TreeIterator, tree_Id)) return 0;
+    foreach(new i : Player) if(treeEditID[i] == tree_Id) return 1;
+    return 0;
+}	

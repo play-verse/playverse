@@ -307,7 +307,7 @@ stock GetPlayerIdFromName(const playername[])
     return INVALID_PLAYER_ID;
 }
 
-stock GetVehicleSpeed(vehicleid) //Credits someone on SAMP Forums forgot the name
+stock GetVehicleSpeed(vehicleid) // Credits someone on SAMP Forums forgot the name
 {
     new Float:x, Float:y, Float:z, vel;
     GetVehicleVelocity(vehicleid, x, y, z);
@@ -322,12 +322,12 @@ Float:VehicleHealth(vehicleid){
     return health;
 }
 
-stock IsVehicleOccupied(vehicleid){
+/*stock IsVehicleOccupied(vehicleid){
     foreach(new i : Player){
         if(IsPlayerInVehicle(i, vehicleid)) return 1;
     }
     return 0;
-}
+}*/
 
 stock GetVehicleNameFromModel(modelid)
 {
@@ -397,4 +397,24 @@ stock formatHarga(nominal_uang, const pemisah[] = "."){
         strins(stringTemp, pemisah, i);
     }
     return stringTemp;
+}
+
+ConvertToMinutes(time) // http://forum.sa-mp.com/showpost.php?p=3223897&postcount=11
+{
+    new string[15]; //-2000000000:00 could happen, so make the string 15 chars to avoid any errors
+    format(string, sizeof(string), "%02d:%02d", time / 60, time % 60);
+    return string;
+}
+
+SetPlayerLookAt(playerid, Float:x, Float:y){
+    // somewhere on samp forums, couldn't find the source
+    new Float:Px, Float:Py, Float: Pa;
+    GetPlayerPos(playerid, Px, Py, Pa);
+    Pa = floatabs(atan((y-Py)/(x-Px)));
+    if (x <= Px && y >= Py) Pa = floatsub(180, Pa);
+    else if (x < Px && y < Py) Pa = floatadd(Pa, 180);
+    else if (x >= Px && y <= Py) Pa = floatsub(360.0, Pa);
+    Pa = floatsub(Pa, 90.0);
+    if (Pa >= 360.0) Pa = floatsub(Pa, 360.0);
+    SetPlayerFacingAngle(playerid, Pa);
 }
