@@ -232,10 +232,8 @@ CMD:apapan(playerid, params[]){
 }
 
 CMD:rumah(playerid, params[]){
-    // VW menandakan ID rumah - INT Menandakan didalam interior rumah atau engga
-    new vw = GetPlayerVirtualWorld(playerid), int = GetPlayerInterior(playerid);
-    if(int == 0) return error_command(playerid, "Anda tidak didalam rumah manapun.");
-    if(houseInfo[vw][hOwner] != PlayerInfo[playerid][pID]) return error_command(playerid, "Anda bukan pemilik rumah.");
+    if(GetPlayerInterior(playerid) == 0) return error_command(playerid, "Anda tidak didalam rumah manapun.");
+    if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] != PlayerInfo[playerid][pID]) return error_command(playerid, "Anda bukan pemilik rumah.");
     ShowPlayerDialog(playerid, DIALOG_MENU_RUMAH, DIALOG_STYLE_LIST, "Menu Rumah : ", "Inventory Rumah\nSemua Furniture", "Pilih", "Tutup");
     return 1;
 }
@@ -343,5 +341,11 @@ CMD:alumber(playerid, params[]){
 }
 CMD:lumberjack(playerid, params[]){
     ShowPlayerDialog(playerid, DIALOG_LUMBER, DIALOG_STYLE_LIST, WHITE"Lumberjack System :", "Cari Pohon\nPotong Pohon\nPindahkan Pohon\nTurunkan Pohon\nCek Muatan Pohon\nTempat Pemotongan Pohon", "Pilih", "Batal");
+    return 1;
+}
+
+CMD:aatm(playerid, params[]){
+    if(!IsPlayerAdmin(playerid)) return 0;
+    ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM, DIALOG_STYLE_LIST, "Menu admin untuk ATM :", "Buat ATM\nEdit ATM\nHapus ATM", "Pilih", "Batal");    
     return 1;
 }

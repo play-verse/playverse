@@ -50,6 +50,7 @@
 #define STATUS_KENDARAAN_RUSAK_DAN_SUDAH_DIPERBAIKI 2 // Tinggal Ambil di pusat reparasi
 
 #define MAX_KENDARAAN_PER_PEMAIN 3
+#define	MAX_ATMS 100
 
 // Jangan buat pinjamkan key permanent, ntar jadi bisa 1 mobil bagi ramai-ramai dong
 #define MAXIMUM_PINJAMKAN_KEY 2 // Setiap Vehicle hanya bisa dipinjamkan kepada 2 orang
@@ -200,6 +201,9 @@
 #define DIALOG_PENGATURAN 132
 #define DIALOG_PILIH_RUMAH 133
 #define DIALOG_OPTION_RUMAH_INVENTORY 134
+#define DIALOG_ADMIN_ATM 135
+#define DIALOG_ADMIN_ATM_PILIH_ID_EDIT 136
+#define DIALOG_ADMIN_ATM_PILIH_ID_HAPUS 137
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR

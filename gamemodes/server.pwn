@@ -824,7 +824,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 								new data[e_furniture];
 								data[fID] = cache_insert_id();
-								data[fHouseID] = GetPlayerVirtualWorld(playerid);
+								data[fHouseID] = PlayerInfo[playerid][inHouse];
 								data[fFurnitureID] = id_furniture;
 								data[fPosX] = pos[0];
 								data[fPosY] = pos[1];
@@ -839,7 +839,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 								tambahFurniturePlayer(playerid, id_furniture, -1);
 							}
-							MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO house_furniture(id_house, id_furniture, pos_x, pos_y, pos_z) VALUES('%d', '%d', '%f', '%f', '%f')", GetPlayerVirtualWorld(playerid), id_furniture, pos[0], pos[1], pos[2]);
+							MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO house_furniture(id_house, id_furniture, pos_x, pos_y, pos_z) VALUES('%d', '%d', '%f', '%f', '%f')", PlayerInfo[playerid][inHouse], id_furniture, pos[0], pos[1], pos[2]);
 						}else{
 							return server_message(playerid, "Anda tidak berada didalam rumah anda sendiri.");
 						}
@@ -3392,7 +3392,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0: // Inventory rumah
 					{
-						new house_id = GetPlayerVirtualWorld(playerid);
+						new house_id = PlayerInfo[playerid][inHouse];
 						inline responseQuery(){
 							new total_item, kapasitas = HouseLevel[houseInfo[house_id][hLevel]][houseItemCapacity];
 							cache_get_value_name_int(0, "total_item", total_item);
@@ -3408,7 +3408,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1: // Semua Furniture
 					{
 						SetPVarInt(playerid, "halaman", 0);
-						tampilFurnitureHousePlayer(playerid, GetPlayerVirtualWorld(playerid), DIALOG_PILIH_FURNITURE_RUMAH);
+						tampilFurnitureHousePlayer(playerid, PlayerInfo[playerid][inHouse], DIALOG_PILIH_FURNITURE_RUMAH);
 						return 1;
 					}
 				}
@@ -3420,15 +3420,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
 					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
-					tampilFurnitureHousePlayer(playerid, GetPlayerVirtualWorld(playerid), DIALOG_PILIH_FURNITURE_RUMAH);
+					tampilFurnitureHousePlayer(playerid, PlayerInfo[playerid][inHouse], DIALOG_PILIH_FURNITURE_RUMAH);
 					return 1;
 				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
 					if(GetPVarInt(playerid, "halaman") > 0){
 						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
-						tampilFurnitureHousePlayer(playerid, GetPlayerVirtualWorld(playerid), DIALOG_PILIH_FURNITURE_RUMAH);
+						tampilFurnitureHousePlayer(playerid, PlayerInfo[playerid][inHouse], DIALOG_PILIH_FURNITURE_RUMAH);
 					}else{
 						SetPVarInt(playerid, "halaman", 0);
-						tampilFurnitureHousePlayer(playerid, GetPlayerVirtualWorld(playerid), DIALOG_PILIH_FURNITURE_RUMAH);
+						tampilFurnitureHousePlayer(playerid, PlayerInfo[playerid][inHouse], DIALOG_PILIH_FURNITURE_RUMAH);
 					}
 					return 1;
 				}
@@ -3511,7 +3511,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1: // Ambil Item dari Inventory rumah
 					{
 						SetPVarInt(playerid, "halaman", 0);
-						new house_id = GetPlayerVirtualWorld(playerid);
+						new house_id = PlayerInfo[playerid][inHouse];
 						tampilInventoryHousePlayer(playerid, house_id, DIALOG_AMBIL_ITEM_RUMAH, "Pilih item dari inventory rumah");
 					}
 				}
@@ -3588,9 +3588,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				// 	}
 				// 	resetPVarInventory(playerid);
 				// }
-				new house_id = GetPlayerVirtualWorld(playerid);
+				new house_id = PlayerInfo[playerid][inHouse];
 				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(a.jumlah * b.kapasitas), 0) as total_item FROM house_inv_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_house = '%d'", house_id);
-				mysql_tquery(koneksi, pQuery[playerid], "simpanItemKeInvenRumah", "iiiis", playerid, HouseLevel[houseInfo[GetPlayerVirtualWorld(playerid)][hLevel]][houseItemCapacity], id_item, input_jumlah, nama_item);
+				mysql_tquery(koneksi, pQuery[playerid], "simpanItemKeInvenRumah", "iiiis", playerid, HouseLevel[houseInfo[house_id][hLevel]][houseItemCapacity], id_item, input_jumlah, nama_item);
 				// MySQL_TQueryInline(koneksi, using inline responseCek, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM house_inv_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_house = '%d'", house_id);
 			}
 			return 1;
@@ -3598,7 +3598,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_AMBIL_ITEM_RUMAH:
 		{
 			if(response){
-				new house_id = GetPlayerVirtualWorld(playerid);
+				new house_id = PlayerInfo[playerid][inHouse];
 				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
 					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
 					tampilInventoryHousePlayer(playerid, house_id, DIALOG_AMBIL_ITEM_RUMAH, "Pilih item dari inventory rumah");
@@ -4004,6 +4004,85 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_ADMIN_ATM:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Buat ATM
+					{
+						new id = Iter_Free(ATMs);
+						if(id == -1) return error_command(playerid, "ATM telah melampui limit");
+
+						ATMData[id][atmRX] = ATMData[id][atmRY] = 0.0;
+						GetPlayerPos(playerid, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ]);
+						GetPlayerFacingAngle(playerid, ATMData[id][atmRZ]);
+
+						ATMData[id][atmX] += (2.0 * floatsin(-ATMData[id][atmRZ], degrees));
+						ATMData[id][atmY] += (2.0 * floatcos(-ATMData[id][atmRZ], degrees));
+						ATMData[id][atmZ] -= 0.3;
+
+						ATMData[id][atmObjID] = CreateDynamicObject(19324, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ], ATMData[id][atmRX], ATMData[id][atmRY], ATMData[id][atmRZ]);
+						if(IsValidDynamicObject(ATMData[id][atmObjID]))
+						{		
+							EditingATMID[playerid] = id;
+							EditDynamicObject(playerid, ATMData[id][atmObjID]);
+						}
+
+						new label_string[128];
+						format(label_string, sizeof(label_string), "%d, %s, %s\n"WHITE"ATM tersedia\n\n"WHITE"Tekan "GREEN"Y"WHITE" untuk mengakses", id, GetZoneName(ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ]), GetCityName(ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ]));
+						ATMData[id][atmLabel] = CreateDynamic3DTextLabel(label_string, COLOR_GREEN, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ] + 0.85, 5.0);
+
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO tempat_atm SET id=%d, pos_x='%f', pos_y='%f', pos_z='%f', rot_x='%f', rot_y='%f', rot_z='%f'", id, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ], ATMData[id][atmRX], ATMData[id][atmRY], ATMData[id][atmRZ]);
+						mysql_tquery(koneksi, pQuery[playerid]);
+						Iter_Add(ATMs, id);
+						return 1;
+					}
+					case 1:
+					{
+						return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_EDIT, DIALOG_STYLE_INPUT, "Pilih ID", "Masukan ID mesin ATM yang ingin di edit.", "Ok", "Batal");
+					}
+					case 2:
+					{
+						return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_HAPUS, DIALOG_STYLE_INPUT, "Pilih ID", "Masukan ID mesin ATM yang ingin di hapus.", "Ok", "Batal");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_ATM_PILIH_ID_EDIT:
+		{
+			if(response){
+				new id;
+				if(sscanf(inputtext, "i", id)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_EDIT, DIALOG_STYLE_INPUT, "Pilih ID", RED"Anda harus menginput id dengan benar.\n"WHITE"Masukan ID mesin ATM yang ingin di edit.", "Ok", "Batal");
+				if(!Iter_Contains(ATMs, id) || id == 0) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_EDIT, DIALOG_STYLE_INPUT, "Pilih ID", RED"ATM tidak ada.\n"WHITE"Masukan ID mesin ATM yang ingin di edit.", "Ok", "Batal");
+				if(!IsPlayerInRangeOfPoint(playerid, 30.0, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_EDIT, DIALOG_STYLE_INPUT, "Pilih ID", RED"Anda tidak berada didekat ATM.\n"WHITE"Masukan ID mesin ATM yang ingin di edit.", "Ok", "Batal");
+				EditingATMID[playerid] = id;
+				EditDynamicObject(playerid, ATMData[id][atmObjID]);
+				return 1;
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_ATM_PILIH_ID_HAPUS:
+		{
+			if(response){
+				new id;
+				if(sscanf(inputtext, "i", id)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_HAPUS, DIALOG_STYLE_INPUT, "Pilih ID", RED"Masukan inputan ID yang benar.\n"WHITE"Masukan ID mesin ATM yang ingin di hapus.", "Ok", "Batal");
+				if(!Iter_Contains(ATMs, id) || id == 0) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_HAPUS, DIALOG_STYLE_INPUT, "Pilih ID", RED"ATM tidak ada.\n"WHITE"Masukan ID mesin ATM yang ingin di hapus.", "Ok", "Batal");
+				if(!IsPlayerInRangeOfPoint(playerid, 30.0, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_HAPUS, DIALOG_STYLE_INPUT, "Pilih ID", RED"ATM tidak berada didekat anda.\n"WHITE"Masukan ID mesin ATM yang ingin di hapus.", "Ok", "Batal");
+
+				if(IsValidDynamicObject(ATMData[id][atmObjID])) DestroyDynamicObject(ATMData[id][atmObjID]);
+				ATMData[id][atmObjID] = -1;
+				if(IsValidDynamic3DTextLabel(ATMData[id][atmLabel])) DestroyDynamic3DTextLabel(ATMData[id][atmLabel]);
+
+				ATMData[id][atmLabel] = Text3D: -1;
+				Iter_Remove(ATMs, id);
+				
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM tempat_atm WHERE id=%d", id);
+				mysql_tquery(koneksi, pQuery[playerid]);
+				return 1;
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -4117,6 +4196,12 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			isTollUsed_LSLV[1] = 1;
 			SetPreciseTimer("tutupToll", 3000, 0, "i", 4);
 		}
+	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO) && IsPlayerInAnyDynamicArea(playerid)){
+		if(GetPVarType(playerid, "last_area")){
+			if(AREA_beliPerabot[0] <= GetPVarInt(playerid, "last_area") && GetPVarInt(playerid, "last_area") <= AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT) - 1]){
+				showDialogBeliPerabot(playerid);
+			}
+		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO)){
 		if(lastHousePickup[playerid] < 0 || lastHousePickup[playerid] >= MAX_HOUSES) return 1;
 		new id,
@@ -4131,11 +4216,15 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		if(IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) {
 			new id_level = houseInfo[id][hLevel];
 			if(houseInfo[id][hKunci] != 1){
+				PlayerInfo[playerid][inHouse] = id;
+				
 				pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
 				SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
 			}else{
 				if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
+					PlayerInfo[playerid][inHouse] = id;
 					pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
+
 					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
 				}else{
 					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf rumah terkunci dan tidak dapat masuk!");
@@ -4143,6 +4232,9 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			}
 		}
 		return 1;
+	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED( KEY_YES)){
+		new idatm = GetClosestATM(playerid);
+		if(idatm != -1) showDialogATM(playerid);
 	}
     return 1;
 }
@@ -4195,6 +4287,7 @@ public OnPlayerDeath(playerid, killerid, reason)
 		printf("OnPlayerDeath terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif
 
+	PlayerInfo[playerid][inHouse] = 0;
 	PlayerInfo[playerid][sudahSpawn] = false;
 
 	hideHUDStats(playerid);
@@ -4264,6 +4357,7 @@ public OnGameModeInit()
 {
 	// Initializing iterator
 	Iter_Init(PVehKeys);
+	Iter_Add(ATMs, 0);
 
 	koneksi = mysql_connect_file();
 	errno = mysql_errno(koneksi);
@@ -4318,6 +4412,10 @@ public OnGameModeInit()
 	printf("[LUMBERJACK] Load semua pohon");
 	loadAllTree();
 	printf("[LUMBERJACK] Sukses load semua pohon.");
+
+	printf("[LUMBERJACK] Load semua ATM");
+	LoadSemuaATM();
+	printf("[LUMBERJACK] Sukses load ATM.");
 
 	SetGameModeText("EL v0.5");
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
@@ -4553,7 +4651,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		if(houseNotif[playerid] != id){
 			houseNotif[playerid] = id;
 			format(msg, 256, "[RUMAH]"WHITE" Ketik "GREEN"/inforumah"WHITE" untuk melihat info tentang rumah.");
-	    	SendClientMessage(playerid, COLOR_GREEN, msg);
+			SendClientMessage(playerid, COLOR_GREEN, msg);
 		}
 	}else if(pickupid == PU_cityHallMasuk[0] || pickupid == PU_cityHallMasuk[1] || pickupid == PU_cityHallMasuk[2]){
 		pindahkanPemain(playerid, -501.2855,289.1127,2001.0950, 357.5606, 1, 1, true);
@@ -4570,7 +4668,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		pindahkanPemain(playerid, SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_X],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_Y],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_Z],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_A], SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_INTERIOR], SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_VW], true);
 		return 1;
 	}else if(pickupid >= PU_tempatKeluarRumah[0] && pickupid <= PU_tempatKeluarRumah[1]){
-		new id_rumah = GetPlayerVirtualWorld(playerid);
+		new id_rumah = PlayerInfo[playerid][inHouse];
 		pindahkanPemain(playerid, houseInfo[id_rumah][icon_x], houseInfo[id_rumah][icon_y], houseInfo[id_rumah][icon_z], houseInfo[id_rumah][last_a], 0, 0, true);
 		return 1;
 	}else if(pickupid == PU_policeDept_in[0]){
@@ -4614,11 +4712,6 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		return 1;
 	}else if(checkpointid == CP_tellerBankLS[0] || checkpointid == CP_tellerBankLS[1]){
 		showDialogTellerBank(playerid);
-		return 1;
-	// ID nya harus simetris (berurut dengan setiap |x2 - x1| = 1)
-	}else if(checkpointid >= CP_ATM[0] && checkpointid <= CP_ATM[sizeof(CP_ATM) - 1]){
-		if(isnull(PlayerInfo[playerid][nomorRekening])) return SendClientMessage(playerid, COLOR_RED, "[ATM] "WHITE"Anda tidak dapat menggunakan ATM jika tidak memiliki rekening");
-		showDialogATM(playerid);
 		return 1;
 	// ID nya harus simetris (berurut dengan setiap |x2 - x1| = 1)
 	}else if(checkpointid >= CP_Tambang[0] && checkpointid <= CP_Tambang[sizeof(CP_Tambang) - 1]) {
@@ -5047,8 +5140,37 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 				SendClientMessage(playerid, COLOR_PINK, "[FURNITURE] "WHITE"Berhasil menyimpan posisi furniture.");
 			}
 		}
-	}
-	if(treeEditID[playerid] != -1 && Iter_Contains(TreeIterator, treeEditID[playerid])){
+	}else if(Iter_Contains(ATMs, EditingATMID[playerid])){
+	    if(response == EDIT_RESPONSE_FINAL)
+	    {
+	        new id = EditingATMID[playerid];
+	        ATMData[id][atmX] = x;
+	        ATMData[id][atmY] = y;
+	        ATMData[id][atmZ] = z;
+	        ATMData[id][atmRX] = rx;
+	        ATMData[id][atmRY] = ry;
+	        ATMData[id][atmRZ] = rz;
+
+	        SetDynamicObjectPos(objectid, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ]);
+	        SetDynamicObjectRot(objectid, ATMData[id][atmRX], ATMData[id][atmRY], ATMData[id][atmRZ]);
+
+			Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, ATMData[id][atmLabel], E_STREAMER_X, ATMData[id][atmX]);
+			Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, ATMData[id][atmLabel], E_STREAMER_Y, ATMData[id][atmY]);
+			Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, ATMData[id][atmLabel], E_STREAMER_Z, ATMData[id][atmZ] + 0.85);
+
+			new query[500];
+			mysql_format(koneksi, query, sizeof(query), "UPDATE tempat_atm SET pos_x='%f', pos_y='%f', pos_z='%f', rot_x='%f', rot_y='%f', rot_z='%f' WHERE id=%d", x, y, z, rx, ry, rz, id);
+			mysql_tquery(koneksi, query);
+			EditingATMID[playerid] = -1;
+		}
+	    else if(response == EDIT_RESPONSE_CANCEL)
+	    {
+	        new id = EditingATMID[playerid];
+	        SetDynamicObjectPos(objectid, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ]);
+	        SetDynamicObjectRot(objectid, ATMData[id][atmRX], ATMData[id][atmRY], ATMData[id][atmRZ]);
+	        EditingATMID[playerid] = -1;
+	    }
+	}else if(treeEditID[playerid] != -1 && Iter_Contains(TreeIterator, treeEditID[playerid])){
         if(response == EDIT_RESPONSE_FINAL){
             new id = treeEditID[playerid];
             DTree[id][treeX] = x;
@@ -5081,6 +5203,16 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
             treeEditID[playerid] = -1;
         }
     }
+	return 1;
+}
+
+public OnPlayerEnterDynamicArea(playerid, areaid){
+	SetPVarInt(playerid, "last_area", areaid);
+	return 1;
+}
+
+public OnPlayerLeaveDynamicArea(playerid, areaid){
+	DeletePVar(playerid, "last_area");
 	return 1;
 }
 

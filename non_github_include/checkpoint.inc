@@ -19,15 +19,6 @@ loadAllCP(){
     // Beli Makanan
     CP_beliMakanCepatSaji = buatCPDanLabel(369.9234,-6.0165,1001.8589, GREEN"Beli Makan disini!", 1.0, -1, 9);
 
-    // CP ATM
-    foreach(new i : Range(0, sizeof(POSISI_ATM))){
-      CP_ATM[i] = buatCPDanLabel(POSISI_ATM[i][POSISI_X], POSISI_ATM[i][POSISI_Y], POSISI_ATM[i][POSISI_Z], GREEN"ATM tersedia", 1.0, POSISI_ATM[i][POSISI_VW], POSISI_ATM[i][POSISI_INT]);
-    }
-    if(CP_ATM[0] + sizeof(POSISI_ATM) - 1 != CP_ATM[sizeof(POSISI_ATM) - 1]){
-        printf("[ERROR] #05 Checkpoint ATM tidak memiliki ID yang simetris.");
-        SendRconCommand("exit");
-    }
-
     // CP Beli Barang Market - Spot pembelian di dalam market
     foreach(new i : Range(0, sizeof(POSISI_BELI_BARANG_MARKET))){
       CP_spotBarangMarket[i] = buatCPDanLabel(POSISI_BELI_BARANG_MARKET[i][POSISI_X], POSISI_BELI_BARANG_MARKET[i][POSISI_Y], POSISI_BELI_BARANG_MARKET[i][POSISI_Z], ORANGE"Barang-barang\n"WHITE"Beli disini!", 1.0, POSISI_BELI_BARANG_MARKET[i][POSISI_VW], POSISI_BELI_BARANG_MARKET[i][POSISI_INT]);

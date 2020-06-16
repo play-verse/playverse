@@ -141,3 +141,8 @@ showDialogAdminPapan(playerid){
 showDialogAdminVehicle(playerid){
     return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk kendaraan", "Buat Kendaraan\nParkir Kendaraan Dealer\nRespawn Semua kendaraan Dealer\nHapus Kendaraan Dealer ini", "Pilih", "Batal");
 }
+
+showDialogBeliPerabot(playerid){
+    // Kosongin sementara
+	return playerid;
+}

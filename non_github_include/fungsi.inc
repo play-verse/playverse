@@ -45,6 +45,8 @@ publicFor: isRegistered(playerid)
 
 		cache_get_value_name_int(0, "playtime", PlayerInfo[playerid][lamaBermain]);
 
+		cache_get_value_name_int(0, "in_house", PlayerInfo[playerid][inHouse]);
+
 		// Get Player Position
 		cache_get_value_name(0, "last_x", temp_value);
 		PlayerInfo[playerid][last_x] = floatstr(temp_value);
@@ -112,6 +114,8 @@ resetPlayerVariable(playerid){
     PlayerInfo[playerid][uang] = 0;
     PlayerInfo[playerid][jenisKelamin] = -1;
     PlayerInfo[playerid][sHouse] = 0;
+
+	EditingATMID[playerid] = -1;
 
     PlayerInfo[playerid][ePhone] = 0;
     PlayerInfo[playerid][nomorHP][0] = EOS;
@@ -1410,7 +1414,7 @@ updateOnPlayerDisconnect(playerid){
 
 	new lama_bermain = getTotalLamaBermain(playerid);
 
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', playtime = '%d' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, lama_bermain, PlayerInfo[playerid][pID]);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', playtime = '%d', in_house = '%d' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }
@@ -1467,7 +1471,7 @@ publicFor: ambilItemDariInvenRumah(playerid, id_item, input_jumlah, const nama_i
 
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
 	}else{
-		tambahItemHouse(GetPlayerVirtualWorld(playerid), id_item, -input_jumlah);
+		tambahItemHouse(PlayerInfo[playerid][inHouse], id_item, -input_jumlah);
 		tambahItemPlayer(playerid, id_item, input_jumlah);
 
 		format(pDialog[playerid], sizePDialog, "Anda berhasil mengambil "YELLOW"%s"WHITE" dari dalam inventory rumah.\nSebanyak "YELLOW"%d"WHITE".\nAnda dapat menyimpannya kembali selama anda memiliki cukup ruang.", nama_item, input_jumlah);
@@ -1486,7 +1490,7 @@ publicFor: simpanItemKeInvenRumah(playerid, max_slot, id_item, input_jumlah, con
 
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory rumah anda penuh", pDialog[playerid], "Ok", "");
 	}else{
-		tambahItemHouse(GetPlayerVirtualWorld(playerid), id_item, input_jumlah);
+		tambahItemHouse(PlayerInfo[playerid][inHouse], id_item, input_jumlah);
 		tambahItemPlayer(playerid, id_item, -input_jumlah);
 
 		format(pDialog[playerid], sizePDialog, "Anda berhasil menyimpan "YELLOW"%s"WHITE" ke dalam inventory rumah.\nSebanyak "YELLOW"%d"WHITE".\nAnda dapat mengambilnya kembali.", nama_item, input_jumlah);
@@ -2342,6 +2346,23 @@ GetClosestTree(playerid, Float: range = 2.0){
     return id;
 }
 
+GetClosestATM(playerid, Float: range = 3.0)
+{
+	new id = -1, Float: dist = range, Float: tempdist;
+	foreach(new i : ATMs)
+	{
+		tempdist = GetPlayerDistanceFromPoint(playerid, ATMData[i][atmX], ATMData[i][atmY], ATMData[i][atmZ]);
+
+		if(tempdist > range) continue;
+		if(tempdist <= dist)
+		{
+			dist = tempdist;
+			id = i;
+		}
+	}
+	return id;
+}
+
 Player_ResetCutting(playerid){
     if(!IsPlayerConnected(playerid) || CuttingTreeID[playerid] == -1) return 0;
     new id = CuttingTreeID[playerid];
@@ -2401,4 +2422,35 @@ Tree_BeingEdited(tree_Id){
     if(!Iter_Contains(TreeIterator, tree_Id)) return 0;
     foreach(new i : Player) if(treeEditID[i] == tree_Id) return 1;
     return 0;
-}	
+}
+
+LoadSemuaATM()
+{
+	new Cache:result = mysql_query(koneksi, "SELECT * FROM tempat_atm");
+	new rows = cache_num_rows();
+	if(rows)
+	{
+		new id, label_string[128];
+
+		for(new i; i < rows; i++)
+		{
+			cache_get_value_name_int(i, "id", id);
+			cache_get_value_name_float(i, "pos_x", ATMData[id][atmX]);
+			cache_get_value_name_float(i, "pos_y", ATMData[id][atmY]);
+			cache_get_value_name_float(i, "pos_z", ATMData[id][atmZ]);
+			cache_get_value_name_float(i, "rot_x", ATMData[id][atmRX]);
+			cache_get_value_name_float(i, "rot_y", ATMData[id][atmRY]);
+			cache_get_value_name_float(i, "rot_z", ATMData[id][atmRZ]);
+
+			ATMData[id][atmObjID] = CreateDynamicObject(19324, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ], ATMData[id][atmRX], ATMData[id][atmRY], ATMData[id][atmRZ]);
+			
+			format(label_string, sizeof(label_string), "%d, %s, %s\n"WHITE"ATM tersedia\n\n"WHITE"Tekan "GREEN"Y"WHITE" untuk mengakses", id, GetZoneName(ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ]), GetCityName(ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ]));
+			ATMData[id][atmLabel] = CreateDynamic3DTextLabel(label_string, COLOR_GREEN, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ] + 0.85, 5.0);
+
+			Iter_Add(ATMs, id);
+		}
+	}
+	cache_delete(result);
+    printf("[ATM] %d Mesin ATM berhasil di load.", Iter_Count(ATMs) - 1);
+	return 1;
+}

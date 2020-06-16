@@ -49,6 +49,7 @@ enum pInfo
     Float:statusMinum,
 
     preloadAnim, // Preload anim
+	inHouse,
 
     // Equiped Item
     ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
@@ -247,11 +248,6 @@ new const POSISI_NAMBANG[][COORD_OBJ] = {
     {501.6256,971.4416,-24.5734, 0, 0}
 };
 
-new const POSISI_ATM[][COORD_OBJ] = {
-	{1412.3097,-987.6777,-55.2764, 1, 1},
-	{1154.9031,-1464.9263,15.7981, 0, 0}
-};
-
 new const POSISI_BELI_BARANG_MARKET[][COORD_OBJ] = {
     {-4.2324, -176.4322, 1003.5469, 17, -1},
     {-9.7521, -169.9181, 1003.5469, 17, -1},
@@ -260,6 +256,10 @@ new const POSISI_BELI_BARANG_MARKET[][COORD_OBJ] = {
     {1166.8647, -1445.9028, 15.7981, 0, 0},
     {1175.0690, -1438.7549, 15.7981, 0, 0},
     {1166.0021, -1432.7262, 15.7981, 0, 0}
+};
+
+new const POSISI_BELI_PERABOT[][COORD_OBJ] = {
+	{1831.8854, -1402.5930, 13.5559, 0, 0}
 };
 /**
     MARKET DIALOG
@@ -313,7 +313,6 @@ new CP_tempatFoto,
     CP_spotBeliSkin[3],
     CP_resepsionisCityHall,
     CP_tellerBankLS[2],
-    CP_ATM[sizeof(POSISI_ATM)],
     CP_Tambang[sizeof(POSISI_NAMBANG)],
     CP_beliMakanCepatSaji,
     CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)],
@@ -912,3 +911,22 @@ new Iterator:TreeIterator<MAX_TREES>,
     CuttingTimer[MAX_PLAYERS] = {-1, ...},
     PlayerBar: CuttingBar[MAX_PLAYERS] = {INVALID_PLAYER_BAR_ID, ...},
     treeEditID[MAX_PLAYERS] = {-1, ...};
+
+new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)];
+
+enum    E_ATM
+{
+	// saved
+	Float: atmX,
+	Float: atmY,
+	Float: atmZ,
+	Float: atmRX,
+	Float: atmRY,
+	Float: atmRZ,
+	// temp
+	atmObjID,	
+	Text3D: atmLabel
+}
+new	ATMData[MAX_ATMS][E_ATM],
+	Iterator: ATMs<MAX_ATMS>,
+	EditingATMID[MAX_PLAYERS] = {-1, ...};

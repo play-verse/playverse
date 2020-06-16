@@ -22,7 +22,7 @@ strcatEx(dest[], len_dest, const source[], {Float,_}:...){
 
 isPlayerInOwnedHouse(playerid){
     if(GetPlayerInterior(playerid) > 0 && GetPlayerVirtualWorld(playerid) <= MAX_HOUSES){
-        if(houseInfo[GetPlayerVirtualWorld(playerid)][hOwner] == PlayerInfo[playerid][pID]) return 1;
+        if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] == PlayerInfo[playerid][pID]) return 1;
     }
     return 0;
 }
