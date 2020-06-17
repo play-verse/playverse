@@ -2391,7 +2391,7 @@ public CutTree(playerid){
 
             DTree[id][treeSecs] = TREE_RESPAWN;
 			DTree[id][treeAmbil] = false;
-			DTree[id][treeTimer] = SetTimerEx("RespawnTree", 1000, true, "i", id);
+			DTree[id][treeTimer] = SetPreciseTimer("RespawnTree", 1000, true, "i", id);
             reloadTreeLabel(id);
         }else{
             SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);

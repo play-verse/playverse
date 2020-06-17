@@ -1491,11 +1491,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_HARGA_RUMAH:
 		{
 			if(response){
-				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_HARGA_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", RED"Harga tidak boleh kosong!\n"WHITE"Anda harus menginput harga berupa angka.", "Lanjut", "Batal");
+				new harga;
+				if(sscanf(inputtext, "i", harga)) return ShowPlayerDialog(playerid, DIALOG_HARGA_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", RED"Harga tidak valid!\n"WHITE"Anda harus menginput harga berupa angka.", "Lanjut", "Batal");
 
-				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_HARGA_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", RED"Harga tidak valid!\n"WHITE"Anda harus menginput harga berupa angka.", "Lanjut", "Batal");
-
-				if(strval(inputtext) <= 1) return ShowPlayerDialog(playerid, DIALOG_HARGA_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", RED"Harga tidak valid!\n"WHITE"Anda harus menginput harga lebih dari 1.", "Lanjut", "Batal");
+				if(harga <= 1) return ShowPlayerDialog(playerid, DIALOG_HARGA_RUMAH, DIALOG_STYLE_INPUT, "Buat Rumah", RED"Harga tidak valid!\n"WHITE"Anda harus menginput harga lebih dari 1.", "Lanjut", "Batal");
 
 				new Float:me_x, Float:me_y, Float:me_z;
 				new level_rumah = GetPVarInt(playerid, "level_rumah");
@@ -1503,12 +1502,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				inline responseQuery(){
 					new id = cache_insert_id();
-					createHouse(id, -1, level_rumah, strval(inputtext), 0, 1, 1, me_x, me_y, me_z);
+					createHouse(id, -1, level_rumah, harga, 0, 1, 1, me_x, me_y, me_z);
 					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membuat rumah!");
 					
 					DeletePVar(playerid, "level_rumah");
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `house` (level, harga, icon_x, icon_y, icon_z) VALUES ('%d', '%d', '%f', '%f', '%f')", level_rumah, strval(inputtext), me_x, me_y, me_z);
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `house` (level, harga, icon_x, icon_y, icon_z) VALUES ('%d', '%d', '%f', '%f', '%f')", level_rumah, harga, me_x, me_y, me_z);
 			}else{
 				DeletePVar(playerid, "level_rumah");
 			}
@@ -1579,11 +1578,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_HAPUS_RUMAH_ID:
 		{
 			if(response){
-				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"ID tidak boleh kosong!\n"WHITE"Silahkan input ID berupa angka.", "Lanjut", "Batal");
+				new id;
+				if(sscanf(inputtext, "i", id)) return ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
 
-				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_HAPUS_RUMAH_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
-
-				new pmsg[256], userId, id = strval(inputtext);
+				new pmsg[256], userId;
 				inline responseQuery(){
 					if(cache_num_rows()){
 						new beliRate = getHousePrice(id, "beli");
@@ -3693,16 +3691,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
                         createTree(id, x, y, z, 0.0, 0.0, 0.0);
 
-                        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `lumber` (id, treeX, treeY, treeZ, treeRX, treeRY, treeRZ) VALUES ('%d', '%f', '%f', '%f', '0.0', '0.0', '0.0')", id, x, y, z);
-				        new Cache:result = mysql_query(koneksi, pQuery[playerid]);
-                        if(result){
+						inline responseQuery(){
                             treeEditID[playerid] = id;
                             EditDynamicObject(playerid, DTree[id][treeObjID]);
 
                             SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil membuat pohon!");
                             SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda dapat mengedit pohon sekarang atau batal untuk mengedit lain kali.");
-                        }
-						cache_delete(result);
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `lumber` (id, treeX, treeY, treeZ, treeRX, treeRY, treeRZ) VALUES ('%d', '%f', '%f', '%f', '0.0', '0.0', '0.0')", id, x, y, z);
 					}
 					case 1:
 					{
@@ -3842,7 +3838,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1:
 					{
 						// Potong Pohon
-						if(PlayerInfo[playerid][sisaGergaji] >= 0 && CuttingTreeID[playerid] == -1){
+						if(PlayerInfo[playerid][sisaGergaji] > 0 && CuttingTreeID[playerid] == -1){
 							new tid = GetClosestTree(playerid);
 							if(tid != -1){
 								if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
@@ -3851,7 +3847,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda berada didalam kendaraan.");
 										SetPlayerLookAt(playerid, DTree[tid][treeX], DTree[tid][treeY]);
 										Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[tid][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
-										CuttingTimer[playerid] = SetTimerEx("CutTree", 1000, true, "i", playerid);
+										CuttingTimer[playerid] = SetPreciseTimer("CutTree", 1000, true, "i", playerid);
 										CuttingTreeID[playerid] = tid;
 										SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
 										ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
@@ -4361,6 +4357,7 @@ public OnGameModeInit()
 
 	koneksi = mysql_connect_file();
 	errno = mysql_errno(koneksi);
+	mysql_log(); // Buat mysql log
 	if(errno != 0){
 		new error[100];
 	

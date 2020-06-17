@@ -43,7 +43,10 @@
 #define STRING_SEBELUMNYA "<< Sebelumnya"
 #define STRING_SELANJUTNYA "Selanjutnya >>"
 
+// Define Harga dan Sebagainya
 #define BIAYA_PERBAIKI_KENDARAAN 250
+#define JUMLAH_KAYU_PER_UPGRADE 50  // 50 x level yang mau diupgrade
+
 
 #define STATUS_KENDARAAN_TIDAK_RUSAK 0
 #define STATUS_KENDARAAN_RUSAK 1
