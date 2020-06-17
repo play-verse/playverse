@@ -1761,22 +1761,27 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(getUangPlayer(playerid) < upgradeRate) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
 
 								inline responseQuery(){
-									new terpasang;
+									new terpasang, cukup;
 									cache_get_value_name_int(0, "terpasang", terpasang);
+									cache_get_value_name_int(0, "cukup", cukup);
+									if(!cukup) return sendPesan(playerid, COLOR_ORANGE, "SERVER: "WHITE"Anda harus memiliki %d kayu untuk upgrade ke level selanjutnya.", getKayuForUpgradeHouse(houseInfo[id][hLevel]));
 									if(!terpasang){
 										givePlayerUang(playerid, -upgradeRate);
-										houseInfo[id][hLevel] = houseLevel+1;
+										tambahItemPlayer(playerid, 25, -getKayuForUpgradeHouse(houseInfo[id][hLevel]));
+
+										houseInfo[id][hLevel] = houseLevel + 1;
+
 										mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
 										mysql_tquery(koneksi, pQuery[playerid]);
 										reloadHouseLabel(id);
-										format(msg, sizeof(msg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil upgrade rumah ke level ("YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hLevel], upgradeRate);
-										SendClientMessage(playerid, COLOR_WHITE, msg);
+										sendPesan(playerid, COLOR_GREEN, "[RUMAH] "WHITE"Anda berhasil mengupgrade rumah ke level %d.", houseInfo[id][hLevel]);
+										sendPesan(playerid, COLOR_YELLOW, "[INFO] "WHITE"Anda telah dikenakan harga "GREEN"$%d", upgradeRate);
 										return 1;
 									}else{
 										return sendPesan(playerid, COLOR_GREEN, "[RUMAH] "RED"Anda harus melepas semua furniture didalam rumah terlebih dahulu!");
 									}
 								}
-								MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT COUNT(*) as terpasang FROM house_furniture WHERE id_house = '%d'", id);
+								MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT(SELECT COUNT(*) FROM house_furniture WHERE id_house = '%d') as terpasang, (SELECT COUNT(*) FROM user_item WHERE id_user = '%d' AND id_item = '%d' AND jumlah >= '%d') as cukup", id, PlayerInfo[playerid][pID], 25, getKayuForUpgradeHouse(houseInfo[id][hLevel]));
 							}else{
 								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf level rumah anda sudah maksimal!");
 							}
@@ -3764,12 +3769,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_LUMBER_HAPUS_ID:
 		{
 			if(response){
-				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"ID tidak boleh kosong!\n"WHITE"Silahkan input ID berupa angka.", "Lanjut", "Batal");
-				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Rumah", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
-				new Cache:result, pmsg[256], id = strval(inputtext);
-				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `lumber` WHERE `id` = '%d'", id);
-				result = mysql_query(koneksi, pQuery[playerid]);
-				if(cache_num_rows()){
+				new id;
+				if(sscanf(inputtext, "i", id)) return ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Lumber", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
+
+				new pmsg[256];
+				if(Iter_Contains(TreeIterator, id)){
 					DestroyDynamicObject(DTree[id][treeObjID]);
 					DestroyDynamicCP(DTree[id][treeCP]);
 					DestroyDynamic3DTextLabel(DTree[id][treeLabel]);
@@ -3780,13 +3784,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					Iter_Remove(TreeIterator, id);
 					
 					mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `lumber` WHERE `id` = '%d'", id);
-					mysql_query(koneksi, pQuery[playerid]);
+					mysql_tquery(koneksi, pQuery[playerid]);
+
 					format(pmsg, sizeof(pmsg),  GREEN"[LUMBERJACK] "WHITE"Anda berhasil menghapus pohon (id:"YELLOW"%d"WHITE")!", id);
-				    SendClientMessage(playerid, COLOR_WHITE, pmsg);
+					SendClientMessage(playerid, COLOR_WHITE, pmsg);
 				}else{
 					ShowPlayerDialog(playerid, DIALOG_LUMBER_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Pohon", RED"ID tidak valid!\n"WHITE"ID pohon tidak tersedia.", "Lanjut", "Batal");
 				}
-				cache_delete(result);
 			}
 			return 1;
 		}
@@ -3808,7 +3812,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 				}
 
-				mysql_query(koneksi, "TRUNCATE TABLE `lumber`");
+				mysql_tquery(koneksi, "TRUNCATE TABLE `lumber`");
 				SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil menghapus semua pohon!");
 			}
 			return 1;

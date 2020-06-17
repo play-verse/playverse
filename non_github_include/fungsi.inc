@@ -1721,6 +1721,10 @@ getHousePrice(house_Id, const method[16] = ""){
 	return -1;
 }
 
+getKayuForUpgradeHouse(level){
+	return level * JUMLAH_KAYU_PER_UPGRADE;
+}
+
 todoActive(playerid){
 	if(sweeperJob[playerid] == 1){
 		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Maaf anda sedang bekerja sebagai Sweeper, silahkan kembali bekerja!");
