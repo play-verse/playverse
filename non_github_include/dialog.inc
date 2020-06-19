@@ -143,6 +143,12 @@ showDialogAdminVehicle(playerid){
 }
 
 showDialogBeliPerabot(playerid){
-    // Kosongin sementara
-	return playerid;
+    static str_daftar_perabot[sizeof(PERABOT_DIJUAL) * 100 + 100];
+    if(str_daftar_perabot[0] == EOS){
+        strcat(str_daftar_perabot, WHITE"Nama\tHarga\n");
+        for(new i = 0; i < sizeof(PERABOT_DIJUAL); i++){
+            strcatEx(str_daftar_perabot, sizeof(str_daftar_perabot), "%s\t$%d\n", PERABOT_DIJUAL[i][NamaPerabotDijual], PERABOT_DIJUAL[i][HargaPerabotDijual]);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_PERABOT, DIALOG_STYLE_TABLIST_HEADERS, "Furniture tersedia.", str_daftar_perabot, "Pilih", "Batal");
 }

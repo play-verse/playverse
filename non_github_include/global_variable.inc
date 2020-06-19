@@ -276,6 +276,16 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
     {341, "Gergaji Mesin", 10} // Gergaji Mesin
 };
 
+enum INFO_JUAL_PERABOT {
+	IDPerabotDijual,
+	NamaPerabotDijual[100],
+	HargaPerabotDijual
+}
+new const PERABOT_DIJUAL[][INFO_JUAL_PERABOT] = {
+	{1, "Meja I", 1000},
+	{2, "Kasur Besar I", 2500}
+};
+
 enum INFO_MENU_MAKANAN {
     idItemMakanan,
     namaMakanan[100],

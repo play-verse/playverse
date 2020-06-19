@@ -730,6 +730,14 @@ publicFor: selesaiBayarKerusakanKendaraan(playerid){
 	return 1;
 }
 
+publicFor: selesaiBeliPerabot(playerid) {
+	tambahFurniturePlayer(playerid, PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][IDPerabotDijual], GetPVarInt(playerid, "jumlah_terpilih"));
+
+	format(pDialog[playerid], sizePDialog, "Anda berhasil membeli furniture %s.\nSebanyak %d dengan harga total $%d.\nSilahkan cek inventory anda untuk melihat.", PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][NamaPerabotDijual], GetPVarInt(playerid, "jumlah_terpilih"), GetPVarInt(playerid, "jumlah_terpilih") * PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][HargaPerabotDijual]);
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli furniture", pDialog[playerid], "Ok", "");
+	return 1;
+}
+
 
 publicFor: isRekeningTujuanAda(playerid, const rekening[]){
 	new result_nama[50], rekening_temp[10];

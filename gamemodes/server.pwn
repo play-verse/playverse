@@ -4083,6 +4083,44 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_MENU_BELI_PERABOT:
+		{
+			if(response){
+				SetPVarInt(playerid, "index_terpilih", listitem);
+
+				format(pDialog[playerid], sizePDialog, "Anda akan membeli furniture %s dengan harga %d.\
+						\nSilahkan masukan jumlah yang ingin dibeli.", PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][NamaPerabotDijual], PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][HargaPerabotDijual]);
+				return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PERABOT, DIALOG_STYLE_INPUT, "Silahkan input jumlah", pDialog[playerid], "Ok", "Kembali");
+			}
+			return 1;
+		}
+		case DIALOG_JUMLAH_PEMBELIAN_PERABOT:
+		{
+			if(response){
+				new jumlah;
+				if(sscanf(inputtext, "i", jumlah)) {
+					format(pDialog[playerid], sizePDialog, "\
+							"RED"Inputan anda invalid.\
+							\n"WHITE"Anda akan membeli furniture %s dengan harga %d.\
+							\nSilahkan masukan jumlah yang ingin dibeli.", PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][NamaPerabotDijual], PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][HargaPerabotDijual]);
+					return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PERABOT, DIALOG_STYLE_INPUT, "Silahkan input jumlah", pDialog[playerid], "Ok", "Kembali");					
+				}
+
+				if(jumlah < 1 || jumlah > 999) {
+					format(pDialog[playerid], sizePDialog, "\
+							"RED"Hanya bisa membeli sebanyak 1 - 999.\
+							\n"WHITE"Anda akan membeli furniture %s dengan harga %d.\
+							\nSilahkan masukan jumlah yang ingin dibeli.", PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][NamaPerabotDijual], PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][HargaPerabotDijual]);
+					return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PERABOT, DIALOG_STYLE_INPUT, "Silahkan input jumlah", pDialog[playerid], "Ok", "Kembali");					
+				}
+				
+				SetPVarInt(playerid, "jumlah_terpilih", jumlah);
+				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][NamaPerabotDijual], jumlah);
+				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][HargaPerabotDijual], "selesaiBeliPerabot", pDialog[playerid]);
+			}else
+				showDialogBeliPerabot(playerid);
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -4199,7 +4237,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO) && IsPlayerInAnyDynamicArea(playerid)){
 		if(GetPVarType(playerid, "last_area")){
 			if(AREA_beliPerabot[0] <= GetPVarInt(playerid, "last_area") && GetPVarInt(playerid, "last_area") <= AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT) - 1]){
-				showDialogBeliPerabot(playerid);
+				return showDialogBeliPerabot(playerid);
 			}
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO)){
