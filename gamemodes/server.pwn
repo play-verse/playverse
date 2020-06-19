@@ -3769,7 +3769,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1:
 					{
 						// Potong Pohon
-						if(PlayerInfo[playerid][sisaGergaji] >= 0 && CuttingTreeID[playerid] == -1){
+						if(PlayerInfo[playerid][sisaGergaji] >= 1 && CuttingTreeID[playerid] == -1){
 							new tid = GetClosestTree(playerid);
 							if(tid != -1){
 								if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
@@ -3815,19 +3815,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda berhasil mengangkut pohon ke dalam mobil pick up.");
 					}
 					case 3:
-					{
-						new vehid = GetPlayerVehicleID(playerid);
-						if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada didalam kendaraan.");
-						if(GetVehicleModel(vehid) != 422) return error_command(playerid, "Anda tidak berada didalam kendaraan pick up.");
-						if(!IsPlayerInRangeOfPoint(playerid, 3.0, 2351.5806, -659.4711, 128.1192)) return error_command(playerid, "Anda tidak berada ditempat pemotongan kayu.");
-						if(vehDTree[vehid][treeAngkut] <= 0) return error_command(playerid, "Anda tidak memiliki muatan pohon.");
-						format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil melakukan pemotongan "GREEN"%d"WHITE" buah pohon, dan mendapatkan total kayu "GREEN"%d"WHITE" buah.", vehDTree[vehid][treeAngkut], vehDTree[vehid][treeAngkut]*3);
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Pemotongan Pohon", pDialog[playerid], "Ok", "");
-						tambahItemPlayer(playerid, 16, vehDTree[vehid][treeAngkut]*3);
-						vehDTree[vehid][treeAngkut] = 0;
+					{	
+						// Turunkan Pohon
+						TurunkanPohon(playerid);
 					}
 					case 4:
 					{
+						// Muatan Pohon
 						new vehid = GetPlayerVehicleID(playerid);
 						if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada didalam kendaraan.");
 						if(GetVehicleModel(vehid) != 422) return error_command(playerid, "Anda tidak berada didalam kendaraan pick up.");
@@ -3836,6 +3830,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 5:
 					{
+						// Tempat Pemotongan Pohon
 						SetPlayerCheckpoint(playerid, 2351.5806, -659.4711, 128.1192, 5.0);
 						SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda telah berhasil menandai Tempat Pemotongan Pohon.");
 					}

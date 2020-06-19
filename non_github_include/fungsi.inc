@@ -2364,4 +2364,31 @@ Tree_BeingEdited(tree_Id){
     if(!Iter_Contains(TreeIterator, tree_Id)) return 0;
     foreach(new i : Player) if(treeEditID[i] == tree_Id) return 1;
     return 0;
-}	
+}
+
+TurunkanPohon(playerid){
+	inline responseQuery(){
+		new total_item, vehid = GetPlayerVehicleID(playerid), treeVeh = vehDTree[vehid][treeAngkut];
+		if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada didalam kendaraan.");
+		if(GetVehicleModel(vehid) != 422) return error_command(playerid, "Anda tidak berada didalam kendaraan pick up.");
+		if(!IsPlayerInRangeOfPoint(playerid, 3.0, 2351.5806, -659.4711, 128.1192)) return error_command(playerid, "Anda tidak berada ditempat pemotongan kayu.");
+		if(treeVeh <= 0) return error_command(playerid, "Anda tidak memiliki muatan pohon.");
+		cache_get_value_name_int(0, "total_item", total_item);
+		if((total_item + (4*treeVeh)) > PlayerInfo[playerid][limitItem]){
+			format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan minimal "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).\nKosongkan ruang item anda sebelum memulai menambang kembali.", (4*treeVeh), total_item, PlayerInfo[playerid][limitItem]);
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+		}else{
+			new randomLog = 0, randomNo;
+			for(new i = 0; i < treeVeh; i++){
+				randomNo = random(4)+1;
+				randomLog += randomNo;
+			}
+			format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil melakukan pemotongan "GREEN"%d"WHITE" buah pohon, dan mendapatkan total kayu "GREEN"%d"WHITE" buah.", treeVeh, randomLog);
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Pemotongan Pohon", pDialog[playerid], "Ok", "");
+			tambahItemPlayer(playerid, 16, randomLog);
+			vehDTree[vehid][treeAngkut] = 0;
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+	return 1;
+}
