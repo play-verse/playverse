@@ -73,6 +73,8 @@ publicFor: isRegistered(playerid)
 		SetPlayerVirtualWorld(playerid, playerid + 100);
 		// SpawnPlayer(playerid);
 
+		saveHistoryLogin(playerid);
+
         ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD,WHITE"Login",WHITE"Masukan Password untuk login ke akun!","Login","Keluar");
 	}
 	else
@@ -203,6 +205,7 @@ publicFor: registerUser(playerid)
 
 		tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID], 1, true);
 
+		saveHistoryLogin(playerid);
 		spawnPemain(playerid);
 	}
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `user` (nama, password, jumlah_login, join_date, jenis_kelamin, email, account_status, current_skin) VALUES ('%e', '%e', '1', NOW(), '%d', '%e', '0', '%d')", PlayerInfo[playerid][pPlayerName], EncryptedPassword, registerInfo[playerid][jenisKelamin], registerInfo[playerid][email], registerInfo[playerid][freeSkinID]);
@@ -1210,6 +1213,16 @@ prosesPembuatanSIM(playerid, interval_menit){
 hapusSetelahPengambilanSIM(playerid){
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM pengambilan_sim WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
+}
+
+saveHistoryLogin(playerid){
+	new temp_country[MAX_COUNTRY_LENGTH + 1], temp_ip[50], temp_city[MAX_CITY_LENGTH + 1];
+	GetPlayerIp(playerid, temp_ip, 50);
+	GetPlayerCountry(playerid, temp_country, MAX_COUNTRY_LENGTH);
+	GetPlayerCity(playerid, temp_city, MAX_CITY_LENGTH);
+
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO logs_user_konek(id_user, ip, kota, negara, tanggal) VALUES('%d', '%s', '%s', '%s', NOW())", PlayerInfo[playerid][pID], temp_ip, temp_city, temp_country);
+	mysql_tquery(koneksi, pQuery[playerid]);	
 }
 
 publicFor: cekPembuatanSIM(playerid, ada){

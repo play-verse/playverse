@@ -12,6 +12,7 @@
 #include <streamer>
 #include <progress2>
 #include <samp-precise-timers>
+#include <geolite>
 
 #include <a_mysql>
 #include <zcmd>

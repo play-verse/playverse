@@ -53,3 +53,6 @@ samp.ban
 #
 
 *.sublime-workspace
+
+# scriptfiles
+scriptfiles/*.db
