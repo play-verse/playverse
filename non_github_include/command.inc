@@ -134,7 +134,12 @@ CMD:givemoney(playerid, params[]){
 }
 
 CMD:infosaya(playerid, params[]){
-    tampilkanTextDrawMyInfo(playerid);
+    ShowPlayerDialog(playerid, DIALOG_INFO_SAYA, DIALOG_STYLE_LIST, "Pilihan Info : ", "Skill\nInformasi Pribadi", "Pilih", "Batal");
+    return 1;
+}
+
+CMD:skill(playerid, const params[]){
+    ShowPlayerDialog(playerid, DIALOG_MENU_SKILL, DIALOG_STYLE_LIST, "Skill", "Mekanik\nMedic", "Pilih", "Batal");
     return 1;
 }
 

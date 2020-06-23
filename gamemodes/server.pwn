@@ -4117,6 +4117,66 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				showDialogBeliPerabot(playerid);
 			return 1;
 		}
+		case DIALOG_INFO_SAYA:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						inline responseQuery(){
+							new rows;
+							cache_get_row_count(rows);
+							if(rows){
+								new idx, string[2000] = WHITE"Nama Skill\t"GREEN"Exp\n"WHITE, temp_nama_skill[200], temp_exp_skill;
+								while(idx < rows){
+									cache_get_value_name(idx, "nama_skill", temp_nama_skill);
+									cache_get_value_name_int(idx, "exp", temp_exp_skill);
+									strcatEx(string, sizeof(string), "%s\t%d\n", temp_nama_skill, temp_exp_skill);
+									idx++;
+								}
+								ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_LIST, "Skill anda", string, "Ok", "");
+							}else{
+								showDialogPesan(playerid, RED"Anda tidak memiliki skill", "Anda tidak memiliki apapun.\n"YELLOW"Anda harus mempelajari skill terlebih dahulu untuk dapat melihat exp nya disini.");
+							}
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT a.nama_skill, b.id, a.id AS id_skill, IFNULL(b.exp, 0) AS exp FROM skill a LEFT JOIN user_skill b ON a.id = b.id_skill WHERE b.id_user = %d ORDER BY b.exp DESC", PlayerInfo[playerid][pID]);
+						return 1;
+					}
+					case 1:
+					{
+						tampilkanTextDrawMyInfo(playerid);
+						return 1;
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_MENU_SKILL:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Mekanik
+					{
+						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_MEKANIK, DIALOG_STYLE_LIST, "Skill mekanik : ", "Craft Alat Perbaikan\nPerbaiki kendaraan\nWarnain Kendaraan\nPasang sparepart\nPaintjob kendaraan (khusus)", "Pilih", "Batal");
+						return 1;
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_SKILL_MEKANIK:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Craft alat perbaikan
+					{
+						// 
+					}
+				}
+			}else
+				cmd_skill(playerid, "");
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
