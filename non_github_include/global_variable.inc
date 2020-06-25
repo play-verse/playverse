@@ -27,6 +27,10 @@ enum pInfo
     jenisKelamin, // 0 - Laki , 1 - Perempuan
     limitItem, // Menyimpan limit dari inventory
 
+	// Skill EXP
+	expMekanik,
+	expMedic,
+
     Cache:tempCache, // digunakan untuk menyimpan temporary cache : Misalnya cache inventory, cache skin. Jangan gunakan untuk yang penting
 
     // Save status

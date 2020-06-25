@@ -57,16 +57,16 @@ publicFor: isRegistered(playerid)
 		cache_get_value_name(0, "last_a", temp_value);
 		PlayerInfo[playerid][last_a] = floatstr(temp_value);
 		
-		cache_get_value_name(0, "last_int", temp_value);
-		PlayerInfo[playerid][last_int] = strval(temp_value);
-		cache_get_value_name(0, "last_vw", temp_value);
-		PlayerInfo[playerid][last_vw] = strval(temp_value);
+		cache_get_value_name_int(0, "last_int", PlayerInfo[playerid][last_int]);
+		cache_get_value_name_int(0, "last_vw", PlayerInfo[playerid][last_vw]);
 
 		cache_get_value_name_float(0, "last_hp", PlayerInfo[playerid][lastHp]);
 		cache_get_value_name_float(0, "last_armour", PlayerInfo[playerid][lastArmour]);
 
 		cache_get_value_name_float(0, "last_stats_makan", PlayerInfo[playerid][last_stats_makan]);
 		cache_get_value_name_float(0, "last_stats_minum", PlayerInfo[playerid][last_stats_minum]);
+
+		loadPlayerSkill(playerid);
 
 		// Pindahkan player
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
@@ -147,7 +147,11 @@ resetPlayerVariable(playerid){
 	PlayerInfo[playerid][last_y] = 0;
 	PlayerInfo[playerid][last_z] = 0;
 	PlayerInfo[playerid][last_a] = 0;
-	
+
+	// Reset skill
+	PlayerInfo[playerid][expMekanik] = 0;
+	PlayerInfo[playerid][expMedic] = 0;
+
 	PlayerInfo[playerid][last_int] = 0;
 	PlayerInfo[playerid][last_vw] = 0;
 
@@ -179,6 +183,36 @@ resetPVarInventory(playerid){
 
 	if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
 	PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+}
+
+loadPlayerSkill(playerid){
+	inline responseQuery(){
+		new rows, idx = 0;
+		cache_get_row_count(rows);
+		if(rows){
+			new id_skill, exp_skill;
+			while(idx < rows)
+			{
+				cache_get_value_name_int(idx, "id_skill", id_skill);
+				cache_get_value_name_int(idx, "exp", exp_skill);
+
+				switch(id_skill){
+					case 1: // Mekanik
+					{
+						PlayerInfo[playerid][expMekanik] = exp_skill;
+						break;
+					}
+					case 2: // Cheff
+					{
+						PlayerInfo[playerid][expMedic] = exp_skill;
+						break;
+					}
+				}
+				idx++;
+			}
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM user_skill WHERE id_user = %d", PlayerInfo[playerid][pID]);
 }
 
 publicFor: registerUser(playerid)
