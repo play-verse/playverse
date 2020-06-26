@@ -66,6 +66,21 @@
 #define CUTTING_ATTACH_INDEX 2
 
 /*
+	LEVEL EXP:
+	1 : < 500
+	2 : < 1250
+	3 : < 3000
+	4 : < 5000
+	5 : < 7500
+*/
+#define LEVEL_SKILL_DUA 500
+#define LEVEL_SKILL_TIGA 1250
+#define LEVEL_SKILL_EMPAT 3000
+#define LEVEL_SKILL_LIMA 5000
+#define LEVEL_SKILL_ENAM 7500
+
+
+/*
 	DIALOG ID
  */
 

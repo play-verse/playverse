@@ -2115,8 +2115,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(getUangPlayer(playerid) < 100) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Gagal membuat KTP", WHITE"Maaf uang yang diperlukan tidak mencukupi.", "Ok", "");
 
 				new barang_barang[2][2] = {
-					{5, 4},
-					{6, 2}
+					{5, 4}, // Pas foto - 4 biji
+					{6, 2}  // Materai - 2 biji
 				};
 				cekKetersediaanMassiveItem(playerid, barang_barang, "cekKetersediaanItemBuatKTP");
 			}
@@ -4134,7 +4134,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									strcatEx(string, sizeof(string), "%s\t%d\n", temp_nama_skill, temp_exp_skill);
 									idx++;
 								}
-								ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_LIST, "Skill anda", string, "Ok", "");
+								ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_TABLIST_HEADERS, "Skill anda", string, "Ok", "");
 							}else{
 								showDialogPesan(playerid, RED"Anda tidak memiliki skill", "Anda tidak memiliki apapun.\n"YELLOW"Anda harus mempelajari skill terlebih dahulu untuk dapat melihat exp nya disini.");
 							}
@@ -4157,7 +4157,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0: // Mekanik
 					{
-						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_MEKANIK, DIALOG_STYLE_LIST, "Skill mekanik : ", "Craft Alat Perbaikan\nPerbaiki kendaraan\nWarnain Kendaraan\nPasang sparepart\nPaintjob kendaraan (khusus)", "Pilih", "Batal");
+						format(pDialog[playerid], sizePDialog, "Craft Alat Perbaikan");
+						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_DUA) strcat(pDialog[playerid], "\nPerbaiki Kendaraan");
+						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_TIGA) strcat(pDialog[playerid], "\nWarnain Kendaraan");
+						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_EMPAT) strcat(pDialog[playerid], "\nPasang Sparepart");
+						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_LIMA) strcat(pDialog[playerid], "\nPaintjob kendaraan (khusus)");
+						
+						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_MEKANIK, DIALOG_STYLE_LIST, "Skill mekanik : ", pDialog[playerid], "Pilih", "Batal");
 						return 1;
 					}
 				}
@@ -4170,7 +4176,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0: // Craft alat perbaikan
 					{
-						// 
+						static const barang_barang_mekanik[2][2] = {
+							{11, 1}, // Perunggu - 1
+							{12, 3}  // Perak - 3
+						};
+						// Mungkin butuh besi dll lagi
+						cekKetersediaanMassiveItem(playerid, barang_barang_mekanik, "konfirmasiBuatAlatPerbaikan");
 					}
 				}
 			}else

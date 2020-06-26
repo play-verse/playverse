@@ -418,3 +418,13 @@ SetPlayerLookAt(playerid, Float:x, Float:y){
     if (Pa >= 360.0) Pa = floatsub(Pa, 360.0);
     SetPlayerFacingAngle(playerid, Pa);
 }
+
+getRateBerhasilSkill(current_level, needed_level){
+    if(current_level < needed_level) {
+        printf("#ERROR 013 - Rate skill invalid.");
+        return 0;
+    }
+    // Base rate - 80%
+    // Setiap level menaikan 5% rate skill sebelumnya
+    return ((current_level - needed_level) * 5 >= 20) ? 100 : (current_level - needed_level) * 5 + 80;
+}

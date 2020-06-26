@@ -813,6 +813,12 @@ publicFor: isMencukupiTransfer(playerid){
 	return 1;
 }
 
+publicFor: pakaiPerbaikanKendaraan(playerid, itemid){
+	// Validasi apakah kendaraan dapat diperbaiki dan sebagainya
+	// Barulah lakukan pengurangan item
+	return 1;
+}
+
 publicFor: isMencukupiTarik(playerid){
 	new saldo, nominal = GetPVarInt(playerid, "wd_nominal");
 	if(cache_num_rows()){
@@ -1057,6 +1063,27 @@ publicFor: historyATMPemain_EBank(playerid){
 		}
 	}
 	return 1;
+}
+
+publicFor: konfirmasiBuatAlatPerbaikan(playerid, ada){
+	if(ada){
+		tambahItemPlayer(playerid, 11, -1);
+		tambahItemPlayer(playerid, 12, -3);
+
+		new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expMekanik], 1),
+			rand = random(100) + 1; // Generate random value 1 to 100
+
+		if(rand <= rate_sukses){
+			tambahItemPlayer(playerid, 27, 1); // Beri item
+
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat alat perbaikan", "Berhasil membuat alat perbaikan kendaraan.\nAnda dapat menggunakan item ini untuk memperbaiki kendaraan.\n\n"YELLOW"Karena berhasil membuat alat anda mendapatkan exp.", "Ok", "");
+			return 1;
+		}else{
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat alat perbaikan", "Gagal membuat alat perbaikan kendaraan.\n\n"YELLOW"Anda mendapatkan exp.", "Ok", "");
+			return 1;
+		}		
+	}else
+		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", "Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item alat perbaikan.", "Ok", "");
 }
 
 
