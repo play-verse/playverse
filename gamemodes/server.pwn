@@ -2114,7 +2114,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				if(getUangPlayer(playerid) < 100) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Gagal membuat KTP", WHITE"Maaf uang yang diperlukan tidak mencukupi.", "Ok", "");
 
-				new barang_barang[2][2] = {
+				static const barang_barang[2][2] = {
 					{5, 4}, // Pas foto - 4 biji
 					{6, 2}  // Materai - 2 biji
 				};
@@ -4186,6 +4186,43 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 			}else
 				cmd_skill(playerid, "");
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BUAT_ALAT_PERBAIKAN:
+		{
+			if(response){
+				tambahItemPlayer(playerid, 11, -1);
+				tambahItemPlayer(playerid, 12, -3);
+
+				new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expMekanik], 1),
+					rand = random(100) + 1, // Generate random value 1 to 100
+					exp_didapat;
+
+				if(rand <= rate_sukses){
+					tambahItemPlayer(playerid, 27, 1); // Beri item
+
+					if(PlayerInfo[playerid][expMekanik] < LEVEL_SKILL_DUA) // Jika level exp player adalah lvl 1
+						exp_didapat = EXP_SUKSES_CURR_SKILL;
+					else // Jika level exp player >  1
+						exp_didapat = EXP_SUKSES_DOWN_SKILL;
+
+					tambahExpSkillPlayer(playerid, 1, EXP_SUKSES_CURR_SKILL); // 1 adalah id skill mekanik
+					format(pDialog[playerid], sizePDialog, WHITE"Berhasil membuat alat perbaikan kendaraan.\nAnda dapat menggunakan item ini untuk memperbaiki kendaraan.\n\n"YELLOW"Karena berhasil membuat alat anda mendapatkan %d exp mekanik.", exp_didapat);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat alat perbaikan", pDialog[playerid], "Ok", "");
+					return 1;
+				}else{
+					if(PlayerInfo[playerid][expMekanik] < LEVEL_SKILL_DUA) // Jika level exp player adalah lvl 1
+						exp_didapat = EXP_GAGAL_CURR_SKILL;
+					else // Jika level exp player >  1
+						exp_didapat = EXP_GAGAL_DOWN_SKILL;
+					
+					tambahExpSkillPlayer(playerid, 1, exp_didapat); // 1 adalah id skill mekanik
+					
+					format(pDialog[playerid], sizePDialog, WHITE"Gagal membuat alat perbaikan kendaraan.\n\n"YELLOW"Anda mendapatkan %d exp mekanik.", exp_didapat);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat alat perbaikan", pDialog[playerid], "Ok", "");
+					return 1;
+				}						
+			}
 			return 1;
 		}
     }

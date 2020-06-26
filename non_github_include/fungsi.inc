@@ -609,6 +609,13 @@ publicFor: tampilInventoryBarangPlayer(playerid){
 	return 1; // For deleteing cache tquery
 }
 
+publicFor: tambahExpSkillPlayer(playerid, skillid, jumlah){
+	// Pakai trigger procedure
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "CALL tambah_exp_skill(%d, %d, %d)", PlayerInfo[playerid][pID], skillid, jumlah);
+	mysql_tquery(koneksi, pQuery[playerid]);
+	return 1;
+}
+
 publicFor: tambahItemHouse(house_id, itemid, jumlah){
 	// Pakai trigger procedure
 	new temp_query[100];
@@ -1067,21 +1074,11 @@ publicFor: historyATMPemain_EBank(playerid){
 
 publicFor: konfirmasiBuatAlatPerbaikan(playerid, ada){
 	if(ada){
-		tambahItemPlayer(playerid, 11, -1);
-		tambahItemPlayer(playerid, 12, -3);
+		new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expMekanik], 1);
 
-		new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expMekanik], 1),
-			rand = random(100) + 1; // Generate random value 1 to 100
-
-		if(rand <= rate_sukses){
-			tambahItemPlayer(playerid, 27, 1); // Beri item
-
-			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat alat perbaikan", "Berhasil membuat alat perbaikan kendaraan.\nAnda dapat menggunakan item ini untuk memperbaiki kendaraan.\n\n"YELLOW"Karena berhasil membuat alat anda mendapatkan exp.", "Ok", "");
-			return 1;
-		}else{
-			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat alat perbaikan", "Gagal membuat alat perbaikan kendaraan.\n\n"YELLOW"Anda mendapatkan exp.", "Ok", "");
-			return 1;
-		}		
+		format(pDialog[playerid], sizePDialog, WHITE"Anda akan membuat "GREEN"Alat Perbaikan Kendaraan.\n"WHITE"Rate keberhasilan penggunaan skill ini adalah "YELLOW"%d persen"WHITE".\n\nApakah anda yakin ?", rate_sukses);
+		ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_ALAT_PERBAIKAN, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan", pDialog[playerid], "Konfirmasi", "Batal");
+		return 1;
 	}else
 		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", "Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item alat perbaikan.", "Ok", "");
 }

@@ -79,7 +79,12 @@
 #define LEVEL_SKILL_LIMA 5000
 #define LEVEL_SKILL_ENAM 7500
 
-
+#define EXP_GAGAL_CURR_SKILL 2 		// Digunakan untuk memberikan exp walaupun gagal
+#define EXP_SUKSES_CURR_SKILL 5   	// Exp yang diberikan saat sukses
+#define EXP_GAGAL_DOWN_SKILL 1		// Digunakan untuk memberikan exp walaupun gagal
+									// Dimana level skill player lebih besar dari level skill yng dibutuhkan
+#define EXP_SUKSES_DOWN_SKILL 3		// Digunakan untuk memberikan exp walaupun gagal
+									// Dimana level skill player lebih besar dari level skill yng dibutuhkan
 /*
 	DIALOG ID
  */
@@ -227,6 +232,7 @@
 #define DIALOG_INFO_SAYA 140
 #define DIALOG_PILIH_SKILL_MEKANIK 141
 #define DIALOG_MENU_SKILL 142
+#define DIALOG_KONFIRMASI_BUAT_ALAT_PERBAIKAN 143
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR

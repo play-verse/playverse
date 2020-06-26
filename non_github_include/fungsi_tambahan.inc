@@ -419,7 +419,13 @@ SetPlayerLookAt(playerid, Float:x, Float:y){
     SetPlayerFacingAngle(playerid, Pa);
 }
 
-getRateBerhasilSkill(current_level, needed_level){
+getRateBerhasilSkill(current_exp, needed_level){
+    new current_level = 1;
+    if(current_exp >= LEVEL_SKILL_DUA) ++current_level;
+    if(current_exp >= LEVEL_SKILL_TIGA) ++current_level;
+    if(current_exp >= LEVEL_SKILL_EMPAT) ++current_level;
+    if(current_exp >= LEVEL_SKILL_LIMA) ++current_level;
+
     if(current_level < needed_level) {
         printf("#ERROR 013 - Rate skill invalid.");
         return 0;
