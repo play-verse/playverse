@@ -30,6 +30,24 @@ showDialogKesalahanSistem(playerid, const keterangan[]){
     ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, ORANGE"Kesalahan sistem", pDialog[playerid], "Tutup", "");
 }
 
+showDialogPilihWarnaKendaraan(playerid, id_dialog, const judul_dialog[]){
+    if(sizeof(gVehicleColors) < BANYAK_DATA_PER_PAGE * 6 * GetPVarInt(playerid, "halaman")){
+        SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+    }
+    new longStringDialog[50 * BANYAK_DATA_PER_PAGE * 6];
+
+    for (new colorid = BANYAK_DATA_PER_PAGE * 6 * GetPVarInt(playerid, "halaman"); colorid < sizeof(gVehicleColors) && colorid < BANYAK_DATA_PER_PAGE * 6 * (GetPVarInt(playerid, "halaman") + 1); colorid++)
+    {
+        if(colorid == BANYAK_DATA_PER_PAGE * 6 * GetPVarInt(playerid, "halaman"))
+            format(longStringDialog, sizeof(longStringDialog), "{%06x}########## "WHITE"- %d\n", gVehicleColors[colorid] >>> 8, colorid);
+        else
+            format(longStringDialog, sizeof(longStringDialog), "%s{%06x}########## "WHITE"- %d\n", longStringDialog, gVehicleColors[colorid] >>> 8, colorid);
+    }
+    strcat(longStringDialog, ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+    return ShowPlayerDialog(playerid, id_dialog, DIALOG_STYLE_LIST, judul_dialog, longStringDialog, "Pilih", "Batal");    
+}
+
 showDialogAmbilMobilReparasi(playerid){
     new string[250 * BANYAK_DATA_PER_PAGE + 200];
     format(string, sizeof(string), "Kode\tNama\n");
@@ -37,7 +55,7 @@ showDialogAmbilMobilReparasi(playerid){
     foreach(new i : PVehIterator){
         if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID]){
             if(PVeh[i][pVehIsReparasi] == 2){ // Jika mobil sedang dalam reparasi (telah rusak)
-                format(string, sizeof(string), "%s%d\t%s\n", string, i, GetVehicleNameFromModel(PVeh[i][pVehModel]));
+                format(string, sizeof(string), "%s%d\t%s\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]));
             }
         }
     }

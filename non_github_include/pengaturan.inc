@@ -65,6 +65,12 @@
 #define MINING_ATTACH_INDEX 1
 #define CUTTING_ATTACH_INDEX 2
 
+/**
+	Skill Definition
+ */
+#define ID_SKILL_MEKANIK 1
+#define ID_SKILL_MEDIC 2
+
 /*
 	LEVEL EXP:
 	1 : < 500
@@ -85,6 +91,10 @@
 									// Dimana level skill player lebih besar dari level skill yng dibutuhkan
 #define EXP_SUKSES_DOWN_SKILL 3		// Digunakan untuk memberikan exp walaupun gagal
 									// Dimana level skill player lebih besar dari level skill yng dibutuhkan
+
+#define PERBAIKI_KENDARAAN_TIME 10 // Lamanya memperbaiki kendaraan
+#define WARNAIN_KENDARAAN_TIME 10
+#define MAX_PROGRESS_BAR 100.0 // Lamanya memperbaiki kendaraan
 /*
 	DIALOG ID
  */
@@ -233,6 +243,11 @@
 #define DIALOG_PILIH_SKILL_MEKANIK 141
 #define DIALOG_MENU_SKILL 142
 #define DIALOG_KONFIRMASI_BUAT_ALAT_PERBAIKAN 143
+#define DIALOG_KONFIRMASI_PERBAIKI_MEKANIK 144
+#define DIALOG_PILIH_WARNA_1 145
+#define DIALOG_PILIH_WARNA_2 146
+#define DIALOG_KONFIRMASI_WARNAIN_MEKANIK 147
+#define DIALOG_KONFIRMASI_PREVIEW_WARNA_MEKANIK 148
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR

@@ -158,7 +158,7 @@ resetPlayerVariable(playerid){
 	PlayerInfo[playerid][lastHp] = 0;
 	PlayerInfo[playerid][lastArmour] = 0;
 
-	KillTimer(PlayerAction[playerid][timerNambang]);
+	DeletePreciseTimer(PlayerAction[playerid][timerNambang]);
 	PlayerAction[playerid][sedangNambang] = false;
 
 	EditingObject[playerid] = EDITING_NONE;
@@ -610,6 +610,17 @@ publicFor: tampilInventoryBarangPlayer(playerid){
 }
 
 publicFor: tambahExpSkillPlayer(playerid, skillid, jumlah){
+	switch(skillid){
+		case ID_SKILL_MEKANIK: // Mekanik
+		{
+			PlayerInfo[playerid][expMekanik] += jumlah;
+		}
+		case ID_SKILL_MEDIC: // Medic
+		{
+			PlayerInfo[playerid][expMedic] += jumlah;
+		}
+	}
+
 	// Pakai trigger procedure
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "CALL tambah_exp_skill(%d, %d, %d)", PlayerInfo[playerid][pID], skillid, jumlah);
 	mysql_tquery(koneksi, pQuery[playerid]);
@@ -769,7 +780,7 @@ publicFor: selesaiBayarKerusakanKendaraan(playerid){
 	PVeh[idpv][pVehIsReparasi] = 2;
 	updatePVehReparasi(PVeh[idpv][pVehID], 2);
 
-	format(pDialog[playerid], sizePDialog, WHITE"Anda telah membayar biaya kerusakan untuk "GREEN"%s"YELLOW"\nSilahkan ambil kendaraan anda pada pusat reparasi yang berada didekat pantai. Terimakasih.", GetVehicleNameFromModel(PVeh[idpv][pVehModel]));
+	format(pDialog[playerid], sizePDialog, WHITE"Anda telah membayar biaya kerusakan untuk "GREEN"%s"YELLOW"\nSilahkan ambil kendaraan anda pada pusat reparasi yang berada didekat pantai. Terimakasih.", GetVehicleModelName(PVeh[idpv][pVehModel]));
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membayar biaya perbaikan", pDialog[playerid], "Ok", "");
 	return 1;
 }
@@ -817,12 +828,6 @@ publicFor: isMencukupiTransfer(playerid){
 		ShowPlayerDialog(playerid, DIALOG_TRANSFER_KONFIRMASI, DIALOG_STYLE_INPUT, "Konfirmasi Transfer", pDialog[playerid], "Kirim", "Batal");
 	}else
 		printf("[ERROR] #01 Error fungsi transfer (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
-	return 1;
-}
-
-publicFor: pakaiPerbaikanKendaraan(playerid, itemid){
-	// Validasi apakah kendaraan dapat diperbaiki dan sebagainya
-	// Barulah lakukan pengurangan item
 	return 1;
 }
 
@@ -1068,6 +1073,154 @@ publicFor: historyATMPemain_EBank(playerid){
 			mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(b.rekening, \"Bank Adm\") as rekening, a.nominal, a.tanggal, a.keterangan FROM `trans_atm` a LEFT JOIN `user` b ON a.id_pengirim_penerima = b.id WHERE id_user = '%d' ORDER BY tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "halaman") * BANYAK_DATA_PER_PAGE, BANYAK_DATA_PER_PAGE);
 			mysql_tquery(koneksi, pQuery[playerid], "historyATMPemain_EBank", "i", playerid);
 		}
+	}
+	return 1;
+}
+
+publicFor: konfirmasiWarnainMekanik(playerid, ada){
+	if(ada){
+		showDialogPilihWarnaKendaraan(playerid, DIALOG_PILIH_WARNA_1, "Pilih warna kendaraan - Warna 1");
+	}else{
+		format(pDialog[playerid], sizePDialog, WHITE"Maaf anda tidak memiliki cukup bahan untuk mewarnain kendaraan ini.\n"YELLOW"Anda butuh "GREEN"1 item pewarna kendaraan "YELLOW"untuk dapat mewarnain kendaraan ini.");
+		showDialogPesan(playerid, RED"Tidak memiliki bahan", pDialog[playerid]);
+	}
+	return 1;
+}
+
+publicFor: konfirmasiPerbaikiMekanik(playerid, ada){
+	if(ada){
+		new vehid = GetPVarInt(playerid, "mekanik_vehicle_id");
+		if(IsValidVehicle(vehid)){
+			PerbaikiTimer[playerid] = SetPreciseTimer("progressPerbaikiKendaraan", 1000, true, "iii", playerid, vehid, GetPVarInt(playerid, "mekanik_alat_dibutuhkan"));
+
+			// Pinjam progress bar dari potong pohon
+			SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+			ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+			TogglePlayerControllable(playerid, 0);
+			GameTextForPlayer(playerid, "~w~Sedang ~y~memperbaiki...", 3000, 3);
+			ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
+		}else{
+			showDialogPesan(playerid, RED"Kendaraan tidak ada", WHITE"Maaf kendaraan tidak ada. \nDisebabkan akibat kendaraan hancur atau pemilik kendaraan telah keluar dari server.");
+		}
+	}else{
+		format(pDialog[playerid], sizePDialog, WHITE"Maaf anda tidak memiliki cukup bahan untuk memperbaiki kendaraan ini.\n"YELLOW"Anda butuh "GREEN"%d alat perbaikan "YELLOW"untuk dapat memperbaiki kendaraan ini.", GetPVarInt(playerid, "mekanik_alat_dibutuhkan"));
+		showDialogPesan(playerid, RED"Tidak memiliki bahan", pDialog[playerid]);
+	}
+
+	// Bersihkan variable
+	DeletePVar(playerid, "mekanik_alat_dibutuhkan");
+	DeletePVar(playerid, "mekanik_vehicle_id");
+	return 1;
+}
+
+reset_PerbaikiKendaraan(playerid){
+	if(IsPlayerConnected(playerid)){
+		ClearAnimations(playerid);
+		TogglePlayerControllable(playerid, 1);
+		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+		HidePlayerProgressBar(playerid, CuttingBar[playerid]);
+	}
+
+	if(PerbaikiTimer[playerid] != -1){
+		DeletePreciseTimer(PerbaikiTimer[playerid]);
+		PerbaikiTimer[playerid] = -1;
+	}
+
+	return 1;
+}
+
+publicFor: progressPerbaikiKendaraan(playerid, vehicleid, alat_dibutuhkan){
+    if(IsValidVehicle(vehicleid)){
+		new Float:vpos[3], Float:pos[3];
+
+		GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+		GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+		GetVehicleHood(vehicleid, vpos[0], vpos[1], vpos[2]);
+
+		if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 2.0)){
+			new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / PERBAIKI_KENDARAAN_TIME;
+			if(value >= MAX_PROGRESS_BAR){
+				tambahItemPlayer(playerid, 27, -alat_dibutuhkan);
+				PVeh[vehicleid][pVehDarah] = 1000.0;
+				RepairVehicle(vehicleid);
+				PlayerPlaySound(playerid, 1133, 0.0, 0.0, 0.0);
+
+				sendPesan(playerid, COLOR_GREEN, "[MEKANIK] "WHITE"Berhasil memperbaiki kendaraan %s, alat yang terpakai %d pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)), alat_dibutuhkan);
+				reset_PerbaikiKendaraan(playerid);
+
+				/**
+					Tambah exp				
+				 */
+				new exp_didapat = 0;
+				if(PlayerInfo[playerid][expMekanik] < LEVEL_SKILL_TIGA) // Jika level exp player adalah lvl 2
+					exp_didapat = EXP_SUKSES_CURR_SKILL;
+				else // Jika level exp player > 2
+					exp_didapat = EXP_SUKSES_DOWN_SKILL;
+
+				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
+				sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"memperbaiki kendaraan", exp_didapat);
+				sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+			}else{
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal memperbaiki kendaraan. Kendaraan berpindah keposisi lain.");
+			reset_PerbaikiKendaraan(playerid);
+		}
+    }else{
+		SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal memperbaiki kendaraan, disebabkan oleh kendaraan tidak ada.");
+		reset_PerbaikiKendaraan(playerid);
+	}
+    return 1;
+}
+
+publicFor: progressWarnainKendaraan(playerid, vehicleid, color1, color2){
+	if(IsValidVehicle(vehicleid)){
+		new Float:vpos[3], Float:pos[3];
+
+		GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+		GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+		GetVehiclePos(vehicleid, vpos[0], vpos[1], vpos[2]);
+
+		if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
+			new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / WARNAIN_KENDARAAN_TIME;
+			if(value >= MAX_PROGRESS_BAR){
+				new idpv = IDVehToPVeh[vehicleid];
+
+				PVeh[idpv][pVehColor][0] = color1;
+				PVeh[idpv][pVehColor][1] = color2;
+				ChangeVehicleColor(vehicleid, PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1]);
+				UpdateTampilanVehiclePlayer(vehicleid);
+
+				tambahItemPlayer(playerid, 28, -1); // 28 adalah item pewarna kendaraan
+
+				PlayerPlaySound(playerid, 1133, 0.0, 0.0, 0.0);
+
+				sendPesan(playerid, COLOR_GREEN, "[MEKANIK] "WHITE"Berhasil mewarnain kendaraan %s, item pewarna yang terpakai 1 pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)));
+				reset_PerbaikiKendaraan(playerid);
+
+				/**
+					Tambah exp				
+				 */
+				new exp_didapat = 0;
+				if(PlayerInfo[playerid][expMekanik] < LEVEL_SKILL_EMPAT) // Jika level exp player adalah lvl 3
+					exp_didapat = EXP_SUKSES_CURR_SKILL;
+				else // Jika level exp player > 3
+					exp_didapat = EXP_SUKSES_DOWN_SKILL;
+
+				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
+				sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"mewarnain kendaraan", exp_didapat);
+				sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+			}else{
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal mewarnain kendaraan. Kendaraan berpindah keposisi lain.");
+			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+		}
+    }else{
+		SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal mewarnain kendaraan, disebabkan oleh kendaraan tidak ada.");
+		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 	}
 	return 1;
 }
@@ -1848,8 +2001,8 @@ resetPlayerToDo(playerid){
 		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda telah berhenti bekerja!");
 		SetVehicleToRespawn(sweeperId[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
-		KillTimer(todoTimer[playerid]);
-		KillTimer(todoTimeout[playerid]);
+		DeletePreciseTimer(todoTimer[playerid]);
+		DeletePreciseTimer(todoTimeout[playerid]);
 		sweeperJob[playerid] = 0;
 		usedSweeper[sweeperId[playerid]] = 0;
 		sweeperId[playerid] = -1;
@@ -1858,8 +2011,8 @@ resetPlayerToDo(playerid){
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan Ujian Praktik SIM, silahkan coba lagi!");
 		SetVehicleToRespawn(vehicleIdSIM[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
-		KillTimer(todoTimer[playerid]);
-		KillTimer(todoTimeout[playerid]);
+		DeletePreciseTimer(todoTimer[playerid]);
+		DeletePreciseTimer(todoTimeout[playerid]);
 		testSim[playerid] = 0;
 		poinSim[playerid] = 0;
 		limitVehSIM[vehicleIdSIM[playerid]] = 0;
@@ -1867,12 +2020,20 @@ resetPlayerToDo(playerid){
 	}
 	if(CuttingTreeID[playerid] != -1){
 		CuttingTreeID[playerid] = -1;
-		CuttingTimer[playerid] = -1;
 		treeEditID[playerid] = -1;
 	}
-	CuttingBar[playerid] = CreatePlayerProgressBar(playerid, 498.0, 104.0, 113.0, 6.2, COLOR_YELLOW, CUTTING_TIME, 0);
-	ApplyAnimation(playerid, "CHAINSAW", "null", 0.0, 0, 0, 0, 0, 0, 0);
-	ApplyAnimation(playerid, "CARRY", "null", 0.0, 0, 0, 0, 0, 0, 0);
+
+	if(!IsValidPlayerProgressBar(playerid, CuttingBar[playerid]))
+		CuttingBar[playerid] = CreatePlayerProgressBar(playerid, 498.0, 104.0, 113.0, 6.2, COLOR_YELLOW, MAX_PROGRESS_BAR, 0);
+
+    if(CuttingTimer[playerid] != -1){
+        DeletePreciseTimer(CuttingTimer[playerid]);
+        CuttingTimer[playerid] = -1;
+    }
+    if(PerbaikiTimer[playerid] != -1){
+        DeletePreciseTimer(PerbaikiTimer[playerid]);
+        PerbaikiTimer[playerid] = -1;
+    }
 	return 1;
 }
 
@@ -1903,7 +2064,7 @@ ShowPlayerSpeedo(playerid){
 }
 
 HidePlayerSpeedo(playerid){
-    KillTimer(SpeedoTimer[playerid]);
+    DeletePreciseTimer(SpeedoTimer[playerid]);
     PlayerTextDrawHide(playerid, SpeedoTextDraws[playerid]);
     return 1;
 }
@@ -2195,7 +2356,7 @@ LoadVehicleDealer(){
 			#endif
 
 			new str[150];
-			format(str, sizeof(str), "Kendaraan ini dijual!\n"ORANGE"Nama Kendaraan: "WHITE"%s\n"PURPLE"Harga: "GREEN"$%d", GetVehicleNameFromModel(DVeh[id][dVehModel]), DVeh[id][dVehHarga]);
+			format(str, sizeof(str), "Kendaraan ini dijual!\n"ORANGE"Nama Kendaraan: "WHITE"%s\n"PURPLE"Harga: "GREEN"$%d", GetVehicleModelName(DVeh[id][dVehModel]), DVeh[id][dVehHarga]);
 			DVeh[id][dVehText3D] = CreateDynamic3DTextLabel(str, COLOR_GREEN, 0.0, 0.0, 0.0, 50.0, INVALID_PLAYER_ID, id);
 
 			Iter_Add(DVehIterator, id);
@@ -2228,7 +2389,7 @@ CreateVehicleDealer(modelid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:
 	cache_delete(result);
 	
 	new str[150];
-	format(str, sizeof(str), "Kendaraan ini dijual!\n"ORANGE"Nama Kendaraan: "WHITE"%s\n"PURPLE"Harga: "GREEN"$%d", GetVehicleNameFromModel(modelid), harga);
+	format(str, sizeof(str), "Kendaraan ini dijual!\n"ORANGE"Nama Kendaraan: "WHITE"%s\n"PURPLE"Harga: "GREEN"$%d", GetVehicleModelName(modelid), harga);
 	DVeh[id][dVehText3D] = CreateDynamic3DTextLabel(str, COLOR_GREEN, 0.0, 0.0, 0.0, 50.0, INVALID_PLAYER_ID, id);
 
 	return id;
@@ -2243,7 +2404,7 @@ publicFor: pembayaranKendaraanATM(playerid){
 	new saldo;
 	cache_get_value_name_int(0, "saldo", saldo);
 
-	if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus didalam mobil", WHITE"Anda harus didalam mobil yang ingin dibeli, jangan keluar hingga transaksi selesai.");
+	if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus didalam kendaraan", WHITE"Anda harus didalam kendaraan yang ingin dibeli, jangan keluar hingga transaksi selesai.");
 
 	new vehid = GetPlayerVehicleID(playerid);
 	// Counter cheater jika model mobil dimanipulasi
@@ -2262,7 +2423,7 @@ publicFor: pembayaranKendaraanATM(playerid){
 	if(Iter_Contains(DVehIterator, vehid)){
 		inline responseQuery(){
 			new primary_id = cache_insert_id();
-			format(pDialog[playerid], sizePDialog, "Pembelian %s dari dealer", GetVehicleNameFromModel(DVeh[vehid][dVehModel]));
+			format(pDialog[playerid], sizePDialog, "Pembelian %s dari dealer", GetVehicleModelName(DVeh[vehid][dVehModel]));
 			addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -DVeh[vehid][dVehHarga], pDialog[playerid]);
 
 			// Pindah iterator
@@ -2289,7 +2450,7 @@ publicFor: pembayaranKendaraanATM(playerid){
 
 			format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
 			format(pDialog[playerid], sizePDialog, "%s"ORANGE"Selamat anda berhasil membeli kendaraan dengan spesifikasi sebagai berikut :\n\n", pDialog[playerid]);
-			format(pDialog[playerid], sizePDialog, "%s"PURPLE"Nama Kendaraan: "WHITE"%s\n", pDialog[playerid], GetVehicleNameFromModel(DVeh[vehid][dVehModel]));
+			format(pDialog[playerid], sizePDialog, "%s"PURPLE"Nama Kendaraan: "WHITE"%s\n", pDialog[playerid], GetVehicleModelName(DVeh[vehid][dVehModel]));
 			format(pDialog[playerid], sizePDialog, "%sHarga: "GREEN"$%d\n\n", pDialog[playerid], DVeh[vehid][dVehHarga]);
 			format(pDialog[playerid], sizePDialog, "%s"WHITE"Terimakasih sudah menggunakan layanan kami.\n\n"CYAN"*********************************************************************************\n", pDialog[playerid]);
 			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Berhasil membeli kendaraan", pDialog[playerid], "Ok", "");						
@@ -2456,7 +2617,7 @@ Player_ResetCutting(playerid){
     CuttingTreeID[playerid] = -1;
 	PlayerInfo[playerid][sisaGergaji]--;
     if(CuttingTimer[playerid] != -1){
-        KillTimer(CuttingTimer[playerid]);
+        DeletePreciseTimer(CuttingTimer[playerid]);
         CuttingTimer[playerid] = -1;
     }
     SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
@@ -2467,8 +2628,8 @@ Player_ResetCutting(playerid){
 forward CutTree(playerid);
 public CutTree(playerid){
     if(CuttingTreeID[playerid] != -1){
-        new id = CuttingTreeID[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + 1.0;
-        if(value >= CUTTING_TIME){
+        new id = CuttingTreeID[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + (MAX_PROGRESS_BAR / CUTTING_TIME);
+        if(value >= MAX_PROGRESS_BAR){
             Player_ResetCutting(playerid);
             MoveDynamicObject(DTree[id][treeObjID], DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ] + 0.03, 0.025, DTree[id][treeRX], DTree[id][treeRY] - 80.0, DTree[id][treeRZ]);
 
@@ -2489,7 +2650,7 @@ public RespawnTree(tree_Id){
         DTree[tree_Id][treeSecs]--;
         reloadTreeLabel(tree_Id);
     }else if(DTree[tree_Id][treeSecs] == 1) {
-        KillTimer(DTree[tree_Id][treeTimer]);
+        DeletePreciseTimer(DTree[tree_Id][treeTimer]);
         DTree[tree_Id][treeSecs] = 0;
         DTree[tree_Id][treeTimer] = -1;
        	DTree[tree_Id][treeTumbang] = false;

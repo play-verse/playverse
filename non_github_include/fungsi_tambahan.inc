@@ -329,13 +329,6 @@ Float:VehicleHealth(vehicleid){
     return 0;
 }*/
 
-stock GetVehicleNameFromModel(modelid)
-{
-	new temp_nama[64];
-    format(temp_nama, 64, "%s", NAMA_KENDARAAN[modelid - 400]);
-    return temp_nama;
-}
-
 stock IsVehicleFlipped(vehicleid)
 {
     new Float:Quat[2];
@@ -433,4 +426,11 @@ getRateBerhasilSkill(current_exp, needed_level){
     // Base rate - 80%
     // Setiap level menaikan 5% rate skill sebelumnya
     return ((current_level - needed_level) * 5 >= 20) ? 100 : (current_level - needed_level) * 5 + 80;
+}
+
+stock IsPointInRangeOfPoint(Float:x, Float:y, Float:z, Float:x2, Float:y2, Float:z2, Float:range){
+    x2 -= x;
+    y2 -= y;
+    z2 -= z;
+    return ((x2 * x2) + (y2 * y2) + (z2 * z2)) < (range * range);
 }

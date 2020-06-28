@@ -146,12 +146,24 @@ CMD:skill(playerid, const params[]){
 CMD:v(playerid, const params[]){
     if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak menggunakan perintah ini saat tidak didalam kendaraan.");
 
-    new vehid = GetPlayerVehicleID(playerid);
+    new vehid = GetPlayerVehicleID(playerid),
+        string[300];
+
     if(Iter_Contains(IDVehToPVehIterator, vehid)){
-        ShowPlayerDialog(playerid, DIALOG_MENU_DALAM_VEHICLE, DIALOG_STYLE_LIST, "Pilih aksi :", "Info Kendaraan", "Pilih", "Batal");
-    }else{
-        return error_command(playerid, "Kendaraan ini bukan milik siapapun. Tidak dapat menggunakan perintah ini.");
+        strcat(string, WHITE"Info kendaraan");
     }
+    
+    if(GetVehicleParams(vehid, VEHICLE_TYPE_BONNET))
+        strcat(string, "\n"RED"Tutup kap depan");
+    else
+        strcat(string, "\n"GREEN"Buka kap depan");
+    
+    if(GetVehicleParams(vehid, VEHICLE_TYPE_BOOT))
+        strcat(string, "\n"RED"Tutup bagasi belakang");
+    else
+        strcat(string, "\n"GREEN"Buka bagasi belakang");
+
+    ShowPlayerDialog(playerid, DIALOG_MENU_DALAM_VEHICLE, DIALOG_STYLE_LIST, "Pilih aksi :", string, "Pilih", "Batal");
     return 1;
 }
 
