@@ -1,8 +1,9 @@
 /**************************************************************************************************
 	ETERNITY LEGEND
 
-	FUTURE BUG :
-	- 
+	FUTURE BUG (PREDIKSI) :
+	- INT 32 BIT DARI AUTO INCREMENT (HUGE PLAYER SERVER)
+	- LIMIT TERCAPAI PADA VEHICLE DAN LAINNYA
 ***************************************************************************************************/
 
 #include <a_samp>
@@ -10,9 +11,13 @@
 #include <colors> // https://forum.sa-mp.com/showthread.php?t=573049
 #include <sscanf2>
 #include <streamer>
+
+#define SAMP_LOGGER_COMPAT // Untuk sementara selama belum compatibility progress2 dan samp-logger baru
 #include <progress2>
+
 #include <samp-precise-timers>
 #include <geolite>
+#include <EVF> // Fungsi tambahan vehicle
 
 #include <a_mysql>
 #include <zcmd>
@@ -26,7 +31,6 @@
 #include <core>
 #include <float>
 #include <PreviewModelDialog>
-#include <EVF> // Fungsi tambahan vehicle
 /*
 	INCLUDE INCLUDE BUATAN DIBAWAH
 */
@@ -3067,28 +3071,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								format(pDialog[playerid], sizePDialog, "[A-DEALER] "WHITE"Berhasil memarkirkan kendaraan dealer %s pada tempat ini.", GetVehicleModelName(DVeh[idveh][dVehModel]));
 								SendClientMessage(playerid, COLOR_CYAN, pDialog[playerid]);
 
-								RemovePlayerFromVehicle(playerid);
-
-								DestroyDynamic3DTextLabel(DVeh[idveh][dVehText3D]);
-								DestroyVehicle(idveh);
-
-								new id = CreateVehicle(DVeh[idveh][dVehModel], DVeh[idveh][dVehCoord][0], DVeh[idveh][dVehCoord][1], DVeh[idveh][dVehCoord][2], DVeh[idveh][dVehCoord][3], DVeh[idveh][dVehColor][0], DVeh[idveh][dVehColor][0], -1);
-
-								if(id != idveh) {
-									// Pindahkan Nilai
-									DVeh[id] = DVeh[idveh];
-									Iter_Add(DVehIterator, id);
-
-									// Bersihkan
-									static const kosong_dveh[DealerVehicleInfo];
-									DVeh[idveh] = kosong_dveh;
-									Iter_Remove(DVehIterator, idveh);
-								}
-								new str[150];
-								format(str, sizeof(str), "Kendaraan ini dijual!\n"ORANGE"Nama Kendaraan: "WHITE"%s\n"PURPLE"Harga: "GREEN"$%d", GetVehicleModelName(DVeh[id][dVehModel]), DVeh[id][dVehHarga]);
-								DVeh[id][dVehText3D] = CreateDynamic3DTextLabel(str, COLOR_GREEN, 0.0, 0.0, 0.0, 50.0, INVALID_PLAYER_ID, id);
-
-								SetVehicleToRespawn(id);
+								EVF::SetVehicleSpawnInfo(idveh, DVeh[idveh][dVehCoord][0], DVeh[idveh][dVehCoord][1], DVeh[idveh][dVehCoord][2], DVeh[idveh][dVehCoord][3], GetPlayerVirtualWorld(playerid), GetPlayerInterior(playerid));
 							}else{
 								error_command(playerid, "Ini bukan kendaraan dealer.");
 							}
@@ -3338,8 +3321,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							PVeh[idpv][pVehicle] = idveh;
 							IDVehToPVeh[idveh] = idpv;
 							Iter_Add(IDVehToPVehIterator, idveh);
-
-							LoadModifVehiclePlayer(idveh);
 
 							#if defined DEBUG_SERVER_LOAD
 							printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) load.",PlayerInfo[playerid][pPlayerName], PVeh[idpv][pVehID], idveh);
@@ -4182,7 +4163,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						format(pDialog[playerid], sizePDialog, "Craft Alat Perbaikan");
 						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_DUA) strcat(pDialog[playerid], "\nPerbaiki Kendaraan");
 						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_TIGA) strcat(pDialog[playerid], "\nWarnain Kendaraan");
-						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_EMPAT) strcat(pDialog[playerid], "\nPasang Sparepart");
+						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_EMPAT) strcat(pDialog[playerid], "\nPasang Sparepart (Modif)");
 						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_LIMA) strcat(pDialog[playerid], "\nPaintjob kendaraan (khusus)");
 						
 						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_MEKANIK, DIALOG_STYLE_LIST, "Skill mekanik : ", pDialog[playerid], "Pilih", "Batal");
@@ -4235,7 +4216,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SetPVarInt(playerid, "mekanik_alat_dibutuhkan", alat_dibutuhkan);
 						SetPVarInt(playerid, "mekanik_vehicle_id", vehid);
 
-						format(pDialog[playerid], sizePDialog, "Anda akan memperbaiki kendaraan jenis "GREEN"%s\n\
+						format(pDialog[playerid], sizePDialog, WHITE"Anda akan memperbaiki kendaraan jenis "GREEN"%s\n\
 							"WHITE"Darah kendaraan saat ini adalah "ORANGE"%.2f/1000.0\n\n\
 							"WHITE"Anda memerlukan "RED"%d alat perbaikan "WHITE"untuk dapat memperbaiki.\n\
 							Anda yakin ingin memperbaikinya ?\n", GetVehicleModelName(GetVehicleModel(vehid)), veh_darah, alat_dibutuhkan);
@@ -4266,14 +4247,325 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						SetPVarInt(playerid, "mekanik_vehicle_id", vehid);
 
-						format(pDialog[playerid], sizePDialog, "Anda akan mewarnai kendaraan jenis "GREEN"%s\n\n\
+						format(pDialog[playerid], sizePDialog, WHITE"Anda akan mewarnai kendaraan jenis "GREEN"%s\n\n\
 							"WHITE"Anda memerlukan "RED"1 item pewarna kendaraan "WHITE"untuk dapat mewarnainya.\n\
 							Anda yakin ingin mewarnainya ?\n", GetVehicleModelName(GetVehicleModel(vehid)));
 						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_WARNAIN_MEKANIK, DIALOG_STYLE_MSGBOX, "Warnain kendaraan", pDialog[playerid], "Warnain", "Batal");
 					}
+					case 3: // Modifikasi Vehicle
+					{
+						new Float:pos[3];
+						GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+						GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+
+						new vehid = INVALID_VEHICLE_ID;
+						new Float:vpos[3];
+
+						foreach(new vid : Vehicle){
+							if(!IsValidVehicle(vid)) continue;
+							if(GetVehiclePos(vid, vpos[0], vpos[1], vpos[2])){
+								if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
+									vehid = vid;
+									break;
+								}
+							}
+						}
+						
+						if(vehid == INVALID_VEHICLE_ID) return showDialogPesan(playerid, RED"Tidak ada kendaraan didepan anda", WHITE"Tidak terdapat kendaraan yang berada didepan anda.\n"YELLOW"Anda harus mendekati kendaraan tersebut dan berdiri didekat bagian tengahnya.\nJika tidak bisa juga, coba diberbagai posisi bagian kendaraan untukk mendapatkan titik yang terdeteksi.");
+
+						if(!Iter_Contains(IDVehToPVehIterator, vehid)) return showDialogPesan(playerid, RED"Kendaraan tidak berpemilik", WHITE"Kendaraan yang dapat di modif adalah kendaraan yang memiliki pemilik.\n"YELLOW"Kendaraan yang ada didepan anda saat ini tidak memiliki pemilik.");
+
+						SetPVarInt(playerid, "mekanik_vehicle_id", vehid);
+
+						format(pDialog[playerid], sizePDialog, WHITE"Anda akan memodif kendaraan jenis "GREEN"%s\n\n\
+							"WHITE"Anda memerlukan "RED"1 sparepart kendaraan "WHITE"untuk dapat memodifnya.\n\
+							Anda yakin ingin memodifnya ?\n", GetVehicleModelName(GetVehicleModel(vehid)));
+						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_MODIF_MEKANIK, DIALOG_STYLE_MSGBOX, "Modif kendaraan", pDialog[playerid], "Modifikasi", "Batal");
+					}
+					case 4: // Paintjob Vehicle
+					{
+						new Float:pos[3];
+						GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+						GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+
+						new vehid = INVALID_VEHICLE_ID;
+						new Float:vpos[3];
+
+						foreach(new vid : Vehicle){
+							if(!IsValidVehicle(vid)) continue;
+							if(GetVehiclePos(vid, vpos[0], vpos[1], vpos[2])){
+								if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
+									vehid = vid;
+									break;
+								}
+							}
+						}
+						
+						if(vehid == INVALID_VEHICLE_ID) return showDialogPesan(playerid, RED"Tidak ada kendaraan didepan anda", WHITE"Tidak terdapat kendaraan yang berada didepan anda.\n"YELLOW"Anda harus mendekati kendaraan tersebut dan berdiri didekat bagian tengahnya.\nJika tidak bisa juga, coba diberbagai posisi bagian kendaraan untukk mendapatkan titik yang terdeteksi.");
+
+						if(!Iter_Contains(IDVehToPVehIterator, vehid)) return showDialogPesan(playerid, RED"Kendaraan tidak berpemilik", WHITE"Kendaraan yang dapat di paintjob adalah kendaraan yang memiliki pemilik.\n"YELLOW"Kendaraan yang ada didepan anda saat ini tidak memiliki pemilik.");
+
+						if(!(GetVehicleModel(vehid) == 483 || GetVehicleModel(vehid) == 575 || \
+							(GetVehicleModel(vehid) >= 534 && GetVehicleModel(vehid) <= 536) || \
+							(GetVehicleModel(vehid) >= 558 && GetVehicleModel(vehid) <= 562) || \
+							GetVehicleModel(vehid) == 565 || GetVehicleModel(vehid) == 567 || GetVehicleModel(vehid) == 576))
+							return showDialogPesan(playerid, RED"Kendaraan tidak bisa di paintjob", WHITE"Kendaraan ini tidak bisa di paintjob.\n"YELLOW"Pastikan anda sudah mengetahui kendaraan apa saja yang dapat di paintjob.\n\nAnda dapat melihatnya di website "ORANGE"Eternity Legend");
+						
+
+						SetPVarInt(playerid, "mekanik_vehicle_id", vehid);
+
+						format(pDialog[playerid], sizePDialog, WHITE"Anda akan paintjob kendaraan jenis "GREEN"%s\n\n\
+							"WHITE"Anda memerlukan "RED"1 item paintjob kendaraan "WHITE"untuk dapat menggantinya.\n\
+							Anda yakin ingin ?\n", GetVehicleModelName(GetVehicleModel(vehid)));
+						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_PAINTJOB_MEKANIK, DIALOG_STYLE_MSGBOX, "Paintjob kendaraan", pDialog[playerid], "Paintjob", "Batal");
+					}
 				}
 			}else
 				cmd_skill(playerid, "");
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_PAINTJOB_MEKANIK:
+		{
+			if(response){
+				cekKetersediaanItem(playerid, 30, 1, "konfirmasiPaintjobMekanik"); // Paintjob kendaraan id 30 - butuh 1pcs
+			}else
+				DeletePVar(playerid, "mekanik_vehicle_id");
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_MODIF_MEKANIK:
+		{
+			if(response){
+				cekKetersediaanItem(playerid, 29, 1, "konfirmasiModifMekanik"); // Sparepart kendaraan id 29 - butuh 1pcs
+			}else
+				DeletePVar(playerid, "mekanik_vehicle_id");
+			return 1;
+		}
+		case DIALOG_PILIH_COMPONENT:
+		{
+			if(response){
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+
+				new Float:vpos[3];
+				new vid = GetPVarInt(playerid, "mekanik_vehicle_id");
+
+				if(!IsValidVehicle(vid)) {
+					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan, disebabkan oleh kendaraan tidak ada.");
+
+					DeletePVar(playerid, "mekanik_vehicle_id");
+					DeletePVar(playerid, "mekanik_warna_1");
+					DeletePVar(playerid, "mekanik_warna_2");
+					return 1;
+				}
+				GetVehiclePos(vid, vpos[0], vpos[1], vpos[2]);
+				if(!IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
+					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan. Kendaraan berpindah keposisi lain.");			
+
+					DeletePVar(playerid, "mekanik_vehicle_id");
+					DeletePVar(playerid, "mekanik_warna_1");
+					DeletePVar(playerid, "mekanik_warna_2");
+					return 1;
+				}
+
+				new modelid = GetVehicleModel(vid);
+
+				switch (modelid)
+				{
+					case 534 .. 536, 558 .. 562, 565, 567, 575, 576:
+					{
+						if (!strcmp(inputtext, "Wheels") || !strcmp(inputtext, "Hydraulics"))
+						{
+							new Query[99];
+							
+							mysql_format(koneksi, Query, sizeof Query, "SELECT componentid,type FROM vehicle_components WHERE part='%e' ORDER BY type", inputtext);
+							mysql_tquery(koneksi, Query, "OnTuneLoad", "ii", playerid, 2);
+						}
+						else
+						{
+							new Query[113];
+							
+							mysql_format(koneksi, Query, sizeof Query, "SELECT componentid,type FROM vehicle_components WHERE cars=%i AND part='%e' ORDER BY type", modelid, inputtext);
+							mysql_tquery(koneksi, Query, "OnTuneLoad", "ii", playerid, 2);
+						}
+					}
+					default:
+					{
+						new Query[101];
+						
+						mysql_format(koneksi, Query, sizeof Query, "SELECT componentid,type FROM vehicle_components WHERE cars<=0 AND part='%e' ORDER BY type", inputtext);
+						mysql_tquery(koneksi, Query, "OnTuneLoad", "ii", playerid, 2);
+					}
+				}			
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_COMPONENT_2:
+		{
+			if(response){
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+
+				new Float:vpos[3];
+				new vid = GetPVarInt(playerid, "mekanik_vehicle_id");
+
+				if(!IsValidVehicle(vid)) {
+					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan, disebabkan oleh kendaraan tidak ada.");
+
+					DeletePVar(playerid, "mekanik_vehicle_id");
+					return 1;
+				}
+				GetVehiclePos(vid, vpos[0], vpos[1], vpos[2]);
+				if(!IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
+					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan. Kendaraan berpindah keposisi lain.");			
+
+					DeletePVar(playerid, "mekanik_vehicle_id");
+					return 1;
+				}
+
+				new componentid;
+				
+				if (!sscanf(inputtext, "i", componentid)) AddVehicleComponent(vid, componentid);
+				else{
+					SendClientMessage(playerid, COLOR_BLUE, "[KENDARAAN] "WHITE"Berhasil melepas hydraulics dari kendaraan anda.");
+					SendClientMessage(playerid, COLOR_YELLOW, "[KENDARAAN] "WHITE"Khusus untuk penyabutan barang, anda tidak dikenakan biaya atau apapaun.");
+
+					// Lepas komponen hydraulics
+					PVeh[IDVehToPVeh[vid]][pVehMod][GetVehicleComponentType(1087)] = 0;
+					RemoveVehicleComponent(vid, 1087);
+					UpdateTampilanVehiclePlayer(vid);
+					return 1;
+				}
+
+				// sideskirts and vents that have left and right side should be applied twice
+				switch (componentid)
+				{
+					case 1007, 1027, 1030, 1039, 1040, 1051, 1052, 1062, 1063, 1071, 1072, 1094, 1099, 1101, 1102, 1107, 1120, 1121, 1124, 1137, 1142 .. 1145: AddVehicleComponent(vid, componentid);
+				}
+				
+				new component_name[40];
+				SetPVarInt(playerid, "mekanik_komponen_id", componentid);
+				GetComponentName(componentid, component_name);
+
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan modifikasi kendaraan jenis "GREEN"%s\n\
+					"YELLOW"Anda akan memasang %s pada kendaraan anda.\n\n", GetVehicleModelName(GetVehicleModel(vid)), component_name);
+				strcat(pDialog[playerid], WHITE"Anda akan menggunakan "RED"1 item sparepart kendaraan "WHITE"untuk dapat memodifikasi.\n\
+					Anda yakin ingin memodifikasinya ?\n");
+				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_PREVIEW_MODIF_MEKANIK, DIALOG_STYLE_MSGBOX, "Modifikasi kendaraan", pDialog[playerid], "Konfirmasi", "Batal");				
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_PAINTJOB:
+		{
+			if(response){
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+
+				new Float:vpos[3];
+				new vid = GetPVarInt(playerid, "mekanik_vehicle_id");
+
+				if(!IsValidVehicle(vid)) {
+					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal paintjob kendaraan, disebabkan oleh kendaraan tidak ada.");
+
+					DeletePVar(playerid, "mekanik_vehicle_id");
+					return 1;
+				}
+				GetVehiclePos(vid, vpos[0], vpos[1], vpos[2]);
+				if(!IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
+					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal paintjob kendaraan. Kendaraan berpindah keposisi lain.");			
+
+					DeletePVar(playerid, "mekanik_vehicle_id");
+					return 1;
+				}
+
+				if(!strcmp(inputtext, "Lepas Paintjob")){
+					SendClientMessage(playerid, COLOR_BLUE, "[KENDARAAN] "WHITE"Berhasil melepas paintjob dari kendaraan anda.");
+					SendClientMessage(playerid, COLOR_YELLOW, "[KENDARAAN] "WHITE"Khusus untuk penyabutan barang, anda tidak dikenakan biaya atau apapaun.");
+
+					// Lepas paintjob
+					PVeh[IDVehToPVeh[vid]][pVehPaintJob] = INVALID_PAINTJOB_ID;
+					RemoveVehiclePaintjob(vid);
+					UpdateTampilanVehiclePlayer(vid);
+					return 1;
+				}
+
+				new paintjobid = listitem;
+
+				SetPVarInt(playerid, "mekanik_paintjob_id", paintjobid);
+				ChangeVehiclePaintjob(vid, listitem);
+				
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan paintjob kendaraan jenis "GREEN"%s\n\
+					"YELLOW"Anda akan memasang paintjob tipe %d pada kendaraan ini.\n\n", GetVehicleModelName(GetVehicleModel(vid)), paintjobid + 1);
+				strcat(pDialog[playerid], WHITE"Anda akan menggunakan "RED"1 item paintjob kendaraan "WHITE"untuk dapat menpaintjobnya.\n\
+					Apakah anda yakin ?\n");
+				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_PREVIEW_PAINTJOB_MEKANIK, DIALOG_STYLE_MSGBOX, "Paintjob kendaraan", pDialog[playerid], "Konfirmasi", "Batal");				
+			}
+			return 1;	
+		}
+		case DIALOG_KONFIRMASI_PREVIEW_PAINTJOB_MEKANIK:
+		{
+			new vehid = GetPVarInt(playerid, "mekanik_vehicle_id"),
+				paintjobid = GetPVarInt(playerid, "mekanik_paintjob_id");
+			if(response){
+				// Pinjam timer perbaiki
+				PerbaikiTimer[playerid] = SetPreciseTimer("progressPaintjobKendaraan", 1000, true, "iii", playerid, vehid, paintjobid);
+
+				// Pinjam progress bar dari potong pohon
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+				ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+				TogglePlayerControllable(playerid, 0);
+				GameTextForPlayer(playerid, "~w~Sedang ~y~Paintjob...", 3000, 3);
+				ApplyAnimation(playerid, "SPRAYCAN", "spraycan_fire", 4.1, 1, 0, 0, 1, 0, 1);			}
+
+			// Lepas
+			RemoveVehiclePaintjob(vehid);
+
+			new idpv = IDVehToPVeh[vehid];
+			if(IsValidPaintjobForVehicle(vehid, PVeh[idpv][pVehPaintJob])){
+				ChangeVehiclePaintjob(vehid, PVeh[idpv][pVehPaintJob]);
+			}
+			
+			DeletePVar(playerid, "mekanik_vehicle_id");
+			DeletePVar(playerid, "mekanik_paintjob_id");				
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_PREVIEW_MODIF_MEKANIK:
+		{
+			new vehid = GetPVarInt(playerid, "mekanik_vehicle_id"),
+				componentid = GetPVarInt(playerid, "mekanik_komponen_id");
+			if(response){
+				// Pinjam timer perbaiki
+				PerbaikiTimer[playerid] = SetPreciseTimer("progressModifKendaraan", 1000, true, "iii", playerid, vehid, componentid);
+
+				// Pinjam progress bar dari potong pohon
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+				ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+				TogglePlayerControllable(playerid, 0);
+				GameTextForPlayer(playerid, "~w~Sedang ~y~Modifikasi...", 3000, 3);
+				ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
+			}
+
+			// Lepas
+			new slotid = GetVehicleComponentType(componentid);
+			new idpv = IDVehToPVeh[vehid];
+			
+			RemoveVehicleComponent(vehid, componentid);
+			// sideskirts and vents that have left and right side should be applied twice
+			switch (componentid)
+			{
+				case 1007, 1027, 1030, 1039, 1040, 1051, 1052, 1062, 1063, 1071, 1072, 1094, 1099, 1101, 1102, 1107, 1120, 1121, 1124, 1137, 1142 .. 1145: RemoveVehicleComponent(vehid, componentid);
+			}
+
+
+			if(IsValidComponentForVehicle(vehid, PVeh[idpv][pVehMod][slotid])){
+				// Kembalikan ke awal
+				AddVehicleComponent(vehid, PVeh[idpv][pVehMod][slotid]);
+			}
+
+			DeletePVar(playerid, "mekanik_vehicle_id");
+			DeletePVar(playerid, "mekanik_komponen_id");				
 			return 1;
 		}
 		case DIALOG_KONFIRMASI_WARNAIN_MEKANIK:
@@ -4432,11 +4724,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				TogglePlayerControllable(playerid, 0);
 				GameTextForPlayer(playerid, "~w~Sedang ~y~mewarnain...", 3000, 3);
 				ApplyAnimation(playerid, "SPRAYCAN", "spraycan_fire", 4.1, 1, 0, 0, 1, 0, 1);
-			}else{
-				new idpv = IDVehToPVeh[vehid];
-				// Kembalikan ke awal
-				ChangeVehicleColor(vehid, PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1]);
 			}
+
+			new idpv = IDVehToPVeh[vehid];
+			// Kembalikan ke awal
+			ChangeVehicleColor(vehid, PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1]);
+			
 			DeletePVar(playerid, "mekanik_vehicle_id");
 			DeletePVar(playerid, "mekanik_warna_1");
 			DeletePVar(playerid, "mekanik_warna_2");			
@@ -4875,12 +5168,14 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 		error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang dijual.");
 		RemovePlayerFromVehicle(playerid);
 	}
+
 	if(newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER){
 		ShowPlayerSpeedo(playerid);
 	}
 	else if(oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER && newstate == PLAYER_STATE_ONFOOT){
 		HidePlayerSpeedo(playerid);
 	}
+
 	if(oldstate == PLAYER_STATE_ONFOOT && newstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_ONFOOT && newstate == PLAYER_STATE_PASSENGER){
 		if(Iter_Contains(vehicleSIM, vehid)){
 			if(testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehid){
@@ -4917,18 +5212,20 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 	}else if(Iter_Contains(vehicleSIM, vehicleid) && testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehicleid){
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda keluar dari kendaraan, silahkan kembali praktik! "WHITE"Sebelum 30 detik atau anda gagal Ujian Praktik SIM.");
 		todoTimer[playerid] = SetPreciseTimer("todoExit", 30000, false, "ii", playerid, vehicleIdSIM[playerid]);
-	}else if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
-		new Float:darah;
-		GetVehicleHealth(vehicleid, darah);
+	}else if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER){ // Jika player baru saja keluar dari mengemudi
+		if(Iter_Contains(IDVehToPVehIterator, vehicleid)){ // Jika kendaraan adalah kendaraan berpemilik
+			new Float:darah;
+			GetVehicleHealth(vehicleid, darah);
 
-		if(!IsVehicleFlipped(vehicleid) && darah > 300)
-		{
-			new idpv = IDVehToPVeh[vehicleid];
-			GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
-			GetVehicleZAngle(vehicleid, PVeh[idpv][pVehCoord][3]);
-			PVeh[idpv][pVehDarah] = darah;
-			UpdatePosisiDarahVehiclePlayer(vehicleid);
-		}
+			if(!IsVehicleFlipped(vehicleid) && darah > 251) // kendaraan tidak terbalik dan kendaraan tidak berasap parah
+			{
+				new idpv = IDVehToPVeh[vehicleid];
+				GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
+				GetVehicleZAngle(vehicleid, PVeh[idpv][pVehCoord][3]);
+				PVeh[idpv][pVehDarah] = darah;
+				UpdatePosisiDarahVehiclePlayer(vehicleid);
+			}
+		}	
 	}
     return 1;
 }
@@ -5359,6 +5656,13 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 				limitVehSIM[vehid] = 0;
 			}
 		}
+	}
+	return 1;
+}
+
+public OnVehicleSpawn(vehicleid){
+	if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
+		LoadModifVehiclePlayer(vehicleid);		
 	}
 	return 1;
 }

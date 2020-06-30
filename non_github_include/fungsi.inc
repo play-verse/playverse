@@ -1077,6 +1077,129 @@ publicFor: historyATMPemain_EBank(playerid){
 	return 1;
 }
 
+publicFor: konfirmasiPaintjobMekanik(playerid, ada){
+	if(ada){
+		new vehicleid = GetPVarInt(playerid, "mekanik_vehicle_id");
+		if(!IsValidVehicle(vehicleid)) return error_command(playerid, "Mobil yang ingin dipaintjob tidak ada!");
+
+		new modelid = GetVehicleModel(vehicleid);
+
+		switch (modelid)
+		{
+			case 483: ShowPlayerDialog(playerid, DIALOG_PILIH_PAINTJOB, DIALOG_STYLE_LIST, "Pilih Paintjob", "Paintjob tipe 1\nLepas Paintjob", "Pilih", "Batal");
+			case 575: ShowPlayerDialog(playerid, DIALOG_PILIH_PAINTJOB, DIALOG_STYLE_LIST, "Pilih Paintjob", "Paintjob tipe 1\nPaintjob tipe 2\nLepas Paintjob", "Pilih", "Batal");
+			case 534 .. 536, 558 .. 562, 565, 567, 576: ShowPlayerDialog(playerid, DIALOG_PILIH_PAINTJOB, DIALOG_STYLE_LIST, "Pilih Paintjob", "Paintjob tipe 1\nPaintjob tipe 2\nPaintjob tipe 3\nLepas Paintjob", "Pilih", "Batal");
+			default: 
+				return error_command(playerid, "Mobil tidak dapat di paintjob!");
+		}
+		
+	}else{
+		format(pDialog[playerid], sizePDialog, WHITE"Maaf anda tidak memiliki cukup bahan untuk mewarnain kendaraan ini.\n"YELLOW"Anda butuh "GREEN"1 item pewarna kendaraan "YELLOW"untuk dapat mewarnain kendaraan ini.");
+		showDialogPesan(playerid, RED"Tidak memiliki bahan", pDialog[playerid]);
+	}
+	return 1;
+}
+
+publicFor: konfirmasiModifMekanik(playerid, ada){
+	if(ada){
+		new vehicleid = GetPVarInt(playerid, "mekanik_vehicle_id");
+		if(!IsValidVehicle(vehicleid)) return error_command(playerid, "Mobil yang ingin dimodifikasi tidak ada!");
+
+		new modelid = GetVehicleModel(vehicleid);
+		if((534 <= modelid && modelid >= 536) || (558 <= modelid && modelid <= 562) || modelid == 565 || modelid == 567 || modelid == 575 || modelid == 576)
+        {
+            new temp_query[76];
+            mysql_format(koneksi, temp_query, sizeof(temp_query), "SELECT part FROM vehicle_components WHERE cars=%i OR cars=-1 GROUP BY part", modelid);
+            mysql_tquery(koneksi, temp_query, "OnTuneLoad", "ii", playerid, 0);
+        }
+        else
+        {
+            new temp_query[354];
+
+            mysql_format(koneksi, temp_query, sizeof(temp_query),
+            "SELECT " \
+            "IF(parts & 1 <> 0,'Exhausts','')," \
+            "IF(parts & 2 <> 0,'Hood','')," \
+            "IF(parts & 4 <> 0,'Hydraulics','')," \
+            "IF(parts & 8 <> 0,'Lights','')," \
+            "IF(parts & 16 <> 0,'Roof','')," \
+            "IF(parts & 32 <> 0,'Side Skirts','')," \
+            "IF(parts & 64 <> 0,'Spoilers','')," \
+            "IF(parts & 128 <> 0,'Vents','')," \
+            "IF(parts & 256 <> 0,'Wheels','') " \
+            "FROM vehicle_model_parts WHERE modelid=%i", modelid);
+            mysql_tquery(koneksi, temp_query, "OnTuneLoad", "ii", playerid, 1);
+        }
+	}else{
+		format(pDialog[playerid], sizePDialog, WHITE"Maaf anda tidak memiliki cukup bahan untuk modif kendaraan ini.\n"YELLOW"Anda butuh "GREEN"1 item sparepart kendaraan "YELLOW"untuk dapat modif kendaraan ini.");
+		showDialogPesan(playerid, RED"Tidak memiliki bahan", pDialog[playerid]);
+	}
+	return 1;
+}
+
+publicFor: OnTuneLoad(playerid, idx){
+	switch (idx)
+    {
+        case 0:
+        {
+            new dialog_info[83], part_name[15];
+
+            for (new i, j = cache_num_rows(); i != j; i++)
+            {
+                cache_get_value_index(i, 0, part_name);
+
+                strcat(dialog_info, part_name);
+                strcat(dialog_info, "\n");
+            }
+            ShowPlayerDialog(playerid, DIALOG_PILIH_COMPONENT, DIALOG_STYLE_LIST, "Komponen yang dapat terpasang", dialog_info, "Pilih", "Batal");
+        }
+        case 1:
+        {
+            if (cache_num_rows())
+            {
+                new dialog_info[83], part_name[14], num_fields;
+                cache_get_field_count(num_fields);
+
+                for (new i; i != num_fields; i++)
+                {
+                    cache_get_value_index(0, i, part_name);
+
+                    if (!isnull(part_name) && strlen(part_name))
+                    {
+                        strcat(dialog_info, part_name);
+                        strcat(dialog_info, "\n");
+                    }
+                }
+				
+                ShowPlayerDialog(playerid, DIALOG_PILIH_COMPONENT, DIALOG_STYLE_LIST, "Komponen yang dapat terpasang", dialog_info, "Pilih", "Batal");
+            }
+            else {
+				error_command(playerid, "Kamu tidak dapat memodifikasi kendaraan ini.");
+			}
+        }
+        case 2:
+        {
+            new dialog_info[716];
+            new componentid, type[22];
+
+            dialog_info = "{FF0000}ID Komponen\t{FF8000}Tipe\n";
+
+            for (new i, j = cache_num_rows(); i != j; i++)
+            {
+                cache_get_value_index_int(i, 0, componentid);
+                cache_get_value_index(i, 1, type);
+
+                format(dialog_info, sizeof dialog_info, "%s%i\t%s\n", dialog_info, componentid, type);
+            }
+            
+            if (componentid == 1087) strcat(dialog_info, "Lepas Hydraulics");
+
+            ShowPlayerDialog(playerid, DIALOG_PILIH_COMPONENT_2, DIALOG_STYLE_TABLIST_HEADERS, "Komponen yang dapat terpasang", dialog_info, "Pilih", "Batal");
+        }
+    }
+	return 1;
+}
+
 publicFor: konfirmasiWarnainMekanik(playerid, ada){
 	if(ada){
 		showDialogPilihWarnaKendaraan(playerid, DIALOG_PILIH_WARNA_1, "Pilih warna kendaraan - Warna 1");
@@ -1220,6 +1343,113 @@ publicFor: progressWarnainKendaraan(playerid, vehicleid, color1, color2){
 		}
     }else{
 		SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal mewarnain kendaraan, disebabkan oleh kendaraan tidak ada.");
+		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+	}
+	return 1;
+}
+
+publicFor: progressPaintjobKendaraan(playerid, vehicleid, paintjobid){
+	if(IsValidVehicle(vehicleid)){
+		new Float:vpos[3], Float:pos[3];
+
+		GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+		GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+		GetVehiclePos(vehicleid, vpos[0], vpos[1], vpos[2]);
+
+		if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
+			new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / PAINTJOB_KENDARAAN_TIME;
+			if(value >= MAX_PROGRESS_BAR){
+				new idpv = IDVehToPVeh[vehicleid];
+
+				PVeh[idpv][pVehPaintJob] = paintjobid;
+				ChangeVehiclePaintjob(vehicleid, paintjobid);
+
+				UpdateTampilanVehiclePlayer(vehicleid);
+				tambahItemPlayer(playerid, 30, -1); // 30 adalah item paintjob kendaraan
+
+				PlayerPlaySound(playerid, 1133, 0.0, 0.0, 0.0);
+
+				sendPesan(playerid, COLOR_GREEN, "[MEKANIK] "WHITE"Berhasil paintjob kendaraan %s, dengan item yang terpakai 1 pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)));
+				reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
+
+				/**
+					Tambah exp				
+				 */
+				new exp_didapat = 0;
+				if(PlayerInfo[playerid][expMekanik] < LEVEL_SKILL_LIMA) // Jika level exp player adalah lvl 4
+					exp_didapat = EXP_SUKSES_CURR_SKILL;
+				else // Jika level exp player > 4
+					exp_didapat = EXP_SUKSES_DOWN_SKILL;
+
+				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
+				sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"paintjob kendaraan", exp_didapat);
+				sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+			}else{
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal paintjob kendaraan. Kendaraan berpindah keposisi lain.");
+			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+		}
+    }else{
+		SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal paintjob kendaraan, disebabkan oleh kendaraan tidak ada.");
+		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+	}
+	return 1;
+}
+
+publicFor: progressModifKendaraan(playerid, vehicleid, componentid){
+	if(IsValidVehicle(vehicleid)){
+		new Float:vpos[3], Float:pos[3];
+
+		GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+		GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+		GetVehiclePos(vehicleid, vpos[0], vpos[1], vpos[2]);
+
+		if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
+			new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / MODIF_KENDARAAN_TIME;
+			if(value >= MAX_PROGRESS_BAR){
+				new idpv = IDVehToPVeh[vehicleid];
+				new slotid = GetVehicleComponentType(componentid);
+
+				PVeh[idpv][pVehMod][slotid] = componentid;
+				AddVehicleComponent(vehicleid, PVeh[idpv][pVehMod][slotid]);
+
+				// sideskirts and vents that have left and right side should be applied twice
+				switch (PVeh[idpv][pVehMod][slotid])
+				{
+					case 1007, 1027, 1030, 1039, 1040, 1051, 1052, 1062, 1063, 1071, 1072, 1094, 1099, 1101, 1102, 1107, 1120, 1121, 1124, 1137, 1142 .. 1145: AddVehicleComponent(vehicleid, PVeh[idpv][pVehMod][slotid]);
+				}
+
+				UpdateTampilanVehiclePlayer(vehicleid);
+				tambahItemPlayer(playerid, 29, -1); // 29 adalah item sparepart kendaraan
+
+				PlayerPlaySound(playerid, 1133, 0.0, 0.0, 0.0);
+
+				sendPesan(playerid, COLOR_GREEN, "[MEKANIK] "WHITE"Berhasil modifikasi kendaraan %s, dengan item yang terpakai 1 pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)));
+				reset_PerbaikiKendaraan(playerid);
+
+				/**
+					Tambah exp				
+				 */
+				new exp_didapat = 0;
+				if(PlayerInfo[playerid][expMekanik] < LEVEL_SKILL_LIMA) // Jika level exp player adalah lvl 4
+					exp_didapat = EXP_SUKSES_CURR_SKILL;
+				else // Jika level exp player > 4
+					exp_didapat = EXP_SUKSES_DOWN_SKILL;
+
+				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
+				sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"modifikasi kendaraan", exp_didapat);
+				sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+			}else{
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan. Kendaraan berpindah keposisi lain.");
+			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+		}
+    }else{
+		SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan, disebabkan oleh kendaraan tidak ada.");
 		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 	}
 	return 1;
@@ -1928,17 +2158,6 @@ reloadHouseLabel(house_Id){
     houseTextInfo[house_Id] = CreateDynamic3DTextLabel(text_info, COLOR_WHITE, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z]+0.75, 20);
 }
 
-// getOwnerHouse(ownerid){
-// 	new Cache:result, nama[MAX_PLAYER_NAME], tempQuery[100];
-// 	mysql_format(koneksi, tempQuery, 100, "SELECT nama FROM `user` WHERE `id` = '%d'", ownerid);
-// 	result = mysql_query(koneksi, tempQuery);
-// 	if(cache_num_rows()){
-// 		cache_get_value_name(0, "nama", nama);
-// 	}
-// 	cache_delete(result);
-// 	return nama;
-// }
-
 getHousePrice(house_Id, const method[16] = ""){
 	if(house_Id < MAX_HOUSES){
 		new hargaRate, methodName[16];
@@ -2023,9 +2242,7 @@ resetPlayerToDo(playerid){
 		treeEditID[playerid] = -1;
 	}
 
-	if(!IsValidPlayerProgressBar(playerid, CuttingBar[playerid]))
-		CuttingBar[playerid] = CreatePlayerProgressBar(playerid, 498.0, 104.0, 113.0, 6.2, COLOR_YELLOW, MAX_PROGRESS_BAR, 0);
-
+	// CuttingBar dipindahkan ke load player text draw
     if(CuttingTimer[playerid] != -1){
         DeletePreciseTimer(CuttingTimer[playerid]);
         CuttingTimer[playerid] = -1;
@@ -2178,38 +2395,6 @@ LoadVehiclePlayer(playerid){
 				cache_get_value_name_int(idx, "color_2", PVeh[idpv][pVehColor][1]);				
 				cache_get_value_name_int(idx, "is_reparasi", PVeh[idpv][pVehIsReparasi]);
 
-				format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
-
-				if(temp_time != 0){
-					// Sign waktu kunci
-					Iter_Add(PVehKeys[playerid], idpv);
-					PVehKeysTime[playerid][idpv] = temp_time;
-				}
-
-				if(!PVeh[idpv][pVehIsReparasi]) {
-					idveh = CreateVehicle(PVeh[idpv][pVehModel], PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2], PVeh[idpv][pVehCoord][3], PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1], -1);
-
-					PVeh[idpv][pVehicle] = idveh;
-
-					IDVehToPVeh[idveh] = idpv;
-					Iter_Add(IDVehToPVehIterator, idveh);
-
-					LoadModifVehiclePlayer(idveh);
-
-					#if defined DEBUG_SERVER_LOAD
-					printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) load.",PlayerInfo[playerid][pPlayerName], PVeh[idpv][pVehID], idveh);
-					#endif
-
-					SetVehicleToRespawn(idveh);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-					GetVehicleParamsEx(idveh, engine, lights, alarm, doors, bonnet, boot, objective);
-					SetVehicleParamsEx(idveh, 0, 0, alarm, doors, bonnet, boot, objective);
-
-					SetVehicleHealth(idveh, PVeh[idpv][pVehDarah]);
-				}
-
-
 				cache_get_value_name_int(idx, "paintjob", PVeh[idpv][pVehPaintJob]);
 				cache_get_value_name_int(idx, "veh_mod_1", PVeh[idpv][pVehMod][0]);
 				cache_get_value_name_int(idx, "veh_mod_2", PVeh[idpv][pVehMod][1]);
@@ -2225,6 +2410,40 @@ LoadVehiclePlayer(playerid){
 				cache_get_value_name_int(idx, "veh_mod_12", PVeh[idpv][pVehMod][11]);
 				cache_get_value_name_int(idx, "veh_mod_13", PVeh[idpv][pVehMod][12]);
 				cache_get_value_name_int(idx, "veh_mod_14", PVeh[idpv][pVehMod][13]);
+
+				format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
+
+				if(temp_time != 0){
+					// Sign waktu kunci
+					Iter_Add(PVehKeys[playerid], idpv);
+					PVehKeysTime[playerid][idpv] = temp_time;
+				}
+
+				if(PVeh[idpv][pVehDarah] <= 251){
+					PVeh[idpv][pVehIsReparasi] = STATUS_KENDARAAN_RUSAK;
+					updatePVehReparasi(PVeh[idpv][pVehID], STATUS_KENDARAAN_RUSAK);
+				}
+
+				if(!PVeh[idpv][pVehIsReparasi]) {
+					idveh = CreateVehicle(PVeh[idpv][pVehModel], PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2], PVeh[idpv][pVehCoord][3], PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1], -1);
+
+					PVeh[idpv][pVehicle] = idveh;
+
+					IDVehToPVeh[idveh] = idpv;
+					Iter_Add(IDVehToPVehIterator, idveh);
+
+					#if defined DEBUG_SERVER_LOAD
+					printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) load.",PlayerInfo[playerid][pPlayerName], PVeh[idpv][pVehID], idveh);
+					#endif
+
+					SetVehicleToRespawn(idveh);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+					GetVehicleParamsEx(idveh, engine, lights, alarm, doors, bonnet, boot, objective);
+					SetVehicleParamsEx(idveh, 0, 0, alarm, doors, bonnet, boot, objective);
+
+					SetVehicleHealth(idveh, PVeh[idpv][pVehDarah]);
+				}
 
 				Iter_Add(PVehIterator, idpv);
 				idx++;
@@ -2247,10 +2466,17 @@ PinjamkanKunciKePemain(playerid, idpveh, menit){
 LoadModifVehiclePlayer(vehicleid){
 	new const idpv = IDVehToPVeh[vehicleid];
 	for(new i = 0; i < 14; i++) {
-		if(PVeh[idpv][pVehMod][i] >= 1000 && PVeh[idpv][pVehMod][i] <= 1193)
-			AddVehicleComponent(vehicleid, PVeh[idpv][pVehMod]);
+		if(IsValidComponentForVehicle(vehicleid, PVeh[idpv][pVehMod][i])){
+			AddVehicleComponent(vehicleid, PVeh[idpv][pVehMod][i]);
+			
+			// sideskirts and vents that have left and right side should be applied twice
+			switch (PVeh[idpv][pVehMod][i])
+			{
+				case 1007, 1027, 1030, 1039, 1040, 1051, 1052, 1062, 1063, 1071, 1072, 1094, 1099, 1101, 1102, 1107, 1120, 1121, 1124, 1137, 1142 .. 1145: AddVehicleComponent(vehicleid, PVeh[idpv][pVehMod][i]);
+			}
+		}
 	}
-	if(PVeh[idpv][pVehPaintJob]) ChangeVehiclePaintjob(vehicleid, PVeh[idpv][pVehPaintJob]);
+	if(PVeh[idpv][pVehPaintJob] != INVALID_PAINTJOB_ID) ChangeVehiclePaintjob(vehicleid, PVeh[idpv][pVehPaintJob]);
 }
 
 dialogMetodeBayar(playerid, nominal, const fungsi_callback_success[], const keterangan_atm[]){

@@ -434,3 +434,14 @@ stock IsPointInRangeOfPoint(Float:x, Float:y, Float:z, Float:x2, Float:y2, Float
     z2 -= z;
     return ((x2 * x2) + (y2 * y2) + (z2 * z2)) < (range * range);
 }
+
+IsValidPaintjobForVehicle(vehicleid, paintjobid){
+    switch (GetVehicleModel(vehicleid))
+    {
+        case 483: return (paintjobid == 0);
+        case 575: return (paintjobid == 0 && paintjobid == 1);
+        case 534 .. 536, 558 .. 562, 565, 567, 576: return (paintjobid >= 0 && paintjobid <= 2);
+        default: return false;
+    }
+    return false;
+}
