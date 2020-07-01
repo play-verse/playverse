@@ -4425,9 +4425,20 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 
 				new componentid;
-				
-				if (!sscanf(inputtext, "i", componentid)) AddVehicleComponent(vid, componentid);
-				else{
+				if (!sscanf(inputtext, "i", componentid)) {
+					if(IsValidComponentForVehicle(vid, PVeh[IDVehToPVeh[vid]][pVehMod][GetVehicleComponentType(componentid)])){
+						if(PVeh[IDVehToPVeh[vid]][pVehMod][GetVehicleComponentType(componentid)] == componentid) {
+							new nama_komponen[50];
+							GetComponentName(componentid, nama_komponen);
+							sendPesan(playerid, COLOR_RED, "[MEKANIK] "WHITE"Komponen %s telah terpasang pada kendaraan ini.", nama_komponen);
+
+							DeletePVar(playerid, "mekanik_vehicle_id");
+							return 1;
+						}
+					}
+
+					AddVehicleComponent(vid, componentid);
+				}else{
 					SendClientMessage(playerid, COLOR_BLUE, "[KENDARAAN] "WHITE"Berhasil melepas hydraulics dari kendaraan anda.");
 					SendClientMessage(playerid, COLOR_YELLOW, "[KENDARAAN] "WHITE"Khusus untuk penyabutan barang, anda tidak dikenakan biaya atau apapaun.");
 
@@ -4489,6 +4500,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					RemoveVehiclePaintjob(vid);
 					UpdateTampilanVehiclePlayer(vid);
 					return 1;
+				}
+
+				if(IsValidPaintjobForVehicle(vid, PVeh[IDVehToPVeh[vid]][pVehPaintJob])){
+					if(PVeh[IDVehToPVeh[vid]][pVehPaintJob] == listitem) {
+						sendPesan(playerid, COLOR_RED, "[MEKANIK] "WHITE"Paintjob tipe %d telah terpasang pada kendaraan ini.", listitem + 1);
+
+						DeletePVar(playerid, "mekanik_vehicle_id");
+						return 1;
+					}
 				}
 
 				new paintjobid = listitem;
