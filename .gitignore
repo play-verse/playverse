@@ -56,4 +56,4 @@ samp.ban
 
 # scriptfiles
 scriptfiles/*.db
-scriptfiles/*.cadb
+scriptfiles/ColAndreas/*.cadb
