@@ -6,13 +6,17 @@
 ***************************************************************************************************/
 
 #include <a_samp>
-#include <pengaturan> // Pengaturan server disini letak pas dibawah a_samp
+#include <pengaturan> // Pengaturan server disini letak pas di bawah a_samp
 #include <colors> // https://forum.sa-mp.com/showthread.php?t=573049
 #include <sscanf2>
 #include <streamer>
+
 #include <progress2>
+
 #include <samp-precise-timers>
+#include <colandreas>
 #include <geolite>
+#include <EVF>
 
 #include <a_mysql>
 #include <zcmd>
@@ -26,6 +30,7 @@
 #include <core>
 #include <float>
 #include <PreviewModelDialog>
+
 /*
 	INCLUDE INCLUDE BUATAN DIBAWAH
 */
@@ -37,7 +42,6 @@
 #include <checkpoint> // CP Function Loader
 #include <area> // Area loader
 #include <dialog> // Function Dialog Loader
-#include <EVF> // Fungsi tambahan vehicle
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
 
@@ -520,7 +524,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new Float:pos[3];
 				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
 				if(!IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
-					return ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_PLAYERID, DIALOG_STYLE_INPUT, YELLOW"Masukan ID pemain", RED"Pemain harus berada didekat anda.\n"YELLOW"Silahkan masukan ID Pemain yang akan dipinjamkan kunci kendaraan.\n"WHITE"Hanya dapat meminjamkan kunci kepada pemain yang berada maksimal 2 meter.\n"WHITE"Pastikan player yang anda tuju belum dipinjami kendaraan yang sama.", "Pilih", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_PINJAMIN_KUNCI_PLAYERID, DIALOG_STYLE_INPUT, YELLOW"Masukan ID pemain", RED"Pemain harus berada di dekat anda.\n"YELLOW"Silahkan masukan ID Pemain yang akan dipinjamkan kunci kendaraan.\n"WHITE"Hanya dapat meminjamkan kunci kepada pemain yang berada maksimal 2 meter.\n"WHITE"Pastikan player yang anda tuju belum dipinjami kendaraan yang sama.", "Pilih", "Batal");
 				}
 
 				inline responseQuery(){
@@ -842,7 +846,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}
 							MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO house_furniture(id_house, id_furniture, pos_x, pos_y, pos_z) VALUES('%d', '%d', '%f', '%f', '%f')", PlayerInfo[playerid][inHouse], id_furniture, pos[0], pos[1], pos[2]);
 						}else{
-							return server_message(playerid, "Anda tidak berada didalam rumah anda sendiri.");
+							return server_message(playerid, "Anda tidak berada di dalam rumah anda sendiri.");
 						}
 						resetPVarInventory(playerid);
 					}
@@ -1779,7 +1783,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										sendPesan(playerid, COLOR_YELLOW, "[INFO] "WHITE"Anda telah dikenakan harga "GREEN"$%d", upgradeRate);
 										return 1;
 									}else{
-										return sendPesan(playerid, COLOR_GREEN, "[RUMAH] "RED"Anda harus melepas semua furniture didalam rumah terlebih dahulu!");
+										return sendPesan(playerid, COLOR_GREEN, "[RUMAH] "RED"Anda harus melepas semua furniture di dalam rumah terlebih dahulu!");
 									}
 								}
 								MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT(SELECT COUNT(*) FROM house_furniture WHERE id_house = '%d') as terpasang, (SELECT COUNT(*) FROM user_item WHERE id_user = '%d' AND id_item = '%d' AND jumlah >= '%d') as cukup", id, PlayerInfo[playerid][pID], 25, getKayuForUpgradeHouse(houseInfo[id][hLevel]));
@@ -2138,7 +2142,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						if(isnull(PlayerInfo[playerid][nomorRekening])) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Anda tidak memiliki rekening", WHITE"Maaf anda tidak memiliki rekening dan tidak dapat menggunakan menu ini.\nSilahkan buat rekening anda terlebih dahulu untuk dapat menabung.", "Ok", ""); 
 						
-						ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk kedalam akun bank anda.", "Deposit", "Kembali");
+						ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk ke dalam akun bank anda.", "Deposit", "Kembali");
 						return 1;
 					}
 					case 2:
@@ -2307,11 +2311,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				new nominal;
-				if(sscanf(inputtext, "i", nominal)) return ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", RED"Anda harus memasukan nominal dengan benar!\n"WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk kedalam akun bank anda.", "Deposit", "Kembali");
+				if(sscanf(inputtext, "i", nominal)) return ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", RED"Anda harus memasukan nominal dengan benar!\n"WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk ke dalam akun bank anda.", "Deposit", "Kembali");
 
-				if(nominal < 10) return ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", RED"Anda harus memasukan nominal dengan benar, minimal penabungan adalah $10.\n"WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk kedalam akun bank anda.", "Deposit", "Kembali");
+				if(nominal < 10) return ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", RED"Anda harus memasukan nominal dengan benar, minimal penabungan adalah $10.\n"WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk ke dalam akun bank anda.", "Deposit", "Kembali");
 
-				if(getUangPlayer(playerid) < nominal) return ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", RED"Anda harus memasukan nominal dengan benar, nominal yang anda masukan melebihi uang anda.\n"WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk kedalam akun bank anda.", "Deposit", "Kembali");
+				if(getUangPlayer(playerid) < nominal) return ShowPlayerDialog(playerid, DIALOG_DEPOSIT_UANG_TABUNGAN, DIALOG_STYLE_INPUT, "Nominal yang ingin ditabung", RED"Anda harus memasukan nominal dengan benar, nominal yang anda masukan melebihi uang anda.\n"WHITE"Silahkan memasukan nominal yang ingin anda tabung.\n\n"YELLOW"Pastikan anda memiliki uang sesuai dengan nominal yang anda masukan.\nUang akan langsung masuk ke dalam akun bank anda.", "Deposit", "Kembali");
 
 				SetPVarInt(playerid, "depo_nominal", nominal);
 				
@@ -3093,7 +3097,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								error_command(playerid, "Ini bukan kendaraan dealer.");
 							}
 						}else
-							error_command(playerid, "Anda hanya dapat menggunakan perintah ini didalam kendaraan dealer.");
+							error_command(playerid, "Anda hanya dapat menggunakan perintah ini di dalam kendaraan dealer.");
 					}
 					case 2: // Respawn all dealer vehicle
 					{
@@ -3105,7 +3109,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 3: // Hapus kendaraan dealer
 					{
-						if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_RED, "[A-DEALER] "WHITE"Anda harus didalam kendaraan dealer yang ingin dihapus untuk dapat menggunakan perintah ini!");
+						if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_RED, "[A-DEALER] "WHITE"Anda harus di dalam kendaraan dealer yang ingin dihapus untuk dapat menggunakan perintah ini!");
 
 						new idveh = GetPlayerVehicleID(playerid);
 						if(Iter_Contains(DVehIterator, idveh) && DVeh[idveh][dVehID]){
@@ -3212,7 +3216,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0: // Bayar Uang Cash
 					{
-						if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus didalam mobil", WHITE"Anda harus didalam mobil yang ingin dibeli, jangan keluar hingga transaksi selesai.");
+						if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam mobil", WHITE"Anda harus di dalam mobil yang ingin dibeli, jangan keluar hingga transaksi selesai.");
 
 						new vehid = GetPlayerVehicleID(playerid);
 						// Counter cheater jika model mobil dimanipulasi
@@ -3278,7 +3282,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 1:
 					{
-						if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus didalam mobil", WHITE"Anda harus didalam mobil yang ingin dibeli, jangan keluar hingga transaksi selesai.");
+						if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam mobil", WHITE"Anda harus di dalam mobil yang ingin dibeli, jangan keluar hingga transaksi selesai.");
 
 						new vehid = GetPlayerVehicleID(playerid);
 						// Counter cheater jika model mobil dimanipulasi
@@ -3309,7 +3313,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_KONFIRMASI_BAYAR_KENDARAAN_VIA_ATM:
 		{
 			if(response){
-				if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus didalam mobil", WHITE"Anda harus didalam mobil yang ingin dibeli, jangan keluar hingga transaksi selesai.");
+				if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam mobil", WHITE"Anda harus di dalam mobil yang ingin dibeli, jangan keluar hingga transaksi selesai.");
 
 				new vehid = GetPlayerVehicleID(playerid);
 				if(strlen(inputtext) != 8 || strcmp(PlayerInfo[playerid][nomorRekening], inputtext) != 0) {
@@ -3382,7 +3386,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Info Kendaraan", pDialog[playerid], "Ok", "");
 							return 1;
 						}else{
-							showDialogPesan(playerid, RED"Kendaraan tidak valid", "Anda telah keluar dari kendaraan.\nUntuk dapat melihat info kendaraan, anda harus berada didalam kendaraan tersebut.");
+							showDialogPesan(playerid, RED"Kendaraan tidak valid", "Anda telah keluar dari kendaraan.\nUntuk dapat melihat info kendaraan, anda harus berada di dalam kendaraan tersebut.");
 							return 1;
 						}
 					}
@@ -3687,7 +3691,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
                         // Buat Pohon
                         new id = Iter_Free(TreeIterator);
-                        if(id == -1) error_command(playerid, "Tidak dapat membuat pohon lagi.");
+                        if(id == -1) return error_command(playerid, "Tidak dapat membuat pohon lagi.");
                         new Float: x, Float: y, Float: z, Float: a;
                         GetPlayerPos(playerid, x, y, z);
                         GetPlayerFacingAngle(playerid, a);
@@ -3849,7 +3853,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
 									if(IsPlayerInDynamicCP(playerid, DTree[tid][treeCP])){
 										new vehid = GetPlayerVehicleID(playerid);
-										if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda berada didalam kendaraan.");
+										if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda berada di dalam kendaraan.");
 										SetPlayerLookAt(playerid, DTree[tid][treeX], DTree[tid][treeY]);
 										Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[tid][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
 										CuttingTimer[playerid] = SetPreciseTimer("CutTree", 1000, true, "i", playerid);
@@ -3897,8 +3901,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						// Muatan Pohon
 						new vehid = GetPlayerVehicleID(playerid);
-						if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada didalam kendaraan.");
-						if(GetVehicleModel(vehid) != 422) return error_command(playerid, "Anda tidak berada didalam kendaraan pick up.");
+						if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
+						if(GetVehicleModel(vehid) != 422) return error_command(playerid, "Anda tidak berada di dalam kendaraan pick up.");
 						format(pDialog[playerid], sizePDialog, WHITE"Kendaraan anda memiliki muatan pohon sebanyak "GREEN"%d"WHITE" buah.", vehDTree[vehid][treeAngkut]);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Muatan Pohon", pDialog[playerid], "Ok", "");
 					}
@@ -4051,7 +4055,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new id;
 				if(sscanf(inputtext, "i", id)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_EDIT, DIALOG_STYLE_INPUT, "Pilih ID", RED"Anda harus menginput id dengan benar.\n"WHITE"Masukan ID mesin ATM yang ingin di edit.", "Ok", "Batal");
 				if(!Iter_Contains(ATMs, id) || id == 0) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_EDIT, DIALOG_STYLE_INPUT, "Pilih ID", RED"ATM tidak ada.\n"WHITE"Masukan ID mesin ATM yang ingin di edit.", "Ok", "Batal");
-				if(!IsPlayerInRangeOfPoint(playerid, 30.0, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_EDIT, DIALOG_STYLE_INPUT, "Pilih ID", RED"Anda tidak berada didekat ATM.\n"WHITE"Masukan ID mesin ATM yang ingin di edit.", "Ok", "Batal");
+				if(!IsPlayerInRangeOfPoint(playerid, 30.0, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_EDIT, DIALOG_STYLE_INPUT, "Pilih ID", RED"Anda tidak berada di dekat ATM.\n"WHITE"Masukan ID mesin ATM yang ingin di edit.", "Ok", "Batal");
 				EditingATMID[playerid] = id;
 				EditDynamicObject(playerid, ATMData[id][atmObjID]);
 				return 1;
@@ -4064,7 +4068,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new id;
 				if(sscanf(inputtext, "i", id)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_HAPUS, DIALOG_STYLE_INPUT, "Pilih ID", RED"Masukan inputan ID yang benar.\n"WHITE"Masukan ID mesin ATM yang ingin di hapus.", "Ok", "Batal");
 				if(!Iter_Contains(ATMs, id) || id == 0) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_HAPUS, DIALOG_STYLE_INPUT, "Pilih ID", RED"ATM tidak ada.\n"WHITE"Masukan ID mesin ATM yang ingin di hapus.", "Ok", "Batal");
-				if(!IsPlayerInRangeOfPoint(playerid, 30.0, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_HAPUS, DIALOG_STYLE_INPUT, "Pilih ID", RED"ATM tidak berada didekat anda.\n"WHITE"Masukan ID mesin ATM yang ingin di hapus.", "Ok", "Batal");
+				if(!IsPlayerInRangeOfPoint(playerid, 30.0, ATMData[id][atmX], ATMData[id][atmY], ATMData[id][atmZ])) return ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM_PILIH_ID_HAPUS, DIALOG_STYLE_INPUT, "Pilih ID", RED"ATM tidak berada di dekat anda.\n"WHITE"Masukan ID mesin ATM yang ingin di hapus.", "Ok", "Batal");
 
 				if(IsValidDynamicObject(ATMData[id][atmObjID])) DestroyDynamicObject(ATMData[id][atmObjID]);
 				ATMData[id][atmObjID] = -1;
@@ -4175,6 +4179,242 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 			}else
 				cmd_skill(playerid, "");
+			return 1;
+		}
+		case DIALOG_FARM:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						// Tempat Beli Bibit
+						SetPlayerCheckpoint(playerid, 1494.2545, -1657.3724, 12.8556, 2.0); // Dibuat list jika lebih dari 1
+						SendClientMessage(playerid, COLOR_GREEN, "[Farm System] "WHITE"Anda telah berhasil menandai toko bibit.");
+					}
+					case 1:
+					{
+						// Panen Tanaman
+						new randomNo, randomDrop = 0, plant_Id = GetClosestPlant(playerid), vehid = GetPlayerVehicleID(playerid);
+						if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Tidak dapat memanen tanaman di dalam kendaraan.");
+						if(plant_Id == -1) return error_command(playerid, "Anda tidak berada disekitar tanaman.");
+						if(!DFarm[plant_Id][plantHarvest]) return error_command(playerid, "Tanaman belum siap untuk dipanen, silahkan tunggu beberapa saat.");
+						ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 1, 1, 0, 0, 1);
+						DestroyTime(plant_Id);
+						for(new i = 0; i < 9; i++){
+							randomNo = random(3)+1;
+							randomDrop += randomNo;
+						}
+						tambahItemPlayer(playerid, DFarm[plant_Id][plantItemID], randomDrop);
+						DFarm[plant_Id][plantItemID] = -1;
+						format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil memanen Tanaman %s (id:"YELLOW"%d"WHITE") dan mendapatkan %s sebanyak %d.", DFarm[plant_Id][plantName], plant_Id, DFarm[plant_Id][plantName], randomDrop);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Farm System", pDialog[playerid], "Ok", "");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_MENU_BELI_BIBIT:
+		{
+			if(response){
+				SetPVarInt(playerid, "bbibit_index", listitem);
+				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+			}else{
+				DeletePVar(playerid, "bbibit_index");
+				DeletePVar(playerid, "bbibit_jumlah");
+			}
+			return 1;
+		}
+		case DIALOG_JUMLAH_PEMBELIAN_BIBIT:
+		{
+			if(response){
+				new jumlah;
+				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+				SetPVarInt(playerid, "bbibit_jumlah", jumlah);
+				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR_BIBIT, DIALOG_STYLE_LIST, "Pilih Metode Pembayaran:", "Uang Cash\nVia E-Banking", "Beli", "Kembali");
+			}else{
+				DeletePVar(playerid, "bbibit_index");
+				DeletePVar(playerid, "bbibit_jumlah");
+				showDialogBeliBibit(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_METODE_BAYAR_BIBIT:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "bbibit_index"),
+				jumlah = GetPVarInt(playerid, "bbibit_jumlah"),
+				harga = jumlah * MENU_BIBIT[idx][hargaBibit];
+				switch(listitem){
+					case 0: // Bayar cash
+					{	
+						DeletePVar(playerid, "bbibit_index");
+						DeletePVar(playerid, "bbibit_jumlah");
+						inline responseQuery(){
+							new total_item;
+							if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
+							cache_get_value_name_int(0, "total_item", total_item);
+							if((total_item + (jumlah*MENU_BIBIT[idx][slotItem])) > PlayerInfo[playerid][limitItem]){						
+								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
+								return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
+							}else{
+								givePlayerUang(playerid, -harga);
+								tambahItemPlayer(playerid, MENU_BIBIT[idx][idItemBibit], jumlah);
+								format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_BIBIT[idx][namaBibit], jumlah, harga);
+								return showDialogPesan(playerid, GREEN"Berhasil membeli bibit", pDialog[playerid]);
+							}
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+					}
+					case 1: // Via E-Banking
+					{
+						if(isnull(PlayerInfo[playerid][nomorRekening])) {
+							DeletePVar(playerid, "bbibit_index");
+							DeletePVar(playerid, "bbibit_jumlah");
+							showDialogPesan(playerid, RED"Tidak memiliki ATM", WHITE"Anda tidak memiliki ATM.\nSilahkan buat ATM terlebih dahulu untuk menggunakan metode ini.");
+						}else if(PlayerInfo[playerid][ePhone] == 0) {
+							DeletePVar(playerid, "bbibit_index");
+							DeletePVar(playerid, "bbibit_jumlah");
+							showDialogPesan(playerid, RED"Tidak memiliki ePhone", WHITE"Anda tidak memiliki ePhone.\nSilahkan beli dan gunakan ePhone terlebih dahulu (minimal ePhone 2) untuk menggunakan metode ini.");
+						}else{
+							format(pDialog[playerid], sizePDialog, WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
+							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_BIBIT_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");
+						}
+					}
+				}
+			}else{
+				DeletePVar(playerid, "bbibit_index");
+				DeletePVar(playerid, "bbibit_jumlah");				
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BAYAR_BIBIT_VIA_ATM:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "bbibit_index"),
+				jumlah = GetPVarInt(playerid, "bbibit_jumlah"),
+				harga = jumlah * MENU_BIBIT[idx][hargaBibit];
+				if(strlen(inputtext) != 8 || strcmp(PlayerInfo[playerid][nomorRekening], inputtext) != 0) {
+					format(pDialog[playerid], sizePDialog, RED"Nomor rekening yang anda masukan tidak benar."WHITE"\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
+					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_BIBIT_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");	
+				}
+				inline responseQuery(){
+					new total_item;
+					cache_get_value_name_int(0, "total_item", total_item);
+					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
+						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					}else{
+						getSaldoPlayer(playerid, "pembayaranBibitATM");
+					}
+				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);	
+			}else{
+				DeletePVar(playerid, "bbibit_index");
+				DeletePVar(playerid, "bbibit_jumlah");				
+			}
+			return 1;
+		}
+		case DIALOG_MENU_BELI_BIBIT_NARKO:
+		{
+			if(response){
+				SetPVarInt(playerid, "bbibit_index", listitem);
+				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+			}else{
+				DeletePVar(playerid, "bbibit_index");
+				DeletePVar(playerid, "bbibit_jumlah");
+			}
+			return 1;
+		}
+		case DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO:
+		{
+			if(response){
+				new jumlah;
+				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+				SetPVarInt(playerid, "bbibit_jumlah", jumlah);
+				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR_BIBIT_NARKO, DIALOG_STYLE_LIST, "Pilih Metode Pembayaran:", "Uang Cash\nVia E-Banking", "Beli", "Kembali");
+			}else{
+				DeletePVar(playerid, "bbibit_index");
+				DeletePVar(playerid, "bbibit_jumlah");
+				showDialogBeliBibit(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_METODE_BAYAR_BIBIT_NARKO:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "bbibit_index"),
+				jumlah = GetPVarInt(playerid, "bbibit_jumlah"),
+				harga = jumlah * MENU_BIBIT_NARKO[idx][hargaBibit];
+				switch(listitem){
+					case 0: // Bayar cash
+					{	
+						DeletePVar(playerid, "bbibit_index");
+						DeletePVar(playerid, "bbibit_jumlah");
+						inline responseQuery(){
+							new total_item;
+							if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
+							cache_get_value_name_int(0, "total_item", total_item);
+							if((total_item + (jumlah*MENU_BIBIT_NARKO[idx][slotItem])) > PlayerInfo[playerid][limitItem]){						
+								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
+								return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
+							}else{
+								givePlayerUang(playerid, -harga);
+								tambahItemPlayer(playerid, MENU_BIBIT_NARKO[idx][idItemBibit], jumlah);
+								format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_BIBIT_NARKO[idx][namaBibit], jumlah, harga);
+								return showDialogPesan(playerid, GREEN"Berhasil membeli bibit", pDialog[playerid]);
+							}
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+					}
+					case 1: // Via E-Banking
+					{
+						if(isnull(PlayerInfo[playerid][nomorRekening])) {
+							DeletePVar(playerid, "bbibit_index");
+							DeletePVar(playerid, "bbibit_jumlah");
+							showDialogPesan(playerid, RED"Tidak memiliki ATM", WHITE"Anda tidak memiliki ATM.\nSilahkan buat ATM terlebih dahulu untuk menggunakan metode ini.");
+						}else if(PlayerInfo[playerid][ePhone] == 0) {
+							DeletePVar(playerid, "bbibit_index");
+							DeletePVar(playerid, "bbibit_jumlah");
+							showDialogPesan(playerid, RED"Tidak memiliki ePhone", WHITE"Anda tidak memiliki ePhone.\nSilahkan beli dan gunakan ePhone terlebih dahulu (minimal ePhone 2) untuk menggunakan metode ini.");
+						}else{
+							format(pDialog[playerid], sizePDialog, WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
+							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_BIBIT_NARKO_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");
+						}
+					}
+				}
+			}else{
+				DeletePVar(playerid, "bbibit_index");
+				DeletePVar(playerid, "bbibit_jumlah");				
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BAYAR_BIBIT_NARKO_VIA_ATM:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "bbibit_index"),
+				jumlah = GetPVarInt(playerid, "bbibit_jumlah"),
+				harga = jumlah * MENU_BIBIT_NARKO[idx][hargaBibit];
+				if(strlen(inputtext) != 8 || strcmp(PlayerInfo[playerid][nomorRekening], inputtext) != 0) {
+					format(pDialog[playerid], sizePDialog, RED"Nomor rekening yang anda masukan tidak benar."WHITE"\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
+					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_BIBIT_NARKO_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");	
+				}
+				inline responseQuery(){
+					new total_item;
+					cache_get_value_name_int(0, "total_item", total_item);
+					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
+						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					}else{
+						getSaldoPlayer(playerid, "pembayaranBibitNarkoATM");
+					}
+				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);	
+			}else{
+				DeletePVar(playerid, "bbibit_index");
+				DeletePVar(playerid, "bbibit_jumlah");				
+			}
 			return 1;
 		}
     }
@@ -4448,7 +4688,10 @@ public OnPlayerRequestSpawn(playerid){
 main( ) { }
 
 public OnGameModeInit()
-{
+{	
+	// Initializing map andreas
+	CA_Init();
+
 	// Initializing iterator
 	Iter_Init(PVehKeys);
 	Iter_Add(ATMs, 0);
@@ -4511,6 +4754,9 @@ public OnGameModeInit()
 	printf("[LUMBERJACK] Load semua ATM");
 	LoadSemuaATM();
 	printf("[LUMBERJACK] Sukses load ATM.");
+
+	buatTokoNarko();
+	printf("[NARKO] Narko telah dibuat.");
 
 	SetGameModeText("EL v0.5");
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
@@ -4825,6 +5071,10 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 	}else if(checkpointid == CP_pusatProperti[0]){
 		ShowPlayerDialog(playerid, DIALOG_MENU_PUSAT_PROPERTI, DIALOG_STYLE_LIST, "Apa yang ingin anda tanya :", "Lihat semua rumah yang terjual", "Ok", "Batal");
 		return 1;
+	}else if(checkpointid == CP_tokoBibit[0]){
+		showDialogBeliBibit(playerid);
+	}else if(checkpointid == CP_tokoNarko){
+		showDialogBeliBibitNarko(playerid);
 	}
 	return 1;
 }
@@ -5064,7 +5314,6 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
 		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS39)){
 			if(poinSim[playerid] <= 80){
-				givePlayerUang(playerid, -100);
 				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan mencoba kembali ketika anda sudah siap.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal Praktik SIM", pDialog[playerid], "Ok", "");
@@ -5078,7 +5327,6 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 				limitVehSIM[vehid] = 0;
 			}else{
 				prosesPembuatanSIM(playerid, 30);
-				givePlayerUang(playerid, -100);
 				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan tunggu sekitar 30 menit real-time."WHITE"\nAnda dapat mengecek dan mengambilnya di tempat Registrasi sebelumnya, setelah sudah 30 menit berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Praktik SIM", pDialog[playerid], "Ok", "");

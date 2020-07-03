@@ -115,6 +115,30 @@ showDialogEBank(playerid){
 	return ShowPlayerDialog(playerid, DIALOG_E_BANKING_MENU, DIALOG_STYLE_LIST, WHITE"Menu E-Banking", WHITE"Info Saldo\nTransfer Uang\nHistory Rekening", "Pilih", "Batal");
 }
 
+showDialogBeliBibit(playerid){
+    static str_daftar_bibit[sizeof(MENU_BIBIT) * 100 + 100], subString[100];
+    if(str_daftar_bibit[0] == EOS){
+        strcat(str_daftar_bibit, WHITE"Nama\tHarga\n");
+        for(new i = 0; i < sizeof(MENU_BIBIT); i++){
+            format(subString, 100, WHITE"%s\t"GREEN"$%d\n", MENU_BIBIT[i][namaBibit], MENU_BIBIT[i][hargaBibit]);
+            strcat(str_daftar_bibit, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_BIBIT, DIALOG_STYLE_TABLIST_HEADERS, "Menu Bibit", str_daftar_bibit, "Pilih", "Batal");
+}
+
+showDialogBeliBibitNarko(playerid){
+    static str_daftar_bibit[sizeof(MENU_BIBIT_NARKO) * 100 + 100], subString[100];
+    if(str_daftar_bibit[0] == EOS){
+        strcat(str_daftar_bibit, WHITE"Nama\tHarga\n");
+        for(new i = 0; i < sizeof(MENU_BIBIT_NARKO); i++){
+            format(subString, 100, WHITE"%s\t"GREEN"$%d\n", MENU_BIBIT_NARKO[i][namaBibit], MENU_BIBIT_NARKO[i][hargaBibit]);
+            strcat(str_daftar_bibit, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_BIBIT_NARKO, DIALOG_STYLE_TABLIST_HEADERS, "Menu Bibit", str_daftar_bibit, "Pilih", "Batal");
+}
+
 showDialogTempatMakan(playerid){
     static str_daftar_makanan[sizeof(MENU_MAKANAN) * 100 + 100], subString[100];
     if(str_daftar_makanan[0] == EOS){
@@ -126,6 +150,7 @@ showDialogTempatMakan(playerid){
     }
     return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_MAKAN, DIALOG_STYLE_TABLIST_HEADERS, "Menu hidangan.", str_daftar_makanan, "Pilih", "Batal");
 }
+
 showDialogSimRegis(playerid){
     return ShowPlayerDialog(playerid, DIALOG_SIM_REGIS_MENU, DIALOG_STYLE_LIST, WHITE"Pilihan tindakan SIM", "Buat SIM\nAmbil SIM yang sudah selesai", "Pilih", "Kembali");
 }

@@ -144,7 +144,7 @@ CMD:skill(playerid, const params[]){
 }
 
 CMD:v(playerid, const params[]){
-    if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak menggunakan perintah ini saat tidak didalam kendaraan.");
+    if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak menggunakan perintah ini saat tidak di dalam kendaraan.");
 
     new vehid = GetPlayerVehicleID(playerid);
     if(Iter_Contains(IDVehToPVehIterator, vehid)){
@@ -237,7 +237,7 @@ CMD:apapan(playerid, params[]){
 }
 
 CMD:rumah(playerid, params[]){
-    if(GetPlayerInterior(playerid) == 0) return error_command(playerid, "Anda tidak didalam rumah manapun.");
+    if(GetPlayerInterior(playerid) == 0) return error_command(playerid, "Anda tidak di dalam rumah manapun.");
     if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] != PlayerInfo[playerid][pID]) return error_command(playerid, "Anda bukan pemilik rumah.");
     ShowPlayerDialog(playerid, DIALOG_MENU_RUMAH, DIALOG_STYLE_LIST, "Menu Rumah : ", "Inventory Rumah\nSemua Furniture", "Pilih", "Tutup");
     return 1;
@@ -352,5 +352,10 @@ CMD:lumberjack(playerid, params[]){
 CMD:aatm(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
     ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM, DIALOG_STYLE_LIST, "Menu admin untuk ATM :", "Buat ATM\nEdit ATM\nHapus ATM", "Pilih", "Batal");    
+    return 1;
+}
+
+CMD:farm(playerid, params[]){
+    ShowPlayerDialog(playerid, DIALOG_FARM, DIALOG_STYLE_LIST, WHITE"Farm System :", "Tempat Beli Bibit\nPanen Tanaman", "Pilih", "Batal");
     return 1;
 }

@@ -3807,6 +3807,8 @@ eksteriorCityHall(){
     CreateDynamicObject(808, 1502.38000, -1643.20996, 13.25000,   0.00000, 0.00000, 0.00000);
     CreateDynamicObject(691, 1459.15869, -1715.55945, 11.46734,   0.00000, 0.00000, 0.00000);
     CreateDynamicObject(691, 1496.78357, -1715.20459, 11.46734,   0.00000, 0.00000, 0.00000);
+    CreateDynamicObject(2555, 1495.5897, -1658.5377, 12.2633, 0.0000, 0.0000, -181.0801);
+    CreateDynamicObject(1807, 1495.0690, -1658.9823, 12.8556, 0.0000, 0.0000, 0.0000);
 }
 
 removeRichHouseLasColinas(playerid){

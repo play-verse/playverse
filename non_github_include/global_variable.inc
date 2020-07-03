@@ -314,6 +314,32 @@ new const MENU_MAKANAN[][INFO_MENU_MAKANAN] = {
     {22, "Minuman Soda", 6, 30.0}
 };
 
+enum INFO_MENU_BIBIT {
+    idItemBibit,
+    namaBibit[100],
+    hargaBibit,
+	slotItem
+}
+
+new const MENU_BIBIT[][INFO_MENU_BIBIT] = {
+// Bibit
+    {18, "Bibit Jeruk", 10, 9}
+
+};
+
+enum INFO_MENU_BIBIT_NARKO {
+    idItemBibit,
+    namaBibit[100],
+    hargaBibit,
+	slotItem
+}
+
+new const MENU_BIBIT_NARKO[][INFO_MENU_BIBIT_NARKO] = {
+// Bibit
+    {20, "Bibit Ganja", 30, 9}
+
+};
+
 /**
     CHECKPOINT VARIABEL
  */
@@ -328,7 +354,9 @@ new CP_tempatFoto,
     CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)],
     CP_simRegis[1],
     CP_simPraktik[1],
-    CP_pusatProperti[1];
+    CP_pusatProperti[1],
+	CP_tokoBibit[1],
+	CP_tokoNarko;
 
 /**
     PICKUP VARIABEL
@@ -898,7 +926,6 @@ new
 */
 enum TreeInfo
 {
-    treeID,
     treeTimer,
     treeObjID,
     Text3D:treeLabel,
@@ -940,3 +967,43 @@ enum    E_ATM
 new	ATMData[MAX_ATMS][E_ATM],
 	Iterator: ATMs<MAX_ATMS>,
 	EditingATMID[MAX_PLAYERS] = {-1, ...};
+
+/**
+    Farmer
+*/
+enum FarmInfo{
+	plantName[32],
+	plantItemID,
+	plantTimer,
+	destroyTimer,
+	playerId,
+	playerPlant,
+	plantObjID,
+	plantSecs,
+	plantHarvest,
+	Text3D:plantLabel,
+	Float: plantX,
+    Float: plantY,
+    Float: plantZ,
+    Float: plantRX,
+    Float: plantRY,
+    Float: plantRZ
+}
+
+enum POINT_NARKO_INFO {
+    Float:NARKO_X,
+    Float:NARKO_Y,
+    Float:NARKO_Z
+}
+new const POINT_NARKO[][POINT_NARKO_INFO] = {
+    {-347.8211, -1046.2611, 59.8125},
+    {-76.8100, -1136.6704, 1.0781},
+	{-401.6376, -1419.8185, 26.3281},
+	{-610.9626, -1071.5093, 23.4350}
+};
+
+new Iterator:PlantIterator<MAX_PLANTS>,
+    DFarm[MAX_PLANTS][FarmInfo],
+	Text3D:labelTokoNarko,
+	MrPuyengStart,
+	MrPuyengEnd;

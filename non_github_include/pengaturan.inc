@@ -37,6 +37,10 @@
 #define TREE_RESPAWN 300
 #define VEH_TREE_LIMIT 15
 
+#define MAX_PLANTS 300
+#define MAX_PLAYER_PLANTS 3
+#define PLANT_HARVEST 300
+
 // Limit Item
 #define DEFAULT_LIMIT_ITEM 150
 
@@ -212,9 +216,18 @@
 #define DIALOG_INFO_SAYA 140
 #define DIALOG_PILIH_SKILL_MEKANIK 141
 #define DIALOG_MENU_SKILL 142
+#define DIALOG_FARM 143
+#define DIALOG_MENU_BELI_BIBIT 144
+#define DIALOG_JUMLAH_PEMBELIAN_BIBIT 145
+#define DIALOG_METODE_BAYAR_BIBIT 146
+#define DIALOG_KONFIRMASI_BAYAR_BIBIT_VIA_ATM 147
+#define DIALOG_MENU_BELI_BIBIT_NARKO 148
+#define DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO 149
+#define DIALOG_METODE_BAYAR_BIBIT_NARKO 150
+#define DIALOG_KONFIRMASI_BAYAR_BIBIT_NARKO_VIA_ATM 151
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
-#define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DIDALAM INTERIOR
+#define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DI DALAM INTERIOR
 
 #define nama_A "Apple"
 #define nama_B "Blueberry"
@@ -230,7 +243,7 @@
 /**********
 *	DEFINED FUNCTION
 ***********/
-// Ketimpa oleh include dibawah"nya
+// Ketimpa oleh include di bawah"nya
 #if !defined isnull
 	// modif isnull dengan pengecekan "NULL" untuk counter NULL database field
     #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))) || !strcmp(%1, "NULL"))

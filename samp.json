@@ -8,12 +8,13 @@
 		"ls_mall"
 	],
 	"plugins": [
-		"crashdetect",
-		"mysql",
-		"samp-precise-timers",
-		"pawn-memory",
-		"sscanf",
-		"streamer"
+		"zeex/samp-plugin-crashdetect:v4.19.4",
+		"pBlueG/SA-MP-MySQL:R41-4",
+		"bmisiak/samp-precise-timers:v2.0.2",
+		"BigETI/pawn-memory:2.0.1",
+		"maddinat0r/sscanf:v2.8.3",
+		"samp-incognito/samp-streamer-plugin:v2.9.4",
+		"colandreas"
 	],
 	"rcon_password": "kodokhijau99",
 	"port": 7777,
