@@ -524,6 +524,9 @@ loadTextDrawPemain(playerid){
 	// Stats Bar
 	HUD_Stats_Bar[playerid][0] = CreatePlayerProgressBar(playerid, 503.000000, 365.000000, 81.500000, 7.000000, -65281, 100.000000, 0);
 	HUD_Stats_Bar[playerid][1] = CreatePlayerProgressBar(playerid, 503.000000, 412.000000, 81.500000, 7.000000, 1097458175, 100.000000, 0);
+
+	// Cutting bar
+	CuttingBar[playerid] = CreatePlayerProgressBar(playerid, 498.0, 104.0, 113.0, 6.2, COLOR_YELLOW, MAX_PROGRESS_BAR, 0);
 }
 
 unloadTextDrawPemain(playerid){

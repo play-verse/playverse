@@ -29,7 +29,7 @@ loadAllCP(){
     }
 
     foreach(new i : Range(0, sizeof(POSISI_SPAWN_REPARASI_MOBIL))){
-      CP_spawnReparasi[i] = buatCPDanLabel(POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_X], POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_Y], POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_Z], YELLOW"Ambil mobil disini.\n"RED"Setelah mengambil mobil segera pindahkan\nagar tidak menghalangi yang lain.", 3.0, POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_VW], POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_INTERIOR]);
+      CP_spawnReparasi[i] = buatCPDanLabel(POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_X], POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_Y], POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_Z], YELLOW"Ambil kendaraan disini.\n"RED"Setelah mengambil kendaraan segera pindahkan\nagar tidak menghalangi yang lain.", 3.0, POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_VW], POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_INTERIOR]);
     }
     if(CP_spawnReparasi[0] + sizeof(POSISI_SPAWN_REPARASI_MOBIL) - 1 != CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL) - 1]){
         printf("[ERROR] #05 Checkpoint Spawn Reparasi tidak memiliki ID yang simetris.");

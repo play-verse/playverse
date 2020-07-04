@@ -69,6 +69,39 @@
 #define MINING_ATTACH_INDEX 1
 #define CUTTING_ATTACH_INDEX 2
 
+/**
+	Skill Definition
+ */
+#define ID_SKILL_MEKANIK 1
+#define ID_SKILL_MEDIC 2
+
+/*
+	LEVEL EXP:
+	1 : < 500
+	2 : < 1250
+	3 : < 3000
+	4 : < 5000
+	5 : < 7500
+*/
+#define LEVEL_SKILL_DUA 500
+#define LEVEL_SKILL_TIGA 1250
+#define LEVEL_SKILL_EMPAT 3000
+#define LEVEL_SKILL_LIMA 5000
+#define LEVEL_SKILL_ENAM 7500
+
+#define EXP_GAGAL_CURR_SKILL 2 		// Digunakan untuk memberikan exp walaupun gagal
+#define EXP_SUKSES_CURR_SKILL 5   	// Exp yang diberikan saat sukses
+#define EXP_GAGAL_DOWN_SKILL 1		// Digunakan untuk memberikan exp walaupun gagal
+									// Dimana level skill player lebih besar dari level skill yng dibutuhkan
+#define EXP_SUKSES_DOWN_SKILL 3		// Digunakan untuk memberikan exp walaupun gagal
+									// Dimana level skill player lebih besar dari level skill yng dibutuhkan
+
+#define PERBAIKI_KENDARAAN_TIME 20 // Lamanya memperbaiki kendaraan
+#define WARNAIN_KENDARAAN_TIME 10
+#define MODIF_KENDARAAN_TIME 15
+#define PAINTJOB_KENDARAAN_TIME 20
+
+#define MAX_PROGRESS_BAR 100.0 // Lamanya memperbaiki kendaraan
 /*
 	DIALOG ID
  */
@@ -216,6 +249,7 @@
 #define DIALOG_INFO_SAYA 140
 #define DIALOG_PILIH_SKILL_MEKANIK 141
 #define DIALOG_MENU_SKILL 142
+
 #define DIALOG_FARM 143
 #define DIALOG_MENU_BELI_BIBIT 144
 #define DIALOG_JUMLAH_PEMBELIAN_BIBIT 145
@@ -225,6 +259,20 @@
 #define DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO 149
 #define DIALOG_METODE_BAYAR_BIBIT_NARKO 150
 #define DIALOG_KONFIRMASI_BAYAR_BIBIT_NARKO_VIA_ATM 151
+
+#define DIALOG_KONFIRMASI_BUAT_ALAT_PERBAIKAN 152
+#define DIALOG_KONFIRMASI_PERBAIKI_MEKANIK 153
+#define DIALOG_PILIH_WARNA_1 154
+#define DIALOG_PILIH_WARNA_2 155
+#define DIALOG_KONFIRMASI_WARNAIN_MEKANIK 156
+#define DIALOG_KONFIRMASI_PREVIEW_WARNA_MEKANIK 157
+#define DIALOG_KONFIRMASI_MODIF_MEKANIK 158
+#define DIALOG_PILIH_COMPONENT 159
+#define DIALOG_PILIH_COMPONENT_2 160
+#define DIALOG_KONFIRMASI_PREVIEW_MODIF_MEKANIK 161
+#define DIALOG_PILIH_PAINTJOB 162
+#define DIALOG_KONFIRMASI_PAINTJOB_MEKANIK 163
+#define DIALOG_KONFIRMASI_PREVIEW_PAINTJOB_MEKANIK 164
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DI DALAM INTERIOR
