@@ -1094,7 +1094,7 @@ publicFor: konfirmasiPaintjobMekanik(playerid, ada){
 		}
 		
 	}else{
-		format(pDialog[playerid], sizePDialog, WHITE"Maaf anda tidak memiliki cukup bahan untuk mewarnain kendaraan ini.\n"YELLOW"Anda butuh "GREEN"1 item pewarna kendaraan "YELLOW"untuk dapat mewarnain kendaraan ini.");
+		format(pDialog[playerid], sizePDialog, WHITE"Maaf anda tidak memiliki cukup bahan untuk paintjob kendaraan ini.\n"YELLOW"Anda butuh "GREEN"1 item paintjob kendaraan "YELLOW"untuk dapat paintjob kendaraan ini.");
 		showDialogPesan(playerid, RED"Tidak memiliki bahan", pDialog[playerid]);
 	}
 	return 1;
