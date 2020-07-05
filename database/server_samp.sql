@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.4
+-- version 5.0.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Jul 05, 2020 at 09:20 PM
--- Server version: 5.5.65-MariaDB
--- PHP Version: 7.4.7
+-- Host: 127.0.0.1
+-- Generation Time: Jul 05, 2020 at 05:22 PM
+-- Server version: 10.4.11-MariaDB
+-- PHP Version: 7.4.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `samp`
+-- Database: `server_samp`
 --
 
 DELIMITER $$
@@ -89,6 +89,27 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `enter_exit`
+--
+
+CREATE TABLE `enter_exit` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `posisi_x` float NOT NULL,
+  `posisi_y` float NOT NULL,
+  `posisi_z` float NOT NULL,
+  `posisi_int` int(11) NOT NULL,
+  `posisi_vw` int(11) NOT NULL,
+  `spawn_x` float NOT NULL,
+  `spawn_y` float NOT NULL,
+  `spawn_z` float NOT NULL,
+  `spawn_int` int(11) NOT NULL,
+  `spawn_vw` int(11) NOT NULL,
+  `text` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `furniture`
 --
 
@@ -96,8 +117,8 @@ CREATE TABLE `furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `nama_furniture` varchar(255) NOT NULL,
   `id_object` bigint(20) NOT NULL,
-  `keterangan` text,
-  `kapasitas` int(11) NOT NULL DEFAULT '1'
+  `keterangan` text DEFAULT NULL,
+  `kapasitas` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 --
@@ -142,12 +163,12 @@ INSERT INTO `gaji` (`id_gaji`, `id_user`, `nominal`, `tanggal`, `keterangan`, `s
 
 CREATE TABLE `house` (
   `id_house` int(20) NOT NULL,
-  `id_user` int(20) NOT NULL DEFAULT '-1',
-  `level` int(11) NOT NULL DEFAULT '1',
+  `id_user` int(20) NOT NULL DEFAULT -1,
+  `level` int(11) NOT NULL DEFAULT 1,
   `harga` int(20) NOT NULL,
-  `setharga` int(20) NOT NULL DEFAULT '0',
-  `kunci` int(11) NOT NULL DEFAULT '1',
-  `jual` int(11) NOT NULL DEFAULT '1',
+  `setharga` int(20) NOT NULL DEFAULT 0,
+  `kunci` int(11) NOT NULL DEFAULT 1,
+  `jual` int(11) NOT NULL DEFAULT 1,
   `icon_x` varchar(255) NOT NULL,
   `icon_y` varchar(255) NOT NULL,
   `icon_z` varchar(255) NOT NULL
@@ -259,10 +280,10 @@ CREATE TABLE `item` (
   `id_item` int(255) NOT NULL,
   `nama_item` varchar(255) NOT NULL,
   `model_id` int(11) DEFAULT NULL,
-  `keterangan` text,
+  `keterangan` text DEFAULT NULL,
   `fungsi` varchar(100) DEFAULT NULL COMMENT 'Berisi public function yang akan di trigger saat pemilihan use item, pada item tersebut.',
-  `kapasitas` int(11) NOT NULL DEFAULT '1' COMMENT 'Berisi kapasistas yang dibutuhkan untuk satu barang'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT;
+  `kapasitas` int(11) NOT NULL DEFAULT 1 COMMENT 'Berisi kapasistas yang dibutuhkan untuk satu barang'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `item`
@@ -295,10 +316,12 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (24, 'Telur Dadar', 19580, 'Telur Dadar dapat menambah status makan sebanyak 12,5', 'pakaiMakanan', 2),
 (25, 'Kayu', 19793, 'Kayu adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1),
 (26, 'Gergaji Mesin', 341, 'Gergaji Mesin digunakan untuk memotong pohon.', 'pakaiGergajiMesin', 3),
-(27, 'Bibit Jeruk', 756, 'Biji Jeruk adalah item pertanian yang dapat ditanam dan tumbuh menjadi Jeruk.', 'pakaiBibitJeruk', 9),
-(28, 'Jeruk', 19574, 'Jeruk adalah buah hasil panen dengan rasa masam yang segar.', NULL, 1),
-(29, 'Bibit Ganja', 756, 'Biji Ganja adalah bibit terlarang yang dapat ditanam dan tumbuh menjadi Ganja.', 'pakaiBibitGanja', 9),
-(30, 'Ganja', 19473, 'Ganja adalah item terlarang yang dapat menambahkan Darah Putih sebesar 5%.', 'pakaiNarkoGanja', 1);
+(27, 'Alat Perbaikan Kendaraan', 19921, 'Alat ini dapat digunakan untuk memperbaiki kendaraan anda, pemakaian alat tergantung kerusakan', NULL, 3),
+(28, 'Cat Kendaraan', 365, 'Bahan untuk mengecat kendaraan anda.', NULL, 2),
+(29, 'Bibit Jeruk', 756, 'Biji Jeruk adalah item pertanian yang dapat ditanam dan tumbuh menjadi Jeruk.', 'pakaiBibitJeruk', 9),
+(30, 'Jeruk', 19574, 'Jeruk adalah buah hasil panen dengan rasa masam yang segar.', NULL, 1),
+(31, 'Bibit Ganja', 756, 'Biji Ganja adalah bibit terlarang yang dapat ditanam dan tumbuh menjadi Ganja.', 'pakaiBibitGanja', 9),
+(32, 'Ganja', 19473, 'Ganja adalah item terlarang yang dapat menambahkan Darah Putih sebesar 5%.', 'pakaiNarkoGanja', 1);
 
 -- --------------------------------------------------------
 
@@ -323,7 +346,22 @@ CREATE TABLE `lumber` (
 INSERT INTO `lumber` (`id`, `treeX`, `treeY`, `treeZ`, `treeRX`, `treeRY`, `treeRZ`) VALUES
 (0, '2374.425293', '-661.560547', '127.419678', '0.0', '0.0', '0.0'),
 (1, '2379.692871', '-664.465576', '127.569733', '0.0', '0.0', '0.0'),
-(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0');
+(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0'),
+(0, '2374.425293', '-661.560547', '127.419678', '0.0', '0.0', '0.0'),
+(1, '2379.692871', '-664.465576', '127.569733', '0.0', '0.0', '0.0'),
+(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0'),
+(3, '804.784546', '-975.955017', '34.650154', '0.000000', '0.000000', '0.000000'),
+(4, '2371.577393', '-646.913757', '126.412544', '0.000000', '0.000000', '0.000000'),
+(0, '2374.425293', '-661.560547', '127.419678', '0.0', '0.0', '0.0'),
+(1, '2379.692871', '-664.465576', '127.569733', '0.0', '0.0', '0.0'),
+(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0'),
+(3, '804.784546', '-975.955017', '34.650154', '0.000000', '0.000000', '0.000000'),
+(4, '2371.577393', '-646.913757', '126.412544', '0.000000', '0.000000', '0.000000'),
+(0, '2374.425293', '-661.560547', '127.419678', '0.0', '0.0', '0.0'),
+(1, '2379.692871', '-664.465576', '127.569733', '0.0', '0.0', '0.0'),
+(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0'),
+(3, '804.784546', '-975.955017', '34.650154', '0.000000', '0.000000', '0.000000'),
+(4, '2371.577393', '-646.913757', '126.412544', '0.000000', '0.000000', '0.000000');
 
 -- --------------------------------------------------------
 
@@ -340,7 +378,7 @@ CREATE TABLE `papan` (
   `rot_x` float DEFAULT NULL,
   `rot_y` float DEFAULT NULL,
   `rot_z` float DEFAULT NULL,
-  `text` text,
+  `text` text DEFAULT NULL,
   `font_size` int(3) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -399,6 +437,14 @@ CREATE TABLE `skill` (
   `nama_skill` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `skill`
+--
+
+INSERT INTO `skill` (`id`, `nama_skill`) VALUES
+(1, 'Mekanik'),
+(2, 'Cheff');
+
 -- --------------------------------------------------------
 
 --
@@ -410,7 +456,7 @@ CREATE TABLE `sms` (
   `id_user_pengirim` bigint(20) UNSIGNED NOT NULL,
   `id_user_penerima` bigint(20) UNSIGNED NOT NULL,
   `id_pemilik_pesan` bigint(20) UNSIGNED DEFAULT NULL,
-  `pesan` text,
+  `pesan` text DEFAULT NULL,
   `tanggal_dikirim` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
@@ -458,7 +504,7 @@ CREATE TABLE `trans_atm` (
   `id_pengirim_penerima` bigint(20) DEFAULT NULL COMMENT 'ID Pengirim berisi id pemain jika ada, jika tidak ada maka 0',
   `nominal` bigint(50) DEFAULT NULL COMMENT 'Nominal bisa berisi minus juga',
   `tanggal` datetime NOT NULL COMMENT 'Berisi tanggal transaksi',
-  `keterangan` text COMMENT 'Berisi keterangan dari pengirim'
+  `keterangan` text DEFAULT NULL COMMENT 'Berisi keterangan dari pengirim'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 --
@@ -501,9 +547,9 @@ CREATE TABLE `user` (
   `nama` varchar(50) NOT NULL COMMENT 'Nama Pemain',
   `password` varchar(255) NOT NULL COMMENT 'Password pemain hash pakai SHA-256',
   `current_skin` int(10) DEFAULT NULL COMMENT 'ID Skin yang sedang dipakai',
-  `jumlah_login` int(50) NOT NULL DEFAULT '1' COMMENT 'Mencatat banyak player login',
+  `jumlah_login` int(50) NOT NULL DEFAULT 1 COMMENT 'Mencatat banyak player login',
   `join_date` datetime DEFAULT NULL COMMENT 'Tanggal Player Register',
-  `uang` bigint(50) DEFAULT '0' COMMENT 'Jumlah Uang Player',
+  `uang` bigint(50) DEFAULT 0 COMMENT 'Jumlah Uang Player',
   `jenis_kelamin` smallint(1) DEFAULT NULL COMMENT '0 - Laki dan 1 - Perempuan',
   `email` varchar(255) DEFAULT NULL COMMENT 'Email player akan dilakukan aktivas email nantinya',
   `account_status` smallint(2) DEFAULT NULL COMMENT '0 - Default, 1 - Email Pending, 2 - Activate, 3 - Banned',
@@ -514,15 +560,15 @@ CREATE TABLE `user` (
   `last_int` varchar(255) DEFAULT NULL COMMENT 'Letak Interior',
   `last_vw` varchar(255) DEFAULT NULL COMMENT 'Letak Virtual World',
   `nomor_handphone` varchar(50) DEFAULT NULL COMMENT 'Nomor HP Player, 1 player hanya 1 nomor HP',
-  `use_phone` bigint(20) UNSIGNED DEFAULT '0' COMMENT 'Berisi id_item (handphone) bukan id_user_item',
+  `use_phone` bigint(20) UNSIGNED DEFAULT 0 COMMENT 'Berisi id_item (handphone) bukan id_user_item',
   `rekening` varchar(50) DEFAULT NULL COMMENT 'Berisi nomor rekening player',
-  `save_house` int(11) NOT NULL DEFAULT '0',
+  `save_house` int(11) NOT NULL DEFAULT 0,
   `last_hp` float NOT NULL COMMENT 'Berisi jumlah hp pemain',
   `last_armour` float NOT NULL COMMENT 'Berisi jumlah armour pemain',
   `last_stats_makan` float NOT NULL COMMENT 'Berisi jumlah status makan',
   `last_stats_minum` float NOT NULL COMMENT 'Berisi jumlah status minum',
-  `playtime` bigint(20) NOT NULL DEFAULT '0',
-  `in_house` bigint(20) NOT NULL DEFAULT '0'
+  `playtime` bigint(20) NOT NULL DEFAULT 0,
+  `in_house` bigint(20) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 --
@@ -577,8 +623,8 @@ CREATE TABLE `user_item` (
   `id_user_item` bigint(20) UNSIGNED NOT NULL,
   `id_item` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
-  `jumlah` int(255) DEFAULT '1',
-  `kunci` tinyint(1) NOT NULL DEFAULT '0'
+  `jumlah` int(255) DEFAULT 1,
+  `kunci` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 --
@@ -683,8 +729,15 @@ CREATE TABLE `user_skill` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_skill` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
-  `exp` bigint(20) NOT NULL DEFAULT '0' COMMENT 'Pada skill kita tidak memakai level, tapi exp.\r\nDimana pembagian melalui exp.\r\nMisalnya exp  >= 1000 maka di asumsikan dia ada level 1 atau jika exp >= 2000 maka level 2, dst\r\n\r\n'
+  `exp` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Pada skill kita tidak memakai level, tapi exp.\r\nDimana pembagian melalui exp.\r\nMisalnya exp  >= 1000 maka di asumsikan dia ada level 1 atau jika exp >= 2000 maka level 2, dst\r\n\r\n'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `user_skill`
+--
+
+INSERT INTO `user_skill` (`id`, `id_skill`, `id_user`, `exp`) VALUES
+(1, 1, 22, 1523);
 
 -- --------------------------------------------------------
 
@@ -696,7 +749,7 @@ CREATE TABLE `user_skin` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
   `id_skin` int(20) NOT NULL,
-  `jumlah` int(10) DEFAULT '0'
+  `jumlah` int(10) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 --
@@ -736,25 +789,25 @@ CREATE TABLE `vehicle` (
   `pos_y` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan',
   `pos_z` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan',
   `pos_a` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan',
-  `color_1` int(3) DEFAULT '0' COMMENT 'Warna 1 kendaraan',
-  `color_2` int(3) DEFAULT '0' COMMENT 'Warna 2 kendaraan',
-  `paintjob` int(5) DEFAULT '-1' COMMENT 'Menyimpan paint job kendaraan jika ada',
-  `veh_mod_1` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 1',
-  `veh_mod_2` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 2',
-  `veh_mod_3` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 3',
-  `veh_mod_4` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 4',
-  `veh_mod_5` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 5',
-  `veh_mod_6` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 6',
-  `veh_mod_7` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 7',
-  `veh_mod_8` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 8',
-  `veh_mod_9` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 9',
-  `veh_mod_10` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 10',
-  `veh_mod_11` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 11',
-  `veh_mod_12` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 12',
-  `veh_mod_13` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 13',
-  `veh_mod_14` int(8) DEFAULT '0' COMMENT 'Menyimpan mod dengan index ke 14',
-  `darah` float DEFAULT '100' COMMENT 'Nyimpan darah vehicle terakhir',
-  `is_reparasi` tinyint(1) DEFAULT '0' COMMENT 'Nyimpan status kendaraan apakah sedang di reparasi.\r\n\r\n0 - untuk tidak\r\n1 - untuk sedang reparasi (sedang didalam tempat reparasi karena rusak dan harus diambil)'
+  `color_1` int(3) DEFAULT 0 COMMENT 'Warna 1 kendaraan',
+  `color_2` int(3) DEFAULT 0 COMMENT 'Warna 2 kendaraan',
+  `paintjob` int(5) DEFAULT -1 COMMENT 'Menyimpan paint job kendaraan jika ada',
+  `veh_mod_1` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 1',
+  `veh_mod_2` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 2',
+  `veh_mod_3` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 3',
+  `veh_mod_4` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 4',
+  `veh_mod_5` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 5',
+  `veh_mod_6` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 6',
+  `veh_mod_7` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 7',
+  `veh_mod_8` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 8',
+  `veh_mod_9` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 9',
+  `veh_mod_10` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 10',
+  `veh_mod_11` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 11',
+  `veh_mod_12` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 12',
+  `veh_mod_13` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 13',
+  `veh_mod_14` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 14',
+  `darah` float DEFAULT 100 COMMENT 'Nyimpan darah vehicle terakhir',
+  `is_reparasi` tinyint(1) DEFAULT 0 COMMENT 'Nyimpan status kendaraan apakah sedang di reparasi.\r\n\r\n0 - untuk tidak\r\n1 - untuk sedang reparasi (sedang didalam tempat reparasi karena rusak dan harus diambil)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -784,8 +837,8 @@ CREATE TABLE `vehicle_dealer` (
   `pos_y` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan',
   `pos_z` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan',
   `pos_a` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan',
-  `color_1` int(3) DEFAULT '0' COMMENT 'Warna 1 kendaraan',
-  `color_2` int(3) DEFAULT '0' COMMENT 'Warna 2 kendaraan',
+  `color_1` int(3) DEFAULT 0 COMMENT 'Warna 1 kendaraan',
+  `color_2` int(3) DEFAULT 0 COMMENT 'Warna 2 kendaraan',
   `harga` bigint(50) DEFAULT NULL COMMENT 'Harga kendaraan'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -794,6 +847,7 @@ CREATE TABLE `vehicle_dealer` (
 --
 
 INSERT INTO `vehicle_dealer` (`id`, `id_model`, `pos_x`, `pos_y`, `pos_z`, `pos_a`, `color_1`, `color_2`, `harga`) VALUES
+(1, 415, 530.936, -1291.21, 17.014, 357.776, 0, 0, 10000),
 (11, 562, 527.604, -1291.25, 16.9023, 4.03834, 0, 0, 25000);
 
 -- --------------------------------------------------------
@@ -814,6 +868,7 @@ CREATE TABLE `vehicle_keys` (
 --
 
 INSERT INTO `vehicle_keys` (`id`, `id_user`, `id_vehicle`, `expired`) VALUES
+(1, 24, 2, 1591199673),
 (4, 22, 6, 1591172875),
 (5, 29, 2, 1591174983),
 (6, 30, 8, 1591173923),
@@ -823,6 +878,12 @@ INSERT INTO `vehicle_keys` (`id`, `id_user`, `id_vehicle`, `expired`) VALUES
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `enter_exit`
+--
+ALTER TABLE `enter_exit`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `furniture`
@@ -864,7 +925,7 @@ ALTER TABLE `house_inv_item`
 -- Indexes for table `item`
 --
 ALTER TABLE `item`
-  ADD PRIMARY KEY (`id_item`) USING BTREE;
+  ADD PRIMARY KEY (`id_item`);
 
 --
 -- Indexes for table `papan`
@@ -970,6 +1031,12 @@ ALTER TABLE `vehicle_keys`
 --
 
 --
+-- AUTO_INCREMENT for table `enter_exit`
+--
+ALTER TABLE `enter_exit`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `furniture`
 --
 ALTER TABLE `furniture`
@@ -1009,7 +1076,7 @@ ALTER TABLE `house_inv_item`
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `papan`
@@ -1033,7 +1100,7 @@ ALTER TABLE `pengambilan_sim`
 -- AUTO_INCREMENT for table `skill`
 --
 ALTER TABLE `skill`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `sms`
@@ -1075,7 +1142,7 @@ ALTER TABLE `user_item_limit`
 -- AUTO_INCREMENT for table `user_skill`
 --
 ALTER TABLE `user_skill`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `user_skin`
