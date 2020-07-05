@@ -779,12 +779,12 @@ pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 }
 
 publicFor: pakaiBibitJeruk(playerid){
-	pakaiBibit(playerid, "Jeruk", 27, 28);
+	pakaiBibit(playerid, "Jeruk", 29, 30);
 	return 1;
 }
 
 publicFor: pakaiBibitGanja(playerid){
-	pakaiBibit(playerid, "Ganja", 29, 30);
+	pakaiBibit(playerid, "Ganja", 31, 32);
 	return 1;
 }
 
