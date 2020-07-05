@@ -805,7 +805,7 @@ pakaiNarko(playerid, const nama_item[], id_item, persen){
 }
 
 publicFor: pakaiNarkoGanja(playerid){
-	pakaiNarko(playerid, "Ganja", 30, 5);
+	pakaiNarko(playerid, "Ganja", 32, 5);
 	return 1;
 }
 
