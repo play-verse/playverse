@@ -327,7 +327,7 @@ enum INFO_MENU_BIBIT {
 
 new const MENU_BIBIT[][INFO_MENU_BIBIT] = {
 // Bibit
-    {27, "Bibit Jeruk", 10, 9}
+    {29, "Bibit Jeruk", 10, 9}
 
 };
 
@@ -340,7 +340,7 @@ enum INFO_MENU_BIBIT_NARKO {
 
 new const MENU_BIBIT_NARKO[][INFO_MENU_BIBIT_NARKO] = {
 // Bibit
-    {29, "Bibit Ganja", 30, 9}
+    {31, "Bibit Ganja", 30, 9}
 
 };
 
