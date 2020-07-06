@@ -2122,8 +2122,8 @@ loadAllHouse(){
 		cache_get_value_name(idx, "icon_z", hZ);
 		
 		if(userId != -1){
-			cache_get_value_name(0, "nama", temp_nama);
-			format(houseInfo[house_Id][hOwnerName], MAX_PLAYER_NAME, "%s", temp_nama);
+			cache_get_value_name(idx, "nama", temp_nama);
+			format(houseInfo[house_Id][hOwnerName], MAX_PLAYER_NAME + 1, "%s", temp_nama);
 		}
 
 		createHouse(house_Id, userId, houseLevel, houseHarga, houseSetHarga, houseKunci, houseJual, floatstr(hX), floatstr(hY), floatstr(hZ));

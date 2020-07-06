@@ -1548,6 +1548,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						DestroyDynamic3DTextLabel(houseTextInfo[i]);
 						houseInfo[i][hID] = -1;
 						houseInfo[i][hOwner] = -1;
+						houseInfo[i][hOwnerName][0] = EOS;
 						houseInfo[i][hLevel] = 1;
 						houseInfo[i][hKunci] = 1;
 						houseInfo[i][hJual] = 0;
@@ -1622,6 +1623,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						housePickup[id] = -1;
 						houseInfo[id][hID] = -1;
 						houseInfo[id][hOwner] = -1;
+						houseInfo[id][hOwnerName][0] = EOS;
 						houseInfo[id][hLevel] = 0;
 						houseInfo[id][hHarga] = 0;
 						houseInfo[id][hKunci] = 1;
@@ -1865,6 +1867,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							givePlayerUang(playerid, -beliRate);
 
 						    houseInfo[id][hOwner] = PlayerInfo[playerid][pID];
+							// Update house owner name
+							format(houseInfo[id][hOwnerName], MAX_PLAYER_NAME + 1, "%s", PlayerInfo[playerid][pPlayerName]);
 						    houseInfo[id][hJual] = 0;
 						    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `id_user` = '%d', `jual` = 0 WHERE `id_house` = '%d'", PlayerInfo[playerid][pID], id);
 						    mysql_tquery(koneksi, pQuery[playerid]);
