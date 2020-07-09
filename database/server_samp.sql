@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.1
+-- version 4.9.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 05, 2020 at 05:22 PM
--- Server version: 10.4.11-MariaDB
--- PHP Version: 7.4.2
+-- Generation Time: Jul 09, 2020 at 06:05 AM
+-- Server version: 10.4.8-MariaDB
+-- PHP Version: 7.3.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -26,7 +26,16 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`eternity`@`%` PROCEDURE `tambah_furniture` (`x_id_user` BIGINT, `x_id_furniture` BIGINT, `x_jumlah` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_exp_skill` (`x_id_user` BIGINT, `x_id_skill` BIGINT, `x_jumlah_exp` INT)  BEGIN
+	SELECT id INTO @id_user_skill FROM `user_skill` WHERE `id_skill` = `x_id_skill` AND `id_user` = `x_id_user`;
+	IF(ROW_COUNT()) THEN
+		UPDATE `user_skill` SET `exp` = `exp` + `x_jumlah_exp` WHERE `id` = @id_user_skill;
+	ELSE
+		INSERT INTO `user_skill`(id_skill, id_user, exp) VALUES(`x_id_skill`, `x_id_user`, `x_jumlah_exp`); 
+	END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_furniture` (`x_id_user` BIGINT, `x_id_furniture` BIGINT, `x_jumlah` INT)  BEGIN
 	SELECT jumlah, id INTO @jumlah, @id_user_furniture FROM `user_furniture` WHERE `id_furniture` = `x_id_furniture` AND `id_user` = `x_id_user`;
 	IF(ROW_COUNT()) THEN
 		IF(x_jumlah < 0 AND (@jumlah - x_jumlah) < 1) THEN
@@ -39,7 +48,7 @@ CREATE DEFINER=`eternity`@`%` PROCEDURE `tambah_furniture` (`x_id_user` BIGINT, 
 	END IF;
 END$$
 
-CREATE DEFINER=`eternity`@`%` PROCEDURE `tambah_item` (`x_id_user` INT, `x_id_item` INT, `x_banyak_item` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_item` (`x_id_user` BIGINT, `x_id_item` INT, `x_banyak_item` INT)  BEGIN
 	SELECT jumlah, id_user_item INTO @jumlah, @id_user_item FROM `user_item` WHERE `id_item` = `x_id_item` AND `id_user` = `x_id_user`;
 	IF(ROW_COUNT()) THEN
 		IF(x_banyak_item < 0 AND (@jumlah - x_banyak_item) < 1) THEN
@@ -52,7 +61,7 @@ CREATE DEFINER=`eternity`@`%` PROCEDURE `tambah_item` (`x_id_user` INT, `x_id_it
 	END IF;
 END$$
 
-CREATE DEFINER=`eternity`@`%` PROCEDURE `tambah_item_house` (`x_id_house` INT, `x_id_item` INT, `x_jumlah` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_item_house` (`x_id_house` INT, `x_id_item` INT, `x_jumlah` INT)  BEGIN
 	SELECT jumlah, id INTO @jumlah, @id_house_item FROM `house_inv_item` WHERE `id_item` = `x_id_item` AND `id_house` = `x_id_house`;
 	IF(ROW_COUNT()) THEN
 		IF(x_jumlah < 0 AND (@jumlah - x_jumlah) < 1) THEN
@@ -65,7 +74,7 @@ CREATE DEFINER=`eternity`@`%` PROCEDURE `tambah_item_house` (`x_id_house` INT, `
 	END IF;
 END$$
 
-CREATE DEFINER=`eternity`@`%` PROCEDURE `tambah_skin` (`x_id_user` INT, `x_id_skin` INT, `x_banyak_skin` INT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_skin` (`x_id_user` BIGINT, `x_id_skin` INT, `x_banyak_skin` INT)  BEGIN
 	SELECT jumlah, id INTO @jumlah, @id FROM `user_skin` WHERE `id_skin` = `x_id_skin` AND `id_user` = `x_id_user`;
 	IF(ROW_COUNT()) THEN
 		IF(x_banyak_skin < 0 AND (@jumlah - x_banyak_skin) < 1) THEN
@@ -78,7 +87,7 @@ CREATE DEFINER=`eternity`@`%` PROCEDURE `tambah_skin` (`x_id_user` INT, `x_id_sk
 	END IF;
 END$$
 
-CREATE DEFINER=`eternity`@`%` PROCEDURE `tambah_transaksi_atm` (`rekening_pengirim` VARCHAR(50), `rekening_penerima` VARCHAR(50), `ex_nominal` BIGINT, `ex_keterangan` TEXT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_transaksi_atm` (`rekening_pengirim` VARCHAR(50), `rekening_penerima` VARCHAR(50), `ex_nominal` BIGINT, `ex_keterangan` TEXT)  BEGIN
 	INSERT INTO `trans_atm`(id_user, id_pengirim_penerima, nominal, tanggal, keterangan) 
 	SELECT a.id as id_user, b.id as id_pengirim_penerima, ex_nominal as nominal, NOW() as tanggal, ex_keterangan as keterangan FROM `user` a
 	LEFT JOIN `user` b ON b.rekening = rekening_pengirim WHERE a.rekening = rekening_penerima;
@@ -119,14 +128,14 @@ CREATE TABLE `furniture` (
   `id_object` bigint(20) NOT NULL,
   `keterangan` text DEFAULT NULL,
   `kapasitas` int(11) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `furniture`
 --
 
 INSERT INTO `furniture` (`id`, `nama_furniture`, `id_object`, `keterangan`, `kapasitas`) VALUES
-(1, 'Meja  I', 2115, 'Meja biasa', 1),
+(1, 'Meja I', 2115, 'Meja biasa', 1),
 (2, 'Kasur Besar I', 11720, 'Kasur besar untuk tidur', 1);
 
 -- --------------------------------------------------------
@@ -143,17 +152,6 @@ CREATE TABLE `gaji` (
   `keterangan` varchar(50) DEFAULT NULL COMMENT 'Berisi keterangan asal gaji',
   `status` smallint(1) NOT NULL COMMENT 'Berisi status apakah sudah diambil atau belum.\r\n0 - Belum diambil\r\n1 - Sudah diambil'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `gaji`
---
-
-INSERT INTO `gaji` (`id_gaji`, `id_user`, `nominal`, `tanggal`, `keterangan`, `status`) VALUES
-(1, 22, 1000, '2020-05-23 14:24:15', NULL, 1),
-(2, 22, 50, '2020-05-23 14:24:32', NULL, 1),
-(3, 22, 100, '2020-05-26 13:09:48', NULL, 1),
-(4, 29, 100, '2020-06-10 12:33:06', 'Pembersih jalan (sweeper)', 1),
-(5, 29, 100, '2020-06-27 09:28:12', 'Pembersih jalan (sweeper)', 1);
 
 -- --------------------------------------------------------
 
@@ -172,18 +170,7 @@ CREATE TABLE `house` (
   `icon_x` varchar(255) NOT NULL,
   `icon_y` varchar(255) NOT NULL,
   `icon_z` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `house`
---
-
-INSERT INTO `house` (`id_house`, `id_user`, `level`, `harga`, `setharga`, `kunci`, `jual`, `icon_x`, `icon_y`, `icon_z`) VALUES
-(1, 24, 8, 10000, 0, 0, 0, '841.189392', '-1471.353149', '14.312580'),
-(2, 22, 8, 100, 0, 0, 0, '822.442566', '-1505.515015', '14.397550'),
-(3, 29, 8, 10000, 999999, 0, 1, '849.636841', '-1520.081909', '14.347800'),
-(4, 30, 8, 1000, 0, 0, 0, '875.588501', '-1515.328125', '14.195910'),
-(5, 29, 8, 100, 99999, 0, 1, '1583.305420', '-1636.751221', '13.390459');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -195,21 +182,13 @@ CREATE TABLE `house_furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_house` bigint(20) NOT NULL,
   `id_furniture` bigint(20) NOT NULL,
-  `pos_x` float DEFAULT NULL,
-  `pos_y` float DEFAULT NULL,
-  `pos_z` float DEFAULT NULL,
-  `rot_x` varchar(255) DEFAULT NULL,
-  `rot_y` varchar(255) DEFAULT NULL,
-  `rot_z` varchar(255) DEFAULT NULL
+  `pos_x` float DEFAULT 0,
+  `pos_y` float DEFAULT 0,
+  `pos_z` float DEFAULT 0,
+  `rot_x` float DEFAULT 0,
+  `rot_y` float DEFAULT 0,
+  `rot_z` float DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `house_furniture`
---
-
-INSERT INTO `house_furniture` (`id`, `id_house`, `id_furniture`, `pos_x`, `pos_y`, `pos_z`, `rot_x`, `rot_y`, `rot_z`) VALUES
-(1, 5, 2, 1268.21, -781.303, 1091.91, NULL, NULL, NULL),
-(2, 5, 1, 1269, -777.224, 1090.84, '0.000000', '0.000000', '0.000000');
 
 -- --------------------------------------------------------
 
@@ -228,7 +207,7 @@ CREATE TABLE `house_interior` (
   `spawn_in_z` float NOT NULL,
   `spawn_in_a` float NOT NULL,
   `spawn_in_interior` int(10) NOT NULL,
-  `limit_item` int(10) NOT NULL
+  `limit_item` int(10) NOT NULL COMMENT 'Limit item yang didapat di simpan pada rumah'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -257,18 +236,6 @@ CREATE TABLE `house_inv_item` (
   `id_house` bigint(20) NOT NULL,
   `jumlah` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `house_inv_item`
---
-
-INSERT INTO `house_inv_item` (`id`, `id_item`, `id_house`, `jumlah`) VALUES
-(1, 13, 2, 10),
-(2, 5, 2, 20),
-(3, 10, 5, 2),
-(4, 12, 5, 10),
-(5, 11, 5, 14),
-(6, 5, 5, 10);
 
 -- --------------------------------------------------------
 
@@ -318,10 +285,27 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (26, 'Gergaji Mesin', 341, 'Gergaji Mesin digunakan untuk memotong pohon.', 'pakaiGergajiMesin', 3),
 (27, 'Alat Perbaikan Kendaraan', 19921, 'Alat ini dapat digunakan untuk memperbaiki kendaraan anda, pemakaian alat tergantung kerusakan', NULL, 3),
 (28, 'Cat Kendaraan', 365, 'Bahan untuk mengecat kendaraan anda.', NULL, 2),
-(29, 'Bibit Jeruk', 756, 'Biji Jeruk adalah item pertanian yang dapat ditanam dan tumbuh menjadi Jeruk.', 'pakaiBibitJeruk', 9),
-(30, 'Jeruk', 19574, 'Jeruk adalah buah hasil panen dengan rasa masam yang segar.', NULL, 1),
-(31, 'Bibit Ganja', 756, 'Biji Ganja adalah bibit terlarang yang dapat ditanam dan tumbuh menjadi Ganja.', 'pakaiBibitGanja', 9),
-(32, 'Ganja', 19473, 'Ganja adalah item terlarang yang dapat menambahkan Darah Putih sebesar 5%.', 'pakaiNarkoGanja', 1);
+(29, 'Spare-part Kendaraan', 1098, 'Sparepart kendaraan untuk modifikasi', NULL, 4),
+(30, 'Paintjob Stiker Kendaraan', 365, 'Bahan untuk mengganti paintjob dari kendaraan.', NULL, 5),
+(31, 'Bibit Jeruk', 756, 'Biji Jeruk adalah item pertanian yang dapat ditanam dan tumbuh menjadi Jeruk.', 'pakaiBibitJeruk', 9),
+(32, 'Jeruk', 19574, 'Jeruk adalah buah hasil panen dengan rasa masam yang segar.', NULL, 1),
+(33, 'Bibit Ganja', 756, 'Biji Ganja adalah bibit terlarang yang dapat ditanam dan tumbuh menjadi Ganja.', 'pakaiBibitGanja', 9),
+(34, 'Ganja', 19473, 'Ganja adalah item terlarang yang dapat menambahkan Darah Putih sebesar 5 persen.', 'pakaiNarkoGanja', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `logs_user_konek`
+--
+
+CREATE TABLE `logs_user_konek` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_user` bigint(20) UNSIGNED NOT NULL,
+  `ip` varchar(50) NOT NULL,
+  `kota` varchar(255) NOT NULL,
+  `negara` varchar(255) NOT NULL,
+  `tanggal` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -337,31 +321,7 @@ CREATE TABLE `lumber` (
   `treeRX` varchar(32) NOT NULL,
   `treeRY` varchar(32) NOT NULL,
   `treeRZ` varchar(32) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `lumber`
---
-
-INSERT INTO `lumber` (`id`, `treeX`, `treeY`, `treeZ`, `treeRX`, `treeRY`, `treeRZ`) VALUES
-(0, '2374.425293', '-661.560547', '127.419678', '0.0', '0.0', '0.0'),
-(1, '2379.692871', '-664.465576', '127.569733', '0.0', '0.0', '0.0'),
-(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0'),
-(0, '2374.425293', '-661.560547', '127.419678', '0.0', '0.0', '0.0'),
-(1, '2379.692871', '-664.465576', '127.569733', '0.0', '0.0', '0.0'),
-(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0'),
-(3, '804.784546', '-975.955017', '34.650154', '0.000000', '0.000000', '0.000000'),
-(4, '2371.577393', '-646.913757', '126.412544', '0.000000', '0.000000', '0.000000'),
-(0, '2374.425293', '-661.560547', '127.419678', '0.0', '0.0', '0.0'),
-(1, '2379.692871', '-664.465576', '127.569733', '0.0', '0.0', '0.0'),
-(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0'),
-(3, '804.784546', '-975.955017', '34.650154', '0.000000', '0.000000', '0.000000'),
-(4, '2371.577393', '-646.913757', '126.412544', '0.000000', '0.000000', '0.000000'),
-(0, '2374.425293', '-661.560547', '127.419678', '0.0', '0.0', '0.0'),
-(1, '2379.692871', '-664.465576', '127.569733', '0.0', '0.0', '0.0'),
-(2, '2371.416992', '-652.318237', '126.722504', '0.0', '0.0', '0.0'),
-(3, '804.784546', '-975.955017', '34.650154', '0.000000', '0.000000', '0.000000'),
-(4, '2371.577393', '-646.913757', '126.412544', '0.000000', '0.000000', '0.000000');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -382,15 +342,6 @@ CREATE TABLE `papan` (
   `font_size` int(3) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `papan`
---
-
-INSERT INTO `papan` (`id_papan`, `id_model`, `pos_x`, `pos_y`, `pos_z`, `rot_x`, `rot_y`, `rot_z`, `text`, `font_size`) VALUES
-(1, 5846, 691.718, -1182.78, 17.6628, 0, 0, -24.1, '{000000}Selamat datang di satuan pembersih jalan.\nSilahkan mengantri untuk mendapatkan giliran anda.\nPastikan anda tidak memotong. :)', 13),
-(2, 5846, 715.661, -1154.27, 24.375, 0, 0, 0, '{000000}Hallo nama sa\nasldalksd', 24),
-(3, 5846, 679.516, -1175.96, 15.4559, 0, 0, 0, '{000000}tes', 24);
-
 -- --------------------------------------------------------
 
 --
@@ -402,7 +353,7 @@ CREATE TABLE `pengambilan_ktp` (
   `id_user` bigint(20) NOT NULL,
   `tanggal_buat` datetime NOT NULL,
   `tanggal_ambil` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -415,16 +366,8 @@ CREATE TABLE `pengambilan_sim` (
   `id_user` bigint(20) NOT NULL,
   `tanggal_buat` datetime NOT NULL,
   `tanggal_ambil` datetime NOT NULL,
-  `status_teori` tinyint(1) NOT NULL
+  `status_teori` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `pengambilan_sim`
---
-
-INSERT INTO `pengambilan_sim` (`id`, `id_user`, `tanggal_buat`, `tanggal_ambil`, `status_teori`) VALUES
-(2, 30, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 1),
-(3, 33, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 1);
 
 -- --------------------------------------------------------
 
@@ -458,14 +401,7 @@ CREATE TABLE `sms` (
   `id_pemilik_pesan` bigint(20) UNSIGNED DEFAULT NULL,
   `pesan` text DEFAULT NULL,
   `tanggal_dikirim` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `sms`
---
-
-INSERT INTO `sms` (`id_sms`, `id_user_pengirim`, `id_user_penerima`, `id_pemilik_pesan`, `pesan`, `tanggal_dikirim`) VALUES
-(3, 22, 24, 22, 'LASD LAJSDLKAJSLKAJ DAS KJQW \\nakj LKDSJ ASKLDJ ASD ', '2020-05-04 00:44:23');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -481,16 +417,36 @@ CREATE TABLE `tempat_atm` (
   `rot_x` float NOT NULL,
   `rot_y` float NOT NULL,
   `rot_z` float NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
 
 --
--- Dumping data for table `tempat_atm`
+-- Table structure for table `toko_perabot`
 --
 
-INSERT INTO `tempat_atm` (`id`, `pos_x`, `pos_y`, `pos_z`, `rot_x`, `rot_y`, `rot_z`) VALUES
-(1, 825.349, -1385.69, 13.3079, 0, 0, 1.74972),
-(2, 834.154, -1392.16, 13.2094, 0, 0, 95.021),
-(3, 1423.01, -985.867, -55.5764, 0, 0, -90.0012);
+CREATE TABLE `toko_perabot` (
+  `id` bigint(20) NOT NULL,
+  `text_toko` text DEFAULT NULL,
+  `posisi_x` float NOT NULL,
+  `posisi_y` float NOT NULL,
+  `posisi_z` float NOT NULL,
+  `posisi_vw` int(11) DEFAULT NULL,
+  `posisi_int` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `toko_perabot_item`
+--
+
+CREATE TABLE `toko_perabot_item` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_furniture` bigint(20) NOT NULL,
+  `id_toko_perabot` bigint(20) NOT NULL,
+  `harga` bigint(50) UNSIGNED NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -505,36 +461,7 @@ CREATE TABLE `trans_atm` (
   `nominal` bigint(50) DEFAULT NULL COMMENT 'Nominal bisa berisi minus juga',
   `tanggal` datetime NOT NULL COMMENT 'Berisi tanggal transaksi',
   `keterangan` text DEFAULT NULL COMMENT 'Berisi keterangan dari pengirim'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `trans_atm`
---
-
-INSERT INTO `trans_atm` (`id`, `id_user`, `id_pengirim_penerima`, `nominal`, `tanggal`, `keterangan`) VALUES
-(1, 22, NULL, 2000, '2020-05-19 11:52:04', 'tes'),
-(2, 22, NULL, 10, '2020-05-19 12:20:34', 'Deposit tabungan'),
-(3, 22, NULL, -10, '2020-05-20 22:29:34', 'Penarikan uang'),
-(4, 29, NULL, 50, '2020-05-20 12:28:48', 'Deposit tabungan'),
-(5, 29, NULL, -50, '2020-05-20 12:29:32', 'Penarikan uang'),
-(6, 29, NULL, 80, '2020-05-20 12:31:27', 'Deposit tabungan'),
-(7, 29, 22, -50, '2020-05-20 12:32:05', 'Setuju'),
-(8, 22, 29, 50, '2020-05-20 12:32:05', 'Setuju'),
-(9, 22, 29, -100, '2020-05-20 12:33:37', 'Bayar uang bulanan kuliah'),
-(10, 29, 22, 100, '2020-05-20 12:33:37', 'Bayar uang bulanan kuliah'),
-(11, 22, NULL, -100, '2020-05-20 12:34:59', 'Penarikan uang'),
-(12, 29, NULL, -130, '2020-05-20 12:35:03', 'Penarikan uang'),
-(13, 29, NULL, 150, '2020-05-20 12:39:43', 'Deposit tabungan'),
-(14, 22, 30, -200, '2020-05-20 12:54:24', 'Bagi bagi duit'),
-(15, 30, 22, 200, '2020-05-20 12:54:24', 'Bagi bagi duit'),
-(16, 30, 22, -100, '2020-05-20 12:58:09', 'kembalian'),
-(17, 22, 30, 100, '2020-05-20 12:58:09', 'kembalian'),
-(18, 30, NULL, -100, '2020-05-26 15:25:44', 'Penarikan uang'),
-(19, 29, NULL, -10, '2020-05-26 15:30:54', 'Pembelian Steak sebanyak 1'),
-(20, 29, NULL, -10, '2020-05-27 01:34:54', 'Pembelian Air Minum Mineral sebanyak 5'),
-(21, 29, NULL, -10, '2020-05-27 01:35:15', 'Pembelian Steak sebanyak 1'),
-(22, 30, NULL, 1000, '2020-06-18 21:50:32', 'Deposit tabungan'),
-(23, 29, NULL, 2000, '2020-06-27 16:17:36', 'Deposit tabungan');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -563,32 +490,13 @@ CREATE TABLE `user` (
   `use_phone` bigint(20) UNSIGNED DEFAULT 0 COMMENT 'Berisi id_item (handphone) bukan id_user_item',
   `rekening` varchar(50) DEFAULT NULL COMMENT 'Berisi nomor rekening player',
   `save_house` int(11) NOT NULL DEFAULT 0,
-  `last_hp` float NOT NULL COMMENT 'Berisi jumlah hp pemain',
-  `last_armour` float NOT NULL COMMENT 'Berisi jumlah armour pemain',
-  `last_stats_makan` float NOT NULL COMMENT 'Berisi jumlah status makan',
-  `last_stats_minum` float NOT NULL COMMENT 'Berisi jumlah status minum',
-  `playtime` bigint(20) NOT NULL DEFAULT 0,
-  `in_house` bigint(20) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `user`
---
-
-INSERT INTO `user` (`id`, `nama`, `password`, `current_skin`, `jumlah_login`, `join_date`, `uang`, `jenis_kelamin`, `email`, `account_status`, `last_x`, `last_y`, `last_z`, `last_a`, `last_int`, `last_vw`, `nomor_handphone`, `use_phone`, `rekening`, `save_house`, `last_hp`, `last_armour`, `last_stats_makan`, `last_stats_minum`, `playtime`, `in_house`) VALUES
-(22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 28, 105, '2020-04-24 21:12:03', 60, 0, 'nathan@gmail.com', 0, '827.283386', '-1497.464478', '14.386312', '296.427979', '0', '0', '621234', 4, '12345678', 0, 95, 0, 80, 37.5, 10373, 0),
-(23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', 100, 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0),
-(24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 92, '2020-04-30 15:31:48', 174940, 0, 'natan@gmail.com', 0, '1020.575256', '-1697.387695', '14.590525', '283.207886', '0', '0', '629876', 1, NULL, 0, 100, 0, 80, 79, 204, 0),
-(25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', 0, 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0),
-(26, 'cosinec', '4673452E1D20E8417166B9FF852DC48246F1D1D24FD11076976A3DCB4307675B', 298, 3, '2020-05-03 16:56:12', 0, 1, 'nathan@gmail.com', 0, '188.238831', '-1935.149414', '-0.552782', '273.730988', '0', '0', NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0),
-(27, 'cosiozo', 'EEF3ABEA0977171744D9AC2BF8A4761A389F8C55136BDC00B02E9E49524340B1', 9, 1, '2020-05-10 16:59:42', 100, 1, 'asd2@gmail.com', 0, '285.288879', '-1863.428467', '2.890330', '309.904419', '0', '0', NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0),
-(28, 'cosine_xx', 'FE1F21653A573338CC45562B2F50BD5F0F4B5DBC7AE9E67DD7702A3FEA265DB2', 25, 3, '2020-05-13 14:14:19', 100, 0, 'natan@gmail.com', 0, '597.599731', '-1747.577515', '37.244843', '312.951660', '0', '0', NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0),
-(29, 'cosmos', '798BD7627E4EFA679B63CDFA8C08E393AEA78C183657280D604B1223F3BFE95F', 2, 62, '2020-05-20 12:08:55', 325, 0, 'kupledoang30@gmail.com', 0, '1014.501770', '-1688.689575', '14.590525', '271.670715', '0', '0', '621953', 4, '19531953', 5, 100, 0, 130, 112.5, 16634, 5),
-(30, 'khususgaming', 'DA44B8D789EB9E31FC2C423B6AA49471CADEACF250E47C475B0DD1F0A89F05A6', 1, 36, '2020-05-20 12:11:34', 14650, 0, 'anggaputraramadian25@gmail.com', 0, '687.171082', '-1182.052124', '15.357858', '241.647034', '0', '0', NULL, 3, '12312312', 0, 90, 0, 80, 75.5, 11588, 0),
-(31, 'sin', '406F041ABFCF5AFC6A7A6A4FF6F7D4FAED5707AC7E4DD6A50B77950E19339215', 170, 1, '2020-05-27 00:50:29', 100, 0, 'sin@gmail.com', 0, '826.177124', '-1621.854614', '13.476579', '55.781780', '0', '0', '628888', 0, NULL, 0, 100, 0, 80, 75, 0, 0),
-(32, 'Name_Surname', '197ADFA4615B7D2953143E2B8CEEE2072A218087EBE2DE374766C77AEF53740B', 1, 3, '2020-05-30 06:56:09', 100, 0, 'surename@gmail.com', 0, '981.989258', '-1811.750366', '14.205122', '250.916183', '0', '0', NULL, 0, NULL, 0, 100, 0, 80, 59, 0, 0),
-(33, 'yaya_toure', '68F7031A760F119992F825B7224D5D401FBE5B599DDECC5FA0AD209B8D4DCEED', 1, 5, '2020-06-10 11:07:49', 900, 0, 'yaya@gmail.com', 0, '663.397034', '-1200.737549', '17.954485', '135.873444', '0', '0', NULL, 0, NULL, 0, 95, 0, 80, 4.5, 3576, 0),
-(34, 'Elon_Washington', 'FA90EAD28229E7E85C27CDA0477C2F89B7B23B5071F930D8AABACC2E9D25C768', 25, 4, '2020-06-23 09:04:39', 100, 0, 'test@gmail.com', 0, '0.000000', '0.000000', '0.000000', '0.000000', '0', '0', NULL, 0, NULL, 0, 0, 0, 80, 66, 340, 0);
+  `last_hp` float DEFAULT NULL COMMENT 'Berisi jumlah hp pemain',
+  `last_armour` float DEFAULT NULL COMMENT 'Berisi jumlah armour pemain',
+  `last_stats_makan` float DEFAULT NULL COMMENT 'Berisi jumlah status makan',
+  `last_stats_minum` float DEFAULT NULL COMMENT 'Berisi jumlah status minum',
+  `playtime` bigint(20) DEFAULT NULL COMMENT 'Berisi jumlah waktu bermain dalam detik',
+  `in_house` bigint(20) DEFAULT 0 COMMENT 'ID rumah yang sedang di kunjungi'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -603,16 +511,6 @@ CREATE TABLE `user_furniture` (
   `jumlah` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `user_furniture`
---
-
-INSERT INTO `user_furniture` (`id`, `id_furniture`, `id_user`, `jumlah`) VALUES
-(1, 1, 22, 2),
-(2, 2, 22, 2),
-(3, 1, 29, 0),
-(4, 2, 29, 0);
-
 -- --------------------------------------------------------
 
 --
@@ -624,68 +522,8 @@ CREATE TABLE `user_item` (
   `id_item` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
   `jumlah` int(255) DEFAULT 1,
-  `kunci` tinyint(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `user_item`
---
-
-INSERT INTO `user_item` (`id_user_item`, `id_item`, `id_user`, `jumlah`, `kunci`) VALUES
-(1, 1, 1, 2, 0),
-(3, 2, 1, 4, 0),
-(7, 3, 1, 1, 0),
-(8, 4, 22, 1, 0),
-(10, 1, 22, 3, 0),
-(17, 2, 22, 1, 0),
-(26, 1, 23, 8, 0),
-(27, 1, 25, 2, 0),
-(30, 1, 24, 0, 0),
-(31, 5, 24, 8, 0),
-(32, 3, 24, 1, 0),
-(33, 6, 24, 14, 0),
-(34, 7, 24, 1, 0),
-(35, 5, 22, 4, 0),
-(36, 6, 22, 6, 0),
-(37, 7, 22, 1, 0),
-(38, 6, 29, 16, 0),
-(39, 5, 29, 0, 0),
-(40, 7, 29, 1, 1),
-(41, 7, 30, 1, 0),
-(42, 5, 30, 6, 0),
-(43, 6, 30, 8, 0),
-(44, 8, 22, 22, 0),
-(45, 9, 22, 10, 0),
-(46, 12, 22, 12, 0),
-(47, 11, 22, 8, 0),
-(48, 3, 30, 0, 0),
-(49, 8, 29, 0, 0),
-(50, 8, 30, 8, 0),
-(51, 10, 30, 4, 0),
-(52, 12, 29, 0, 0),
-(53, 9, 30, 5, 0),
-(54, 12, 30, 3, 0),
-(55, 9, 29, 11, 1),
-(56, 10, 22, 5, 0),
-(57, 11, 30, 4, 0),
-(58, 11, 29, 0, 0),
-(59, 10, 29, 0, 0),
-(60, 2, 29, 1, 0),
-(61, 14, 29, 12, 0),
-(62, 13, 29, 0, 0),
-(63, 14, 22, 0, 0),
-(64, 4, 29, 0, 0),
-(65, 13, 22, 33, 0),
-(66, 14, 30, 10, 0),
-(67, 7, 33, 1, 0),
-(68, 26, 22, 1, 0),
-(69, 25, 22, 6, 0),
-(70, 26, 30, 1, 0),
-(71, 21, 22, 1, 0),
-(72, 19, 29, 4, 0),
-(73, 25, 29, 3, 0),
-(74, 26, 29, 0, 0),
-(75, 15, 29, 1, 0);
+  `kunci` tinyint(4) NOT NULL DEFAULT 0 COMMENT 'Status terkunci (agar tidak bisa dihapus)\r\n- 0 = Tidak terkunci\r\n- 1 = Terkunci'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -700,25 +538,6 @@ CREATE TABLE `user_item_limit` (
   `expired` datetime DEFAULT NULL COMMENT 'Jika null berarti permanent'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `user_item_limit`
---
-
-INSERT INTO `user_item_limit` (`id`, `id_user`, `jumlah`, `expired`) VALUES
-(1, 23, 150, NULL),
-(2, 24, 150, NULL),
-(3, 26, 150, NULL),
-(4, 25, 150, NULL),
-(5, 28, 150, NULL),
-(6, 22, 150, NULL),
-(7, 27, 150, NULL),
-(8, 29, 150, NULL),
-(9, 30, 150, NULL),
-(10, 32, 150, NULL),
-(11, 31, 150, NULL),
-(12, 33, 150, NULL),
-(13, 34, 150, NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -729,15 +548,9 @@ CREATE TABLE `user_skill` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_skill` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
-  `exp` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Pada skill kita tidak memakai level, tapi exp.\r\nDimana pembagian melalui exp.\r\nMisalnya exp  >= 1000 maka di asumsikan dia ada level 1 atau jika exp >= 2000 maka level 2, dst\r\n\r\n'
+  `exp` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Pada skill kita tidak memakai level, tapi exp.\r\nDimana pembagian melalui exp.\r\nMisalnya exp  >= 1000 maka di asumsikan dia ada level 1 atau jika exp >= 2000 maka level 2, dst\r\n\r\n',
+  `is_active` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Status pada skill :\r\n0 - Tidak Aktif\r\n1 - Aktif'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `user_skill`
---
-
-INSERT INTO `user_skill` (`id`, `id_skill`, `id_user`, `exp`) VALUES
-(1, 1, 22, 1523);
 
 -- --------------------------------------------------------
 
@@ -750,30 +563,7 @@ CREATE TABLE `user_skin` (
   `id_user` bigint(20) UNSIGNED NOT NULL,
   `id_skin` int(20) NOT NULL,
   `jumlah` int(10) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `user_skin`
---
-
-INSERT INTO `user_skin` (`id`, `id_user`, `id_skin`, `jumlah`) VALUES
-(31, 22, 125, 2),
-(32, 22, 28, 0),
-(33, 23, 24, 1),
-(34, 24, 21, 1),
-(35, 25, 76, 1),
-(36, 26, 298, 1),
-(37, 27, 9, 1),
-(38, 24, 73, 1),
-(39, 24, 17, 1),
-(40, 24, 19, 6),
-(41, 28, 25, 1),
-(42, 29, 2, 1),
-(43, 30, 1, 1),
-(44, 31, 170, 1),
-(45, 32, 1, 1),
-(46, 33, 1, 1),
-(47, 34, 25, 1);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -810,19 +600,188 @@ CREATE TABLE `vehicle` (
   `is_reparasi` tinyint(1) DEFAULT 0 COMMENT 'Nyimpan status kendaraan apakah sedang di reparasi.\r\n\r\n0 - untuk tidak\r\n1 - untuk sedang reparasi (sedang didalam tempat reparasi karena rusak dan harus diambil)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `vehicle`
+-- Table structure for table `vehicle_components`
 --
 
-INSERT INTO `vehicle` (`id`, `id_pemilik`, `id_model`, `pos_x`, `pos_y`, `pos_z`, `pos_a`, `color_1`, `color_2`, `paintjob`, `veh_mod_1`, `veh_mod_2`, `veh_mod_3`, `veh_mod_4`, `veh_mod_5`, `veh_mod_6`, `veh_mod_7`, `veh_mod_8`, `veh_mod_9`, `veh_mod_10`, `veh_mod_11`, `veh_mod_12`, `veh_mod_13`, `veh_mod_14`, `darah`, `is_reparasi`) VALUES
-(1, 22, 555, 830.529, -1501.71, 12.7399, 355.491, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 992.252, 0),
-(2, 22, 521, 837.2, -1501.92, 12.6249, 353.508, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 595, 0),
-(3, 29, 415, 1015.19, -1683.9, 14.3626, 272.268, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1000, 0),
-(4, 30, 467, 1020.4, -1690.91, 14.3327, 72.3988, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 998.848, 2),
-(5, 22, 555, 1023.45, -1694.18, 14.0978, 73.6548, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 621.513, 0),
-(6, 29, 559, 1015.15, -1686.98, 14.2469, 271.671, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 992.358, 0),
-(7, 30, 561, 1052.49, -1700, 13.3603, 168.979, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 821.529, 0),
-(8, 22, 560, 774.782, -1394.43, 13.0966, 73.1231, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500.911, 0);
+CREATE TABLE `vehicle_components` (
+  `componentid` smallint(4) UNSIGNED NOT NULL,
+  `part` enum('Exhausts','Front Bullbars','Front Bumper','Hood','Hydraulics','Lights','Misc','Rear Bullbars','Rear Bumper','Roof','Side Skirts','Spoilers','Vents','Wheels') DEFAULT NULL,
+  `type` varchar(22) NOT NULL,
+  `cars` smallint(3) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `vehicle_components`
+--
+
+INSERT INTO `vehicle_components` (`componentid`, `part`, `type`, `cars`) VALUES
+(1000, 'Spoilers', 'Pro', 0),
+(1001, 'Spoilers', 'Win', 0),
+(1002, 'Spoilers', 'Drag', 0),
+(1003, 'Spoilers', 'Alpha', 0),
+(1004, 'Hood', 'Champ Scoop', 0),
+(1005, 'Hood', 'Fury Scoop', 0),
+(1006, 'Roof', 'Roof Scoop', 0),
+(1007, 'Side Skirts', 'Sideskirt', 0),
+(1011, 'Hood', 'Race Scoop', 0),
+(1012, 'Hood', 'Worx Scoop', 0),
+(1013, 'Lights', 'Round Fog', 0),
+(1014, 'Spoilers', 'Champ', 0),
+(1015, 'Spoilers', 'Race', 0),
+(1016, 'Spoilers', 'Worx', 0),
+(1018, 'Exhausts', 'Upswept', 0),
+(1019, 'Exhausts', 'Twin', 0),
+(1020, 'Exhausts', 'Large', 0),
+(1021, 'Exhausts', 'Medium', 0),
+(1022, 'Exhausts', 'Small', 0),
+(1023, 'Spoilers', 'Fury', 0),
+(1024, 'Lights', 'Square Fog', 0),
+(1025, 'Wheels', 'Offroad', 0),
+(1027, 'Side Skirts', 'Alien', 560),
+(1028, 'Exhausts', 'Alien', 560),
+(1029, 'Exhausts', 'X-Flow', 560),
+(1030, 'Side Skirts', 'X-Flow', 560),
+(1032, 'Roof', 'Alien Roof Vent', 560),
+(1033, 'Roof', 'X-Flow Roof Vent', 560),
+(1034, 'Exhausts', 'Alien', 562),
+(1035, 'Roof', 'X-Flow Roof Vent', 562),
+(1037, 'Exhausts', 'X-Flow', 562),
+(1038, 'Roof', 'Alien Roof Vent', 562),
+(1039, 'Side Skirts', 'X-Flow', 562),
+(1040, 'Side Skirts', 'Alien', 562),
+(1043, 'Exhausts', 'Slamin', 575),
+(1044, 'Exhausts', 'Chrome', 575),
+(1045, 'Exhausts', 'X-Flow', 565),
+(1046, 'Exhausts', 'Alien', 565),
+(1049, 'Spoilers', 'Alien', 565),
+(1050, 'Spoilers', 'X-Flow', 565),
+(1051, 'Side Skirts', 'Alien', 565),
+(1052, 'Side Skirts', 'X-Flow', 565),
+(1053, 'Roof', 'X-Flow', 565),
+(1054, 'Roof', 'Alien', 565),
+(1055, 'Roof', 'Alien', 561),
+(1058, 'Spoilers', 'Alien', 561),
+(1059, 'Exhausts', 'X-Flow', 561),
+(1060, 'Spoilers', 'X-Flow', 561),
+(1061, 'Roof', 'X-Flow', 561),
+(1062, 'Side Skirts', 'Alien', 561),
+(1063, 'Side Skirts', 'X-Flow', 561),
+(1064, 'Exhausts', 'Alien', 561),
+(1065, 'Exhausts', 'Alien', 559),
+(1066, 'Exhausts', 'X-Flow', 559),
+(1067, 'Roof', 'Alien', 559),
+(1068, 'Roof', 'X-Flow', 559),
+(1071, 'Side Skirts', 'Alien', 559),
+(1072, 'Side Skirts', 'X-Flow', 559),
+(1073, 'Wheels', 'Shadow', -1),
+(1074, 'Wheels', 'Mega', -1),
+(1075, 'Wheels', 'Rimshine', -1),
+(1076, 'Wheels', 'Wires', -1),
+(1077, 'Wheels', 'Classic', -1),
+(1078, 'Wheels', 'Twist', -1),
+(1079, 'Wheels', 'Cutter', -1),
+(1080, 'Wheels', 'Switch', -1),
+(1081, 'Wheels', 'Grove', -1),
+(1082, 'Wheels', 'Import', -1),
+(1083, 'Wheels', 'Dollar', -1),
+(1084, 'Wheels', 'Trance', -1),
+(1085, 'Wheels', 'Atomic', -1),
+(1087, 'Hydraulics', 'Hydraulics', -1),
+(1088, 'Roof', 'Alien', 558),
+(1089, 'Exhausts', 'X-Flow', 558),
+(1091, 'Roof', 'X-Flow', 558),
+(1092, 'Exhausts', 'Alien', 558),
+(1094, 'Side Skirts', 'Alien', 558),
+(1096, 'Wheels', 'Ahab', -1),
+(1097, 'Wheels', 'Virtual', -1),
+(1098, 'Wheels', 'Access', -1),
+(1099, 'Side Skirts', 'Chrome', 575),
+(1100, 'Misc', 'Chrome Grill', 534),
+(1101, 'Side Skirts', 'Chrome Flames', 534),
+(1102, 'Side Skirts', 'Chrome Strip', 567),
+(1103, 'Roof', 'Covertible', 536),
+(1104, 'Exhausts', 'Chrome', 536),
+(1105, 'Exhausts', 'Slamin', 536),
+(1107, 'Side Skirts', 'Chrome Strip', 536),
+(1109, 'Rear Bullbars', 'Chrome', 535),
+(1110, 'Rear Bullbars', 'Slamin', 535),
+(1113, 'Exhausts', 'Chrome', 535),
+(1114, 'Exhausts', 'Slamin', 535),
+(1115, 'Front Bullbars', 'Chrome', 535),
+(1116, 'Front Bullbars', 'Slamin', 535),
+(1117, 'Front Bumper', 'Chrome', 535),
+(1120, 'Side Skirts', 'Chrome Trim', 535),
+(1121, 'Side Skirts', 'Wheelcovers', 535),
+(1123, 'Misc', 'Bullbar Chrome Bars', 534),
+(1124, 'Side Skirts', 'Chrome Arches', 534),
+(1125, 'Misc', 'Bullbar Chrome Lights', 534),
+(1126, 'Exhausts', 'Chrome', 534),
+(1127, 'Exhausts', 'Slamin', 534),
+(1128, 'Roof', 'Vinyl Hardtop', 536),
+(1129, 'Exhausts', 'Chrome', 567),
+(1130, 'Roof', 'Hardtop', 567),
+(1131, 'Roof', 'Softtop', 567),
+(1132, 'Exhausts', 'Slamin', 567),
+(1135, 'Exhausts', 'Slamin', 576),
+(1136, 'Exhausts', 'Chrome', 576),
+(1137, 'Side Skirts', 'Chrome Strip', 576),
+(1138, 'Spoilers', 'Alien', 560),
+(1139, 'Spoilers', 'X-Flow', 560),
+(1140, 'Rear Bumper', 'X-Flow', 560),
+(1141, 'Rear Bumper', 'Alien', 560),
+(1143, 'Vents', 'Oval Vents', 0),
+(1145, 'Vents', 'Square Vents', 0),
+(1146, 'Spoilers', 'X-Flow', 562),
+(1147, 'Spoilers', 'Alien', 562),
+(1148, 'Rear Bumper', 'X-Flow', 562),
+(1149, 'Rear Bumper', 'Alien', 562),
+(1150, 'Rear Bumper', 'Alien', 565),
+(1151, 'Rear Bumper', 'X-Flow', 565),
+(1152, 'Front Bumper', 'X-Flow', 565),
+(1153, 'Front Bumper', 'Alien', 565),
+(1154, 'Rear Bumper', 'Alien', 561),
+(1155, 'Front Bumper', 'Alien', 561),
+(1156, 'Rear Bumper', 'X-Flow', 561),
+(1157, 'Front Bumper', 'X-Flow', 561),
+(1158, 'Spoilers', 'X-Flow', 559),
+(1159, 'Rear Bumper', 'Alien', 559),
+(1160, 'Front Bumper', 'Alien', 559),
+(1161, 'Rear Bumper', 'X-Flow', 559),
+(1162, 'Spoilers', 'Alien', 559),
+(1163, 'Spoilers', 'X-Flow', 558),
+(1164, 'Spoilers', 'Alien', 558),
+(1165, 'Front Bumper', 'X-Flow', 558),
+(1166, 'Front Bumper', 'Alien', 558),
+(1167, 'Rear Bumper', 'X-Flow', 558),
+(1168, 'Rear Bumper', 'Alien', 558),
+(1169, 'Front Bumper', 'Alien', 560),
+(1170, 'Front Bumper', 'X-Flow', 560),
+(1171, 'Front Bumper', 'Alien', 562),
+(1172, 'Front Bumper', 'X-Flow', 562),
+(1173, 'Front Bumper', 'X-Flow', 559),
+(1174, 'Front Bumper', 'Chrome', 575),
+(1175, 'Rear Bumper', 'Slamin', 575),
+(1176, 'Front Bumper', 'Chrome', 575),
+(1177, 'Rear Bumper', 'Slamin', 575),
+(1178, 'Rear Bumper', 'Slamin', 534),
+(1179, 'Front Bumper', 'Chrome', 534),
+(1180, 'Rear Bumper', 'Chrome', 534),
+(1181, 'Front Bumper', 'Slamin', 536),
+(1182, 'Front Bumper', 'Chrome', 536),
+(1183, 'Rear Bumper', 'Slamin', 536),
+(1184, 'Rear Bumper', 'Chrome', 536),
+(1185, 'Front Bumper', 'Slamin', 534),
+(1186, 'Rear Bumper', 'Slamin', 567),
+(1187, 'Rear Bumper', 'Chrome', 567),
+(1188, 'Front Bumper', 'Slamin', 567),
+(1189, 'Front Bumper', 'Chrome', 567),
+(1190, 'Front Bumper', 'Slamin', 576),
+(1191, 'Front Bumper', 'Chrome', 576),
+(1192, 'Rear Bumper', 'Chrome', 576),
+(1193, 'Rear Bumper', 'Slamin', 576);
 
 -- --------------------------------------------------------
 
@@ -842,14 +801,6 @@ CREATE TABLE `vehicle_dealer` (
   `harga` bigint(50) DEFAULT NULL COMMENT 'Harga kendaraan'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `vehicle_dealer`
---
-
-INSERT INTO `vehicle_dealer` (`id`, `id_model`, `pos_x`, `pos_y`, `pos_z`, `pos_a`, `color_1`, `color_2`, `harga`) VALUES
-(1, 415, 530.936, -1291.21, 17.014, 357.776, 0, 0, 10000),
-(11, 562, 527.604, -1291.25, 16.9023, 4.03834, 0, 0, 25000);
-
 -- --------------------------------------------------------
 
 --
@@ -860,20 +811,156 @@ CREATE TABLE `vehicle_keys` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
   `id_vehicle` bigint(20) NOT NULL,
-  `expired` bigint(20) DEFAULT NULL COMMENT 'Gunakan unix timestamp untuk menyimpan maupun query'
+  `expired` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Gunakan unix timestamp untuk menyimpan maupun query'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `vehicle_keys`
+-- Table structure for table `vehicle_model_parts`
 --
 
-INSERT INTO `vehicle_keys` (`id`, `id_user`, `id_vehicle`, `expired`) VALUES
-(1, 24, 2, 1591199673),
-(4, 22, 6, 1591172875),
-(5, 29, 2, 1591174983),
-(6, 30, 8, 1591173923),
-(7, 30, 2, 1591177564),
-(8, 29, 8, 1591199236);
+CREATE TABLE `vehicle_model_parts` (
+  `modelid` smallint(3) UNSIGNED NOT NULL,
+  `parts` bit(9) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `vehicle_model_parts`
+--
+
+INSERT INTO `vehicle_model_parts` (`modelid`, `parts`) VALUES
+(400, b'100001101'),
+(401, b'111111111'),
+(402, b'100000100'),
+(403, b'100000100'),
+(404, b'101101101'),
+(405, b'101000101'),
+(407, b'100000000'),
+(408, b'100000100'),
+(409, b'100000100'),
+(410, b'101111101'),
+(411, b'100000100'),
+(412, b'100000100'),
+(413, b'100000100'),
+(414, b'100000101'),
+(415, b'101100101'),
+(416, b'100000101'),
+(418, b'101010101'),
+(419, b'100000101'),
+(420, b'101000111'),
+(421, b'101000101'),
+(422, b'100101101'),
+(423, b'100000101'),
+(424, b'100000100'),
+(426, b'101010111'),
+(427, b'100000101'),
+(428, b'100000101'),
+(429, b'100000100'),
+(431, b'100000100'),
+(432, b'100000000'),
+(433, b'100000100'),
+(434, b'100000100'),
+(436, b'101111101'),
+(437, b'100000100'),
+(438, b'100000101'),
+(439, b'111101100'),
+(440, b'100000101'),
+(441, b'100000100'),
+(442, b'100000100'),
+(443, b'100000000'),
+(445, b'100000101'),
+(451, b'100000100'),
+(455, b'100000100'),
+(456, b'100000101'),
+(457, b'100000100'),
+(458, b'111101101'),
+(459, b'100000100'),
+(466, b'100000101'),
+(467, b'100000101'),
+(470, b'100000100'),
+(474, b'100000101'),
+(475, b'100000101'),
+(477, b'100110101'),
+(478, b'100001111'),
+(479, b'100000101'),
+(480, b'100000101'),
+(482, b'100000101'),
+(483, b'100000101'),
+(485, b'100000100'),
+(486, b'100000000'),
+(489, b'101011111'),
+(490, b'101010111'),
+(491, b'111100101'),
+(492, b'101010111'),
+(494, b'100000100'),
+(495, b'100000101'),
+(496, b'111111111'),
+(498, b'100000101'),
+(499, b'100000101'),
+(500, b'100001101'),
+(502, b'100000100'),
+(503, b'100000100'),
+(504, b'100000101'),
+(505, b'101011111'),
+(506, b'100000101'),
+(507, b'100000101'),
+(508, b'100000101'),
+(514, b'100000100'),
+(515, b'100000100'),
+(516, b'101100111'),
+(517, b'111100101'),
+(518, b'111111111'),
+(524, b'100000000'),
+(525, b'100000000'),
+(526, b'100000101'),
+(527, b'101110101'),
+(528, b'100000100'),
+(529, b'101110111'),
+(530, b'100000000'),
+(531, b'100000000'),
+(532, b'100000100'),
+(533, b'100000100'),
+(540, b'111111111'),
+(541, b'100000100'),
+(542, b'111000101'),
+(543, b'101110100'),
+(544, b'100000100'),
+(545, b'100000100'),
+(546, b'111101111'),
+(547, b'111000101'),
+(549, b'111100111'),
+(550, b'111011111'),
+(551, b'101010111'),
+(552, b'100000101'),
+(554, b'100000101'),
+(555, b'100000100'),
+(566, b'100000101'),
+(568, b'100000100'),
+(571, b'100000100'),
+(572, b'100000100'),
+(574, b'100000100'),
+(578, b'100000100'),
+(579, b'101010101'),
+(580, b'101110101'),
+(582, b'100000101'),
+(583, b'100000100'),
+(585, b'111111101'),
+(587, b'101000111'),
+(588, b'100000100'),
+(589, b'111111111'),
+(594, b'100000100'),
+(596, b'100000101'),
+(597, b'100000101'),
+(598, b'100000101'),
+(599, b'101010111'),
+(600, b'100111111'),
+(601, b'100000000'),
+(602, b'100000100'),
+(603, b'111111101'),
+(604, b'100000101'),
+(605, b'101110101'),
+(609, b'100000101');
 
 --
 -- Indexes for dumped tables
@@ -889,7 +976,7 @@ ALTER TABLE `enter_exit`
 -- Indexes for table `furniture`
 --
 ALTER TABLE `furniture`
-  ADD PRIMARY KEY (`id`) USING BTREE;
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `gaji`
@@ -901,13 +988,13 @@ ALTER TABLE `gaji`
 -- Indexes for table `house`
 --
 ALTER TABLE `house`
-  ADD PRIMARY KEY (`id_house`) USING BTREE;
+  ADD PRIMARY KEY (`id_house`);
 
 --
 -- Indexes for table `house_furniture`
 --
 ALTER TABLE `house_furniture`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`) USING BTREE;
 
 --
 -- Indexes for table `house_interior`
@@ -928,6 +1015,12 @@ ALTER TABLE `item`
   ADD PRIMARY KEY (`id_item`);
 
 --
+-- Indexes for table `logs_user_konek`
+--
+ALTER TABLE `logs_user_konek`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `papan`
 --
 ALTER TABLE `papan`
@@ -937,7 +1030,7 @@ ALTER TABLE `papan`
 -- Indexes for table `pengambilan_ktp`
 --
 ALTER TABLE `pengambilan_ktp`
-  ADD PRIMARY KEY (`id`) USING BTREE;
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `pengambilan_sim`
@@ -955,27 +1048,39 @@ ALTER TABLE `skill`
 -- Indexes for table `sms`
 --
 ALTER TABLE `sms`
-  ADD PRIMARY KEY (`id_sms`) USING BTREE;
+  ADD PRIMARY KEY (`id_sms`);
 
 --
 -- Indexes for table `tempat_atm`
 --
 ALTER TABLE `tempat_atm`
-  ADD PRIMARY KEY (`id`) USING BTREE;
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `toko_perabot`
+--
+ALTER TABLE `toko_perabot`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `toko_perabot_item`
+--
+ALTER TABLE `toko_perabot_item`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `trans_atm`
 --
 ALTER TABLE `trans_atm`
-  ADD PRIMARY KEY (`id`) USING BTREE;
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
-  ADD PRIMARY KEY (`id`) USING BTREE,
-  ADD UNIQUE KEY `nama` (`nama`) USING BTREE,
-  ADD UNIQUE KEY `rekening` (`rekening`) USING BTREE;
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `nama` (`nama`),
+  ADD UNIQUE KEY `rekening` (`rekening`);
 
 --
 -- Indexes for table `user_furniture`
@@ -987,8 +1092,8 @@ ALTER TABLE `user_furniture`
 -- Indexes for table `user_item`
 --
 ALTER TABLE `user_item`
-  ADD PRIMARY KEY (`id_user_item`) USING BTREE,
-  ADD UNIQUE KEY `id_item` (`id_item`,`id_user`) USING BTREE;
+  ADD PRIMARY KEY (`id_user_item`),
+  ADD UNIQUE KEY `id_item` (`id_item`,`id_user`);
 
 --
 -- Indexes for table `user_item_limit`
@@ -1006,13 +1111,22 @@ ALTER TABLE `user_skill`
 -- Indexes for table `user_skin`
 --
 ALTER TABLE `user_skin`
-  ADD PRIMARY KEY (`id`) USING BTREE;
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `vehicle`
 --
 ALTER TABLE `vehicle`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `vehicle_components`
+--
+ALTER TABLE `vehicle_components`
+  ADD PRIMARY KEY (`componentid`),
+  ADD KEY `cars` (`cars`),
+  ADD KEY `part` (`part`),
+  ADD KEY `type` (`type`);
 
 --
 -- Indexes for table `vehicle_dealer`
@@ -1025,6 +1139,12 @@ ALTER TABLE `vehicle_dealer`
 --
 ALTER TABLE `vehicle_keys`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `vehicle_model_parts`
+--
+ALTER TABLE `vehicle_model_parts`
+  ADD PRIMARY KEY (`modelid`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -1046,19 +1166,19 @@ ALTER TABLE `furniture`
 -- AUTO_INCREMENT for table `gaji`
 --
 ALTER TABLE `gaji`
-  MODIFY `id_gaji` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_gaji` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `house`
 --
 ALTER TABLE `house`
-  MODIFY `id_house` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_house` int(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `house_furniture`
 --
 ALTER TABLE `house_furniture`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `house_interior`
@@ -1070,19 +1190,25 @@ ALTER TABLE `house_interior`
 -- AUTO_INCREMENT for table `house_inv_item`
 --
 ALTER TABLE `house_inv_item`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+
+--
+-- AUTO_INCREMENT for table `logs_user_konek`
+--
+ALTER TABLE `logs_user_konek`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `papan`
 --
 ALTER TABLE `papan`
-  MODIFY `id_papan` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_papan` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pengambilan_ktp`
@@ -1094,7 +1220,7 @@ ALTER TABLE `pengambilan_ktp`
 -- AUTO_INCREMENT for table `pengambilan_sim`
 --
 ALTER TABLE `pengambilan_sim`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `skill`
@@ -1106,67 +1232,73 @@ ALTER TABLE `skill`
 -- AUTO_INCREMENT for table `sms`
 --
 ALTER TABLE `sms`
-  MODIFY `id_sms` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_sms` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `toko_perabot_item`
+--
+ALTER TABLE `toko_perabot_item`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `trans_atm`
 --
 ALTER TABLE `trans_atm`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID Player', AUTO_INCREMENT=35;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID Player';
 
 --
 -- AUTO_INCREMENT for table `user_furniture`
 --
 ALTER TABLE `user_furniture`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user_item`
 --
 ALTER TABLE `user_item`
-  MODIFY `id_user_item` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+  MODIFY `id_user_item` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user_item_limit`
 --
 ALTER TABLE `user_item_limit`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user_skill`
 --
 ALTER TABLE `user_skill`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user_skin`
 --
 ALTER TABLE `user_skin`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `vehicle`
 --
 ALTER TABLE `vehicle`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `vehicle_dealer`
 --
 ALTER TABLE `vehicle_dealer`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `vehicle_keys`
 --
 ALTER TABLE `vehicle_keys`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
