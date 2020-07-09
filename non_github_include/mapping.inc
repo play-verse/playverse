@@ -22,6 +22,7 @@
 //Palang Toll LS LV
 //Stasiun LS
 //Toko Perabot
+//Block garage & payspray
 
 loadAllMapingan(){
     pelabuhanSantaMaria();
@@ -48,6 +49,7 @@ loadAllMapingan(){
     palangTollLSLV();
     stasiunLS();
     tokoPerabot();
+    blockGarageAndSpray();
 }
 
 removeBangunanUntukMapping(playerid){
@@ -60,8 +62,10 @@ removeBangunanUntukMapping(playerid){
     removeSupermarketStasiunLS(playerid);
     removeEksteriorCityHall(playerid); // dan Market Place
     removeBengkelDanDealer(playerid);
+    removePizzaLS(playerid);
     removeObjectInteriorRumah(playerid);
     removeStasiunLS(playerid);
+    removeBlockGarageAndSpray(playerid);
 }
 
 pelabuhanSantaMaria(){
@@ -4177,11 +4181,11 @@ bengkelDanDealer(){
     CreateDynamicObject(2893, 988.12170, -1658.24683, 14.78470,   -17.00000, 0.00000, 90.00000);
     CreateDynamicObject(2893, 988.13440, -1660.08801, 14.78470,   -17.00000, 0.00000, 90.00000);
     CreateDynamicObject(11391, 988.67688, -1670.82507, 14.81760,   0.00000, 0.00000, 0.00000);
-    CreateDynamicObject(19817, 990.50739, -1636.69690, 12.01229,   0.00000, 0.00000, 89.91774);
-    CreateDynamicObject(19817, 1014.66266, -1622.60901, 12.01229,   0.00000, 0.00000, 358.36450);
-    CreateDynamicObject(19817, 1003.13843, -1622.36292, 12.01229,   0.00000, 0.00000, 358.36450);
-    CreateDynamicObject(19817, 991.44971, -1622.63330, 12.01229,   0.00000, 0.00000, 359.62842);
-    CreateDynamicObject(19817, 990.47021, -1642.94434, 12.01229,   0.00000, 0.00000, 89.91774);
+    CreateDynamicObject(19817, 990.50739, -1636.69690, 11.20527,   0.00000, 0.00000, 89.91774);
+    CreateDynamicObject(19817, 1014.66266, -1622.60901, 11.09305,   0.00000, 0.00000, 358.36450);
+    CreateDynamicObject(19817, 1003.13843, -1622.36292, 11.10224,   0.00000, 0.00000, 358.36450);
+    CreateDynamicObject(19817, 991.44971, -1622.63330, 11.10427,   0.00000, 0.00000, 359.62842);
+    CreateDynamicObject(19817, 990.47021, -1642.94434, 11.10728,   0.00000, 0.00000, 89.91774);
     CreateDynamicObject(939, 1020.20874, -1620.48511, 14.91197,   0.00000, 0.00000, 89.24620);
     CreateDynamicObject(939, 1008.12866, -1620.35413, 14.91197,   0.00000, 0.00000, 89.24620);
     CreateDynamicObject(939, 997.17615, -1620.44714, 14.91197,   0.00000, 0.00000, 89.75629);
@@ -4527,6 +4531,10 @@ interiorBank(){
     CreateDynamicObject(1661, 1445.10889, -990.16949, -52.40238,   0.00000, 0.00000, 0.00000);
     CreateDynamicObject(19355, 1434.97717, -992.78564, -56.06571,   0.00000, 0.00000, 88.50003);
     CreateDynamicObject(19355, 1423.83179, -980.45929, -55.95397,   0.00000, 0.00000, 177.78003);
+}
+
+removePizzaLS(playerid){
+    RemoveBuildingForPlayer(playerid, 1308, 2091.1641, -1826.8359, 12.7031, 0.25);
 }
 
 pizzaLS(){
@@ -5479,4 +5487,44 @@ tokoPerabot(){
     CreateDynamicObject(2106, 1832.07397, -1405.77051, 14.55170,   0.00000, 0.00000, 0.00000);
     CreateDynamicObject(2196, 1830.80530, -1405.26025, 14.55386,   0.00000, 0.00000, 81.40723);
     CreateDynamicObject(19957, 1836.83154, -1390.97778, 12.55729,   0.00000, 0.00000, 87.95006);
+}
+
+removeBlockGarageAndSpray(playerid){
+    RemoveBuildingForPlayer(playerid, 5340, 2644.8594, -2039.2344, 14.0391, 0.25);
+    RemoveBuildingForPlayer(playerid, 5422, 2071.4766, -1831.4219, 14.5625, 0.25);
+    RemoveBuildingForPlayer(playerid, 5856, 1024.9844, -1029.3516, 33.1953, 0.25);
+    RemoveBuildingForPlayer(playerid, 5779, 1041.3516, -1025.9297, 32.6719, 0.25);
+    RemoveBuildingForPlayer(playerid, 6400, 488.2813, -1734.6953, 12.3906, 0.25);
+    RemoveBuildingForPlayer(playerid, 10575, -2716.3516, 217.4766, 5.3828, 0.25);
+    RemoveBuildingForPlayer(playerid, 11313, -1935.8594, 239.5313, 35.3516, 0.25);
+    RemoveBuildingForPlayer(playerid, 11319, -1904.5313, 277.8984, 42.9531, 0.25);
+    RemoveBuildingForPlayer(playerid, 9625, -2425.7266, 1027.9922, 52.2813, 0.25);
+    RemoveBuildingForPlayer(playerid, 9093, 2386.6563, 1043.6016, 11.5938, 0.25);
+    RemoveBuildingForPlayer(playerid, 1553, 1988.5859, 2130.9609, 11.1250, 0.25);
+    RemoveBuildingForPlayer(playerid, 1552, 1990.0234, 2130.9688, 11.1172, 0.25);
+    RemoveBuildingForPlayer(playerid, 1553, 1991.4688, 2130.9609, 11.1250, 0.25);
+    RemoveBuildingForPlayer(playerid, 1552, 1939.6641, 2198.6094, 11.1172, 0.25);
+    RemoveBuildingForPlayer(playerid, 1553, 1939.6563, 2200.0469, 11.1250, 0.25);
+    RemoveBuildingForPlayer(playerid, 1553, 1939.6563, 2197.1563, 11.1250, 0.25);
+    RemoveBuildingForPlayer(playerid, 7507, 1963.5469, 2159.7344, 12.1328, 0.25);
+    RemoveBuildingForPlayer(playerid, 7891, 1968.7422, 2162.4922, 12.0938, 0.25);
+    RemoveBuildingForPlayer(playerid, 3294, -1420.5469, 2591.1563, 57.7422, 0.25);
+    RemoveBuildingForPlayer(playerid, 3294, -100.0000, 1111.4141, 21.6406, 0.25);
+    RemoveBuildingForPlayer(playerid, 13028, 720.0156, -462.5234, 16.8594, 0.25);
+}
+
+blockGarageAndSpray(){
+    CreateDynamicObject(5422, 2071.60010, -1831.50000, 14.60000,   0.00000, 0.25000, 359.50000);
+    CreateDynamicObject(5779, 1041.30005, -1026.00000, 32.70000,   0.00000, 0.00000, 90.00000);
+    CreateDynamicObject(5856, 1025.00000, -1029.40002, 33.10000,   0.00000, 0.00000, 90.25000);
+    CreateDynamicObject(6400, 488.29999, -1734.80005, 12.40000,   359.75000, 359.00000, 79.24600);
+    CreateDynamicObject(13028, 720.00000, -462.50000, 16.80000,   0.00000, 0.00000, 90.00000);
+    CreateDynamicObject(11313, -1935.80005, 239.00000, 35.30000,   0.00000, 0.00000, 92.00000);
+    CreateDynamicObject(11319, -1904.50000, 277.89999, 42.90000,   0.00000, 0.00000, 90.00000);
+    CreateDynamicObject(10575, -2716.50000, 217.50000, 5.30000,   0.00000, 0.00000, 178.00000);
+    CreateDynamicObject(9625, -2425.60010, 1028.09998, 52.30000,   0.00000, 0.00000, 270.00000);
+    CreateDynamicObject(3294, -1420.59998, 2591.00000, 57.70000,   0.00000, 0.00000, 270.00000);
+    CreateDynamicObject(3294, -100.00000, 1111.69995, 21.70000,   0.00000, 0.00000, 90.00000);
+    CreateDynamicObject(9093, 2386.69995, 1043.90002, 11.60000,   0.00000, 0.00000, 90.00000);
+    CreateDynamicObject(5340, 2644.89990, -2039.30005, 14.10000,   0.00000, 0.00000, 270.00000);
 }
