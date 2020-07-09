@@ -150,7 +150,9 @@ resetPlayerVariable(playerid){
 
 	// Reset skill
 	PlayerInfo[playerid][expMekanik] = 0;
+	PlayerInfo[playerid][activeMekanik] = 0;
 	PlayerInfo[playerid][expMedic] = 0;
+	PlayerInfo[playerid][activeMedic] = 0;
 
 	PlayerInfo[playerid][last_int] = 0;
 	PlayerInfo[playerid][last_vw] = 0;
@@ -190,21 +192,24 @@ loadPlayerSkill(playerid){
 		new rows, idx = 0;
 		cache_get_row_count(rows);
 		if(rows){
-			new id_skill, exp_skill;
+			new id_skill, exp_skill, is_active;
 			while(idx < rows)
 			{
 				cache_get_value_name_int(idx, "id_skill", id_skill);
 				cache_get_value_name_int(idx, "exp", exp_skill);
+				cache_get_value_name_int(idx, "is_active", is_active);
 
 				switch(id_skill){
 					case 1: // Mekanik
 					{
 						PlayerInfo[playerid][expMekanik] = exp_skill;
+						PlayerInfo[playerid][activeMekanik] = is_active;
 						break;
 					}
 					case 2: // Cheff
 					{
 						PlayerInfo[playerid][expMedic] = exp_skill;
+						PlayerInfo[playerid][activeMedic] = is_active;
 						break;
 					}
 				}
@@ -2033,7 +2038,7 @@ loadAllItem(){
 }
 
 publicFor: ambilItemDariInvenRumah(playerid, id_item, input_jumlah, const nama_item[]){
- 	new total_item;
+	new total_item;
 	cache_get_value_name_int(0, "total_item", total_item);
 	if((total_item + input_jumlah) > PlayerInfo[playerid][limitItem]){						
 		format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", input_jumlah, total_item, PlayerInfo[playerid][limitItem]);

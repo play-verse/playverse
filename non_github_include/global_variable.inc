@@ -29,7 +29,9 @@ enum pInfo
 
 	// Skill EXP
 	expMekanik,
+	activeMekanik,
 	expMedic,
+	activeMedic,
 
     Cache:tempCache, // digunakan untuk menyimpan temporary cache : Misalnya cache inventory, cache skin. Jangan gunakan untuk yang penting
 

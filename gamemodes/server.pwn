@@ -4166,6 +4166,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0: // Mekanik
 					{
+						if(!PlayerInfo[playerid][activeMekanik]) return server_message(playerid, "Maaf skill mekanik anda tidak aktif.");
 						format(pDialog[playerid], sizePDialog, "Craft Alat Perbaikan");
 						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_DUA) strcat(pDialog[playerid], "\nPerbaiki Kendaraan");
 						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_TIGA) strcat(pDialog[playerid], "\nWarnain Kendaraan");
@@ -4173,6 +4174,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_LIMA) strcat(pDialog[playerid], "\nPaintjob kendaraan (khusus)");
 						
 						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_MEKANIK, DIALOG_STYLE_LIST, "Skill mekanik : ", pDialog[playerid], "Pilih", "Batal");
+						return 1;
+					}
+					case 1: // Medic
+					{
+						if(!PlayerInfo[playerid][activeMedic]) return server_message(playerid, "Maaf skill medic anda tidak aktif.");
 						return 1;
 					}
 				}
@@ -4928,7 +4934,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					return 1;
 				}
-
 
 				SetPVarInt(playerid, "mekanik_warna_2", listitem);
 
