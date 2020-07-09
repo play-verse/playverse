@@ -784,12 +784,12 @@ pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 }
 
 publicFor: pakaiBibitJeruk(playerid){
-	pakaiBibit(playerid, "Jeruk", 18, 19);
+	pakaiBibit(playerid, "Jeruk", 31, 32);
 	return 1;
 }
 
 publicFor: pakaiBibitGanja(playerid){
-	pakaiBibit(playerid, "Ganja", 20, 21);
+	pakaiBibit(playerid, "Ganja", 33, 34);
 	return 1;
 }
 
@@ -810,7 +810,7 @@ pakaiNarko(playerid, const nama_item[], id_item, persen){
 }
 
 publicFor: pakaiNarkoGanja(playerid){
-	pakaiNarko(playerid, "Ganja", 21, 5);
+	pakaiNarko(playerid, "Ganja", 32, 5);
 	return 1;
 }
 
