@@ -1533,7 +1533,7 @@ publicFor: konfirmasiBuatAlatPerbaikan(playerid, ada){
 		ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_ALAT_PERBAIKAN, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan", pDialog[playerid], "Konfirmasi", "Batal");
 		return 1;
 	}else
-		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", "Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item alat perbaikan.", "Ok", "");
+		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", "Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item alat perbaikan.\n\n"YELLOW"Anda membutuhkan 1 Perunggu dan 3 Perak.", "Ok", "");
 }
 
 
