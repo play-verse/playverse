@@ -37,4 +37,7 @@ loadAllMapIcon(){
 
     // Toko Bibit Icon
     CreateDynamicMapIcon(1494.2545, -1657.3724, 12.8556, 38, 1, 0, 0, -1, 100.0);
+
+    // Toko Peralatan Pancing
+    CreateDynamicMapIcon(1024.2606,-1892.4369,12.8019, 38, 1, 0, 0, -1, 100.0);
 }

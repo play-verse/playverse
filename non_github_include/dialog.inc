@@ -157,6 +157,18 @@ showDialogBeliBibitNarko(playerid){
     return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_BIBIT_NARKO, DIALOG_STYLE_TABLIST_HEADERS, "Menu Bibit", str_daftar_bibit, "Pilih", "Batal");
 }
 
+showDialogBeliAlatPancing(playerid){
+    static str_daftar_bibit[sizeof(MENU_ALAT_PANCING) * 100 + 100], subString[100];
+    if(str_daftar_bibit[0] == EOS){
+        strcat(str_daftar_bibit, WHITE"Nama\tHarga\n");
+        for(new i = 0; i < sizeof(MENU_ALAT_PANCING); i++){
+            format(subString, 100, WHITE"%s\t"GREEN"$%d\n", MENU_ALAT_PANCING[i][namaItem], MENU_ALAT_PANCING[i][hargaItem]);
+            strcat(str_daftar_bibit, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_ALAT_PANCING, DIALOG_STYLE_TABLIST_HEADERS, "Menu Peralatan Pancing", str_daftar_bibit, "Pilih", "Batal");
+}
+
 showDialogTempatMakan(playerid){
     static str_daftar_makanan[sizeof(MENU_MAKANAN) * 100 + 100], subString[100];
     if(str_daftar_makanan[0] == EOS){

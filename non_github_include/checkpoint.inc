@@ -50,6 +50,8 @@ loadAllCP(){
     CP_simPraktik[0] = buatCPDanLabel(1580.3300,-1635.5547,13.5601, "Polisi Metro Los Santos\nPelayanan SIM\n"GREEN"Praktik", 1.0);
 
     CP_pusatProperti[0] = buatCPDanLabel(1087.9688,-1529.9100,22.7421, "Pusat Properti cabang LS Mall\n"GREEN"Hubungi disini.", 1.0);
-
+    // Toko Bibit
     CP_tokoBibit[0] = buatCPDanLabel(1494.2545, -1657.3724, 12.8556, "Toko Bibit cabang City Hall\n"GREEN"Beli Bibit disini", 1.0);
+    // Toko Pancingan
+    CP_tokoPancing[0] = buatCPDanLabel(1024.2606,-1892.4369,12.8019, "Toko Peralatan Pancing cabang Santa Maria\n"GREEN"Beli Peralatan Pancing disini", 1.0);
 }

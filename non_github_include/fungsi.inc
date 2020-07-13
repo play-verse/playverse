@@ -749,6 +749,52 @@ publicFor: pakaiGergajiMesin(playerid){
 	return 1;
 }
 
+publicFor: pakaiTombakIkan(playerid){
+	tambahItemPlayer(playerid, 34, -1);
+	PlayerInfo[playerid][sisaTombak] += 15;
+	SetPlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX, 11716, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Tombak Ikan = "GREEN"Penambahan kesempatan pakai tombak ikan sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan pakai tombak ikan anda direset jadi 0.", "Ok", "");
+	return 1;
+}
+
+publicFor: pakaiTongkatPancing(playerid){
+	inline responseQuery(){
+		new total_item;
+		cache_get_value_name_int(0, "total_item", total_item);
+		if((total_item + 1) > PlayerInfo[playerid][limitItem]){						
+			format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", 1, total_item, PlayerInfo[playerid][limitItem]);
+			return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
+		}else{
+			new Float: x, Float: y, Float: z, Float: a,
+			Float: tmp, obj, vehid = GetPlayerVehicleID(playerid);
+			GetPlayerPos(playerid, x, y, z);
+			GetPlayerFacingAngle(playerid, a);
+			obj = CA_RayCastLine(x, y, z, x+(3.0*floatsin(-a, degrees)), y+(3.0*floatsin(-a, degrees)), z-3.0, tmp, tmp, tmp);
+			if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada diluar Interior atau Virtual World 0!");
+			if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Tidak dapat memancing di dalam kendaraan.");
+			if(obj != 20000) return error_command(playerid, "Anda harus berada di pinggir perairan untuk dapat memancing.");
+			if(PlayerInfo[playerid][sisaUmpan] < 0) return error_command(playerid, "Maaf anda tidak memiliki umpan ikan.");
+			mancingSecs[playerid] = 30;
+			mancingAktif[playerid] = 1;
+			mancingTimer[playerid] = SetPreciseTimer("waktuMancing", 1000, true, "i", playerid);
+			TogglePlayerControllable(playerid , 0);
+			ApplyAnimation(playerid,"SWORD", "sword_block", 4.1, 0, 0, 0, 0, 0);
+			SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX, 18632, 1, -0.091109, 0.255484, 0.018155, 94.362060, 312.328125, 190.418655, 1.000000, 1.000000, 1.000000);
+			ApplyAnimation(playerid,"SWORD", "sword_block", 4.1, 0, 0, 0, 0, 0);
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+	return 1;
+}
+
+publicFor: pakaiUmpanIkan(playerid){
+	tambahItemPlayer(playerid, 41, -1);
+	PlayerInfo[playerid][sisaUmpan] += 10;
+
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Roti - Umpan Ikan = "GREEN"Penambahan kesempatan pakai umpan ikan sebanyak 10 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan pakai umpan ikan anda direset jadi 0.", "Ok", "");
+	return 1;
+}
+
 pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 	new Float: x, Float: y, Float: z, Float: a, Float: tmp, Float: x1, Float: y1, Float: x2, Float: y2,
 	id = Iter_Free(PlantIterator), plant_Id = GetClosestPlant(playerid),
@@ -766,6 +812,7 @@ pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 		y1 = CA_RayCastLine(x, y, z+0.5, x, y+5.0, z, tmp, tmp, tmp);
 		y2 = CA_RayCastLine(x, y, z+0.5, x, y-5.0, z, tmp, tmp, tmp);
 		if(x1 == 0 && x2 == 0 && y1 == 0 && y2 == 0){
+			ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
 			GetPlayerFacingAngle(playerid, a);
 			x += (3.0 * floatsin(-a, degrees));
 			y += (3.0 * floatcos(-a, degrees));
@@ -774,6 +821,7 @@ pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 			tambahItemPlayer(playerid, id_bibit, -1);
 			format(pDialog[playerid], sizePDialog, WHITE"Penggunaan 1 item "YELLOW"Bibit %s"WHITE".\n"RED"Note :\n- Jaga tanaman anda atau tanaman anda akan dicuri.\n- Tanaman dapat hilang sewaktu-waktu, segera panen jika sudah siap.", nama_item);
 			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", pDialog[playerid], "Ok", "");
+			ClearAnimations(playerid);
 		}else{
 			error_command(playerid, "Maaf permukaan ini tidak datar dan tidak dapat ditanami bibit.");
 		}
@@ -796,21 +844,25 @@ publicFor: pakaiBibitGanja(playerid){
 pakaiNarko(playerid, const nama_item[], id_item, persen){
 	new Float:depth, Float:depth2, Float:tambahArmour = PlayerInfo[playerid][lastArmour]+persen;
 	if(CA_IsPlayerInWater(playerid, depth, depth2)) return error_command(playerid, "Tidak dapat menggunakan item ini di dalam air.");
-	if(PlayerInfo[playerid][lastArmour] > 0 || tambahArmour <= 100){
-		ApplyAnimation(playerid, "BAR", "dnk_stndM_loop", 4.1, 0, 1, 1, 0, 0, 1);
+	if(PlayerInfo[playerid][lastArmour] > 0 || tambahArmour <= 50){
+		//ApplyAnimation(playerid,"SMOKING", "m_smkstnd_loop", 4.0, 1, 0, 0, 0, 0);
+		SetPlayerSpecialAction(playerid,SPECIAL_ACTION_SMOKE_CIGGY);
+		SetPlayerDrunkLevel (playerid, 5000);
+		puyengSecs[playerid] = 30;
+		puyengTimer[playerid] = SetPreciseTimer("waktuPuyeng", 1000, true, "i", playerid);
 		SetPlayerArmour(playerid, tambahArmour);
 		PlayerInfo[playerid][lastArmour] = tambahArmour;
 		tambahItemPlayer(playerid, id_item, -1);
 		format(pDialog[playerid], sizePDialog, WHITE"Penggunaan 1 item "YELLOW"%s"WHITE", anda mendapat tambahan Armour sebesar "YELLOW"%d%%"WHITE".", nama_item, persen);
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", pDialog[playerid], "Ok", "");
 	}else{
-		error_command(playerid, "Tidak dapat menggunakan item dalam keadaan Armour penuh.");
+		error_command(playerid, "Maaf tidak dapat menggunakan item lagi, ketika keadaan tidak sadar.");
 	}
 	return 1;
 }
 
 publicFor: pakaiNarkoGanja(playerid){
-	pakaiNarko(playerid, "Ganja", 32, 5);
+	pakaiNarko(playerid, "Ganja", 34, 10);
 	return 1;
 }
 
@@ -1864,8 +1916,29 @@ publicFor: pembayaranBibitNarkoATM(playerid){
 		format(string_keterangan, 100, "Pembelian %s sebanyak %d", MENU_BIBIT_NARKO[idx][hargaBibit], jumlah);
 		addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -harga, string_keterangan);
 		tambahItemPlayer(playerid, MENU_BIBIT_NARKO[idx][idItemBibit], jumlah);
-		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_BIBIT[idx][namaBibit], jumlah, harga);
+		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_BIBIT_NARKO[idx][namaBibit], jumlah, harga);
 		showDialogPesan(playerid, GREEN"Berhasil membeli bibit", pDialog[playerid]);
+	}else{
+		showDialogPesan(playerid, RED"Saldo anda tidak mencukupi", WHITE"Maaf saldo yang terdapat pada ATM anda tidak mencukupi.\nSilahkan gunakan metode lain.");
+	}
+	return 1;
+}
+
+publicFor: pembayaranAlatPancingATM(playerid){
+	new idx = GetPVarInt(playerid, "bpancing_index"), jumlah = GetPVarInt(playerid, "bpancing_jumlah");
+	new harga = jumlah * MENU_ALAT_PANCING[idx][hargaItem];
+	DeletePVar(playerid, "bpancing_index");
+	DeletePVar(playerid, "bpancing_jumlah");				
+
+	new saldo;
+	cache_get_value_name_int(0, "saldo", saldo);
+	if(saldo > harga){
+		new string_keterangan[100];
+		format(string_keterangan, 100, "Pembelian %s sebanyak %d", MENU_ALAT_PANCING[idx][hargaItem], jumlah);
+		addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -harga, string_keterangan);
+		tambahItemPlayer(playerid, MENU_ALAT_PANCING[idx][idItem], jumlah);
+		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_ALAT_PANCING[idx][namaItem], jumlah, harga);
+		showDialogPesan(playerid, GREEN"Berhasil membeli peralatan pancing", pDialog[playerid]);
 	}else{
 		showDialogPesan(playerid, RED"Saldo anda tidak mencukupi", WHITE"Maaf saldo yang terdapat pada ATM anda tidak mencukupi.\nSilahkan gunakan metode lain.");
 	}
@@ -3124,7 +3197,7 @@ public DestroyTime(plant_Id){
 	if(IsValidDynamicObject(DFarm[plant_Id][plantObjID])) DestroyDynamicObject(DFarm[plant_Id][plantObjID]);
 	if(IsValidDynamic3DTextLabel(DFarm[plant_Id][plantLabel])) DestroyDynamic3DTextLabel(DFarm[plant_Id][plantLabel]);
 	DFarm[plant_Id][plantSecs] = 0;
-	DFarm[plant_Id][plantObjID] = DFarm[plant_Id][plantTimer] = -1;
+	DFarm[plant_Id][plantObjID] = DFarm[plant_Id][destroyTimer] = -1;
 	DFarm[plant_Id][plantLabel] = Text3D: -1;
 	Iter_Remove(PlantIterator, plant_Id);
 	return 1;
@@ -3162,6 +3235,7 @@ public buatTokoNarko(){
 	DeletePreciseTimer(MrPuyengStart);
 	labelTokoNarko = CreateDynamic3DTextLabel("Mr. Puyeng", COLOR_WHITE, POINT_NARKO[rand_narko][NARKO_X], POINT_NARKO[rand_narko][NARKO_Y], POINT_NARKO[rand_narko][NARKO_Z], 20);
     CP_tokoNarko = CreateDynamicCP(POINT_NARKO[rand_narko][NARKO_X], POINT_NARKO[rand_narko][NARKO_Y], POINT_NARKO[rand_narko][NARKO_Z], 1.0, 0, 0, -1, 5.0);
+	A_tokoNarko = CreateDynamicActor(272, POINT_NARKO_ACTOR[rand_narko][NARKO_X], POINT_NARKO_ACTOR[rand_narko][NARKO_Y], POINT_NARKO_ACTOR[rand_narko][NARKO_Z], POINT_NARKO_ACTOR[rand_narko][NARKO_A]);
 	MrPuyengEnd = SetPreciseTimer("re_TokoNarko", 300000, false); // Buat random toko
 	return 1;
 }
@@ -3171,9 +3245,110 @@ public re_TokoNarko(){
 	DeletePreciseTimer(MrPuyengEnd);
 	if(IsValidDynamicCP(CP_tokoNarko)) DestroyDynamicCP(CP_tokoNarko);
 	if(IsValidDynamic3DTextLabel(labelTokoNarko)) DestroyDynamic3DTextLabel(labelTokoNarko);
+	if(IsValidDynamicActor(A_tokoNarko)) DestroyDynamicActor(A_tokoNarko);
 	MrPuyengEnd = -1;
 	CP_tokoNarko = -1;
 	labelTokoNarko = Text3D: -1;
 	MrPuyengStart = SetPreciseTimer("buatTokoNarko", 60000, false); // Cooldown toko
+	return 1;
+}
+
+forward waktuPuyeng(playerid);
+public waktuPuyeng(playerid){
+	if(puyengSecs[playerid] >= 0){
+		puyengSecs[playerid]--;
+		if(puyengSecs[playerid] == 0){
+			puyengSecs[playerid] = -1;
+			//ClearAnimations(playerid);
+			SetPlayerSpecialAction(playerid,SPECIAL_ACTION_NONE);
+			SetPlayerDrunkLevel (playerid, 0);
+			DeletePreciseTimer(puyengTimer[playerid]);
+		}
+	}
+	return 1;
+}
+
+randomIkan(playerid){
+	new angka;
+	if(mancingAktif[playerid] == 1){
+		mancingAktif[playerid] = 0;
+		if(IsPlayerAttachedObjectSlotUsed(playerid, PANCINGAN_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX);
+		angka = random(70);
+	}else if(PlayerInfo[playerid][sisaTombak] > 0){ // Pakai tombak keberuntungan +14%
+		PlayerInfo[playerid][sisaTombak]--;
+		if(PlayerInfo[playerid][sisaTombak] == 0){
+			if(IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX);
+		}
+		angka = random(60);
+	}else{
+		angka = 0;
+	}
+	switch(angka){
+		case 34:{ // 1.4%
+			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "SILVER"Ikan Arwana"WHITE".\nIkan Arwana adalah hasil mancing nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
+			tambahItemPlayer(playerid, 35, 1);
+		}
+		case 15,26,45:
+		{ // 4.3%
+			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "YELLOW"Ikan Kakap"WHITE".\nIkan Kakap adalah hasil mancing yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
+			tambahItemPlayer(playerid, 36, 1);
+		}
+		case 27..30,57,58:
+		{ // 10%
+			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Ikan Mas"WHITE".\nIkan Mas adalah hasil mancing yang mirip dengan "BLUE"Ikan Mujair"WHITE" tapi lebih bagus. Keren sekali!");
+			tambahItemPlayer(playerid, 37, 1);
+		}
+		case 11..14,41..44,56,59:
+		{ // 14.3%
+			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "ORANGE"Ikan Mujair"WHITE".\nIkan Mujair adalah hasil mancing yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
+			tambahItemPlayer(playerid, 38, 1);
+		}
+		case 6..10,21..25,36..40:
+		{ // 21.4%
+			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "ORANGE"Ubur-ubur"WHITE".\nUbur-ubur adalah hasil mancing bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
+			tambahItemPlayer(playerid, 39, 1);
+		}
+		case 1..5,16..20,46..50,61..65,66..70:
+		{ // 35.7%
+			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "ORANGE"Bintang Laut"WHITE".\nBintang Laut adalah hasil mancing bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
+			tambahItemPlayer(playerid, 40, 1);
+		}
+		default:
+		{ // 12.8%
+			SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
+		}
+	}
+	return 1;
+}
+
+forward waktuMancing(playerid);
+public waktuMancing(playerid){
+	if(mancingSecs[playerid] >= 0){
+		mancingSecs[playerid]--;
+		new string[128];
+		format(string, 128, "~r~WAKTU TERSISA ~b~: %d", mancingSecs[playerid]);
+		GameTextForPlayer(playerid, string , 1000, 3);
+		if(mancingSecs[playerid] == 0){
+			ClearAnimations(playerid);
+			GameTextForPlayer(playerid, "~g~MEMANCING SELESAI!", 1000, 3);
+			TogglePlayerControllable(playerid , 1);
+			mancingSecs[playerid] = -1;
+			DeletePreciseTimer(mancingTimer[playerid]);
+			randomIkan(playerid);
+		}
+	}
+	return 1;
+}
+
+forward delayNombak(playerid);
+public delayNombak(playerid){
+	if(nombakSecs[playerid] >= 0){
+		nombakSecs[playerid]--;
+		if(nombakSecs[playerid] == 0){
+			nombakSecs[playerid] = -1;
+			nombakDelay[playerid] = 0;
+			DeletePreciseTimer(nombakTimer[playerid]);
+		}
+	}
 	return 1;
 }
