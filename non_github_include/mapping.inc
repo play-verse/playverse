@@ -51,7 +51,7 @@ loadAllMapingan(){
     palangTollLSLV();
     stasiunLS();
     tokoPerabot();
-    blockGarageAndSpray();
+    // blockGarageAndSpray();
     eksteriorTambang();
     interiorTambang();
 }
@@ -69,7 +69,7 @@ removeBangunanUntukMapping(playerid){
     removePizzaLS(playerid);
     removeObjectInteriorRumah(playerid);
     removeStasiunLS(playerid);
-    removeBlockGarageAndSpray(playerid);
+    // removeBlockGarageAndSpray(playerid);
     removeEksteriorTambang(playerid);
 }
 
@@ -5494,45 +5494,45 @@ tokoPerabot(){
     CreateDynamicObject(19957, 1836.83154, -1390.97778, 12.55729,   0.00000, 0.00000, 87.95006);
 }
 
-removeBlockGarageAndSpray(playerid){
-    RemoveBuildingForPlayer(playerid, 5340, 2644.8594, -2039.2344, 14.0391, 0.25);
-    RemoveBuildingForPlayer(playerid, 5422, 2071.4766, -1831.4219, 14.5625, 0.25);
-    RemoveBuildingForPlayer(playerid, 5856, 1024.9844, -1029.3516, 33.1953, 0.25);
-    RemoveBuildingForPlayer(playerid, 5779, 1041.3516, -1025.9297, 32.6719, 0.25);
-    RemoveBuildingForPlayer(playerid, 6400, 488.2813, -1734.6953, 12.3906, 0.25);
-    RemoveBuildingForPlayer(playerid, 10575, -2716.3516, 217.4766, 5.3828, 0.25);
-    RemoveBuildingForPlayer(playerid, 11313, -1935.8594, 239.5313, 35.3516, 0.25);
-    RemoveBuildingForPlayer(playerid, 11319, -1904.5313, 277.8984, 42.9531, 0.25);
-    RemoveBuildingForPlayer(playerid, 9625, -2425.7266, 1027.9922, 52.2813, 0.25);
-    RemoveBuildingForPlayer(playerid, 9093, 2386.6563, 1043.6016, 11.5938, 0.25);
-    RemoveBuildingForPlayer(playerid, 1553, 1988.5859, 2130.9609, 11.1250, 0.25);
-    RemoveBuildingForPlayer(playerid, 1552, 1990.0234, 2130.9688, 11.1172, 0.25);
-    RemoveBuildingForPlayer(playerid, 1553, 1991.4688, 2130.9609, 11.1250, 0.25);
-    RemoveBuildingForPlayer(playerid, 1552, 1939.6641, 2198.6094, 11.1172, 0.25);
-    RemoveBuildingForPlayer(playerid, 1553, 1939.6563, 2200.0469, 11.1250, 0.25);
-    RemoveBuildingForPlayer(playerid, 1553, 1939.6563, 2197.1563, 11.1250, 0.25);
-    RemoveBuildingForPlayer(playerid, 7507, 1963.5469, 2159.7344, 12.1328, 0.25);
-    RemoveBuildingForPlayer(playerid, 7891, 1968.7422, 2162.4922, 12.0938, 0.25);
-    RemoveBuildingForPlayer(playerid, 3294, -1420.5469, 2591.1563, 57.7422, 0.25);
-    RemoveBuildingForPlayer(playerid, 3294, -100.0000, 1111.4141, 21.6406, 0.25);
-    RemoveBuildingForPlayer(playerid, 13028, 720.0156, -462.5234, 16.8594, 0.25);
-}
+// removeBlockGarageAndSpray(playerid){
+//     RemoveBuildingForPlayer(playerid, 5340, 2644.8594, -2039.2344, 14.0391, 0.25);
+//     RemoveBuildingForPlayer(playerid, 5422, 2071.4766, -1831.4219, 14.5625, 0.25);
+//     RemoveBuildingForPlayer(playerid, 5856, 1024.9844, -1029.3516, 33.1953, 0.25);
+//     RemoveBuildingForPlayer(playerid, 5779, 1041.3516, -1025.9297, 32.6719, 0.25);
+//     RemoveBuildingForPlayer(playerid, 6400, 488.2813, -1734.6953, 12.3906, 0.25);
+//     RemoveBuildingForPlayer(playerid, 10575, -2716.3516, 217.4766, 5.3828, 0.25);
+//     RemoveBuildingForPlayer(playerid, 11313, -1935.8594, 239.5313, 35.3516, 0.25);
+//     RemoveBuildingForPlayer(playerid, 11319, -1904.5313, 277.8984, 42.9531, 0.25);
+//     RemoveBuildingForPlayer(playerid, 9625, -2425.7266, 1027.9922, 52.2813, 0.25);
+//     RemoveBuildingForPlayer(playerid, 9093, 2386.6563, 1043.6016, 11.5938, 0.25);
+//     RemoveBuildingForPlayer(playerid, 1553, 1988.5859, 2130.9609, 11.1250, 0.25);
+//     RemoveBuildingForPlayer(playerid, 1552, 1990.0234, 2130.9688, 11.1172, 0.25);
+//     RemoveBuildingForPlayer(playerid, 1553, 1991.4688, 2130.9609, 11.1250, 0.25);
+//     RemoveBuildingForPlayer(playerid, 1552, 1939.6641, 2198.6094, 11.1172, 0.25);
+//     RemoveBuildingForPlayer(playerid, 1553, 1939.6563, 2200.0469, 11.1250, 0.25);
+//     RemoveBuildingForPlayer(playerid, 1553, 1939.6563, 2197.1563, 11.1250, 0.25);
+//     RemoveBuildingForPlayer(playerid, 7507, 1963.5469, 2159.7344, 12.1328, 0.25);
+//     RemoveBuildingForPlayer(playerid, 7891, 1968.7422, 2162.4922, 12.0938, 0.25);
+//     RemoveBuildingForPlayer(playerid, 3294, -1420.5469, 2591.1563, 57.7422, 0.25);
+//     RemoveBuildingForPlayer(playerid, 3294, -100.0000, 1111.4141, 21.6406, 0.25);
+//     RemoveBuildingForPlayer(playerid, 13028, 720.0156, -462.5234, 16.8594, 0.25);
+// }
 
-blockGarageAndSpray(){
-    CreateDynamicObject(5422, 2071.60010, -1831.50000, 14.60000,   0.00000, 0.25000, 359.50000);
-    CreateDynamicObject(5779, 1041.30005, -1026.00000, 32.70000,   0.00000, 0.00000, 90.00000);
-    CreateDynamicObject(5856, 1025.00000, -1029.40002, 33.10000,   0.00000, 0.00000, 90.25000);
-    CreateDynamicObject(6400, 488.29999, -1734.80005, 12.40000,   359.75000, 359.00000, 79.24600);
-    CreateDynamicObject(13028, 720.00000, -462.50000, 16.80000,   0.00000, 0.00000, 90.00000);
-    CreateDynamicObject(11313, -1935.80005, 239.00000, 35.30000,   0.00000, 0.00000, 92.00000);
-    CreateDynamicObject(11319, -1904.50000, 277.89999, 42.90000,   0.00000, 0.00000, 90.00000);
-    CreateDynamicObject(10575, -2716.50000, 217.50000, 5.30000,   0.00000, 0.00000, 178.00000);
-    CreateDynamicObject(9625, -2425.60010, 1028.09998, 52.30000,   0.00000, 0.00000, 270.00000);
-    CreateDynamicObject(3294, -1420.59998, 2591.00000, 57.70000,   0.00000, 0.00000, 270.00000);
-    CreateDynamicObject(3294, -100.00000, 1111.69995, 21.70000,   0.00000, 0.00000, 90.00000);
-    CreateDynamicObject(9093, 2386.69995, 1043.90002, 11.60000,   0.00000, 0.00000, 90.00000);
-    CreateDynamicObject(5340, 2644.89990, -2039.30005, 14.10000,   0.00000, 0.00000, 270.00000);
-}
+// blockGarageAndSpray(){
+//     CreateDynamicObject(5422, 2071.60010, -1831.50000, 14.60000,   0.00000, 0.25000, 359.50000);
+//     CreateDynamicObject(5779, 1041.30005, -1026.00000, 32.70000,   0.00000, 0.00000, 90.00000);
+//     CreateDynamicObject(5856, 1025.00000, -1029.40002, 33.10000,   0.00000, 0.00000, 90.25000);
+//     CreateDynamicObject(6400, 488.29999, -1734.80005, 12.40000,   359.75000, 359.00000, 79.24600);
+//     CreateDynamicObject(13028, 720.00000, -462.50000, 16.80000,   0.00000, 0.00000, 90.00000);
+//     CreateDynamicObject(11313, -1935.80005, 239.00000, 35.30000,   0.00000, 0.00000, 92.00000);
+//     CreateDynamicObject(11319, -1904.50000, 277.89999, 42.90000,   0.00000, 0.00000, 90.00000);
+//     CreateDynamicObject(10575, -2716.50000, 217.50000, 5.30000,   0.00000, 0.00000, 178.00000);
+//     CreateDynamicObject(9625, -2425.60010, 1028.09998, 52.30000,   0.00000, 0.00000, 270.00000);
+//     CreateDynamicObject(3294, -1420.59998, 2591.00000, 57.70000,   0.00000, 0.00000, 270.00000);
+//     CreateDynamicObject(3294, -100.00000, 1111.69995, 21.70000,   0.00000, 0.00000, 90.00000);
+//     CreateDynamicObject(9093, 2386.69995, 1043.90002, 11.60000,   0.00000, 0.00000, 90.00000);
+//     CreateDynamicObject(5340, 2644.89990, -2039.30005, 14.10000,   0.00000, 0.00000, 270.00000);
+// }
 
 removeEksteriorTambang(playerid){
     RemoveBuildingForPlayer(playerid, 16755, -662.6172, 2309.9453, 140.4531, 0.25);

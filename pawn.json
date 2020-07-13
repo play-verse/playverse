@@ -9,7 +9,7 @@
 		"zeex/samp-plugin-crashdetect:v4.19.4",
 		"pawn-lang/YSI-Includes@5.x",
 		"samp-incognito/samp-streamer-plugin:v2.9.4",
-		"Southclaws/progress2",
+		"Southclaws/progress2#0c871773d5d5c64a465d77037c06c8d321c32d7f",
 		"pBlueG/SA-MP-MySQL:R41-4",
 		"Southclaws/zcmd",
 		"maddinat0r/sscanf:v2.8.3",

@@ -1,0 +1,10 @@
+{
+	"user": "nathanramli",
+	"repo": "weapon",
+	"entry": "weapon.pwn",
+	"output": "weapon.amx",
+	"dependencies": [
+		"sampctl/samp-stdlib",
+		"pBlueG/SA-MP-MySQL:R39-6"
+	]
+}

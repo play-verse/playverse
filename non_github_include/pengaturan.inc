@@ -305,7 +305,7 @@
 
 #define publicFor:%0(%1) forward %0(%1); public %0(%1)
 
-#define KickEx(%0) SetTimerEx("keluarkanPlayer", 1, 0, "d", %0) 
+#define KickEx(%0) SetPreciseTimer("keluarkanPlayer", 1, 0, "d", %0) 
 
 /*
 	Sweeper Job

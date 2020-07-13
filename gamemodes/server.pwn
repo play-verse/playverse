@@ -12,13 +12,13 @@
 #include <sscanf2>
 #include <streamer>
 
-#define SAMP_LOGGER_COMPAT // Untuk sementara selama belum compatibility progress2 dan samp-logger baru
 #include <progress2>
 
 #include <samp-precise-timers>
 #include <colandreas>
 #include <geolite>
 #include <EVF> // Fungsi tambahan vehicle
+#include <garage_block> // Block all PayNSpray dan modshop lain
 
 #include <a_mysql>
 #include <zcmd>
@@ -5344,12 +5344,15 @@ public OnGameModeInit()
 	buatTokoNarko();
 	printf("[NARKO] Narko telah dibuat.");
 
+	// Setting up Game mode
 	SetGameModeText("EL v0.5");
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
 	ShowNameTags(1);
 	SetNameTagDrawDistance(40.0);
 	EnableStuntBonusForAll(0);
 	DisableInteriorEnterExits();
+	
+	BlockGarages(.text="DITUTUP");
 	
 	printf("[TEXTDRAW] Load textdraw global..");
 	loadTextdrawGlobal();
@@ -5507,7 +5510,7 @@ public OnPlayerText(playerid, text[]){
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
-	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000);
+	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !GetPlayerAnimationIndex(playerid)) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000);
 	// Wiki Samp - OnPlayerText
 	// Return 1 - Mengirimkan pesan default
 	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan

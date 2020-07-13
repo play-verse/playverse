@@ -3106,7 +3106,7 @@ public HarvestTime(plant_Id){
         DFarm[plant_Id][plantSecs]--;
         reloadPlantLabel(plant_Id);
     }else if(DFarm[plant_Id][plantSecs] == 1){
-        KillTimer(DFarm[plant_Id][plantTimer]);
+        DeletePreciseTimer(DFarm[plant_Id][plantTimer]);
         DFarm[plant_Id][plantSecs] = 0;
         DFarm[plant_Id][plantTimer] = -1;
 		DFarm[plant_Id][plantHarvest] = true;
@@ -3120,7 +3120,7 @@ public HarvestTime(plant_Id){
 
 forward DestroyTime(plant_Id);
 public DestroyTime(plant_Id){
-	KillTimer(DFarm[plant_Id][destroyTimer]);
+	DeletePreciseTimer(DFarm[plant_Id][destroyTimer]);
 	if(IsValidDynamicObject(DFarm[plant_Id][plantObjID])) DestroyDynamicObject(DFarm[plant_Id][plantObjID]);
 	if(IsValidDynamic3DTextLabel(DFarm[plant_Id][plantLabel])) DestroyDynamic3DTextLabel(DFarm[plant_Id][plantLabel]);
 	DFarm[plant_Id][plantSecs] = 0;
@@ -3159,7 +3159,7 @@ GetClosestPlant(playerid, Float: range = 5.0){
 forward buatTokoNarko();
 public buatTokoNarko(){
 	new rand_narko = random(sizeof(POINT_NARKO));
-	KillTimer(MrPuyengStart);
+	DeletePreciseTimer(MrPuyengStart);
 	labelTokoNarko = CreateDynamic3DTextLabel("Mr. Puyeng", COLOR_WHITE, POINT_NARKO[rand_narko][NARKO_X], POINT_NARKO[rand_narko][NARKO_Y], POINT_NARKO[rand_narko][NARKO_Z], 20);
     CP_tokoNarko = CreateDynamicCP(POINT_NARKO[rand_narko][NARKO_X], POINT_NARKO[rand_narko][NARKO_Y], POINT_NARKO[rand_narko][NARKO_Z], 1.0, 0, 0, -1, 5.0);
 	MrPuyengEnd = SetPreciseTimer("re_TokoNarko", 300000, false); // Buat random toko
@@ -3168,7 +3168,7 @@ public buatTokoNarko(){
 
 forward re_TokoNarko();
 public re_TokoNarko(){
-	KillTimer(MrPuyengEnd);
+	DeletePreciseTimer(MrPuyengEnd);
 	if(IsValidDynamicCP(CP_tokoNarko)) DestroyDynamicCP(CP_tokoNarko);
 	if(IsValidDynamic3DTextLabel(labelTokoNarko)) DestroyDynamic3DTextLabel(labelTokoNarko);
 	MrPuyengEnd = -1;
