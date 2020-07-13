@@ -489,3 +489,19 @@ IsValidPaintjobForVehicle(vehicleid, paintjobid){
     }
     return false;
 }
+
+IsMobilPickup(vehicleid) {
+    if(!IsValidVehicle(vehicleid)) return 0;
+    switch(GetVehicleModel(vehicleid)){
+        // 422 - Bobcat
+        // 455 - Flatbed (ada barang dibelakangnya, tapi bolehkan aja)
+        // 478 - Walton
+        // 543 - Sadler
+        // 552 - Utility Van (punya wadah dibelakang, tapi tidak cocok)
+        // 554 - Yosemite
+        // 578 - DFT-30 (truck, bolehkan saja)
+        case 422, 455, 478, 543, 554, 578:
+            return 1;
+    }
+    return 0;
+}

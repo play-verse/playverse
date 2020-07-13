@@ -3893,7 +3893,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(pid == -1) return error_command(playerid, "Anda tidak berada disekitar pohon.");
 						if(!DTree[pid][treeTumbang]) return error_command(playerid, "Anda tidak berada disekitar pohon tumbang.");
 						new vid = GetNearestVehicleToPlayer(playerid);
-						if(GetVehicleModel(vid) != 422) return error_command(playerid, "Anda tidak berada disekitar mobil pick up.");
+						if(!IsMobilPickup(vid)) return error_command(playerid, "Anda tidak berada disekitar mobil pick up.");
 						new Float: x, Float: y, Float: z;
 						GetVehicleBoot(vid, x, y, z);
 						if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Anda tidak berada tepat dibelakang mobil pick up.");
@@ -3917,18 +3917,31 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						// Muatan Pohon
 						new vehid = GetPlayerVehicleID(playerid);
 						if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
-						if(GetVehicleModel(vehid) != 422) return error_command(playerid, "Anda tidak berada di dalam kendaraan pick up.");
+						if(!IsMobilPickup(vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan pick up.");
 						format(pDialog[playerid], sizePDialog, WHITE"Kendaraan anda memiliki muatan pohon sebanyak "GREEN"%d"WHITE" buah.", vehDTree[vehid][treeAngkut]);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Muatan Pohon", pDialog[playerid], "Ok", "");
 					}
 					case 5:
 					{
+						format(pDialog[playerid], sizePDialog, "Nama\tJarak\n");
 						// Tempat Pemotongan Pohon
-						SetPlayerCheckpoint(playerid, 2351.5806, -659.4711, 128.1192, 5.0);
-						SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda telah berhasil menandai Tempat Pemotongan Pohon.");
+						for(new i = 0; i < sizeof(POSISI_PEMOTONGAN_KAYU); i++){
+							strcatEx(pDialog[playerid], sizePDialog, "#%d - %s\t%.2fm\n", i + 1, GetZoneName(POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z]), GetPlayerDistanceFromPoint(playerid, POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z]));
+						}
+						ShowPlayerDialog(playerid, DIALOG_PILIH_TEMPAT_PEMOTONGAN, DIALOG_STYLE_TABLIST_HEADERS, "Pilih tempat pemotongan :", pDialog[playerid], "Pilih", "Kembali");						
 					}
 				}
 			}
+			return 1;
+		}
+		case DIALOG_PILIH_TEMPAT_PEMOTONGAN:
+		{
+			if(response){
+				SetPlayerCheckpoint(playerid, POSISI_PEMOTONGAN_KAYU[listitem][POSISI_X], POSISI_PEMOTONGAN_KAYU[listitem][POSISI_Y], POSISI_PEMOTONGAN_KAYU[listitem][POSISI_Z], 5.0);
+				PlayerInfo[playerid][activeMarker] = true;
+				SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda telah berhasil menandai Tempat Pemotongan Pohon.");
+			}else
+				cmd_lumberjack(playerid, "");
 			return 1;
 		}
 		case DIALOG_PILIH_TREE:
@@ -3936,6 +3949,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new id = strval(inputtext);
 				SetPlayerCheckpoint(playerid, DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ], 5.0);
+				PlayerInfo[playerid][activeMarker] = true;
 				SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda telah berhasil menandai pohon.");
 			}
 			return 1;
@@ -4354,6 +4368,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						// Tempat Beli Bibit
 						SetPlayerCheckpoint(playerid, 1494.2545, -1657.3724, 12.8556, 2.0); // Dibuat list jika lebih dari 1
+						PlayerInfo[playerid][activeMarker] = true;
 						SendClientMessage(playerid, COLOR_GREEN, "[Farm System] "WHITE"Anda telah berhasil menandai toko bibit.");
 					}
 					case 1:

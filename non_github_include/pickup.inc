@@ -30,5 +30,9 @@ loadAllPickup(){
     PU_policeDept_out[0] = buatPickupDanLabel(1318, 246.8544,62.3242,1003.6406, "Polisi Metro Los Santos\n"GREEN"Pintu Keluar");
 
     // Lumberjack
-    buatPickupDanLabel(1239, 2351.5806,-659.4711,128.1192, "Lumberjack Los Santos\n"GREEN"Tempat Pemotongan Kayu");
+    new tempLabel[128];
+    for(new i = 0; i < sizeof(POSISI_PEMOTONGAN_KAYU); i++){
+        format(tempLabel, 128, "Lumberjack "ORANGE"%s\n"GREEN"Tempat Pemotongan Kayu #%d", GetZoneName(POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z]), i + 1);
+        buatPickupDanLabel(1239, POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z], tempLabel);
+    }
 }

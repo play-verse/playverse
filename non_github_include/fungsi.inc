@@ -3114,8 +3114,17 @@ TurunkanPohon(playerid){
 	inline responseQuery(){
 		new total_item, vehid = GetPlayerVehicleID(playerid), treeVeh = vehDTree[vehid][treeAngkut];
 		if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
-		if(GetVehicleModel(vehid) != 422) return error_command(playerid, "Anda tidak berada di dalam kendaraan pick up.");
-		if(!IsPlayerInRangeOfPoint(playerid, 3.0, 2351.5806, -659.4711, 128.1192)) return error_command(playerid, "Anda tidak berada di tempat pemotongan kayu.");
+		if(!IsMobilPickup(vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan pick up.");
+
+		// Filter apakah dia berada disekitar tempat pemotongan mana saja
+		for(new i = 0; i < sizeof(POSISI_PEMOTONGAN_KAYU); i++) {
+			// Jika dia benar-benar disekitar tempat pemotongan kayu maka langsung berhentikan looping
+			if(IsPlayerInRangeOfPoint(playerid, 3.0, POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z])) break;
+			
+			// Jika mencapai akhir looping dan ternyata tidak berada ditempat pemotongan manapun, maka return dan keluar dari fungsi
+			if(i == sizeof(POSISI_PEMOTONGAN_KAYU) - 1) return error_command(playerid, "Anda tidak berada di tempat pemotongan kayu.");
+		}
+
 		if(treeVeh <= 0) return error_command(playerid, "Anda tidak memiliki muatan pohon.");
 		cache_get_value_name_int(0, "total_item", total_item);
 		if((total_item + (4*treeVeh)) > PlayerInfo[playerid][limitItem]){
