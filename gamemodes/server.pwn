@@ -12,7 +12,6 @@
 #include <sscanf2>
 #include <streamer>
 
-#define SAMP_LOGGER_COMPAT // Untuk sementara selama belum compatibility progress2 dan samp-logger baru
 #include <progress2>
 
 #include <samp-precise-timers>
@@ -43,6 +42,7 @@
 #include <map_icon> // Map Icon Function Loader
 #include <checkpoint> // CP Function Loader
 #include <area> // Area loader
+#include <actor> // Actor loader
 #include <dialog> // Function Dialog Loader
 #include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
 #include <fungsi> // Fungsi disini
@@ -3695,25 +3695,24 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
                         // Buat Pohon
-                        new id = Iter_Free(TreeIterator);
-                        if(id == -1) return error_command(playerid, "Tidak dapat membuat pohon lagi.");
-                        new Float: x, Float: y, Float: z, Float: a;
-                        GetPlayerPos(playerid, x, y, z);
-                        GetPlayerFacingAngle(playerid, a);
-                        x += (3.0 * floatsin(-a, degrees));
-                        y += (3.0 * floatcos(-a, degrees));
-                        z -= 1.0;
-
-                        createTree(id, x, y, z, 0.0, 0.0, 0.0);
-
-						inline responseQuery(){
-                            treeEditID[playerid] = id;
-                            EditDynamicObject(playerid, DTree[id][treeObjID]);
-
-                            SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil membuat pohon!");
-                            SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda dapat mengedit pohon sekarang atau batal untuk mengedit lain kali.");
+						new Float: x, Float: y, Float: z, Float: a, id = Iter_Free(TreeIterator);
+						if(id != -1){
+							inline responseQuery(){
+								GetPlayerPos(playerid, x, y, z);
+								GetPlayerFacingAngle(playerid, a);
+								x += (3.0 * floatsin(-a, degrees));
+								y += (3.0 * floatcos(-a, degrees));
+								z -= 1.0;
+								createTree(id, x, y, z, 0.0, 0.0, 0.0);
+								treeEditID[playerid] = id;
+								EditDynamicObject(playerid, DTree[id][treeObjID]);
+								SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil membuat pohon!");
+								SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda dapat mengedit pohon sekarang atau batal untuk mengedit lain kali.");
+							}
+							MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `lumber` (id, treeX, treeY, treeZ, treeRX, treeRY, treeRZ) VALUES ('%d', '%f', '%f', '%f', '0.0', '0.0', '0.0')", id, x, y, z);
+						}else{
+							error_command(playerid, "Tidak dapat membuat pohon lagi.");
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `lumber` (id, treeX, treeY, treeZ, treeRX, treeRY, treeRZ) VALUES ('%d', '%f', '%f', '%f', '0.0', '0.0', '0.0')", id, x, y, z);
 					}
 					case 1:
 					{
@@ -3852,29 +3851,39 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1:
 					{
 						// Potong Pohon
-						if(PlayerInfo[playerid][sisaGergaji] > 0 && CuttingTreeID[playerid] == -1){
-							new tid = GetClosestTree(playerid);
-							if(tid != -1){
-								if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
-									if(IsPlayerInDynamicCP(playerid, DTree[tid][treeCP])){
-										new vehid = GetPlayerVehicleID(playerid);
-										if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda berada di dalam kendaraan.");
-										SetPlayerLookAt(playerid, DTree[tid][treeX], DTree[tid][treeY]);
-										Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[tid][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
-										CuttingTimer[playerid] = SetPreciseTimer("CutTree", 1000, true, "i", playerid);
-										CuttingTreeID[playerid] = tid;
-										SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
-										ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
-										TogglePlayerControllable(playerid, 0);
-										SetPlayerArmedWeapon(playerid, WEAPON_CHAINSAW);
-										GameTextForPlayer(playerid, "~w~Sedang ~y~memotong...", 3000, 3);
-										SetPlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX, 341, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
-										ApplyAnimation(playerid, "CHAINSAW", "WEAPON_csaw", 4.1, 1, 0, 0, 1, 0, 1);
-										DTree[tid][treeTumbang] = true;
+						inline responseQuery(){
+							new total_item;
+							cache_get_value_name_int(0, "total_item", total_item);
+							if((total_item + 1) > PlayerInfo[playerid][limitItem]){						
+								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", 1, total_item, PlayerInfo[playerid][limitItem]);
+								return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
+							}else{
+								if(PlayerInfo[playerid][sisaGergaji] > 0 && CuttingTreeID[playerid] == -1){
+									new tid = GetClosestTree(playerid);
+									if(tid != -1){
+										if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
+											if(IsPlayerInDynamicCP(playerid, DTree[tid][treeCP])){
+												new vehid = GetPlayerVehicleID(playerid);
+												if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda berada di dalam kendaraan.");
+												SetPlayerLookAt(playerid, DTree[tid][treeX], DTree[tid][treeY]);
+												Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[tid][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
+												CuttingTimer[playerid] = SetPreciseTimer("CutTree", 1000, true, "i", playerid);
+												CuttingTreeID[playerid] = tid;
+												SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+												ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+												TogglePlayerControllable(playerid, 0);
+												SetPlayerArmedWeapon(playerid, WEAPON_CHAINSAW);
+												GameTextForPlayer(playerid, "~w~Sedang ~y~memotong...", 3000, 3);
+												SetPlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX, 341, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
+												ApplyAnimation(playerid, "CHAINSAW", "WEAPON_csaw", 4.1, 1, 0, 0, 1, 0, 1);
+												DTree[tid][treeTumbang] = true;
+											}
+										}
 									}
 								}
 							}
 						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
 					}
 					case 2:
 					{
@@ -4492,7 +4501,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}else{
 				DeletePVar(playerid, "bbibit_index");
 				DeletePVar(playerid, "bbibit_jumlah");
-				showDialogBeliBibit(playerid);
+				showDialogBeliBibitNarko(playerid);
 			}
 			return 1;
 		}
@@ -5001,6 +5010,107 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			DeletePVar(playerid, "mekanik_warna_2");			
 			return 1;
 		}
+		case DIALOG_MENU_BELI_ALAT_PANCING:
+		{
+			if(response){
+				SetPVarInt(playerid, "bpancing_index", listitem);
+				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_ALAT_PANCING, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+			}else{
+				DeletePVar(playerid, "bpancing_index");
+				DeletePVar(playerid, "bpancing_jumlah");
+			}
+			return 1;
+		}
+		case DIALOG_JUMLAH_PEMBELIAN_ALAT_PANCING:
+		{
+			if(response){
+				new jumlah;
+				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_ALAT_PANCING, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_ALAT_PANCING, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+				SetPVarInt(playerid, "bpancing_jumlah", jumlah);
+				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR_ALAT_PANCING, DIALOG_STYLE_LIST, "Pilih Metode Pembayaran:", "Uang Cash\nVia E-Banking", "Beli", "Kembali");
+			}else{
+				DeletePVar(playerid, "bpancing_index");
+				DeletePVar(playerid, "bpancing_jumlah");
+				showDialogBeliAlatPancing(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_METODE_BAYAR_ALAT_PANCING:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "bpancing_index"),
+				jumlah = GetPVarInt(playerid, "bpancing_jumlah"),
+				harga = jumlah * MENU_ALAT_PANCING[idx][hargaItem];
+				switch(listitem){
+					case 0: // Bayar cash
+					{	
+						DeletePVar(playerid, "bpancing_index");
+						DeletePVar(playerid, "bpancing_jumlah");
+						inline responseQuery(){
+							new total_item;
+							if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
+							cache_get_value_name_int(0, "total_item", total_item);
+							if((total_item + (jumlah*MENU_ALAT_PANCING[idx][slotItem])) > PlayerInfo[playerid][limitItem]){						
+								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
+								return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
+							}else{
+								givePlayerUang(playerid, -harga);
+								tambahItemPlayer(playerid, MENU_ALAT_PANCING[idx][idItem], jumlah);
+								format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_ALAT_PANCING[idx][namaItem], jumlah, harga);
+								return showDialogPesan(playerid, GREEN"Berhasil membeli peralatan pancing", pDialog[playerid]);
+							}
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+					}
+					case 1: // Via E-Banking
+					{
+						if(isnull(PlayerInfo[playerid][nomorRekening])) {
+							DeletePVar(playerid, "bpancing_index");
+							DeletePVar(playerid, "bpancing_jumlah");
+							showDialogPesan(playerid, RED"Tidak memiliki ATM", WHITE"Anda tidak memiliki ATM.\nSilahkan buat ATM terlebih dahulu untuk menggunakan metode ini.");
+						}else if(PlayerInfo[playerid][ePhone] == 0) {
+							DeletePVar(playerid, "bpancing_index");
+							DeletePVar(playerid, "bpancing_jumlah");
+							showDialogPesan(playerid, RED"Tidak memiliki ePhone", WHITE"Anda tidak memiliki ePhone.\nSilahkan beli dan gunakan ePhone terlebih dahulu (minimal ePhone 2) untuk menggunakan metode ini.");
+						}else{
+							format(pDialog[playerid], sizePDialog, WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
+							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_ALAT_PANCING_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");
+						}
+					}
+				}
+			}else{
+				DeletePVar(playerid, "bpancing_index");
+				DeletePVar(playerid, "bpancing_jumlah");				
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BAYAR_ALAT_PANCING_VIA_ATM:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "bpancing_index"),
+				jumlah = GetPVarInt(playerid, "bpancing_jumlah"),
+				harga = jumlah * MENU_ALAT_PANCING[idx][hargaItem];
+				if(strlen(inputtext) != 8 || strcmp(PlayerInfo[playerid][nomorRekening], inputtext) != 0) {
+					format(pDialog[playerid], sizePDialog, RED"Nomor rekening yang anda masukan tidak benar."WHITE"\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
+					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_ALAT_PANCING_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");	
+				}
+				inline responseQuery(){
+					new total_item;
+					cache_get_value_name_int(0, "total_item", total_item);
+					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
+						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					}else{
+						getSaldoPlayer(playerid, "pembayaranAlatPancingATM");
+					}
+				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);	
+			}else{
+				DeletePVar(playerid, "bpancing_index");
+				DeletePVar(playerid, "bpancing_jumlah");				
+			}
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -5150,9 +5260,36 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			}
 		}
 		return 1;
-	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED( KEY_YES)){
+	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_YES)){
+		// ATM
 		new idatm = GetClosestATM(playerid);
 		if(idatm != -1) showDialogATM(playerid);
+		// Nombak Ikan
+		new Float:depth, Float:depth2;
+		if(CA_IsPlayerInWater(playerid, depth, depth2) && swimUnder[playerid]){
+		if(PlayerInfo[playerid][sisaTombak] > 0){
+			inline responseQuery(){
+				new total_item;
+				cache_get_value_name_int(0, "total_item", total_item);
+				if((total_item + 1) > PlayerInfo[playerid][limitItem]){						
+					format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", 1, total_item, PlayerInfo[playerid][limitItem]);
+					return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
+				}else{
+					new vehid = GetPlayerVehicleID(playerid);
+					if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+					if(nombakDelay[playerid] == 0){
+						nombakDelay[playerid] = 1;
+						nombakSecs[playerid] = 10;
+						nombakTimer[playerid] = SetPreciseTimer("delayNombak", 1000, true, "i", playerid);
+						randomIkan(playerid);
+					}else{
+						error_command(playerid, "Tunggu beberapa detik untuk dapat menombak ikan.");
+					}
+				}
+			}
+			MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+			}
+		}
 	}
     return 1;
 }
@@ -5187,14 +5324,17 @@ public OnPlayerSpawn(playerid)
 		PlayerInfo[playerid][preloadAnim] = 1;
 	}
 
-
 	houseNotif[playerid] = -1;
 
 	// Tambang
 	if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
 	DeletePreciseTimer(PlayerAction[playerid][timerNambang]);
 	PlayerAction[playerid][sedangNambang] = false;
-
+	// Mancing
+	if(PlayerInfo[playerid][sisaTombak] > 0){
+		if(!IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) SetPlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX, 11716, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
+	}
+	
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
 
 	spawnPemain(playerid);
@@ -5344,6 +5484,10 @@ public OnGameModeInit()
 	buatTokoNarko();
 	printf("[NARKO] Narko telah dibuat.");
 
+	printf("[ACTOR] Load semua Actor");
+	loadAllActor();
+	printf("[ACTOR] Sukses load Actor.");
+
 	SetGameModeText("EL v0.5");
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
 	ShowNameTags(1);
@@ -5417,13 +5561,25 @@ public OnPlayerUpdate(playerid)
 	    //SetPlayerArmedWeapon(playerid,0); // fists
 	    //return 0; // no syncing until they change their weapon
 	//}
-	
+
 	// Don't allow minigun
 	if(GetPlayerWeapon(playerid) == WEAPON_MINIGUN) {
 		Kick(playerid);
 		return 0;
 	}
-
+	if(PlayerInfo[playerid][sisaTombak] > 0){
+		if(GetPlayerAnimationIndex(playerid)){
+			new animlib[32], animname[32];
+			GetAnimationName(GetPlayerAnimationIndex(playerid), animlib, 32, animname, 32);
+			if(strcmp(animname, "Swim_Under", true) == 0 && !swimUnder[playerid] || strcmp(animname, "Swim_Dive_Under", true) == 0 && !swimUnder[playerid]){
+				swimUnder[playerid] = true;
+			}else{
+				swimUnder[playerid] = false;
+			}
+		}else if(swimUnder[playerid]){
+			swimUnder[playerid] = false;
+		}
+	}
 	return 1;
 }
 
@@ -5665,6 +5821,8 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		showDialogBeliBibit(playerid);
 	}else if(checkpointid == CP_tokoNarko){
 		showDialogBeliBibitNarko(playerid);
+	}else if(checkpointid == CP_tokoPancing[0]){
+		showDialogBeliAlatPancing(playerid);
 	}
 	return 1;
 }

@@ -66,9 +66,11 @@ enum pInfo
     waktuSaatLogin, // menyimpan gettickcount yang didapat saat login (untuk menghitung lama bermain sejak login)
     lamaBermain, // menyimpan waktu (dalam detik) yang didapat dari database
 
+	sisaGergaji,
+	sisaTombak,
+	sisaUmpan,
     // Tambang
     sisaPalu,
-    sisaGergaji,
     bool:activeMarker,
 
     // Settings
@@ -341,8 +343,23 @@ enum INFO_MENU_BIBIT_NARKO {
 }
 
 new const MENU_BIBIT_NARKO[][INFO_MENU_BIBIT_NARKO] = {
-// Bibit
+// Bibit Narko
     {33, "Bibit Ganja", 30, 9}
+
+};
+
+enum INFO_MENU_ALAT_PANCING {
+    idItem,
+    namaItem[100],
+    hargaItem,
+	slotItem
+}
+
+new const MENU_ALAT_PANCING[][INFO_MENU_ALAT_PANCING] = {
+// Item Pancing
+    {35, "Tongkat Pancing", 15, 1},
+	{36, "Tombak Ikan", 35, 1},
+	{43, "Roti - Umpan Ikan", 10, 1}
 
 };
 
@@ -362,7 +379,8 @@ new CP_tempatFoto,
     CP_simPraktik[1],
     CP_pusatProperti[1],
 	CP_tokoBibit[1],
-	CP_tokoNarko;
+	CP_tokoNarko,
+	CP_tokoPancing[1];
 
 /**
     PICKUP VARIABEL
@@ -393,6 +411,11 @@ new palangToll[2],
     isTollUsed[2],
     palangToll_LSLV[2],
     isTollUsed_LSLV[2];
+
+/**
+	Actor
+ */
+new A_tokoNarko;
 
 /*
     Virtual World untuk ngebedain pickup
@@ -973,12 +996,27 @@ new const POINT_NARKO[][POINT_NARKO_INFO] = {
 	{-610.9626, -1071.5093, 23.4350}
 };
 
+enum POINT_NARKO_ACTOR_INFO {
+	Float:NARKO_X,
+    Float:NARKO_Y,
+    Float:NARKO_Z,
+	Float:NARKO_A
+}
+new const POINT_NARKO_ACTOR[][POINT_NARKO_ACTOR_INFO] = {
+    {-347.8122,-1045.7191,59.8125,182.658},
+    {-76.8813,-1136.6028,1.0781,68.5732},
+	{-401.5252,-1419.8257,26.3281,2.6630},
+	{-611.1347,-1071.5476,23.4347,91.3293}
+};
+
 new Iterator:PlantIterator<MAX_PLANTS>,
     DFarm[MAX_PLANTS][FarmInfo],
 	Text3D:labelTokoNarko,
 	MrPuyengStart,
-	MrPuyengEnd;
-	
+	MrPuyengEnd,
+	puyengTimer[MAX_PLAYERS],
+	puyengSecs[MAX_PLAYERS];
+
 new PerbaikiTimer[MAX_PLAYERS] = {-1, ...};
 
 new const gVehicleColors[] =
@@ -1010,3 +1048,14 @@ new const gVehicleColors[] =
     0x319490AA, 0x56941DAA, 0x59163DAA, 0x1B8A2FAA, 0x38160BAA, 0x041804AA, 0x355D8EAA, 0x2E3F5BAA, 0x561A28AA, 0x4E0E27AA,
     0x706C67AA, 0x3B3E42AA, 0x2E2D33AA, 0x7B7E7DAA, 0x4A4442AA, 0x28344EAA
 };
+
+/*
+	Mancing
+*/
+new mancingTimer[MAX_PLAYERS],
+	mancingSecs[MAX_PLAYERS],
+	mancingAktif[MAX_PLAYERS],
+	nombakTimer[MAX_PLAYERS],
+	nombakSecs[MAX_PLAYERS],
+	nombakDelay[MAX_PLAYERS],
+	swimUnder[MAX_PLAYERS];
