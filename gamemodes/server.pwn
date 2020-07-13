@@ -3692,25 +3692,24 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
                         // Buat Pohon
-                        new id = Iter_Free(TreeIterator);
-                        if(id == -1) return error_command(playerid, "Tidak dapat membuat pohon lagi.");
-                        new Float: x, Float: y, Float: z, Float: a;
-                        GetPlayerPos(playerid, x, y, z);
-                        GetPlayerFacingAngle(playerid, a);
-                        x += (3.0 * floatsin(-a, degrees));
-                        y += (3.0 * floatcos(-a, degrees));
-                        z -= 1.0;
-
-                        createTree(id, x, y, z, 0.0, 0.0, 0.0);
-
-						inline responseQuery(){
-                            treeEditID[playerid] = id;
-                            EditDynamicObject(playerid, DTree[id][treeObjID]);
-
-                            SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil membuat pohon!");
-                            SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda dapat mengedit pohon sekarang atau batal untuk mengedit lain kali.");
+						new Float: x, Float: y, Float: z, Float: a, id = Iter_Free(TreeIterator);
+						if(id != -1){
+							inline responseQuery(){
+								GetPlayerPos(playerid, x, y, z);
+								GetPlayerFacingAngle(playerid, a);
+								x += (3.0 * floatsin(-a, degrees));
+								y += (3.0 * floatcos(-a, degrees));
+								z -= 1.0;
+								createTree(id, x, y, z, 0.0, 0.0, 0.0);
+								treeEditID[playerid] = id;
+								EditDynamicObject(playerid, DTree[id][treeObjID]);
+								SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil membuat pohon!");
+								SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda dapat mengedit pohon sekarang atau batal untuk mengedit lain kali.");
+							}
+							MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `lumber` (id, treeX, treeY, treeZ, treeRX, treeRY, treeRZ) VALUES ('%d', '%f', '%f', '%f', '0.0', '0.0', '0.0')", id, x, y, z);
+						}else{
+							error_command(playerid, "Tidak dapat membuat pohon lagi.");
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `lumber` (id, treeX, treeY, treeZ, treeRX, treeRY, treeRZ) VALUES ('%d', '%f', '%f', '%f', '0.0', '0.0', '0.0')", id, x, y, z);
 					}
 					case 1:
 					{
