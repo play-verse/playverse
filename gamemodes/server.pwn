@@ -3219,47 +3219,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						// Beli vehicle dan masukan ke dalam data player
 						if(Iter_Contains(DVehIterator, vehid)){
-							inline responseQuery(){
-								new primary_id = cache_insert_id();
-								givePlayerUang(playerid, -DVeh[vehid][dVehHarga]);
-
-								// Pindah iterator
-								Iter_Remove(DVehIterator, vehid);
-								new idpv = Iter_Free(PVehIterator);
-								Iter_Add(PVehIterator, idpv);
-
-								Iter_Add(IDVehToPVehIterator, vehid);
-								IDVehToPVeh[vehid] = idpv;
-
-								PVeh[idpv][pVehID] = primary_id;
-								PVeh[idpv][pVehPemilik] = PlayerInfo[playerid][pID];
-								format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
-								PVeh[idpv][pVehicle] = vehid;
-								PVeh[idpv][pVehModel] = DVeh[vehid][dVehModel];
-								PVeh[idpv][pVehCoord][0] = DVeh[vehid][dVehCoord][0];
-								PVeh[idpv][pVehCoord][1] = DVeh[vehid][dVehCoord][1];
-								PVeh[idpv][pVehCoord][2] = DVeh[vehid][dVehCoord][2];
-								PVeh[idpv][pVehCoord][3] = DVeh[vehid][dVehCoord][3];
-								PVeh[idpv][pVehColor][0] = DVeh[vehid][dVehColor][0];
-								PVeh[idpv][pVehColor][1] = DVeh[vehid][dVehColor][1];
-								PVeh[idpv][pVehDarah] = 1000;
-								SetVehicleHealth(vehid, 1000);
-
-								format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
-								format(pDialog[playerid], sizePDialog, "%s"ORANGE"Selamat anda berhasil membeli kendaraan dengan spesifikasi sebagai berikut :\n\n", pDialog[playerid]);
-								format(pDialog[playerid], sizePDialog, "%s"PURPLE"Nama Kendaraan: "WHITE"%s\n", pDialog[playerid], GetVehicleModelName(DVeh[vehid][dVehModel]));
-								format(pDialog[playerid], sizePDialog, "%sHarga: "GREEN"$%d\n\n", pDialog[playerid], DVeh[vehid][dVehHarga]);
-								format(pDialog[playerid], sizePDialog, "%s"WHITE"Terimakasih sudah menggunakan layanan kami.\n\n"CYAN"*********************************************************************************\n", pDialog[playerid]);
-								ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Berhasil membeli kendaraan", pDialog[playerid], "Ok", "");						
-
-								// Reset nilai & Hapus
-								DestroyDynamic3DTextLabel(DVeh[vehid][dVehText3D]);
-								DeleteVehicleDealer(DVeh[vehid][dVehID]);
-
-								static const kosong_dveh[DealerVehicleInfo];
-								DVeh[vehid] = kosong_dveh;	
-							}
-							MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO vehicle(id_pemilik, id_model, pos_x, pos_y, pos_z, pos_a, color_1, color_2) SELECT '%d' AS id_pemilik, id_model, '%f' AS pos_x, '%f' AS pos_y, '%f' AS pos_z, '%f' AS pos_a, color_1, color_2 FROM vehicle_dealer WHERE id = '%d'", PlayerInfo[playerid][pID],  DVeh[vehid][dVehCoord][0], DVeh[vehid][dVehCoord][1], DVeh[vehid][dVehCoord][2], DVeh[vehid][dVehCoord][3], DVeh[vehid][dVehID]);
+							// Ubah jadi pakai tquery biasa, saat menggunakan tquery_inline nilai variabel vehid tidak terkirim dengan benar (val = 21946644)
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO vehicle(id_pemilik, id_model, pos_x, pos_y, pos_z, pos_a, color_1, color_2) SELECT '%d' AS id_pemilik, id_model, '%f' AS pos_x, '%f' AS pos_y, '%f' AS pos_z, '%f' AS pos_a, color_1, color_2 FROM vehicle_dealer WHERE id = '%d'", PlayerInfo[playerid][pID],  DVeh[vehid][dVehCoord][0], DVeh[vehid][dVehCoord][1], DVeh[vehid][dVehCoord][2], DVeh[vehid][dVehCoord][3], DVeh[vehid][dVehID]);
+							mysql_tquery(koneksi, pQuery[playerid], "prosesBeliKendaraanCash", "ii", playerid, vehid);
 						}
 						else{
 							printf("[FATAL ERROR] #008 Invalid vehicle dealer ID.");
@@ -5367,7 +5329,6 @@ public OnPlayerDeath(playerid, killerid, reason)
 	PlayerInfo[playerid][sudahSpawn] = false;
 
 	hideHUDStats(playerid);
-	PlayerInfo[playerid][tampilHUDStats] = false;
 	
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
 
@@ -5403,9 +5364,7 @@ public OnPlayerRequestClass(playerid, classid)
 	#endif
 
 	if(IsPlayerNPC(playerid)) return 1;
-	print("Request Class Fungsi");
 	if(PlayerInfo[playerid][sudahLogin]) {
-		print("Request Class Called");
 		spawnPemain(playerid);
 		return 1;
 	}

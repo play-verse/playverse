@@ -207,7 +207,7 @@ ubahSkinPemain(playerid, skinid){
     // Hide dlu untuk dapat efeknya
     PlayerTextDrawHide(playerid, HUD_Stats[playerid][0]);
     PlayerTextDrawSetPreviewModel(playerid, HUD_Stats[playerid][0], skinid);
-    PlayerTextDrawShow(playerid, HUD_Stats[playerid][0]);
+    if(PlayerInfo[playerid][tampilHUDStats]) PlayerTextDrawShow(playerid, HUD_Stats[playerid][0]);
 	SetPlayerSkin(playerid, skinid);
 }
 

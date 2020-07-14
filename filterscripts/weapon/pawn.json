@@ -2,9 +2,11 @@
 	"user": "nathanramli",
 	"repo": "weapon",
 	"entry": "weapon.pwn",
-	"output": "weapon.amx",
+	"output": "../weapon.amx",
 	"dependencies": [
 		"sampctl/samp-stdlib",
-		"pBlueG/SA-MP-MySQL:R39-6"
+		"Southclaws/zcmd",
+		"pBlueG/SA-MP-MySQL:R41-4",
+		"maddinat0r/sscanf:v2.8.3"
 	]
 }

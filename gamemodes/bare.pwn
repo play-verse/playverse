@@ -54,7 +54,7 @@ SetupPlayerForClassSelection(playerid)
 
 public OnPlayerRequestClass(playerid, classid)
 {
-	SetupPlayerForClassSelection(playerid);
+	// SetupPlayerForClassSelection(playerid);
 	return 1;
 }
 
@@ -64,8 +64,6 @@ public OnGameModeInit()
 	ShowPlayerMarkers(1);
 	ShowNameTags(1);
 	AllowAdminTeleport(1);
-
-	AddPlayerClass(265,1958.3783,1343.1572,15.3746,270.1425,0,0,0,0,-1,-1);
 
 	return 1;
 }
