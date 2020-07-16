@@ -29,6 +29,10 @@ loadAllPickup(){
     PU_policeDept_in[0] = buatPickupDanLabel(1318, 1555.4991,-1675.5791,16.1953, "Polisi Metro Los Santos\n"GREEN"Pintu Masuk");
     PU_policeDept_out[0] = buatPickupDanLabel(1318, 246.8544,62.3242,1003.6406, "Polisi Metro Los Santos\n"GREEN"Pintu Keluar");
 
+    // Pusat keahlian (skill)
+    PU_pusatKeahlian[ENTER_PICKUP] = buatPickupDanLabel(1318, 1477.3682, -1638.5536, 14.1786, "Pusat Keahlian\n"GREEN"Pintu Masuk");
+    PU_pusatKeahlian[EXIT_PICKUP] = buatPickupDanLabel(1318, 1700.5740, -1667.8380, 20.2188, "Pusat Keahlian\n"GREEN"Pintu Keluar");
+
     // Lumberjack
     new tempLabel[128];
     for(new i = 0; i < sizeof(POSISI_PEMOTONGAN_KAYU); i++){

@@ -254,7 +254,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				new len;
 				new subString[16];
-				static string[500];
+				new string[500];
 				len = registerInfo[playerid][jenisKelamin] == 0 ? sizeof(SKIN_MALE_GRATIS) : sizeof(SKIN_FEMALE_GRATIS);
 
 				for (new i = 0; i < len; i++) {
@@ -603,8 +603,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(pDialog[playerid], sizePDialog, "[KUNCI] "WHITE"Anda berhasil menerima kunci dari %s.", PlayerInfo[playerid][pPlayerName]);
 					SendClientMessage(playerid, COLOR_ORANGE, pDialog[playerid]);
 
-					ApplyAnimation(target_id, "SHOP", "SHP_Rob_GiveCash", 4.1, 0, 1, 1, 0, 2000, 1);
-					ApplyAnimation(playerid, "VENDING", "VEND_Use", 4.1, 0, 1, 1, 0, 2000, 1);
+					ApplyAnimation(target_id, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1);
+					ApplyAnimation(playerid, "DEALER", "DEALER_DEAL", 4.1, 0, 1, 1, 0, 2000, 1);
 
 					new lama_waktu = GetPVarInt(target_id, "pinjam_kunci_waktu"), idpv = GetPVarInt(target_id, "pinjam_kunci_idpv");
 
@@ -1913,7 +1913,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}else{
 								if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
 									pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
-									SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
+									SendClientMessage(playerid, COLOR_YELLOW, "Rumah: "WHITE"Ketik "YELLOW"/rumah "WHITE"untuk mengelola inventory & furniture rumah.");
 								}else{
 									SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf rumah terkunci dan tidak dapat masuk!");
 								}
@@ -5088,6 +5088,54 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				DeletePVar(playerid, "bpancing_index");
 				DeletePVar(playerid, "bpancing_jumlah");				
 			}
+			return 1;
+		}
+		case DIALOG_PILIH_SPAWN_REGISTER:
+		{
+			if(response){
+				new Float:temp_pos[4];
+				switch(listitem){
+					case 0: // pantai st maria
+					{
+						temp_pos[0] = 288.5987;
+						temp_pos[1] = -1984.3574;
+						temp_pos[2] = 2.4633;
+						temp_pos[3] = 357.0744;
+					}
+					case 1: // Kereta api
+					{
+						temp_pos[0] = 1754.5775;
+						temp_pos[1] = -1898.9517;
+						temp_pos[2] = 13.5615;
+						temp_pos[3] = 269.7162;						
+					}
+					case 2: // bandara ls
+					{
+						temp_pos[0] = 1649.4506;
+						temp_pos[1] = -2329.8547;
+						temp_pos[2] = 13.5469;
+						temp_pos[3] = 7.0336;
+					}
+				}
+				SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], temp_pos[0], temp_pos[1], temp_pos[2], temp_pos[3], 0, 0, 0, 0, 0, 0);
+
+				SpawnPlayer(playerid);
+
+				pindahkanPemain(playerid, temp_pos[0], temp_pos[1], temp_pos[2], temp_pos[3], 0, 0, true);
+			}else{
+				new random_spawn = random(sizeof(SPAWN_POINT));
+				SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+				
+				SpawnPlayer(playerid);
+
+				pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
+			}
+			TogglePlayerControllable(playerid, 0);
+			SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
+
+			// Sync uang player
+			getUangPlayer(playerid);
+			return 1;
 		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
@@ -5230,8 +5278,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
 					PlayerInfo[playerid][inHouse] = id;
 					pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
-
-					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
+					SendClientMessage(playerid, COLOR_YELLOW, "Rumah: "WHITE"Ketik "YELLOW"/rumah "WHITE"untuk mengelola inventory & furniture rumah.");
 				}else{
 					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf rumah terkunci dan tidak dapat masuk!");
 				}
@@ -5641,7 +5688,7 @@ public OnPlayerText(playerid, text[]){
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
-	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !GetPlayerAnimationIndex(playerid)) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000);
+	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PerbaikiTimer[playerid] == -1) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000);
 	// Wiki Samp - OnPlayerText
 	// Return 1 - Mengirimkan pesan default
 	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan
@@ -5655,8 +5702,13 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	}else if(pickupid == PU_tempatFoto_in[1]){
 		pindahkanPemain(playerid, -203.9351, -25.4899, 1002.2734, 330.6535, 16, VW_tempatFoto_2, false);
 		return 1;
-	}
-	else if(pickupid == PU_tempatFoto_out){
+	}else if(pickupid == PU_pusatKeahlian[ENTER_PICKUP]){
+		pindahkanPemain(playerid, 1702.9329, -1667.8872, 20.2188, 269.3456, 18, 1, false);
+		return 1;
+	}else if(pickupid == PU_pusatKeahlian[EXIT_PICKUP]){
+		pindahkanPemain(playerid, 1477.4969, -1641.4519, 14.1652, 179.7030, 0, 0, true);
+		return 1;
+	}else if(pickupid == PU_tempatFoto_out){
 		switch(GetPlayerVirtualWorld(playerid)){
 			case VW_tempatFoto_1:
 			{
@@ -6255,10 +6307,10 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
             DTree[id][treeRX] = rx;
             DTree[id][treeRY] = ry;
             DTree[id][treeRZ] = rz;
- 
+
             SetDynamicObjectPos(objectid, DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ]);
             SetDynamicObjectRot(objectid, DTree[id][treeRX], DTree[id][treeRY], DTree[id][treeRZ]);
- 
+
             Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[id][treeLabel], E_STREAMER_X, DTree[id][treeX]);
             Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[id][treeLabel], E_STREAMER_Y, DTree[id][treeY]);
             Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[id][treeLabel], E_STREAMER_Z, DTree[id][treeZ] + 1.5);
@@ -6269,7 +6321,7 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 			
             mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE lumber SET treeX=%f, treeY=%f, treeZ=%f, treeRX=%f, treeRY=%f, treeRZ=%f WHERE id=%d", DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ], DTree[id][treeRX], DTree[id][treeRY], DTree[id][treeRZ], id);
 			mysql_tquery(koneksi, pQuery[playerid]);
- 
+
             treeEditID[playerid] = -1;
         }
         if(response == EDIT_RESPONSE_CANCEL){

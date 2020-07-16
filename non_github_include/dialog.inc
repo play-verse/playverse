@@ -78,7 +78,7 @@ showDialogMenuInventory(playerid){
             ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", string, "Pilih", "Batal");
         }
     }
-	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(jumlah) as total_item FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 }
 
 showDialogEPhone(playerid){

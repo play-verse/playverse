@@ -402,7 +402,14 @@ new PU_tempatFoto_in[2],
     PU_tempatMakan_out,
     PU_tempatKeluarRumah[2], // Hanya menyimpan ID terkecil dan Terbesar
     PU_policeDept_in[1],
-    PU_policeDept_out[1];
+    PU_policeDept_out[1],
+	PU_pusatKeahlian[2]; 
+
+/**
+	ACTOR VARIABEL
+ */
+new ACT_skillMekanik,
+	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179};
 
 /**
     Area

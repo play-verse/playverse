@@ -5,7 +5,8 @@
 	"filterscripts": [
 		"gl_actions",
 		"vspawner",
-		"ls_mall"
+		"ls_mall",
+		"animbrowser"
 	],
 	"plugins": [
 		"zeex/samp-plugin-crashdetect:v4.19.4",

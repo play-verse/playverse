@@ -371,3 +371,19 @@ CMD:farm(playerid, params[]){
     ShowPlayerDialog(playerid, DIALOG_FARM, DIALOG_STYLE_LIST, WHITE"Farm System :", "Tempat Beli Bibit\nPanen Tanaman", "Pilih", "Batal");
     return 1;
 }
+
+CMD:bicara(playerid, params[]){
+    if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2])){
+        ApplyDynamicActorAnimation(ACT_skillMekanik, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 0);
+        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
+            "WHITE"Saya adalah ahli mekanik. Saya dapat membantu kamu dalam mendapatkan skill mekanik.\n\
+            Untuk dapat membuka skill kamu harus memiliki "LIGHT_BLUE"1 item Segel Skill.\n\
+            "WHITE"Apakah kamu memilikinya ?", PlayerInfo[playerid][pPlayerName]);
+        ShowPlayerDialog(playerid, DIALOG_TALK_TO_AHLI_MEKANIK, DIALOG_STYLE_MSGBOX, "Ahli Mekanik berkata :", pDialog[playerid], "Ada", "Tidak ada");
+    }
+
+    // Lakukan cara yang sama seperti diatas jika menambah untuk yang lain
+    // GetDynamicActor... IsPlayerInRange .. return
+
+    return 1;
+}

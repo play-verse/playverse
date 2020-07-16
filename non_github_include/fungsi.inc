@@ -89,6 +89,8 @@ publicFor: isRegistered(playerid)
 			return 1;
 		}
 
+		PlayerInfo[playerid][tampilHUDStats] = true;		
+
 		// Spawn player
 		SetSpawnInfo(playerid, 0, 0, 2093.7747,-1806.4586,13.5499,87.6500, 0, 0, 0, 0, 0, 0);
 		SetPlayerVirtualWorld(playerid, playerid + 100);
@@ -325,6 +327,11 @@ publicFor: spawnPemain(playerid)
 			PlayerInfo[playerid][last_vw] = 0;
 			PlayerInfo[playerid][last_int] = 0;
 		}else{
+			if(PlayerInfo[playerid][loginKe] == 1){
+				ShowPlayerDialog(playerid, DIALOG_PILIH_SPAWN_REGISTER, DIALOG_STYLE_LIST, "Pilih tempat spawn yang anda inginkan : ", "Pantai Santa Maria\nStasiun Kereta Api Los Santos\nBandara Los Santos", "Pilih", "");
+				return 1;
+			}
+
 			new random_spawn = random(sizeof(SPAWN_POINT));
 			SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
 			
@@ -2540,7 +2547,8 @@ LoadVehiclePlayer(playerid){
 		new rows;
 		cache_get_row_count(rows);
 		if(rows){
-			new idx = 0, idveh, idpv, temp_id, already_loaded, temp_time;
+			new idx = 0, idveh, idpv, temp_id, already_loaded, temp_time,
+				panels, doors, lights, tires, engine, alarm, bonnet, boot, objective;
 
 			while(idx < rows){
 				already_loaded = -1; // Bakal menyimpan idpv kendaraan
@@ -2596,6 +2604,11 @@ LoadVehiclePlayer(playerid){
 				cache_get_value_name_int(idx, "veh_mod_13", PVeh[idpv][pVehMod][12]);
 				cache_get_value_name_int(idx, "veh_mod_14", PVeh[idpv][pVehMod][13]);
 
+				cache_get_value_name_int(idx, "status_panels", panels);
+				cache_get_value_name_int(idx, "status_doors", doors);
+				cache_get_value_name_int(idx, "status_lights", lights);
+				cache_get_value_name_int(idx, "status_tires", tires);
+
 				format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
 
 				if(temp_time != 0){
@@ -2623,11 +2636,12 @@ LoadVehiclePlayer(playerid){
 
 					SetVehicleToRespawn(idveh);
 
-					new engine, lights, alarm, doors, bonnet, boot, objective;
+					SetVehicleHealth(idveh, PVeh[idpv][pVehDarah]);
+					UpdateVehicleDamageStatus(idveh, panels, doors, lights, tires);
+
+					// Memakai variable yang sama dengan UpdateVehicleDamageStatus maka di terakhirkan saja, agar tidak ditimpa value nya oleh fungsi getter VehicleParamsEx
 					GetVehicleParamsEx(idveh, engine, lights, alarm, doors, bonnet, boot, objective);
 					SetVehicleParamsEx(idveh, 0, 0, alarm, doors, bonnet, boot, objective);
-
-					SetVehicleHealth(idveh, PVeh[idpv][pVehDarah]);
 				}
 
 				Iter_Add(PVehIterator, idpv);
@@ -2716,11 +2730,14 @@ UpdatePosisiDarahVehiclePlayer(vehicleid){
 		printf("#011 Error save Posisi dan Darah ID(%d)", vehicleid);
 		return 0;
 	}
-
-	new temp_sql[1000];
+	new temp_sql[1000],
+		panels, doors, lights, tires;
 	new pveh_data[PlayerVehicleInfo];
 	pveh_data = PVeh[idpv];
-	mysql_format(koneksi, temp_sql, 1000, "UPDATE vehicle SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', darah = '%f' WHERE id = '%d'", pveh_data[pVehCoord][0], pveh_data[pVehCoord][1], pveh_data[pVehCoord][2], pveh_data[pVehCoord][3], pveh_data[pVehDarah], pveh_data[pVehID]);
+
+	GetVehicleDamageStatus(vehicleid, panels, doors, lights, tires);
+
+	mysql_format(koneksi, temp_sql, 1000, "UPDATE vehicle SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', darah = '%f', status_panels = '%d', status_doors = '%d', status_lights = '%d', status_tires = '%d' WHERE id = '%d'", pveh_data[pVehCoord][0], pveh_data[pVehCoord][1], pveh_data[pVehCoord][2], pveh_data[pVehCoord][3], pveh_data[pVehDarah], panels, doors, lights, tires, pveh_data[pVehID]);
 	return mysql_tquery(koneksi, temp_sql);
 }
 
