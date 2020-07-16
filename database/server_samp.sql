@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 09, 2020 at 06:05 AM
+-- Generation Time: Jul 16, 2020 at 07:33 AM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.10
 
@@ -21,79 +21,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `server_samp`
 --
-
-DELIMITER $$
---
--- Procedures
---
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_exp_skill` (`x_id_user` BIGINT, `x_id_skill` BIGINT, `x_jumlah_exp` INT)  BEGIN
-	SELECT id INTO @id_user_skill FROM `user_skill` WHERE `id_skill` = `x_id_skill` AND `id_user` = `x_id_user`;
-	IF(ROW_COUNT()) THEN
-		UPDATE `user_skill` SET `exp` = `exp` + `x_jumlah_exp` WHERE `id` = @id_user_skill;
-	ELSE
-		INSERT INTO `user_skill`(id_skill, id_user, exp) VALUES(`x_id_skill`, `x_id_user`, `x_jumlah_exp`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_furniture` (`x_id_user` BIGINT, `x_id_furniture` BIGINT, `x_jumlah` INT)  BEGIN
-	SELECT jumlah, id INTO @jumlah, @id_user_furniture FROM `user_furniture` WHERE `id_furniture` = `x_id_furniture` AND `id_user` = `x_id_user`;
-	IF(ROW_COUNT()) THEN
-		IF(x_jumlah < 0 AND (@jumlah - x_jumlah) < 1) THEN
-			DELETE FROM `user_furniture` WHERE `id` = @id_user_furniture;
-		ELSE
-			UPDATE `user_furniture` SET `jumlah` = `jumlah` + `x_jumlah` WHERE `id` = @id_user_furniture;
-		END IF;
-	ELSE
-		INSERT INTO `user_furniture`(id_furniture, id_user, jumlah) VALUES(`x_id_furniture`, `x_id_user`, `x_jumlah`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_item` (`x_id_user` BIGINT, `x_id_item` INT, `x_banyak_item` INT)  BEGIN
-	SELECT jumlah, id_user_item INTO @jumlah, @id_user_item FROM `user_item` WHERE `id_item` = `x_id_item` AND `id_user` = `x_id_user`;
-	IF(ROW_COUNT()) THEN
-		IF(x_banyak_item < 0 AND (@jumlah - x_banyak_item) < 1) THEN
-			DELETE FROM `user_item` WHERE `id_user_item` = @id_user_item;
-		ELSE
-			UPDATE `user_item` SET `jumlah` = `jumlah` + `x_banyak_item` WHERE `id_user_item` = @id_user_item;
-		END IF;
-	ELSE
-		INSERT INTO `user_item`(id_item, id_user, jumlah) VALUES(`x_id_item`, `x_id_user`, `x_banyak_item`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_item_house` (`x_id_house` INT, `x_id_item` INT, `x_jumlah` INT)  BEGIN
-	SELECT jumlah, id INTO @jumlah, @id_house_item FROM `house_inv_item` WHERE `id_item` = `x_id_item` AND `id_house` = `x_id_house`;
-	IF(ROW_COUNT()) THEN
-		IF(x_jumlah < 0 AND (@jumlah - x_jumlah) < 1) THEN
-			DELETE FROM `house_inv_item` WHERE `id` = @id_house_item;
-		ELSE
-			UPDATE `house_inv_item` SET `jumlah` = `jumlah` + `x_jumlah` WHERE `id` = @id_house_item;
-		END IF;
-	ELSE
-		INSERT INTO `house_inv_item`(id_item, id_house, jumlah) VALUES(`x_id_item`, `x_id_house`, `x_jumlah`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_skin` (`x_id_user` BIGINT, `x_id_skin` INT, `x_banyak_skin` INT)  BEGIN
-	SELECT jumlah, id INTO @jumlah, @id FROM `user_skin` WHERE `id_skin` = `x_id_skin` AND `id_user` = `x_id_user`;
-	IF(ROW_COUNT()) THEN
-		IF(x_banyak_skin < 0 AND (@jumlah - x_banyak_skin) < 1) THEN
-			DELETE FROM `user_skin` WHERE `id` = @id;
-		ELSE
-			UPDATE `user_skin` SET `jumlah` = `jumlah` + `x_banyak_skin` WHERE `id` = @id;
-		END IF;
-	ELSE
-		INSERT INTO `user_skin`(id_skin, id_user, jumlah) VALUES(`x_id_skin`, `x_id_user`, `x_banyak_skin`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_transaksi_atm` (`rekening_pengirim` VARCHAR(50), `rekening_penerima` VARCHAR(50), `ex_nominal` BIGINT, `ex_keterangan` TEXT)  BEGIN
-	INSERT INTO `trans_atm`(id_user, id_pengirim_penerima, nominal, tanggal, keterangan) 
-	SELECT a.id as id_user, b.id as id_pengirim_penerima, ex_nominal as nominal, NOW() as tanggal, ex_keterangan as keterangan FROM `user` a
-	LEFT JOIN `user` b ON b.rekening = rekening_pengirim WHERE a.rekening = rekening_penerima;
-END$$
-
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -290,7 +217,16 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (31, 'Bibit Jeruk', 756, 'Biji Jeruk adalah item pertanian yang dapat ditanam dan tumbuh menjadi Jeruk.', 'pakaiBibitJeruk', 9),
 (32, 'Jeruk', 19574, 'Jeruk adalah buah hasil panen dengan rasa masam yang segar.', NULL, 1),
 (33, 'Bibit Ganja', 756, 'Biji Ganja adalah bibit terlarang yang dapat ditanam dan tumbuh menjadi Ganja.', 'pakaiBibitGanja', 9),
-(34, 'Ganja', 19473, 'Ganja adalah item terlarang yang dapat menambahkan Darah Putih sebesar 5 persen.', 'pakaiNarkoGanja', 1);
+(34, 'Ganja', 19473, 'Ganja adalah item terlarang yang dapat menambahkan Darah Putih sebesar 5 persen.', 'pakaiNarkoGanja', 1),
+(35, 'Tongkat Pancing', 18632, 'Tongkat Pancing adalah peralatan untuk memancing ikan.', 'pakaiTongkatPancing', 1),
+(36, 'Tombak Ikan', 11716, 'Tombak Ikan adalah peralatan untuk memancing ikan, tingkat keberuntungan +14 persen.', 'pakaiTombakIkan', 1),
+(37, 'Ikan Arwana', 1600, 'Ikan Arwana adalah ikan yang sangat langka, memiliki nilai yang sangat tinggi.', NULL, 1),
+(38, 'Ikan Kakap', 1604, 'Ikan Kakap adalah ikan yang langka, berguna untuk banyak hal.', NULL, 1),
+(39, 'Ikan Mas', 1599, 'Ikan Mas adalah hasil mancing yang mirip dengan Ikan Mujair tapi lebih bagus.', NULL, 1),
+(40, 'Ikan Mujair', 19630, 'Ikan Mujair adalah ikan yang berguna dan juga diminati orang banyak.', NULL, 1),
+(41, 'Ubur-ubur', 1603, 'Ubur-ubur adalah ikan yang bagus dan diminati.', NULL, 1),
+(42, 'Bintang Laut', 902, 'Bintang Laut adalah ikan yang bagus dan diminati.', NULL, 1),
+(43, 'Roti - Umpan Ikan', 19883, 'Roti - Umpan Ikan adalah umpan yang digunakan untuk memancing ikan.', 'pakaiUmpanIkan', 1);
 
 -- --------------------------------------------------------
 
@@ -597,7 +533,11 @@ CREATE TABLE `vehicle` (
   `veh_mod_13` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 13',
   `veh_mod_14` int(8) DEFAULT 0 COMMENT 'Menyimpan mod dengan index ke 14',
   `darah` float DEFAULT 100 COMMENT 'Nyimpan darah vehicle terakhir',
-  `is_reparasi` tinyint(1) DEFAULT 0 COMMENT 'Nyimpan status kendaraan apakah sedang di reparasi.\r\n\r\n0 - untuk tidak\r\n1 - untuk sedang reparasi (sedang didalam tempat reparasi karena rusak dan harus diambil)'
+  `is_reparasi` tinyint(1) DEFAULT 0 COMMENT 'Nyimpan status kendaraan apakah sedang di reparasi.\r\n\r\n0 - untuk tidak\r\n1 - untuk sedang reparasi (sedang didalam tempat reparasi karena rusak dan harus diambil)',
+  `status_panels` int(11) DEFAULT 0 COMMENT 'Damage status panels',
+  `status_doors` int(11) DEFAULT 0 COMMENT 'Damage status doors',
+  `status_lights` int(11) DEFAULT 0 COMMENT 'Damage status lights',
+  `status_tires` int(11) DEFAULT 0 COMMENT 'Damage status tires'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -1196,7 +1136,7 @@ ALTER TABLE `house_inv_item`
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `logs_user_konek`
