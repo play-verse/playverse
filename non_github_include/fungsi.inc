@@ -124,7 +124,6 @@ resetPlayerVariable(playerid){
     PlayerInfo[playerid][nomorRekening][0] = EOS;
 
 	PlayerInfo[playerid][preloadAnim] = 0;
-
 	PlayerInfo[playerid][lastGlobalChat] = 0;
 	PlayerInfo[playerid][reply] = -1;
 	PlayerInfo[playerid][sudahLogin] = false;
@@ -734,6 +733,7 @@ publicFor: isBisaBuatKTP(playerid, tidak_bisa){
 }
 
 publicFor: pakaiPaluTambang(playerid){
+	if(PlayerInfo[playerid][sisaPalu] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 8, -1);
 	PlayerInfo[playerid][sisaPalu] += 15;
 
@@ -742,6 +742,7 @@ publicFor: pakaiPaluTambang(playerid){
 }
 
 publicFor: pakaiGergajiMesin(playerid){
+	if(PlayerInfo[playerid][sisaGergaji] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 26, -1);
 	PlayerInfo[playerid][sisaGergaji] += 15;
 
@@ -750,48 +751,20 @@ publicFor: pakaiGergajiMesin(playerid){
 }
 
 publicFor: pakaiTombakIkan(playerid){
-	tambahItemPlayer(playerid, 34, -1);
+	if(PlayerInfo[playerid][sisaTombak] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
+	tambahItemPlayer(playerid, 36, -1);
 	PlayerInfo[playerid][sisaTombak] += 15;
+	
 	SetPlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX, 11716, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Tombak Ikan = "GREEN"Penambahan kesempatan pakai tombak ikan sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan pakai tombak ikan anda direset jadi 0.", "Ok", "");
 	return 1;
 }
 
-publicFor: pakaiTongkatPancing(playerid){
-	inline responseQuery(){
-		new total_item;
-		cache_get_value_name_int(0, "total_item", total_item);
-		if((total_item + 1) > PlayerInfo[playerid][limitItem]){						
-			format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", 1, total_item, PlayerInfo[playerid][limitItem]);
-			return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
-		}else{
-			new Float: x, Float: y, Float: z, Float: a,
-			Float: tmp, obj, vehid = GetPlayerVehicleID(playerid);
-			GetPlayerPos(playerid, x, y, z);
-			GetPlayerFacingAngle(playerid, a);
-			obj = CA_RayCastLine(x, y, z, x+(3.0*floatsin(-a, degrees)), y+(3.0*floatsin(-a, degrees)), z-3.0, tmp, tmp, tmp);
-			if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada diluar Interior atau Virtual World 0!");
-			if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Tidak dapat memancing di dalam kendaraan.");
-			if(obj != 20000) return error_command(playerid, "Anda harus berada di pinggir perairan untuk dapat memancing.");
-			if(PlayerInfo[playerid][sisaUmpan] < 0) return error_command(playerid, "Maaf anda tidak memiliki umpan ikan.");
-			mancingSecs[playerid] = 30;
-			mancingAktif[playerid] = 1;
-			mancingTimer[playerid] = SetPreciseTimer("waktuMancing", 1000, true, "i", playerid);
-			TogglePlayerControllable(playerid , 0);
-			ApplyAnimation(playerid,"SWORD", "sword_block", 4.1, 0, 0, 0, 0, 0);
-			SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX, 18632, 1, -0.091109, 0.255484, 0.018155, 94.362060, 312.328125, 190.418655, 1.000000, 1.000000, 1.000000);
-			ApplyAnimation(playerid,"SWORD", "sword_block", 4.1, 0, 0, 0, 0, 0);
-		}
-	}
-	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
-	return 1;
-}
+publicFor: pakaiJoranPancing(playerid){
+	tambahItemPlayer(playerid, 35, -1);
+	PlayerInfo[playerid][sisaJoran] += 10;
 
-publicFor: pakaiUmpanIkan(playerid){
-	tambahItemPlayer(playerid, 41, -1);
-	PlayerInfo[playerid][sisaUmpan] += 10;
-
-	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Roti - Umpan Ikan = "GREEN"Penambahan kesempatan pakai umpan ikan sebanyak 10 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan pakai umpan ikan anda direset jadi 0.", "Ok", "");
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Joran Pancing = "GREEN"Penambahan kesempatan pakai joran pancing sebanyak 10 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan pakai tombak ikan anda direset jadi 0.", "Ok", "");
 	return 1;
 }
 

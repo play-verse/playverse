@@ -368,6 +368,11 @@ CMD:aatm(playerid, params[]){
 }
 
 CMD:farm(playerid, params[]){
-    ShowPlayerDialog(playerid, DIALOG_FARM, DIALOG_STYLE_LIST, WHITE"Farm System :", "Tempat Beli Bibit\nPanen Tanaman", "Pilih", "Batal");
+    ShowPlayerDialog(playerid, DIALOG_FARM, DIALOG_STYLE_LIST, WHITE"Farm System :", "Panen Tanaman\nTempat Beli Bibit", "Pilih", "Batal");
+    return 1;
+}
+
+CMD:fishing(playerid, params[]){
+    ShowPlayerDialog(playerid, DIALOG_FISHING, DIALOG_STYLE_LIST, WHITE"Fishing System :", "Mancing Ikan\nToko Peralatan Pancing", "Pilih", "Batal");
     return 1;
 }

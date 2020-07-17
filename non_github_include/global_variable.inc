@@ -68,7 +68,7 @@ enum pInfo
 
 	sisaGergaji,
 	sisaTombak,
-	sisaUmpan,
+	sisaJoran,
     // Tambang
     sisaPalu,
     bool:activeMarker,
@@ -363,9 +363,9 @@ enum INFO_MENU_ALAT_PANCING {
 
 new const MENU_ALAT_PANCING[][INFO_MENU_ALAT_PANCING] = {
 // Item Pancing
-    {35, "Tongkat Pancing", 15, 1},
+    {35, "Joran Pancing", 5, 1},
 	{36, "Tombak Ikan", 35, 1},
-	{43, "Roti - Umpan Ikan", 10, 1}
+	{43, "Roti - Umpan Ikan", 1, 1}
 
 };
 
