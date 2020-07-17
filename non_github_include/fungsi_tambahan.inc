@@ -111,6 +111,11 @@ dialogMsgUangTdkCukup(playerid){
     return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf saat ini uang yang anda miliki tidak mencukupi untuk melakukan transaksi!", "Ok", "Batal");
 }
 
+/**
+    Function manipulasi item menggunakan SVar
+ */
+
+
 // getModelByIdItem(id_item){
 //     new nama_variabel[50];
 //     format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
@@ -120,6 +125,12 @@ dialogMsgUangTdkCukup(playerid){
 getIDbyModelItem(id_model){
     new nama_variabel[50];
     format(nama_variabel, sizeof(nama_variabel), "mIt_%d", id_model);
+    return GetSVarInt(nama_variabel);
+}
+
+getKapasitasByIdItem(id_item){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "cIt_%d", id_item);
     return GetSVarInt(nama_variabel);
 }
 
@@ -140,6 +151,10 @@ getNamaByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
 //     format(nama_variabel, sizeof(nama_variabel), "fIt_%d", id_item);
 //     GetSVarString(nama_variabel, destinasi, len);
 // }
+
+/**
+    End function manipulasi item menggunakan SVar
+ */
 
 getSaldoPlayer(playerid, const fungsi_callback[]){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(nominal), 0) as saldo FROM `trans_atm` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
@@ -283,7 +298,13 @@ publicFor: keluarkanPlayer(playerid){
     return 1;
 }
 
-stock ProxDetector(Float:radi, playerid, const string[], color)
+/**
+    ProxDetector
+    ```
+        Mengirim message kepada orang terdekat
+    ```
+ */
+ProxDetector(Float:radi, playerid, const string[], color)
 {
     new Float:x, Float:y, Float:z;
     GetPlayerPos(playerid, x, y, z);
@@ -504,4 +525,17 @@ IsMobilPickup(vehicleid) {
             return 1;
     }
     return 0;
+}
+
+/**
+    >> Query untuk cek kapasitas item
+    ```
+        Field yang menyimpan nilai total 
+        slot item pada player adalah 'total_item'
+    ```
+ */
+stock QueryCekSlotItem(playerid){
+    new queryFormated[500];
+    format(queryFormated, 500, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+    return queryFormated;
 }

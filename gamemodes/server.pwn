@@ -2022,14 +2022,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				inline responseQuery(){
 					new total_item;
-					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
-						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
+					
+					// 5 adalah id item untuk pas foto
+					static const id_item_pas_foto = 5;
 
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					cache_get_value_name_int(0, "total_item", total_item);
+					if((total_item + jumlah * getKapasitasByIdItem(id_item_pas_foto)) > PlayerInfo[playerid][limitItem]){	
+						dialogInventoryItemTidakMuat(playerid, jumlah, total_item, id_item_pas_foto);
 					}else{
-						// 5 adalah id item untuk pas foto
-						tambahItemPlayer(playerid, 5, jumlah);
+						tambahItemPlayer(playerid, id_item_pas_foto, jumlah);
 						givePlayerUang(playerid, -harga);
 
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli foto", WHITE"Anda berhasil membeli foto, foto anda sudah masuk inventory.\nSilahkan cek pada inventory anda.", "Ok", "");
@@ -2513,11 +2514,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				inline responseQuery(){
 					new total_item;
+					static const kapasitas_unpredict = 5;
 					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + 1) > PlayerInfo[playerid][limitItem]){
-						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan minimal "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).\nKosongkan ruang item anda sebelum memulai menambang kembali.", 1, total_item, PlayerInfo[playerid][limitItem]);
-
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					if((total_item + kapasitas_unpredict) > PlayerInfo[playerid][limitItem]){
+						// Buat kapasitas unpredict nya 5 - Karena berlian memiliki kapasitas paling besar yaitu 5
+						dialogInventoryItemTidakMuat(playerid, 1, total_item, .kapasitas_unpredict = kapasitas_unpredict);
 					}else{
 						PlayerAction[playerid][timerNambang] = SetPreciseTimer("selesaiNambang", 3000, 0, "i", playerid);
 						PlayerAction[playerid][sedangNambang] = true;
@@ -2648,10 +2649,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						inline responseQuery(){
 							new total_item;
 							cache_get_value_name_int(0, "total_item", total_item);
-							if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
-								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
-
-								ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+							if((total_item + jumlah * getKapasitasByIdItem(MENU_MAKANAN[idx][idItemMakanan])) > PlayerInfo[playerid][limitItem]){		
+								dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_MAKANAN[idx][idItemMakanan]);
 							}else{
 								givePlayerUang(playerid, -harga);
 								tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
@@ -2702,15 +2701,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				inline responseQuery(){
 					new total_item;
 					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
-						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
-
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					if((total_item + jumlah * getKapasitasByIdItem(MENU_MAKANAN[idx][idItemMakanan])) > PlayerInfo[playerid][limitItem]){
+						dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_MAKANAN[idx][idItemMakanan]);
 					}else{
 						getSaldoPlayer(playerid, "pembayaranMakananATM");
 					}
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);	
+				MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));	
 			}else{
 				DeletePVar(playerid, "bmakan_index");
 				DeletePVar(playerid, "bmakan_jumlah");				
@@ -3814,39 +3811,29 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1:
 					{
 						// Potong Pohon
-						inline responseQuery(){
-							new total_item;
-							cache_get_value_name_int(0, "total_item", total_item);
-							if((total_item + 1) > PlayerInfo[playerid][limitItem]){						
-								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", 1, total_item, PlayerInfo[playerid][limitItem]);
-								return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
-							}else{
-								if(PlayerInfo[playerid][sisaGergaji] > 0 && CuttingTreeID[playerid] == -1){
-									new tid = GetClosestTree(playerid);
-									if(tid != -1){
-										if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
-											if(IsPlayerInDynamicCP(playerid, DTree[tid][treeCP])){
-												new vehid = GetPlayerVehicleID(playerid);
-												if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda berada di dalam kendaraan.");
-												SetPlayerLookAt(playerid, DTree[tid][treeX], DTree[tid][treeY]);
-												Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[tid][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
-												CuttingTimer[playerid] = SetPreciseTimer("CutTree", 1000, true, "i", playerid);
-												CuttingTreeID[playerid] = tid;
-												SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
-												ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
-												TogglePlayerControllable(playerid, 0);
-												SetPlayerArmedWeapon(playerid, WEAPON_CHAINSAW);
-												GameTextForPlayer(playerid, "~w~Sedang ~y~memotong...", 3000, 3);
-												SetPlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX, 341, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
-												ApplyAnimation(playerid, "CHAINSAW", "WEAPON_csaw", 4.1, 1, 0, 0, 1, 0, 1);
-												DTree[tid][treeTumbang] = true;
-											}
-										}
+						if(PlayerInfo[playerid][sisaGergaji] > 0 && CuttingTreeID[playerid] == -1){
+							new tid = GetClosestTree(playerid);
+							if(tid != -1){
+								if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
+									if(IsPlayerInDynamicCP(playerid, DTree[tid][treeCP])){
+										new vehid = GetPlayerVehicleID(playerid);
+										if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda berada di dalam kendaraan.");
+										SetPlayerLookAt(playerid, DTree[tid][treeX], DTree[tid][treeY]);
+										Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[tid][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
+										CuttingTimer[playerid] = SetPreciseTimer("CutTree", 1000, true, "i", playerid);
+										CuttingTreeID[playerid] = tid;
+										SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+										ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+										TogglePlayerControllable(playerid, 0);
+										SetPlayerArmedWeapon(playerid, WEAPON_CHAINSAW);
+										GameTextForPlayer(playerid, "~w~Sedang ~y~memotong...", 3000, 3);
+										SetPlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX, 341, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
+										ApplyAnimation(playerid, "CHAINSAW", "WEAPON_csaw", 4.1, 1, 0, 0, 1, 0, 1);
+										DTree[tid][treeTumbang] = true;
 									}
 								}
 							}
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
 					}
 					case 2:
 					{
@@ -4396,9 +4383,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							new total_item;
 							if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
 							cache_get_value_name_int(0, "total_item", total_item);
-							if((total_item + (jumlah*MENU_BIBIT[idx][slotItem])) > PlayerInfo[playerid][limitItem]){						
-								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
-								return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
+							if((total_item + (jumlah*MENU_BIBIT[idx][slotItem])) > PlayerInfo[playerid][limitItem]){
+								return dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_BIBIT[idx][idItemBibit]);
 							}else{
 								givePlayerUang(playerid, -harga);
 								tambahItemPlayer(playerid, MENU_BIBIT[idx][idItemBibit], jumlah);
@@ -4406,7 +4392,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								return showDialogPesan(playerid, GREEN"Berhasil membeli bibit", pDialog[playerid]);
 							}
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+						MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));
 					}
 					case 1: // Via E-Banking
 					{
@@ -4443,14 +4429,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				inline responseQuery(){
 					new total_item;
 					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
-						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					if((total_item + jumlah * getKapasitasByIdItem(MENU_BIBIT[idx][idItemBibit])) > PlayerInfo[playerid][limitItem]){						
+						dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_BIBIT[idx][idItemBibit]);
 					}else{
 						getSaldoPlayer(playerid, "pembayaranBibitATM");
 					}
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);	
+				MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));	
 			}else{
 				DeletePVar(playerid, "bbibit_index");
 				DeletePVar(playerid, "bbibit_jumlah");				
@@ -4498,9 +4483,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							new total_item;
 							if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
 							cache_get_value_name_int(0, "total_item", total_item);
-							if((total_item + (jumlah*MENU_BIBIT_NARKO[idx][slotItem])) > PlayerInfo[playerid][limitItem]){						
-								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
-								return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
+							if((total_item + (jumlah*getKapasitasByIdItem(MENU_BIBIT_NARKO[idx][idItemBibit]))) > PlayerInfo[playerid][limitItem]){
+								return dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_BIBIT_NARKO[idx][idItemBibit]);
 							}else{
 								givePlayerUang(playerid, -harga);
 								tambahItemPlayer(playerid, MENU_BIBIT_NARKO[idx][idItemBibit], jumlah);
@@ -4508,7 +4492,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								return showDialogPesan(playerid, GREEN"Berhasil membeli bibit", pDialog[playerid]);
 							}
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+						MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));
 					}
 					case 1: // Via E-Banking
 					{
@@ -4545,14 +4529,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				inline responseQuery(){
 					new total_item;
 					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
-						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					if((total_item + jumlah * getKapasitasByIdItem(MENU_BIBIT_NARKO[idx][idItemBibit])) > PlayerInfo[playerid][limitItem]){
+						dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_BIBIT_NARKO[idx][idItemBibit]);
 					}else{
 						getSaldoPlayer(playerid, "pembayaranBibitNarkoATM");
 					}
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);	
+				MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));	
 			}else{
 				DeletePVar(playerid, "bbibit_index");
 				DeletePVar(playerid, "bbibit_jumlah");				
@@ -5029,9 +5012,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							new total_item;
 							if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
 							cache_get_value_name_int(0, "total_item", total_item);
-							if((total_item + (jumlah*MENU_ALAT_PANCING[idx][slotItem])) > PlayerInfo[playerid][limitItem]){						
-								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
-								return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
+							if((total_item + (jumlah*getKapasitasByIdItem(MENU_ALAT_PANCING[idx][idItem]))) > PlayerInfo[playerid][limitItem]){
+								return dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_ALAT_PANCING[idx][idItem]);
 							}else{
 								givePlayerUang(playerid, -harga);
 								tambahItemPlayer(playerid, MENU_ALAT_PANCING[idx][idItem], jumlah);
@@ -5039,7 +5021,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								return showDialogPesan(playerid, GREEN"Berhasil membeli peralatan pancing", pDialog[playerid]);
 							}
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+						MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));
 					}
 					case 1: // Via E-Banking
 					{
@@ -5076,14 +5058,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				inline responseQuery(){
 					new total_item;
 					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
-						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
+					if((total_item + jumlah * getKapasitasByIdItem(MENU_ALAT_PANCING[idx][idItem])) > PlayerInfo[playerid][limitItem]){
+						dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_ALAT_PANCING[idx][idItem]);		
 					}else{
 						getSaldoPlayer(playerid, "pembayaranAlatPancingATM");
 					}
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);	
+				MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));	
 			}else{
 				DeletePVar(playerid, "bpancing_index");
 				DeletePVar(playerid, "bpancing_jumlah");				

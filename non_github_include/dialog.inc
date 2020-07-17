@@ -207,3 +207,20 @@ showDialogBeliPerabot(playerid){
     }
     return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_PERABOT, DIALOG_STYLE_TABLIST_HEADERS, "Furniture tersedia.", str_daftar_perabot, "Pilih", "Batal");
 }
+
+dialogInventoryItemTidakMuat(playerid, jumlah_yang_ingin_dimasukan, total_didalam_tas, id_item = -1, kapasitas_unpredict = 1){
+    if(id_item == -1) {
+        format(pDialog[playerid], sizePDialog, WHITE"Maaf inventory item anda tidak memiliki cukup ruang,\n\
+        Anda harus menyisihkan setidaknya "ORANGE"%i "WHITE" slot item.\n\
+        Ruang inventory item anda sekarang adalah "ORANGE"(%i/%i).", jumlah_yang_ingin_dimasukan * kapasitas_unpredict, total_didalam_tas, PlayerInfo[playerid][limitItem]);
+    }
+    else {
+        format(pDialog[playerid], sizePDialog, WHITE"Maaf inventory item anda tidak memiliki cukup ruang,\n\
+        Untuk menyimpan sebanyak "ORANGE"%i "WHITE"yang membutuhkan kapasitas "ORANGE"%i per itemnya.\n", jumlah_yang_ingin_dimasukan, getKapasitasByIdItem(id_item));
+        
+        format(pDialog[playerid], sizePDialog, "%s\
+        Anda harus menyisihkan "ORANGE"%i slot item "WHITE"untuk dapat menyimpan item ini.\n\
+        Ruang inventory item anda sekarang adalah "ORANGE"(%i/%i).\n", pDialog[playerid], getKapasitasByIdItem(id_item) * jumlah_yang_ingin_dimasukan, total_didalam_tas, PlayerInfo[playerid][limitItem]);
+    }
+    return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory tidak cukup", pDialog[playerid], "Ok", "");
+}

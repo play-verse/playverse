@@ -341,14 +341,7 @@ new const MENU_BIBIT[][INFO_MENU_BIBIT] = {
 
 };
 
-enum INFO_MENU_BIBIT_NARKO {
-    idItemBibit,
-    namaBibit[100],
-    hargaBibit,
-	slotItem
-}
-
-new const MENU_BIBIT_NARKO[][INFO_MENU_BIBIT_NARKO] = {
+new const MENU_BIBIT_NARKO[][INFO_MENU_BIBIT] = {
 // Bibit Narko
     {33, "Bibit Ganja", 30, 9}
 
