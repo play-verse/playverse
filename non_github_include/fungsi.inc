@@ -737,6 +737,20 @@ publicFor: isBisaBuatKTP(playerid, tidak_bisa){
 	}else{
 		ShowPlayerDialog(playerid, DIALOG_CONFIRM_BUAT_KTP, DIALOG_STYLE_MSGBOX, "Buat KTP", WHITE"Anda harus memiliki "GREEN"100 "WHITE"Rupiah, "YELLOW"4 "WHITE"pas foto, "GREEN"2 "WHITE"Materai.\nApakah anda yakin sudah memiliki semua material yang dibutuhkan?", "Buat", "Batal");
 	}
+	return 1;
+}
+
+publicFor: isPunyaKTP(playerid, punya){
+	if(punya){
+		new nomor_hp[16];
+		GetPVarString(playerid, "temp_nomor_hp", nomor_hp, 16);
+
+		format(pDialog[playerid], sizePDialog, WHITE"Anda akan mendaftarkan nomor "GREEN"%s "WHITE"sebagai nomor HP anda.\n\n"YELLOW"Anda membutuhkan KTP dan uang sebesar "GREEN"$100 "YELLOW"untuk dapat mendaftarkan nomor HP.\n"WHITE"Apakah anda yakin?", nomor_hp);
+		ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_DAFTAR_NOMOR_HP, DIALOG_STYLE_MSGBOX, "Konfirmasi pendaftaran", pDialog[playerid], "Daftar", "Batal");
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Maaf anda tidak memiliki KTP.", "Ok", "");
+	}
+	return 1;
 }
 
 publicFor: pakaiPaluTambang(playerid){
@@ -2885,6 +2899,31 @@ publicFor: pembayaranKendaraanATM(playerid){
 		printf("[FATAL ERROR] #008 Invalid vehicle dealer ID.");
 		return 1;
 	}	
+	return 1;
+}
+
+publicFor: CekSlotItemPemain(playerid, bedakan_callback){
+	new total_item;
+	cache_get_value_name_int(0, "total_item", total_item);
+	if(bedakan_callback == 1){
+		new jumlah = GetPVarInt(playerid, "beri_item_jumlah"), 
+			id_item = GetPVarInt(playerid, "beri_item_id_item"),
+			target_id = GetPVarInt(playerid, "beri_item_target_id");
+
+		if(total_item + getKapasitasByIdItem(id_item) * jumlah <= PlayerInfo[target_id][limitItem]){
+			new nama_item[50];
+			getNamaByIdItem(id_item, nama_item);
+
+			format(pDialog[playerid], sizePDialog, WHITE"Anda akan memberikan item dengan spesifikasi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item yang ingin diberi: "GREEN"%d\n"WHITE"Pemain yang ingin diberi : "ORANGE"%s\n", nama_item, jumlah, PlayerInfo[target_id][pPlayerName]);
+			strcat(pDialog[playerid], WHITE"\nApakah anda yakin ?");
+			strcat(pDialog[playerid], WHITE"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.\n* Pastikan orang yang diberikan adalah orang terpecaya, jika melakukan transaksi.");
+
+			return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BERI_ITEM, DIALOG_STYLE_MSGBOX, ORANGE"Konfirmasi pemberian", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
+		}else{
+			resetPVarInventory(playerid);
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Slot item tidak cukup", WHITE"Slot item pemain yang ingin diberi tidak muat.\n"YELLOW"Suruh pemain untuk menyisihkan ruang terlebih dahulu.", "Ok", "");
+		}
+	}
 	return 1;
 }
 

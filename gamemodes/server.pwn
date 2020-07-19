@@ -625,7 +625,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_PILIH_SKIN:
 		{
 			if(response){
-				ShowPlayerDialog(playerid, DIALOG_OPTION_SKIN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", GREEN"Pakai Skin\n"LIGHT_BLUE"Beritahu Item\n"BLUE"Info Item", "Ok", "Keluar");
+				ShowPlayerDialog(playerid, DIALOG_OPTION_SKIN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", GREEN"Pakai Skin\n"LIGHT_BLUE"Beritahu Skin\n"BLUE"Info Skin", "Ok", "Keluar");
 
 				new id_skin = strval(inputtext);
 				SetPVarInt(playerid, "inv_model", id_skin);
@@ -714,11 +714,27 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_DAFTAR_NOMOR:
 		{
 			if(response){
-				if(!(strlen(inputtext) == 4)) return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Kode harus terdiri dari 4 angka!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
-				if(inputtext[0] == '-' || !isNumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Kode harus terdiri dari angka saja!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
+				static const id_item_ktp = 7; // ID Item KTP = 7
+				
+				if(getUangPlayer(playerid) < 100) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang tidak cukup", WHITE"Maaf uang anda tidak mencukupi", "Ok", "");
+				
+				if(!(strlen(inputtext) == 4)) return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP yang diinginkan", RED"Anda harus menginput 4 digit angka.\n"WHITE"Masukan nomor HP yang ingin digunakan.\n\n* Nomor HP harus terdiri dari 4 angka.\n* Nomor HP anda akan dicek keunik-annya, dimana setiap orang memiliki nomor HP yang berbeda.", "Simpan", "Batal");
+
+				if(inputtext[0] == '-' || !isNumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP yang diinginkan", RED"Inputan hanya dapat berupa angka.\n"WHITE"Masukan nomor HP yang ingin digunakan.\n\n* Nomor HP harus terdiri dari 4 angka.\n* Nomor HP anda akan dicek keunik-annya, dimana setiap orang memiliki nomor HP yang berbeda.", "Simpan", "Batal");
 
 				new nomor_hp[16] = "62";
 				strcat(nomor_hp, inputtext);
+				SetPVarString(playerid, "temp_nomor_hp", nomor_hp);
+
+				cekKetersediaanItem(playerid, id_item_ktp, 1, "isPunyaKTP");
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_DAFTAR_NOMOR_HP:
+		{
+			if(response){
+				new nomor_hp[16];
+				GetPVarString(playerid, "temp_nomor_hp", nomor_hp, 16);
 
 				inline responseCekNomorHP(){
 					if(!cache_num_rows()){
@@ -727,9 +743,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						format(PlayerInfo[playerid][nomorHP], 12, "%s", nomor_hp);
 
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendaftarkan nomor HP", WHITE"Anda "GREEN"berhasil "WHITE"mendaftarkan nomor HP!", "Ok", "");
+						format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil mendaftarkan "GREEN"%s "WHITE"sebagai nomor HP anda.\nSekarang anda dapat menggunakan nomor HP anda sebagai sarana komunikasi dan sebagainya.\nPastikan untuk tidak menyalahgunakannya.", nomor_hp);
+
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendaftarkan nomor HP", pDialog[playerid], "Ok", "");
 					}else{
-						return ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP anda", RED"Nomor HP telah ada, silahkan input yang lain!\n"WHITE"Masukan nomor HP yang anda inginkan :", "Simpan", "Keluar");
+						ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP yang diinginkan", RED"Nomor HP telah ada.\n"WHITE"Masukan nomor HP yang ingin digunakan.\n\n* Nomor HP harus terdiri dari 4 angka.\n* Nomor HP anda akan dicek keunik-annya, dimana setiap orang memiliki nomor HP yang berbeda.", "Simpan", "Batal");
 					}
 				}
 				MySQL_TQueryInline(koneksi, using inline responseCekNomorHP, "SELECT * FROM `user` WHERE nomor_handphone = '%s'", nomor_hp);
@@ -927,9 +945,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				cache_unset_active();
 
 				if(temp_kunci)
-					format(pDialog[playerid], sizePDialog, GREEN"Pakai Item\n"WHITE"Beritahu Item\nInfo Item\n"GREEN"Buka Item "RED"(sedang terkunci)\n"RED"Buang Item");
+					format(pDialog[playerid], sizePDialog, GREEN"Pakai Item\n"WHITE"Beritahu Item\nInfo Item\n"ORANGE"Beri Item\n"GREEN"Buka Item "RED"(sedang terkunci)\n"RED"Buang Item");
 				else
-					format(pDialog[playerid], sizePDialog, GREEN"Pakai Item\n"WHITE"Beritahu Item\nInfo Item\n"RED"Kunci Item "GREEN"(sedang terbuka)\n"RED"Buang Item");
+					format(pDialog[playerid], sizePDialog, GREEN"Pakai Item\n"WHITE"Beritahu Item\nInfo Item\n"ORANGE"Beri Item\n"RED"Kunci Item "GREEN"(sedang terbuka)\n"RED"Buang Item");
 
 				ShowPlayerDialog(playerid, DIALOG_OPTION_ITEM_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", pDialog[playerid], "Ok", "Keluar");
 			}else{
@@ -987,7 +1005,31 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						resetPVarInventory(playerid);
 					}
-					case 3: // Kunci/Buka Kunci
+					case 3: // Beri item
+					{
+						new jumlah, nama_item[50], temp_kunci;
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "kunci", temp_kunci);
+						cache_unset_active();
+
+						if(temp_kunci){
+							// Selalu hapus cache setelah dipakai (tidak perlu di unset_active kalau mau langsung di hapus)
+							cache_delete(PlayerInfo[playerid][tempCache]);
+							PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE; // Selalu set jadi invalid_cache saat sudah di hapus kalau gak nanti ga ke deteksi bahwa udah di hapus
+
+							resetPVarInventory(playerid);
+
+							ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, ORANGE"Item tidak dapat diberi", WHITE"Item ini "RED"dikunci.\n\n"YELLOW"Note : Item yang dikunci tidak dapat dibuang/dijual/diberi kepada orang lain.\nJika tetap ingin melakukan hal tersebut silahkan buka item terlebih dahulu.", "Ok", "");
+							return 1;
+						}
+
+						format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah item yang ingin diberi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item saat ini: "GREEN"%d", nama_item, jumlah);
+						strcat(pDialog[playerid], YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.");
+						ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
+					}
+					case 4: // Kunci/Buka Kunci
 					{
 						new id_item, temp_kunci;
 						cache_set_active(PlayerInfo[playerid][tempCache]);
@@ -1009,7 +1051,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						resetPVarInventory(playerid);
 					}
-					case 4: // Buang item
+					case 5: // Buang item
 					{
 						new jumlah, nama_item[50], temp_kunci;
 						cache_set_active(PlayerInfo[playerid][tempCache]);
@@ -1117,6 +1159,101 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}else{
 				resetPVarInventory(playerid);
 			}
+			return 1;
+		}
+		case DIALOG_BERI_ITEM:
+		{
+			if(response){
+				new jumlah, nama_item[50], input_jumlah, item_id;
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
+				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", item_id);
+				cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+				cache_unset_active(); // Unset_active agar tidak terjadi hal yang tidak diinginkan
+				if(sscanf(inputtext, "i", input_jumlah)) {
+					format(pDialog[playerid], sizePDialog, RED"Masukan inputan yang benar.\n"WHITE"Silahkan masukan jumlah item yang ingin diberi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item saat ini: "GREEN"%d", nama_item, jumlah);
+					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.");
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
+				}
+				if(input_jumlah < 1 || input_jumlah > jumlah){
+					format(pDialog[playerid], sizePDialog, RED"Jumlah yang ingin anda beri tidak valid.\n"WHITE"Silahkan masukan jumlah item yang ingin diberi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item saat ini: "GREEN"%d", nama_item, jumlah);
+					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.");
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
+				}
+
+				// Selalu hapus cache setelah dipakai (tidak perlu di unset_active kalau mau langsung di hapus)
+				cache_delete(PlayerInfo[playerid][tempCache]);
+				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE; // Selalu set jadi invalid_cache saat sudah di hapus kalau gak nanti ga ke deteksi bahwa udah di hapus
+
+				SetPVarInt(playerid, "beri_item_jumlah", input_jumlah);
+				SetPVarInt(playerid, "beri_item_id_item", item_id);
+
+				ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi",  WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", LIGHT_BLUE"Beri", "Batal");
+			}else{
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_BERI_ITEM_ID_PLAYER:
+		{
+			if(response){
+				new target_id;
+				if(sscanf(inputtext, "u", target_id)) {
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"ID pemain invalid.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", LIGHT_BLUE"Beri", "Batal");
+				}
+				if(!IsPlayerConnected(target_id) || target_id == INVALID_PLAYER_ID || target_id == playerid) {
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"ID pemain invalid.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", LIGHT_BLUE"Beri", "Batal");
+				}
+
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				if(!IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"Pemain harus berada didekat anda.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", LIGHT_BLUE"Beri", "Batal");
+				}
+
+				SetPVarInt(playerid, "beri_item_target_id", target_id);
+
+				// Pada argumen ke 2
+				// Angka 1 digunakan untuk membedakan saja, supaya bisa pakai 1 fungsi ramai"
+				mysql_tquery(koneksi, QueryCekSlotItem(target_id), "CekSlotItemPemain", "ii", playerid, 1);
+			}else
+				resetPVarInventory(playerid);
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BERI_ITEM:
+		{
+			if(response){
+				new jumlah = GetPVarInt(playerid, "beri_item_jumlah"), 
+					id_item = GetPVarInt(playerid, "beri_item_id_item"),
+					target_id = GetPVarInt(playerid, "beri_item_target_id");
+
+				if(!IsPlayerConnected(target_id)) {
+					resetPVarInventory(playerid);
+					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal memberi item", WHITE"Pemain yang anda tuju telah offline dan meninggal server.\nAnda dapat memberi item lagi nanti.", "Ok", "");
+				}
+
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				if(!IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal memberi item", WHITE"Pemain yang anda tuju tidak berada disekitar anda.\nAnda hanya dapat memberi item kepada pemain yang berada disekitar anda.", "Ok", "");
+				}
+
+				new nama_item[50];
+				getNamaByIdItem(id_item, nama_item);
+
+				// Tukarkan item
+				tambahItemPlayer(playerid, id_item, -jumlah);
+				tambahItemPlayer(target_id, id_item, jumlah);
+
+				ApplyAnimation(playerid, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1);
+				ApplyAnimation(target_id, "DEALER", "DEALER_DEAL", 4.1, 0, 1, 1, 0, 2000, 1);
+
+				sendPesan(target_id, COLOR_GREEN, "Item: "WHITE"Anda telah mendapatkan item "PINK"%s "WHITE"dari "ORANGE"%s "WHITE"sebanyak "GREEN"%dx", nama_item, PlayerInfo[playerid][pPlayerName], jumlah);
+
+				sendPesan(playerid, COLOR_ORANGE, "Item: "WHITE"Berhasil memberi item "PINK"%s "WHITE"ke "ORANGE"%s "WHITE"sebanyak "LIGHT_BLUE"%dx", nama_item, PlayerInfo[target_id][pPlayerName], jumlah);
+				resetPVarInventory(playerid);
+			}else
+				resetPVarInventory(playerid);
 			return 1;
 		}
 		case DIALOG_MENU_EPHONE:
@@ -2095,6 +2232,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						showDialogRespsionisKTP(playerid);
 						return 1;
+					}
+					case 1:
+					{
+						if(!isnull(PlayerInfo[playerid][nomorHP])) return server_message(playerid, "Maaf anda telah memiliki nomor HP");
+						// Dalam detik
+						if(getTotalLamaBermain(playerid) < 3600 * MINIMAL_WAKTU_BERMAIN_UNTUK_BUAT_NOMOR){
+							return server_message(playerid, "Maaf minimal waktu bermain yang dibutuhkan adalah 6 jam.");
+						}
+
+						ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP yang diinginkan", WHITE"Masukan nomor HP yang ingin digunakan.\n\n* Nomor HP harus terdiri dari 4 angka.\n* Nomor HP anda akan dicek keunik-annya, dimana setiap orang memiliki nomor HP yang berbeda.", "Simpan", "Batal");
 					}
 				}
 			}
