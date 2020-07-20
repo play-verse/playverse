@@ -1229,7 +1229,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				if(!IsPlayerConnected(target_id)) {
 					resetPVarInventory(playerid);
-					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal memberi item", WHITE"Pemain yang anda tuju telah offline dan meninggal server.\nAnda dapat memberi item lagi nanti.", "Ok", "");
+					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal memberi item", WHITE"Pemain yang anda tuju telah offline dan meninggalkan server.\nAnda dapat memberi item lagi nanti.", "Ok", "");
 				}
 
 				new Float:pos[3];
@@ -2544,7 +2544,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new nominal;
 				if(sscanf(inputtext, "i", nominal)) return ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", RED"Nominal salah, silahkan memasukan jumlah yang benar.\n"WHITE"Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
-				if(nominal < 10) return ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", RED"Minimal nominal adalah $10.\n"WHITE"Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
+				if(nominal < 10 || nominal > MAXIMAL_MONEY_TRADE) return ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", RED"Minimal nominal adalah $10 dan maksimal $999,999.\n"WHITE"Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
 
 				SetPVarInt(playerid, "tf_nominal", nominal);
 
@@ -5437,7 +5437,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			Float:y,
 			Float:z;
 		id = houseId[lastHousePickup[playerid]];
-
+		if(id == -1) return 1; // Return jika invalid house id
 		x = houseInfo[id][icon_x];
 		y = houseInfo[id][icon_y];
 		z = houseInfo[id][icon_z];
@@ -5862,7 +5862,7 @@ public OnPlayerText(playerid, text[]){
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
-	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PerbaikiTimer[playerid] == -1) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000);
+	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PerbaikiTimer[playerid] == -1) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1);
 	// Wiki Samp - OnPlayerText
 	// Return 1 - Mengirimkan pesan default
 	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan

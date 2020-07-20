@@ -17,7 +17,7 @@
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 50
 
-#define MAX_SERVER_ITEM 13 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
+#define MAX_SERVER_ITEM 500 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -40,6 +40,10 @@
 #define MAX_PLANTS 300
 #define MAX_PLAYER_PLANTS 3
 #define PLANT_HARVEST 300
+
+// Prevent dari angka minus dikarenakan angka yang terlalu besar
+// Dimana batas integer adalah 2^31-1 = 2.147.483.647
+#define MAXIMAL_MONEY_TRADE 999999
 
 // Dalam satuan jam
 #define MINIMAL_WAKTU_BERMAIN_UNTUK_BUAT_NOMOR 6

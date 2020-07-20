@@ -54,21 +54,21 @@ stock strreplace(sstring[], const search[], const replacement[], bool:ignorecase
 
 
 error_syntax(playerid, const syntax[]){
-    new pesan[256] = "INVALID"GREY" : Gunakan "WHITE"";
+    new pesan[256] = "Invalid"GREY" : Gunakan "WHITE"";
 
     strcat(pesan, syntax);
     return SendClientMessage(playerid, COLOR_RED, pesan);
 }
 
 error_command(playerid, const message[]){
-    new pesan[256] = "ERROR"GREY" : ";
+    new pesan[256] = "Error"GREY" : ";
     strcat(pesan, message);
     return SendClientMessage(playerid, COLOR_RED, pesan);
 }
 
 server_message(playerid, const message[]){
     new pesan[200];
-    format(pesan, 200, "SERVER: "GREY"%s", message);
+    format(pesan, 200, "Server: "GREY"%s", message);
     return SendClientMessage(playerid, COLOR_ORANGE, pesan);
 }
 
@@ -536,6 +536,6 @@ IsMobilPickup(vehicleid) {
  */
 stock QueryCekSlotItem(playerid){
     new queryFormated[500];
-    format(queryFormated, 500, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+    format(queryFormated, 500, "SELECT IFNULL(SUM(a.jumlah * b.kapasitas), 0) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
     return queryFormated;
 }

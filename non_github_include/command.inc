@@ -392,3 +392,32 @@ CMD:bicara(playerid, params[]){
 
     return 1;
 }
+
+CMD:beriuang(playerid, params[]){
+    new target_id, nominal;
+    if(sscanf(params, "ii", target_id, nominal)) return error_syntax(playerid, "/beriuang [id pemain] [nominal]");
+    if(!IsPlayerConnected(target_id) || target_id == INVALID_PLAYER_ID || target_id == playerid) return server_message(playerid, "ID pemain yang anda masukan tidak valid.");
+
+    // Cek jarak pemain
+    new Float:pos[3];
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+        return server_message(playerid, "Pemain yang ingin diberi harus berada disekitar anda.");
+    
+    if(nominal <= 0 || nominal > MAXIMAL_MONEY_TRADE) 
+        return server_message(playerid, "Minimal pemberian uang adalah 1 hingga 999999.");
+    
+    if(getUangPlayer(playerid) < nominal)
+        return server_message(playerid, "Uang anda tidak mencukupi dengan nominal yang dimasukan.");
+    
+    givePlayerUang(playerid, -nominal);
+    givePlayerUang(target_id, nominal);
+
+    ApplyAnimation(playerid, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1);
+    ApplyAnimation(target_id, "DEALER", "DEALER_DEAL", 4.1, 0, 1, 1, 0, 2000, 1);
+
+    sendPesan(target_id, COLOR_GREEN, "Uang: "WHITE"Anda telah menerima uang dari "ORANGE"%s "WHITE"sebanyak "GREEN"$%d", PlayerInfo[playerid][pPlayerName], nominal);
+
+    sendPesan(playerid, COLOR_ORANGE, "Uang: "WHITE"Berhasil memberi uang ke "ORANGE"%s "WHITE"sebanyak "GREEN"$%d", PlayerInfo[target_id][pPlayerName], nominal);
+    return 1;
+}

@@ -2092,7 +2092,7 @@ loadAllItem(){
 		format(msg, sizeof(msg), "mIt_%d", model_id);
 		SetSVarInt(msg, id_item);
 
-		format(msg, sizeof(msg), "cIt_%d", kapasitas);
+		format(msg, sizeof(msg), "cIt_%d", id_item);
 		SetSVarInt(msg, kapasitas);
 
 		format(msg, sizeof(msg), "nIt_%d", id_item);
