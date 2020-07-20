@@ -2327,8 +2327,7 @@ updatePVehReparasi(primary_id, status){
 	mysql_tquery(koneksi, temp_query);
 }
 
-forward todoExit(playerid, paramid);
-public todoExit(playerid, paramid){
+publicFor: todoExit(playerid, paramid){
 	if(sweeperJob[playerid] == 1){
 		sweeperJob[playerid] = 0;
 		usedSweeper[sweeperId[playerid]] = 0;
@@ -2898,8 +2897,7 @@ UpdateVehicleDealer(vehicleid){
 		return 0;
 }
 
-forward OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth);
-public OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth){
+publicFor: OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth){
   if(newhealth < oldhealth){
     if(testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehicleid){
 		poinSim[playerid]--;
@@ -2909,8 +2907,7 @@ public OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:o
   return true;
 }
 
-forward SpeedoUpdate(playerid);
-public SpeedoUpdate(playerid)
+publicFor: SpeedoUpdate(playerid)
 {
     new text_speed[24],
     	vehid = GetPlayerVehicleID(playerid),
@@ -3044,8 +3041,7 @@ Player_ResetCutting(playerid){
     return 1;
 }
 
-forward CutTree(playerid);
-public CutTree(playerid){
+publicFor: CutTree(playerid){
     if(CuttingTreeID[playerid] != -1){
         new id = CuttingTreeID[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + (MAX_PROGRESS_BAR / CUTTING_TIME);
         if(value >= MAX_PROGRESS_BAR){
@@ -3063,8 +3059,7 @@ public CutTree(playerid){
     return 1;
 }
 
-forward RespawnTree(tree_Id);
-public RespawnTree(tree_Id){
+publicFor: RespawnTree(tree_Id){
     if(DTree[tree_Id][treeSecs] > 1) {
         DTree[tree_Id][treeSecs]--;
         reloadTreeLabel(tree_Id);
@@ -3190,8 +3185,7 @@ reloadPlantLabel(plant_Id){
 	UpdateDynamic3DTextLabelText(DFarm[plant_Id][plantLabel], COLOR_WHITE, label);
 }
 
-forward HarvestTime(plant_Id);
-public HarvestTime(plant_Id){
+publicFor: HarvestTime(plant_Id){
     if(DFarm[plant_Id][plantSecs] > 1) {
         DFarm[plant_Id][plantSecs]--;
         reloadPlantLabel(plant_Id);
@@ -3208,8 +3202,7 @@ public HarvestTime(plant_Id){
     return 1;
 }
 
-forward DestroyTime(plant_Id);
-public DestroyTime(plant_Id){
+publicFor: DestroyTime(plant_Id){
 	DeletePreciseTimer(DFarm[plant_Id][destroyTimer]);
 	if(IsValidDynamicObject(DFarm[plant_Id][plantObjID])) DestroyDynamicObject(DFarm[plant_Id][plantObjID]);
 	if(IsValidDynamic3DTextLabel(DFarm[plant_Id][plantLabel])) DestroyDynamic3DTextLabel(DFarm[plant_Id][plantLabel]);
@@ -3246,8 +3239,7 @@ GetClosestPlant(playerid, Float: range = 5.0){
     return id;
 }
 
-forward buatTokoNarko();
-public buatTokoNarko(){
+publicFor: buatTokoNarko(){
 	new rand_narko = random(sizeof(POINT_NARKO));
 	DeletePreciseTimer(MrPuyengStart);
 	labelTokoNarko = CreateDynamic3DTextLabel("Mr. Puyeng", COLOR_WHITE, POINT_NARKO[rand_narko][NARKO_X], POINT_NARKO[rand_narko][NARKO_Y], POINT_NARKO[rand_narko][NARKO_Z], 20);
@@ -3257,8 +3249,7 @@ public buatTokoNarko(){
 	return 1;
 }
 
-forward re_TokoNarko();
-public re_TokoNarko(){
+publicFor: re_TokoNarko(){
 	DeletePreciseTimer(MrPuyengEnd);
 	if(IsValidDynamicCP(CP_tokoNarko)) DestroyDynamicCP(CP_tokoNarko);
 	if(IsValidDynamic3DTextLabel(labelTokoNarko)) DestroyDynamic3DTextLabel(labelTokoNarko);
@@ -3270,14 +3261,12 @@ public re_TokoNarko(){
 	return 1;
 }
 
-forward waktuPuyeng(playerid);
-public waktuPuyeng(playerid){
+publicFor: waktuPuyeng(playerid){
 	if(puyengSecs[playerid] >= 0){
 		puyengSecs[playerid]--;
 		if(puyengSecs[playerid] == 0){
 			puyengSecs[playerid] = -1;
-			//ClearAnimations(playerid);
-			SetPlayerSpecialAction(playerid,SPECIAL_ACTION_NONE);
+			SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
 			SetPlayerDrunkLevel (playerid, 0);
 			DeletePreciseTimer(puyengTimer[playerid]);
 		}
@@ -3350,27 +3339,26 @@ randomIkan(playerid){
 	return 1;
 }
 
-forward waktuMancing(playerid);
-public waktuMancing(playerid){
+publicFor: waktuMancing(playerid){
 	if(mancingSecs[playerid] >= 0){
 		mancingSecs[playerid]--;
 		new string[128];
 		format(string, 128, "~r~WAKTU TERSISA ~b~: %d", mancingSecs[playerid]);
 		GameTextForPlayer(playerid, string , 1000, 3);
 		if(mancingSecs[playerid] == 0){
-			ClearAnimations(playerid);
-			GameTextForPlayer(playerid, "~g~MEMANCING SELESAI!", 1000, 3);
-			TogglePlayerControllable(playerid , 1);
 			mancingSecs[playerid] = -1;
 			DeletePreciseTimer(mancingTimer[playerid]);
+			TogglePlayerControllable(playerid , 1);
+			GameTextForPlayer(playerid, "~g~MEMANCING SELESAI!", 1000, 3);
+			ClearAnimations(playerid);
+			ApplyAnimation(playerid, "CARRY", "crry_prtial", 4.0, 0, 0, 0, 0, 0);
 			randomIkan(playerid);
 		}
 	}
 	return 1;
 }
 
-forward delayNombak(playerid);
-public delayNombak(playerid){
+publicFor: delayNombak(playerid){
 	if(nombakSecs[playerid] >= 0){
 		nombakSecs[playerid]--;
 		if(nombakSecs[playerid] == 0){

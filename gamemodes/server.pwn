@@ -4924,13 +4924,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Tidak dapat memancing di dalam kendaraan.");
 								if(obj != 20000) return error_command(playerid, "Anda harus berada di pinggir perairan untuk dapat memancing.");
 								tambahItemPlayer(playerid, 43, -1);
+								TogglePlayerControllable(playerid , 0);
+								ApplyAnimation(playerid,"SWORD","sword_block", 50.0, 0, 1, 0, 1, 1);
+           					 	SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
 								mancingSecs[playerid] = 30;
 								mancingAktif[playerid] = 1;
 								mancingTimer[playerid] = SetPreciseTimer("waktuMancing", 1000, true, "i", playerid);
-								TogglePlayerControllable(playerid , 0);
-								ApplyAnimation(playerid,"SWORD", "sword_block", 4.1, 0, 0, 0, 0, 0);
-								SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX, 18632, 1, -0.091109, 0.255484, 0.018155, 94.362060, 312.328125, 190.418655, 1.000000, 1.000000, 1.000000);
-								ApplyAnimation(playerid,"SWORD", "sword_block", 4.1, 0, 0, 0, 0, 0);
 							}
 						}
 						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
