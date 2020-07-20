@@ -895,6 +895,29 @@ publicFor: selesaiBeliPerabot(playerid) {
 	return 1;
 }
 
+publicFor: selesaiBeliBibit(playerid) {
+	tambahItemPlayer(playerid, MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][idItemBibit], GetPVarInt(playerid, "jumlah_terpilih"));
+
+	format(pDialog[playerid], sizePDialog, "Anda berhasil membeli %s.\nSebanyak %d dengan harga total $%d.\nSilahkan cek inventory anda untuk melihat.", MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][namaBibit], GetPVarInt(playerid, "jumlah_terpilih"), GetPVarInt(playerid, "jumlah_terpilih") * MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][hargaBibit]);
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli bibit", pDialog[playerid], "Ok", "");
+	return 1;
+}
+
+publicFor: selesaiBeliNarko(playerid) {
+	tambahItemPlayer(playerid, MENU_BIBIT_NARKO[GetPVarInt(playerid, "index_terpilih")][idItemBibit], GetPVarInt(playerid, "jumlah_terpilih"));
+
+	format(pDialog[playerid], sizePDialog, "Anda berhasil membeli %s.\nSebanyak %d dengan harga total $%d.\nSilahkan cek inventory anda untuk melihat.", MENU_BIBIT_NARKO[GetPVarInt(playerid, "index_terpilih")][namaBibit], GetPVarInt(playerid, "jumlah_terpilih"), GetPVarInt(playerid, "jumlah_terpilih") * MENU_BIBIT_NARKO[GetPVarInt(playerid, "index_terpilih")][hargaBibit]);
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli bibit", pDialog[playerid], "Ok", "");
+	return 1;
+}
+
+publicFor: selesaiBeliPancing(playerid) {
+	tambahItemPlayer(playerid, MENU_ALAT_PANCING[GetPVarInt(playerid, "index_terpilih")][idItem], GetPVarInt(playerid, "jumlah_terpilih"));
+
+	format(pDialog[playerid], sizePDialog, "Anda berhasil membeli %s.\nSebanyak %d dengan harga total $%d.\nSilahkan cek inventory anda untuk melihat.", MENU_ALAT_PANCING[GetPVarInt(playerid, "index_terpilih")][namaItem], GetPVarInt(playerid, "jumlah_terpilih"), GetPVarInt(playerid, "jumlah_terpilih") * MENU_ALAT_PANCING[GetPVarInt(playerid, "index_terpilih")][hargaItem]);
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli peralatan pancing", pDialog[playerid], "Ok", "");
+	return 1;
+}
 
 publicFor: isRekeningTujuanAda(playerid, const rekening[]){
 	new result_nama[50], rekening_temp[10];
@@ -1856,69 +1879,6 @@ publicFor: pembayaranMakananATM(playerid){
 		tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
 		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_MAKANAN[idx][namaMakanan], jumlah, harga);
 		showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
-	}else{
-		showDialogPesan(playerid, RED"Saldo anda tidak mencukupi", WHITE"Maaf saldo yang terdapat pada ATM anda tidak mencukupi.\nSilahkan gunakan metode lain.");
-	}
-	return 1;
-}
-
-publicFor: pembayaranBibitATM(playerid){
-	new idx = GetPVarInt(playerid, "bbibit_index"), jumlah = GetPVarInt(playerid, "bbibit_jumlah");
-	new harga = jumlah * MENU_BIBIT[idx][hargaBibit];
-	DeletePVar(playerid, "bbibit_index");
-	DeletePVar(playerid, "bbibit_jumlah");				
-
-	new saldo;
-	cache_get_value_name_int(0, "saldo", saldo);
-	if(saldo > harga){
-		new string_keterangan[100];
-		format(string_keterangan, 100, "Pembelian %s sebanyak %d", MENU_BIBIT[idx][hargaBibit], jumlah);
-		addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -harga, string_keterangan);
-		tambahItemPlayer(playerid, MENU_BIBIT[idx][idItemBibit], jumlah);
-		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_BIBIT[idx][namaBibit], jumlah, harga);
-		showDialogPesan(playerid, GREEN"Berhasil membeli bibit", pDialog[playerid]);
-	}else{
-		showDialogPesan(playerid, RED"Saldo anda tidak mencukupi", WHITE"Maaf saldo yang terdapat pada ATM anda tidak mencukupi.\nSilahkan gunakan metode lain.");
-	}
-	return 1;
-}
-
-publicFor: pembayaranBibitNarkoATM(playerid){
-	new idx = GetPVarInt(playerid, "bbibit_index"), jumlah = GetPVarInt(playerid, "bbibit_jumlah");
-	new harga = jumlah * MENU_BIBIT_NARKO[idx][hargaBibit];
-	DeletePVar(playerid, "bbibit_index");
-	DeletePVar(playerid, "bbibit_jumlah");				
-
-	new saldo;
-	cache_get_value_name_int(0, "saldo", saldo);
-	if(saldo > harga){
-		new string_keterangan[100];
-		format(string_keterangan, 100, "Pembelian %s sebanyak %d", MENU_BIBIT_NARKO[idx][hargaBibit], jumlah);
-		addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -harga, string_keterangan);
-		tambahItemPlayer(playerid, MENU_BIBIT_NARKO[idx][idItemBibit], jumlah);
-		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_BIBIT_NARKO[idx][namaBibit], jumlah, harga);
-		showDialogPesan(playerid, GREEN"Berhasil membeli bibit", pDialog[playerid]);
-	}else{
-		showDialogPesan(playerid, RED"Saldo anda tidak mencukupi", WHITE"Maaf saldo yang terdapat pada ATM anda tidak mencukupi.\nSilahkan gunakan metode lain.");
-	}
-	return 1;
-}
-
-publicFor: pembayaranAlatPancingATM(playerid){
-	new idx = GetPVarInt(playerid, "bpancing_index"), jumlah = GetPVarInt(playerid, "bpancing_jumlah");
-	new harga = jumlah * MENU_ALAT_PANCING[idx][hargaItem];
-	DeletePVar(playerid, "bpancing_index");
-	DeletePVar(playerid, "bpancing_jumlah");				
-
-	new saldo;
-	cache_get_value_name_int(0, "saldo", saldo);
-	if(saldo > harga){
-		new string_keterangan[100];
-		format(string_keterangan, 100, "Pembelian %s sebanyak %d", MENU_ALAT_PANCING[idx][hargaItem], jumlah);
-		addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -harga, string_keterangan);
-		tambahItemPlayer(playerid, MENU_ALAT_PANCING[idx][idItem], jumlah);
-		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_ALAT_PANCING[idx][namaItem], jumlah, harga);
-		showDialogPesan(playerid, GREEN"Berhasil membeli peralatan pancing", pDialog[playerid]);
 	}else{
 		showDialogPesan(playerid, RED"Saldo anda tidak mencukupi", WHITE"Maaf saldo yang terdapat pada ATM anda tidak mencukupi.\nSilahkan gunakan metode lain.");
 	}
@@ -3340,15 +3300,26 @@ randomIkan(playerid){
 	}else{
 		angka = 0;
 	}
+	re_switch:
 	switch(angka){
 		case 34:{ // 1.4%
-			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "SILVER"Ikan Arwana"WHITE".\nIkan Arwana adalah hasil mancing nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
-			tambahItemPlayer(playerid, 35, 1);
+			if(nombakDepth[playerid] > 10.0){ // Ikan Arwana kedalaman > 10
+				showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "SILVER"Ikan Arwana"WHITE".\nIkan Arwana adalah hasil mancing nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
+				tambahItemPlayer(playerid, 35, 1);
+			}else{
+				angka = angka+1;
+				goto re_switch;
+			}
 		}
 		case 15,26,45:
 		{ // 4.3%
-			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "YELLOW"Ikan Kakap"WHITE".\nIkan Kakap adalah hasil mancing yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
-			tambahItemPlayer(playerid, 36, 1);
+			if(nombakDepth[playerid] > 5.0 || nombakDepth[playerid] < 10.0){ // Ikan Kakap kedalaman > 5-10
+				showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "YELLOW"Ikan Kakap"WHITE".\nIkan Kakap adalah hasil mancing yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
+				tambahItemPlayer(playerid, 36, 1);
+			}else{
+				angka = angka+1;
+				goto re_switch;
+			}
 		}
 		case 27..30,57,58:
 		{ // 10%
@@ -3375,6 +3346,7 @@ randomIkan(playerid){
 			SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
 		}
 	}
+	nombakDepth[playerid] = 0.0;
 	return 1;
 }
 

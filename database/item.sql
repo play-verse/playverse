@@ -84,7 +84,7 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (40, 'Ikan Mujair', 19630, 'Ikan Mujair adalah ikan yang berguna dan juga diminati orang banyak.', NULL, 1),
 (41, 'Ubur-ubur', 1603, 'Ubur-ubur adalah ikan yang bagus dan diminati.', NULL, 1),
 (42, 'Bintang Laut', 902, 'Bintang Laut adalah ikan yang bagus dan diminati.', NULL, 1),
-(43, 'Roti - Umpan Ikan', 19883, 'Roti - Umpan Ikan adalah umpan yang digunakan untuk memancing ikan.', 'pakaiUmpanIkan', 1);
+(43, 'Roti - Umpan Ikan', 19883, 'Roti - Umpan Ikan adalah umpan yang digunakan untuk memancing ikan.', NULL, 1);
 
 --
 -- Indexes for dumped tables

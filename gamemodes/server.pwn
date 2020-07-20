@@ -4345,11 +4345,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_MENU_BELI_BIBIT:
 		{
 			if(response){
-				SetPVarInt(playerid, "bbibit_index", listitem);
+				SetPVarInt(playerid, "index_terpilih", listitem);
 				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 			}else{
-				DeletePVar(playerid, "bbibit_index");
-				DeletePVar(playerid, "bbibit_jumlah");
+				DeletePVar(playerid, "index_terpilih");
+				DeletePVar(playerid, "jumlah_terpilih");
 			}
 			return 1;
 		}
@@ -4359,97 +4359,24 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new jumlah;
 				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
-				SetPVarInt(playerid, "bbibit_jumlah", jumlah);
-				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR_BIBIT, DIALOG_STYLE_LIST, "Pilih Metode Pembayaran:", "Uang Cash\nVia E-Banking", "Beli", "Kembali");
+				SetPVarInt(playerid, "jumlah_terpilih", jumlah);
+				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][hargaBibit], jumlah);
+				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][hargaBibit], "selesaiBeliBibit", pDialog[playerid]);
 			}else{
-				DeletePVar(playerid, "bbibit_index");
-				DeletePVar(playerid, "bbibit_jumlah");
+				DeletePVar(playerid, "index_terpilih");
+				DeletePVar(playerid, "jumlah_terpilih");
 				showDialogBeliBibit(playerid);
-			}
-			return 1;
-		}
-		case DIALOG_METODE_BAYAR_BIBIT:
-		{
-			if(response){
-				new idx = GetPVarInt(playerid, "bbibit_index"),
-				jumlah = GetPVarInt(playerid, "bbibit_jumlah"),
-				harga = jumlah * MENU_BIBIT[idx][hargaBibit];
-				switch(listitem){
-					case 0: // Bayar cash
-					{	
-						DeletePVar(playerid, "bbibit_index");
-						DeletePVar(playerid, "bbibit_jumlah");
-						inline responseQuery(){
-							new total_item;
-							if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
-							cache_get_value_name_int(0, "total_item", total_item);
-							if((total_item + (jumlah*MENU_BIBIT[idx][slotItem])) > PlayerInfo[playerid][limitItem]){
-								return dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_BIBIT[idx][idItemBibit]);
-							}else{
-								givePlayerUang(playerid, -harga);
-								tambahItemPlayer(playerid, MENU_BIBIT[idx][idItemBibit], jumlah);
-								format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_BIBIT[idx][namaBibit], jumlah, harga);
-								return showDialogPesan(playerid, GREEN"Berhasil membeli bibit", pDialog[playerid]);
-							}
-						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));
-					}
-					case 1: // Via E-Banking
-					{
-						if(isnull(PlayerInfo[playerid][nomorRekening])) {
-							DeletePVar(playerid, "bbibit_index");
-							DeletePVar(playerid, "bbibit_jumlah");
-							showDialogPesan(playerid, RED"Tidak memiliki ATM", WHITE"Anda tidak memiliki ATM.\nSilahkan buat ATM terlebih dahulu untuk menggunakan metode ini.");
-						}else if(PlayerInfo[playerid][ePhone] == 0) {
-							DeletePVar(playerid, "bbibit_index");
-							DeletePVar(playerid, "bbibit_jumlah");
-							showDialogPesan(playerid, RED"Tidak memiliki ePhone", WHITE"Anda tidak memiliki ePhone.\nSilahkan beli dan gunakan ePhone terlebih dahulu (minimal ePhone 2) untuk menggunakan metode ini.");
-						}else{
-							format(pDialog[playerid], sizePDialog, WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
-							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_BIBIT_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");
-						}
-					}
-				}
-			}else{
-				DeletePVar(playerid, "bbibit_index");
-				DeletePVar(playerid, "bbibit_jumlah");				
-			}
-			return 1;
-		}
-		case DIALOG_KONFIRMASI_BAYAR_BIBIT_VIA_ATM:
-		{
-			if(response){
-				new idx = GetPVarInt(playerid, "bbibit_index"),
-				jumlah = GetPVarInt(playerid, "bbibit_jumlah"),
-				harga = jumlah * MENU_BIBIT[idx][hargaBibit];
-				if(strlen(inputtext) != 8 || strcmp(PlayerInfo[playerid][nomorRekening], inputtext) != 0) {
-					format(pDialog[playerid], sizePDialog, RED"Nomor rekening yang anda masukan tidak benar."WHITE"\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
-					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_BIBIT_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");	
-				}
-				inline responseQuery(){
-					new total_item;
-					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + jumlah * getKapasitasByIdItem(MENU_BIBIT[idx][idItemBibit])) > PlayerInfo[playerid][limitItem]){						
-						dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_BIBIT[idx][idItemBibit]);
-					}else{
-						getSaldoPlayer(playerid, "pembayaranBibitATM");
-					}
-				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));	
-			}else{
-				DeletePVar(playerid, "bbibit_index");
-				DeletePVar(playerid, "bbibit_jumlah");				
 			}
 			return 1;
 		}
 		case DIALOG_MENU_BELI_BIBIT_NARKO:
 		{
 			if(response){
-				SetPVarInt(playerid, "bbibit_index", listitem);
+				SetPVarInt(playerid, "index_terpilih", listitem);
 				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 			}else{
-				DeletePVar(playerid, "bbibit_index");
-				DeletePVar(playerid, "bbibit_jumlah");
+				DeletePVar(playerid, "index_terpilih");
+				DeletePVar(playerid, "jumlah_terpilih");
 			}
 			return 1;
 		}
@@ -4459,87 +4386,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new jumlah;
 				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
-				SetPVarInt(playerid, "bbibit_jumlah", jumlah);
-				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR_BIBIT_NARKO, DIALOG_STYLE_LIST, "Pilih Metode Pembayaran:", "Uang Cash\nVia E-Banking", "Beli", "Kembali");
+				SetPVarInt(playerid, "jumlah_terpilih", jumlah);
+				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][hargaBibit], jumlah);
+				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][hargaBibit], "selesaiBeliNarko", pDialog[playerid]);
 			}else{
-				DeletePVar(playerid, "bbibit_index");
-				DeletePVar(playerid, "bbibit_jumlah");
+				DeletePVar(playerid, "index_terpilih");
+				DeletePVar(playerid, "jumlah_terpilih");
 				showDialogBeliBibitNarko(playerid);
 			}
 			return 1;
-		}
-		case DIALOG_METODE_BAYAR_BIBIT_NARKO:
-		{
-			if(response){
-				new idx = GetPVarInt(playerid, "bbibit_index"),
-				jumlah = GetPVarInt(playerid, "bbibit_jumlah"),
-				harga = jumlah * MENU_BIBIT_NARKO[idx][hargaBibit];
-				switch(listitem){
-					case 0: // Bayar cash
-					{	
-						DeletePVar(playerid, "bbibit_index");
-						DeletePVar(playerid, "bbibit_jumlah");
-						inline responseQuery(){
-							new total_item;
-							if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
-							cache_get_value_name_int(0, "total_item", total_item);
-							if((total_item + (jumlah*getKapasitasByIdItem(MENU_BIBIT_NARKO[idx][idItemBibit]))) > PlayerInfo[playerid][limitItem]){
-								return dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_BIBIT_NARKO[idx][idItemBibit]);
-							}else{
-								givePlayerUang(playerid, -harga);
-								tambahItemPlayer(playerid, MENU_BIBIT_NARKO[idx][idItemBibit], jumlah);
-								format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_BIBIT_NARKO[idx][namaBibit], jumlah, harga);
-								return showDialogPesan(playerid, GREEN"Berhasil membeli bibit", pDialog[playerid]);
-							}
-						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));
-					}
-					case 1: // Via E-Banking
-					{
-						if(isnull(PlayerInfo[playerid][nomorRekening])) {
-							DeletePVar(playerid, "bbibit_index");
-							DeletePVar(playerid, "bbibit_jumlah");
-							showDialogPesan(playerid, RED"Tidak memiliki ATM", WHITE"Anda tidak memiliki ATM.\nSilahkan buat ATM terlebih dahulu untuk menggunakan metode ini.");
-						}else if(PlayerInfo[playerid][ePhone] == 0) {
-							DeletePVar(playerid, "bbibit_index");
-							DeletePVar(playerid, "bbibit_jumlah");
-							showDialogPesan(playerid, RED"Tidak memiliki ePhone", WHITE"Anda tidak memiliki ePhone.\nSilahkan beli dan gunakan ePhone terlebih dahulu (minimal ePhone 2) untuk menggunakan metode ini.");
-						}else{
-							format(pDialog[playerid], sizePDialog, WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
-							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_BIBIT_NARKO_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");
-						}
-					}
-				}
-			}else{
-				DeletePVar(playerid, "bbibit_index");
-				DeletePVar(playerid, "bbibit_jumlah");				
-			}
-			return 1;
-		}
-		case DIALOG_KONFIRMASI_BAYAR_BIBIT_NARKO_VIA_ATM:
-		{
-			if(response){
-				new idx = GetPVarInt(playerid, "bbibit_index"),
-				jumlah = GetPVarInt(playerid, "bbibit_jumlah"),
-				harga = jumlah * MENU_BIBIT_NARKO[idx][hargaBibit];
-				if(strlen(inputtext) != 8 || strcmp(PlayerInfo[playerid][nomorRekening], inputtext) != 0) {
-					format(pDialog[playerid], sizePDialog, RED"Nomor rekening yang anda masukan tidak benar."WHITE"\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
-					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_BIBIT_NARKO_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");	
-				}
-				inline responseQuery(){
-					new total_item;
-					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + jumlah * getKapasitasByIdItem(MENU_BIBIT_NARKO[idx][idItemBibit])) > PlayerInfo[playerid][limitItem]){
-						dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_BIBIT_NARKO[idx][idItemBibit]);
-					}else{
-						getSaldoPlayer(playerid, "pembayaranBibitNarkoATM");
-					}
-				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));	
-			}else{
-				DeletePVar(playerid, "bbibit_index");
-				DeletePVar(playerid, "bbibit_jumlah");				
-			}
 		}
 		case DIALOG_KONFIRMASI_PAINTJOB_MEKANIK:
 		{
@@ -4974,11 +4829,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_MENU_BELI_ALAT_PANCING:
 		{
 			if(response){
-				SetPVarInt(playerid, "bpancing_index", listitem);
+				SetPVarInt(playerid, "index_terpilih", listitem);
 				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_ALAT_PANCING, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 			}else{
-				DeletePVar(playerid, "bpancing_index");
-				DeletePVar(playerid, "bpancing_jumlah");
+				DeletePVar(playerid, "index_terpilih");
+				DeletePVar(playerid, "jumlah_terpilih");
 			}
 			return 1;
 		}
@@ -4988,86 +4843,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new jumlah;
 				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_ALAT_PANCING, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_ALAT_PANCING, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
-				SetPVarInt(playerid, "bpancing_jumlah", jumlah);
-				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR_ALAT_PANCING, DIALOG_STYLE_LIST, "Pilih Metode Pembayaran:", "Uang Cash\nVia E-Banking", "Beli", "Kembali");
+				SetPVarInt(playerid, "jumlah_terpilih", jumlah);
+				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_ALAT_PANCING[GetPVarInt(playerid, "index_terpilih")][hargaItem], jumlah);
+				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_ALAT_PANCING[GetPVarInt(playerid, "index_terpilih")][hargaItem], "selesaiBeliPancing", pDialog[playerid]);
 			}else{
-				DeletePVar(playerid, "bpancing_index");
-				DeletePVar(playerid, "bpancing_jumlah");
+				DeletePVar(playerid, "index_terpilih");
+				DeletePVar(playerid, "jumlah_terpilih");
 				showDialogBeliAlatPancing(playerid);
-			}
-			return 1;
-		}
-		case DIALOG_METODE_BAYAR_ALAT_PANCING:
-		{
-			if(response){
-				new idx = GetPVarInt(playerid, "bpancing_index"),
-				jumlah = GetPVarInt(playerid, "bpancing_jumlah"),
-				harga = jumlah * MENU_ALAT_PANCING[idx][hargaItem];
-				switch(listitem){
-					case 0: // Bayar cash
-					{	
-						DeletePVar(playerid, "bpancing_index");
-						DeletePVar(playerid, "bpancing_jumlah");
-						inline responseQuery(){
-							new total_item;
-							if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
-							cache_get_value_name_int(0, "total_item", total_item);
-							if((total_item + (jumlah*getKapasitasByIdItem(MENU_ALAT_PANCING[idx][idItem]))) > PlayerInfo[playerid][limitItem]){
-								return dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_ALAT_PANCING[idx][idItem]);
-							}else{
-								givePlayerUang(playerid, -harga);
-								tambahItemPlayer(playerid, MENU_ALAT_PANCING[idx][idItem], jumlah);
-								format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_ALAT_PANCING[idx][namaItem], jumlah, harga);
-								return showDialogPesan(playerid, GREEN"Berhasil membeli peralatan pancing", pDialog[playerid]);
-							}
-						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));
-					}
-					case 1: // Via E-Banking
-					{
-						if(isnull(PlayerInfo[playerid][nomorRekening])) {
-							DeletePVar(playerid, "bpancing_index");
-							DeletePVar(playerid, "bpancing_jumlah");
-							showDialogPesan(playerid, RED"Tidak memiliki ATM", WHITE"Anda tidak memiliki ATM.\nSilahkan buat ATM terlebih dahulu untuk menggunakan metode ini.");
-						}else if(PlayerInfo[playerid][ePhone] == 0) {
-							DeletePVar(playerid, "bpancing_index");
-							DeletePVar(playerid, "bpancing_jumlah");
-							showDialogPesan(playerid, RED"Tidak memiliki ePhone", WHITE"Anda tidak memiliki ePhone.\nSilahkan beli dan gunakan ePhone terlebih dahulu (minimal ePhone 2) untuk menggunakan metode ini.");
-						}else{
-							format(pDialog[playerid], sizePDialog, WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
-							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_ALAT_PANCING_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");
-						}
-					}
-				}
-			}else{
-				DeletePVar(playerid, "bpancing_index");
-				DeletePVar(playerid, "bpancing_jumlah");				
-			}
-			return 1;
-		}
-		case DIALOG_KONFIRMASI_BAYAR_ALAT_PANCING_VIA_ATM:
-		{
-			if(response){
-				new idx = GetPVarInt(playerid, "bpancing_index"),
-				jumlah = GetPVarInt(playerid, "bpancing_jumlah"),
-				harga = jumlah * MENU_ALAT_PANCING[idx][hargaItem];
-				if(strlen(inputtext) != 8 || strcmp(PlayerInfo[playerid][nomorRekening], inputtext) != 0) {
-					format(pDialog[playerid], sizePDialog, RED"Nomor rekening yang anda masukan tidak benar."WHITE"\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", harga);
-					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_ALAT_PANCING_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran", pDialog[playerid], "Bayar", "Batal");	
-				}
-				inline responseQuery(){
-					new total_item;
-					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + jumlah * getKapasitasByIdItem(MENU_ALAT_PANCING[idx][idItem])) > PlayerInfo[playerid][limitItem]){
-						dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_ALAT_PANCING[idx][idItem]);		
-					}else{
-						getSaldoPlayer(playerid, "pembayaranAlatPancingATM");
-					}
-				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));	
-			}else{
-				DeletePVar(playerid, "bpancing_index");
-				DeletePVar(playerid, "bpancing_jumlah");				
 			}
 			return 1;
 		}
@@ -5318,8 +5100,8 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		if(idatm != -1) showDialogATM(playerid);
 		// Nombak Ikan
 		new Float:depth, Float:depth2;
-		if(CA_IsPlayerInWater(playerid, depth, depth2) && swimUnder[playerid]){
-			if(PlayerInfo[playerid][sisaTombak] > 0){
+		if(CA_IsPlayerInWater(playerid, depth, depth2)){
+			if(PlayerInfo[playerid][sisaTombak] > 0 && depth2 > 2.0){ // Minimal kedalaman > 2
 				inline responseQuery(){
 					new total_item;
 					cache_get_value_name_int(0, "total_item", total_item);
@@ -5333,6 +5115,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 							nombakDelay[playerid] = 1;
 							nombakSecs[playerid] = 10;
 							nombakTimer[playerid] = SetPreciseTimer("delayNombak", 1000, true, "i", playerid);
+							nombakDepth[playerid] = depth2;
 							randomIkan(playerid);
 						}else{
 							error_command(playerid, "Tunggu beberapa detik untuk dapat menombak ikan.");
@@ -5385,6 +5168,8 @@ public OnPlayerSpawn(playerid)
 	// Mancing
 	if(PlayerInfo[playerid][sisaTombak] > 0){
 		if(!IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) SetPlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX, 11716, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
+	}else{
+		if(IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX);
 	}
 	
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
@@ -5618,19 +5403,6 @@ public OnPlayerUpdate(playerid)
 	if(GetPlayerWeapon(playerid) == WEAPON_MINIGUN) {
 		Kick(playerid);
 		return 0;
-	}
-	if(PlayerInfo[playerid][sisaTombak] > 0){
-		if(GetPlayerAnimationIndex(playerid)){
-			new animlib[32], animname[32];
-			GetAnimationName(GetPlayerAnimationIndex(playerid), animlib, 32, animname, 32);
-			if(strcmp(animname, "Swim_Under", true) == 0 && !swimUnder[playerid] || strcmp(animname, "Swim_Dive_Under", true) == 0 && !swimUnder[playerid]){
-				swimUnder[playerid] = true;
-			}else{
-				swimUnder[playerid] = false;
-			}
-		}else if(swimUnder[playerid]){
-			swimUnder[playerid] = false;
-		}
 	}
 	return 1;
 }

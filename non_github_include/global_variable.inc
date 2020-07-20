@@ -1064,4 +1064,4 @@ new mancingTimer[MAX_PLAYERS],
 	nombakTimer[MAX_PLAYERS],
 	nombakSecs[MAX_PLAYERS],
 	nombakDelay[MAX_PLAYERS],
-	swimUnder[MAX_PLAYERS];
+	Float:nombakDepth[MAX_PLAYERS];
