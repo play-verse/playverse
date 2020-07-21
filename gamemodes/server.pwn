@@ -738,7 +738,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				inline responseCekNomorHP(){
 					if(!cache_num_rows()){
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET nomor_handphone = '%e' WHERE id = '%d'", nomor_hp, PlayerInfo[playerid][pID]);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET nomor_handphone = '%e', masa_aktif_nomor = NOW() + INTERVAL %d DAY WHERE id = '%d'", nomor_hp, MASA_AKTIF_SETIAP_PERPANJANG_NOMOR, PlayerInfo[playerid][pID]);
 						mysql_tquery(koneksi, pQuery[playerid]);
 
 						format(PlayerInfo[playerid][nomorHP], 12, "%s", nomor_hp);
@@ -1417,7 +1417,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(strlen(inputtext) == 6 && inputtext[0] == '6' && inputtext[1] == '2'){
 					if(strcmp(inputtext, PlayerInfo[playerid][nomorHP]) == 0) return ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_NOMOR, DIALOG_STYLE_INPUT, WHITE"Nomor HP penerima", RED"Tidak dapat memasukan nomor HP sendiri!\n"YELLOW"Pastikan nomor HP terdiri dari 6 angka dan diawali dengan 62.\n\n"WHITE"Masukan nomor HP penerima dengan lengkap :", "Ok", "Batal");
 
-					mysql_format(koneksi, pQuery[playerid], sizePQuery, "select a.id, COUNT(b.pesan) AS banyak_pesan from `user` a left join sms b on b.id_user_penerima = a.id WHERE a.nomor_handphone = '%e' GROUP BY a.id", inputtext);		
+					// Cek juga masa aktif nomor tujuan
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "select a.id, COUNT(b.pesan) AS banyak_pesan from `user` a left join sms b on b.id_user_penerima = a.id WHERE a.nomor_handphone = '%e' AND a.masa_aktif_nomor >= NOW() GROUP BY a.id", inputtext);
 					mysql_tquery(koneksi, pQuery[playerid], "cekNomorPenerima", "d", playerid);
 				}else{
 					ShowPlayerDialog(playerid, DIALOG_SMS_MASUKAN_NOMOR, DIALOG_STYLE_INPUT, WHITE"Nomor HP penerima", RED"Nomor HP yang anda masukan invalid!\n"YELLOW"Pastikan nomor HP terdiri dari 6 angka dan diawali dengan 62.\n\n"WHITE"Masukan nomor HP penerima dengan lengkap :", "Ok", "Batal");
@@ -2243,8 +2244,55 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						ShowPlayerDialog(playerid, DIALOG_DAFTAR_NOMOR, DIALOG_STYLE_INPUT, "Input nomor HP yang diinginkan", WHITE"Masukan nomor HP yang ingin digunakan.\n\n* Nomor HP harus terdiri dari 4 angka.\n* Nomor HP anda akan dicek keunik-annya, dimana setiap orang memiliki nomor HP yang berbeda.", "Simpan", "Batal");
 					}
+					case 2: // Perpanjang Masa Aktif Nomor HP
+					{
+						if(isnull(PlayerInfo[playerid][nomorHP])) return server_message(playerid, "Anda harus memiliki nomor HP yang telah terdaftar lebih dahulu.");
+
+						inline responseQuery(){
+							new expired[100];
+							cache_get_value_name(0, "expired", expired);
+
+							if(gettime() > PlayerInfo[playerid][masaAktifNomor])
+								format(pDialog[playerid], sizePDialog, RED"Masa aktif nomor anda telah berakhir "WHITE"pada %s.\n", expired);
+							else
+								format(pDialog[playerid], sizePDialog, LIGHT_BLUE"Nomor anda aktif "WHITE"hingga %s.\n", expired);
+							strcat(pDialog[playerid], "\nAnda dapat memperpanjangnya disini.\n\n"YELLOW"Anda akan dikenakan biaya sebesar "GREEN"$100 "WHITE"untuk setiap kali perpanjangan.\n");
+							strcatEx(pDialog[playerid], sizePDialog, YELLOW"Perpanjangan akan menambah masa aktif sebanyak %d hari.\n"WHITE"Apakah anda yakin?", MASA_AKTIF_SETIAP_PERPANJANG_NOMOR);
+
+							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_PERPANJANG_NOMOR_HP, DIALOG_STYLE_MSGBOX, "Perpanjang nomor", pDialog[playerid], "Perpanjang", "Kembali");
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT DATE_FORMAT(masa_aktif_nomor, \"%%W, %%d-%%M-%%Y %%H:%%i:%%S\") AS expired FROM `user` WHERE id = %d", PlayerInfo[playerid][pID]);
+					}
 				}
 			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_PERPANJANG_NOMOR_HP:
+		{
+			if(response){
+				if(getUangPlayer(playerid) < 100) return server_message(playerid, "Anda tidak memiliki cukup uang untuk membayar.");
+
+				givePlayerUang(playerid, -100);
+
+				// Jika belum expired maka tambahkan saja
+				if(gettime() < PlayerInfo[playerid][masaAktifNomor])
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET masa_aktif_nomor = DATE_ADD(masa_aktif_nomor, INTERVAL %d DAY) WHERE id = %d", MASA_AKTIF_SETIAP_PERPANJANG_NOMOR, PlayerInfo[playerid][pID]);
+				else // Jika sudah expired maka timpa dengan hari yang baru
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET masa_aktif_nomor = NOW() + INTERVAL %d DAY WHERE id = %d", MASA_AKTIF_SETIAP_PERPANJANG_NOMOR, PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				inline responseQuery(){
+					new expired[100], masa_aktif_nomor[100];
+					cache_get_value_name(0, "masa_aktif_nomor", masa_aktif_nomor);
+					cache_get_value_name(0, "expired", expired);
+					PlayerInfo[playerid][masaAktifNomor] = convStrSqlDateIntoUnix(masa_aktif_nomor);
+					format(pDialog[playerid], sizePDialog, GREEN"Berhasil menambahkan masa aktif anda sebanyak %d hari.\n"WHITE"Masa aktif anda saat ini "YELLOW"%s\n\n", MASA_AKTIF_SETIAP_PERPANJANG_NOMOR, expired);
+					strcat(pDialog[playerid], WHITE"Masa aktif mempengaruhi orang lain untuk dapat menghubungi anda.\nMasa aktif pada nomor anda akan berkurang secara real-time sesuai dengan tanggal yang tertera.\nTerima kasih.");
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Masa diperpanjang", pDialog[playerid], "Ok", "");
+				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT DATE_FORMAT(masa_aktif_nomor, \"%%W, %%d-%%M-%%Y %%H:%%i:%%S\") AS expired, masa_aktif_nomor FROM `user` WHERE id = %d", PlayerInfo[playerid][pID]);
+			}else
+				showDialogResepsionis(playerid);
 			return 1;
 		}
 		case DIALOG_RESPSIONIS_PILIH_KTP:

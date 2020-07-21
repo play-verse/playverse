@@ -61,6 +61,8 @@ enum pInfo
     ePhone, // Berisi versi HP, jika 0 maka hp tidak terequip
     sHouse, // Berisi ID Rumah, untuk spawn dirumah jika tidak 0
     nomorHP[12], // Berisi 62 + 4 kode
+	masaAktifNomor, // Berisi masa aktif dalam satuan detik
+
     nomorRekening[10], // Berisi 8 digit kode rekening
     
     waktuSaatLogin, // menyimpan gettickcount yang didapat saat login (untuk menghitung lama bermain sejak login)

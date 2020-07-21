@@ -31,6 +31,9 @@ publicFor: isRegistered(playerid)
 		}else{
 			cache_get_value_name(0, "nomor_handphone", temp_value);
 			format(PlayerInfo[playerid][nomorHP], 12, "%s", temp_value);
+
+			cache_get_value_name(0, "masa_aktif_nomor", temp_value);
+			PlayerInfo[playerid][masaAktifNomor] = convStrSqlDateIntoUnix(temp_value);
 		}
 
 		cache_is_value_name_null(0, "rekening", is_null);
@@ -123,6 +126,8 @@ resetPlayerVariable(playerid){
 
     PlayerInfo[playerid][ePhone] = 0;
     PlayerInfo[playerid][nomorHP][0] = EOS;
+    PlayerInfo[playerid][masaAktifNomor] = 0;
+	
     PlayerInfo[playerid][nomorRekening][0] = EOS;
 
 	PlayerInfo[playerid][preloadAnim] = 0;
