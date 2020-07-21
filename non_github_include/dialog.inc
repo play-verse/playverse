@@ -1,6 +1,6 @@
 // City Hall Dialog
 showDialogResepsionis(playerid){
-    return ShowPlayerDialog(playerid, DIALOG_RESPSIONIS_PEMERINTAH, DIALOG_STYLE_LIST, "Pilihan tindakan pengurusan data", "KTP\nPembuatan Nomor HP", "Pilih", "Batal");
+    return ShowPlayerDialog(playerid, DIALOG_RESPSIONIS_PEMERINTAH, DIALOG_STYLE_LIST, "Pilihan tindakan pengurusan data", "KTP\nPembuatan Nomor HP\nPerpanjang Masa Aktif Nomor HP", "Pilih", "Batal");
 }
 
 showDialogListItem(playerid){

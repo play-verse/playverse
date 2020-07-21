@@ -539,3 +539,27 @@ stock QueryCekSlotItem(playerid){
     format(queryFormated, 500, "SELECT IFNULL(SUM(a.jumlah * b.kapasitas), 0) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
     return queryFormated;
 }
+
+IsPemainPunyaNomorAktif(playerid){
+    return !isnull(PlayerInfo[playerid][nomorHP]) && PlayerInfo[playerid][masaAktifNomor] >= gettime();
+}
+
+datetime_to_unix(year, month, day, hour, minute, second)
+{
+	new jday = 367 * year - 7 * (year + (month + 9) / 12) / 4 - 3 * ((year + (month - 9) / 7) / 100 + 1) / 4 + 275 * month / 9 + day + 1721029 - 2440588;
+	return jday * 86400 + hour * 3600 + minute * 60 + second;
+}
+
+convStrSqlDateIntoUnix(const date_string[]){
+    new year = 0, 
+        month = 0, 
+        day = 0, 
+        hour = 0, 
+        minute = 0, 
+        second = 0;
+    if(!sscanf(date_string, "%d-%d-%d %d:%d:%d", year, month, day, hour, minute, second)){
+        printf("Converted var = %d-%d-%d %d:%d:%d", year, month, day, hour, minute, second);
+        return datetime_to_unix(year, month, day, hour, minute, second);
+    }
+    return 0;
+}
