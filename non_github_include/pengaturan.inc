@@ -41,6 +41,8 @@
 #define MAX_PLAYER_PLANTS 3
 #define PLANT_HARVEST 300
 
+#define PENGURANGAN_UNTUK_MENYAMAKAN_DENGAN_GETTIME 25200
+
 // Prevent dari angka minus dikarenakan angka yang terlalu besar
 // Dimana batas integer adalah 2^31-1 = 2.147.483.647
 #define MAXIMAL_MONEY_TRADE 999999

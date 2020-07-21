@@ -544,12 +544,21 @@ IsPemainPunyaNomorAktif(playerid){
     return !isnull(PlayerInfo[playerid][nomorHP]) && PlayerInfo[playerid][masaAktifNomor] >= gettime();
 }
 
+// jday = julian day
 datetime_to_unix(year, month, day, hour, minute, second)
 {
 	new jday = 367 * year - 7 * (year + (month + 9) / 12) / 4 - 3 * ((year + (month - 9) / 7) / 100 + 1) / 4 + 275 * month / 9 + day + 1721029 - 2440588;
-	return jday * 86400 + hour * 3600 + minute * 60 + second;
+    // Kita mengurangan dengan konstanta tertentu untuk menyamakan convert dengan gettime (unixtimestamp server)
+	return (jday * 86400 + hour * 3600 + minute * 60 + second) - PENGURANGAN_UNTUK_MENYAMAKAN_DENGAN_GETTIME;
 }
 
+/**
+    Convert SQL String ke Unixtimestamp satuan detik
+    ```
+        format string harus dalam bentuk
+        year-month-day hours:minutes:seconds
+    ```
+ */
 convStrSqlDateIntoUnix(const date_string[]){
     new year = 0, 
         month = 0, 
@@ -557,9 +566,11 @@ convStrSqlDateIntoUnix(const date_string[]){
         hour = 0, 
         minute = 0, 
         second = 0;
-    if(!sscanf(date_string, "%d-%d-%d %d:%d:%d", year, month, day, hour, minute, second)){
-        printf("Converted var = %d-%d-%d %d:%d:%d", year, month, day, hour, minute, second);
+    /**
+        P = Delimeter
+        <ele> = element yang ingin di pecah
+     */
+    if(!sscanf(date_string, "P<-:>iiiiii", year, month, day, hour, minute, second))
         return datetime_to_unix(year, month, day, hour, minute, second);
-    }
     return 0;
 }
