@@ -5439,7 +5439,7 @@ public OnPlayerRequestSpawn(playerid){
 /*
 	UNTUK HILANGKAN INVALID INDEX PARAMETER (BAD ENTRY POINT) BIARKAN SAJA FUNGSI MAIN
 */
-main( ) { }
+main() {}
 
 public OnGameModeInit()
 {	
