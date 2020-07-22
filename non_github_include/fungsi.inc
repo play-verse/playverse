@@ -1,5 +1,15 @@
 publicFor: isRegistered(playerid)
 {
+	new randVal = random(2);
+	if(randVal){
+		InterpolateCameraPos(playerid, 354.041900, -1747.001220, 45.020599, 2453.882080, -1683.979370, 62.778331, 50000);
+		InterpolateCameraLookAt(playerid, 355.294342, -1751.615600, 43.558235, 2457.219970, -1682.922363, 59.208766, 20000);
+	}else{
+		InterpolateCameraPos(playerid, 2572.200927, -1249.852050, 82.663887, 2463.226562, -1649.841552, 49.505981, 20000);
+		InterpolateCameraLookAt(playerid, 2572.100097, -1254.850952, 82.680725, 2466.521972, -1651.870483, 46.339923, 15000);
+	}
+
+
 	// Cek jika field id user kosong - maka dianggap belum ada user
 	new bool:is_null = true;
 	if(cache_num_rows()) cache_is_value_name_null(0, "id", is_null);
@@ -50,6 +60,8 @@ publicFor: isRegistered(playerid)
 
 		cache_get_value_name_int(0, "in_house", PlayerInfo[playerid][inHouse]);
 
+		cache_get_value_name_int(0, "login_attempt", PlayerInfo[playerid][loginAttempt]);
+
 		// Get Player Position
 		cache_get_value_name(0, "last_x", temp_value);
 		PlayerInfo[playerid][last_x] = floatstr(temp_value);
@@ -77,8 +89,15 @@ publicFor: isRegistered(playerid)
 		// SpawnPlayer(playerid);
 
 		saveHistoryLogin(playerid);
-
-        ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD,WHITE"Login",WHITE"Masukan Password untuk login ke akun!","Login","Keluar");
+	
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
+			SELECT a.*, b.nama AS nama_block \
+			FROM user_blocked a \
+			INNER JOIN jenis_blocked b ON b.id = a.jenis_block \
+			WHERE a.id_user = %d \
+				AND (a.expired > NOW() OR a.expired IS NULL) \
+			ORDER BY a.id DESC", PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid], "filterLoginPemain", "i", playerid);
 	}
 	else
 	{
@@ -103,6 +122,40 @@ publicFor: isRegistered(playerid)
 	}
 	return 1;
 
+}
+
+publicFor: filterLoginPemain(playerid){
+	if(cache_num_rows()){
+		new nama_block[100], 
+			happen[100],
+			berakhir[100],
+			keterangan[255];
+		
+		cache_get_value_name(0, "nama_block", nama_block);
+		cache_get_value_name(0, "happen", happen);
+		cache_get_value_name(0, "expired", berakhir);
+		cache_get_value_name(0, "keterangan", keterangan);
+
+		format(pDialog[playerid], sizePDialog, WHITE"Selamat datang kembali "GREEN"%s\n\n", PlayerInfo[playerid][pPlayerName]);
+		strcatEx(pDialog[playerid], sizePDialog, ORANGE"Maaf saat ini akun kamu sedang diblock.\n");
+		strcatEx(pDialog[playerid], sizePDialog, YELLOW"Dengan ketentuan sebagai berikut :\n\n");
+		strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tJenis Block \t: "ORANGE"%s\n", nama_block);
+		strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tTerjadi pada \t: "RED"%s\n", happen);
+		strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tBerakhir pada \t: "GREEN"%s\n", berakhir);
+		strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tKeterangan \t: "YELLOW"%s\n\n", keterangan);
+		strcatEx(pDialog[playerid], sizePDialog, YELLOW"Dengan adanya pemblokiran pemain diharapkan dapat lebih tertib dan mengikuti peraturan server.\n");
+		strcatEx(pDialog[playerid], sizePDialog, WHITE"Terimakasih, atas pengertiannya.\n");
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Diblockir", pDialog[playerid], "Ok", "");	
+		KickEx(playerid);
+		return 1;
+	}
+	format(pDialog[playerid], sizePDialog, WHITE"Selamat datang kembali "GREEN"%s\n\n", PlayerInfo[playerid][pPlayerName]);
+	strcatEx(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan password kamu, pastikan untuk memperhatikan huruf besar/kecil.\n");
+	strcatEx(pDialog[playerid], sizePDialog, YELLOW"Jika mengalami kesalahan password sebanyak %dx maka kamu akan otomatis dikick.\n", BATAS_SALAH_PASSWORD);
+	if(PlayerInfo[playerid][loginAttempt]) strcatEx(pDialog[playerid], sizePDialog, WHITE"\nPercobaan login yang dilakukan "YELLOW"%d "WHITE"dari "RED"%d\n", PlayerInfo[playerid][loginAttempt],  BATAS_SALAH_PASSWORD);
+
+	ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD,WHITE"Login", pDialog[playerid], "Login","Keluar");	
+	return 1;
 }
 
 // Hanya digunakan saat Disconnect dan Connect
@@ -165,6 +218,8 @@ resetPlayerVariable(playerid){
 
 	PlayerInfo[playerid][lastHp] = 0;
 	PlayerInfo[playerid][lastArmour] = 0;
+
+	PlayerInfo[playerid][loginAttempt] = 0;
 
 	DeletePreciseTimer(PlayerAction[playerid][timerNambang]);
 	PlayerAction[playerid][sedangNambang] = false;

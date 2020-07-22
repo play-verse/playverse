@@ -118,6 +118,12 @@ public OnPlayerDisconnect(playerid, reason){
 				}
 			}
 		}
+	}else{
+		// Pastikan dia memiliki loginAttempt dan merupakan player terdaftar
+		if(PlayerInfo[playerid][pID]){
+			mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET login_attempt = %d WHERE id = %d", PlayerInfo[playerid][loginAttempt], PlayerInfo[playerid][pID]);
+			mysql_tquery(koneksi, pQuery[playerid]);
+		}
 	}
 
 
@@ -195,8 +201,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(hash, PlayerInfo[playerid][pPassword]))
 				{
 					PlayerInfo[playerid][sudahLogin] = true;
+					PlayerInfo[playerid][loginAttempt] = 0;
 
-					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `jumlah_login` = `jumlah_login` + 1 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
+					// Increment jumlah login, dan reset login attempt
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `jumlah_login` = `jumlah_login` + 1, login_attempt = 0 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
 					mysql_tquery(koneksi, pQuery[playerid]);
 
 					PlayerInfo[playerid][loginKe]++;
@@ -221,7 +229,30 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 				else
 				{
-					return ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, WHITE"Login",RED"Password salah silahkan coba lagi, perhatikan penggunaan capslock!\n"WHITE"Masukan Password untuk login ke akun!","Login","Keluar");
+					++PlayerInfo[playerid][loginAttempt];
+					if(PlayerInfo[playerid][loginAttempt] >= BATAS_SALAH_PASSWORD) {
+						PlayerInfo[playerid][loginAttempt] = 0;
+						
+						// Jenis blocked untuk akun terkunci adalah 1
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_blocked(id_user,jenis_block,happen,expired,keterangan) VALUES(%d, 1, NOW(), NOW() + INTERVAL %d MINUTE, '%e')", PlayerInfo[playerid][pID], LAMA_PENGUNCIAN_AKUN_JIKA_SALAH_PASSWORD, "Salah memasukan password hingga melebihi batas attempt.");
+						mysql_tquery(koneksi, pQuery[playerid]);
+
+						// Kirim informasi dari email juga
+						// Disini panggil fungsi kirim email
+
+						format(pDialog[playerid], sizePDialog, YELLOW"%s "RED"kamu telah melebihi batas percobaan login yang diberikan.\n\n", PlayerInfo[playerid][pPlayerName]);
+						strcatEx(pDialog[playerid], sizePDialog, YELLOW"Akun kamu akan dikunci selama %d menit.\n\n", LAMA_PENGUNCIAN_AKUN_JIKA_SALAH_PASSWORD);
+						strcatEx(pDialog[playerid], sizePDialog, RED"Jika kamu merasa akun ini bukan milik kamu, mohon agar tidak mencoba menghack akun ini.\nMencoba menghack akun merupakan pelanggaran berat peraturan server.\n");
+						strcatEx(pDialog[playerid], sizePDialog, WHITE"Namun jika ini merupakan akun kamu, dan kamu lupa password.\nKamu dapat mereset password kamu melalui website resmi dan mengirimkan verifikasi melalui email.\n");
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Login melebihi batas maksimal", pDialog[playerid], "Ok", "");
+						return KickEx(playerid);
+					}
+
+					format(pDialog[playerid], sizePDialog, WHITE"Selamat datang kembali "GREEN"%s\n\n", PlayerInfo[playerid][pPlayerName]);
+					strcatEx(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan password kamu, pastikan untuk memperhatikan huruf besar/kecil.\n");
+					strcatEx(pDialog[playerid], sizePDialog, YELLOW"Jika mengalami kesalahan password sebanyak %dx maka kamu akan otomatis dikick.\n", BATAS_SALAH_PASSWORD);
+					strcatEx(pDialog[playerid], sizePDialog, WHITE"\nPercobaan login yang dilakukan "YELLOW"%d "WHITE"dari "RED"%d\n", PlayerInfo[playerid][loginAttempt],  BATAS_SALAH_PASSWORD);
+					return ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, WHITE"Login", pDialog[playerid], "Login", "Keluar");
 				}
 			}
 			else

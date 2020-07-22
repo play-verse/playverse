@@ -53,6 +53,12 @@
 // Dalam satuan hari (masa aktif setiap membuat / memperpanjang nomor)
 #define MASA_AKTIF_SETIAP_PERPANJANG_NOMOR 15
 
+// Batas Salah Password (Pengisian password yang dibolehkan)
+#define BATAS_SALAH_PASSWORD 3
+
+// Dalam satuan menit - Lama penguncian akun jika melebihi attempt login yang ada
+#define LAMA_PENGUNCIAN_AKUN_JIKA_SALAH_PASSWORD 10
+
 // Limit Item
 #define DEFAULT_LIMIT_ITEM 150
 

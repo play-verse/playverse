@@ -83,7 +83,9 @@ enum pInfo
     Cache:kotakPesan,
     reply, // -1 kalau gaada
 	bool:onSelectedTextdraw,
-    lastGlobalChat
+    lastGlobalChat,
+
+	loginAttempt
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 
