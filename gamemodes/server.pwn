@@ -2754,6 +2754,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						TogglePlayerControllable(playerid, 0);
 						SetPlayerArmedWeapon(playerid, 0);
 						ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
+						PlayerInfo[playerid][isOnAnimation] = true;
 					}
 				}
 				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
@@ -4056,6 +4057,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										SetPlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX, 341, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
 										ApplyAnimation(playerid, "CHAINSAW", "WEAPON_csaw", 4.1, 1, 0, 0, 1, 0, 1);
 										DTree[tid][treeTumbang] = true;
+				
+										PlayerInfo[playerid][isOnAnimation] = true;						
 									}
 								}
 							}
@@ -4835,7 +4838,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
 				TogglePlayerControllable(playerid, 0);
 				GameTextForPlayer(playerid, "~w~Sedang ~y~Paintjob...", 3000, 3);
-				ApplyAnimation(playerid, "SPRAYCAN", "spraycan_fire", 4.1, 1, 0, 0, 1, 0, 1);			}
+				ApplyAnimation(playerid, "SPRAYCAN", "spraycan_fire", 4.1, 1, 0, 0, 1, 0, 1);	
+				PlayerInfo[playerid][isOnAnimation] = true;	
+			}
 
 			// Lepas
 			RemoveVehiclePaintjob(vehid);
@@ -4863,6 +4868,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				TogglePlayerControllable(playerid, 0);
 				GameTextForPlayer(playerid, "~w~Sedang ~y~Modifikasi...", 3000, 3);
 				ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
+				PlayerInfo[playerid][isOnAnimation] = true;				
 			}
 
 			// Lepas
@@ -5152,7 +5158,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								tambahItemPlayer(playerid, 43, -1);
 								TogglePlayerControllable(playerid , 0);
 								ApplyAnimation(playerid,"SWORD","sword_block", 50.0, 0, 1, 0, 1, 1);
-           					 	SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
+								SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
 								mancingSecs[playerid] = 30;
 								mancingAktif[playerid] = 1;
 								mancingTimer[playerid] = SetPreciseTimer("waktuMancing", 1000, true, "i", playerid);
@@ -5712,7 +5718,7 @@ public OnPlayerText(playerid, text[]){
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
-	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PerbaikiTimer[playerid] == -1) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1);
+	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation]) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1);
 	// Wiki Samp - OnPlayerText
 	// Return 1 - Mengirimkan pesan default
 	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan

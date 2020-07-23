@@ -190,6 +190,7 @@ resetPlayerVariable(playerid){
 	PlayerInfo[playerid][sudahSpawn] = false;
 
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
+	PlayerInfo[playerid][isOnAnimation] = false;
 
 	PlayerInfo[playerid][tampilHUDStats] = false;
 
@@ -1421,6 +1422,7 @@ publicFor: konfirmasiPerbaikiMekanik(playerid, ada){
 			TogglePlayerControllable(playerid, 0);
 			GameTextForPlayer(playerid, "~w~Sedang ~y~memperbaiki...", 3000, 3);
 			ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
+			PlayerInfo[playerid][isOnAnimation] = true;				
 		}else{
 			showDialogPesan(playerid, RED"Kendaraan tidak ada", WHITE"Maaf kendaraan tidak ada. \nDisebabkan akibat kendaraan hancur atau pemilik kendaraan telah keluar dari server.");
 		}
@@ -1438,6 +1440,7 @@ publicFor: konfirmasiPerbaikiMekanik(playerid, ada){
 reset_PerbaikiKendaraan(playerid){
 	if(IsPlayerConnected(playerid)){
 		ClearAnimations(playerid);
+		PlayerInfo[playerid][isOnAnimation] = false;
 		TogglePlayerControllable(playerid, 1);
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
 		HidePlayerProgressBar(playerid, CuttingBar[playerid]);
@@ -1740,6 +1743,8 @@ publicFor: inputNomorRekeningATMBaru(playerid, ada){
 publicFor: selesaiNambang(playerid){
 	PlayerAction[playerid][sedangNambang] = false;
 	ClearAnimations(playerid);
+	PlayerInfo[playerid][isOnAnimation] = false;
+
 	TogglePlayerControllable(playerid, 1);
 	if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
 
@@ -3127,6 +3132,8 @@ Player_ResetCutting(playerid){
     new id = CuttingTreeID[playerid];
     if(DTree[id][treeSecs] < 1) Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[id][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
     ClearAnimations(playerid);
+	PlayerInfo[playerid][isOnAnimation] = false;
+
     TogglePlayerControllable(playerid, 1);
 	if(IsPlayerAttachedObjectSlotUsed(playerid, CUTTING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX);
     CuttingTreeID[playerid] = -1;

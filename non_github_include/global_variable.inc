@@ -84,6 +84,7 @@ enum pInfo
     reply, // -1 kalau gaada
 	bool:onSelectedTextdraw,
     lastGlobalChat,
+	bool:isOnAnimation, // Save state untuk animation
 
 	loginAttempt
 }
