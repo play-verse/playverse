@@ -235,6 +235,10 @@ ResetPVarTemporary(playerid){
 	DeletePVar(playerid, "fixbayar_idpv");
 	DeletePVar(playerid, "veh_select_id");
 	DeletePVar(playerid, "halaman");
+	DeletePVar(playerid, "index_terpilih");
+
+	if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+	PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
 }
 
 resetPVarInventory(playerid){
@@ -243,7 +247,6 @@ resetPVarInventory(playerid){
 	DeletePVar(playerid, "inv_jumlah");
 	DeletePVar(playerid, "inv_keterangan");
 	DeletePVar(playerid, "inv_target_id");
-
 
 	if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
 	PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;

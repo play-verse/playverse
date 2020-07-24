@@ -3444,7 +3444,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						// Beli vehicle dan masukan ke dalam data player
 						if(Iter_Contains(DVehIterator, vehid)){
 							// Ubah jadi pakai tquery biasa, saat menggunakan tquery_inline nilai variabel vehid tidak terkirim dengan benar (val = 21946644)
-							mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO vehicle(id_pemilik, id_model, pos_x, pos_y, pos_z, pos_a, color_1, color_2) SELECT '%d' AS id_pemilik, id_model, '%f' AS pos_x, '%f' AS pos_y, '%f' AS pos_z, '%f' AS pos_a, color_1, color_2 FROM vehicle_dealer WHERE id = '%d'", PlayerInfo[playerid][pID],  DVeh[vehid][dVehCoord][0], DVeh[vehid][dVehCoord][1], DVeh[vehid][dVehCoord][2], DVeh[vehid][dVehCoord][3], DVeh[vehid][dVehID]);
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO vehicle(id_pemilik, id_model, pos_x, pos_y, pos_z, pos_a, color_1, color_2, harga_beli) SELECT '%d' AS id_pemilik, id_model, '%f' AS pos_x, '%f' AS pos_y, '%f' AS pos_z, '%f' AS pos_a, color_1, color_2, harga FROM vehicle_dealer WHERE id = '%d'", PlayerInfo[playerid][pID],  DVeh[vehid][dVehCoord][0], DVeh[vehid][dVehCoord][1], DVeh[vehid][dVehCoord][2], DVeh[vehid][dVehCoord][3], DVeh[vehid][dVehID]);
 							mysql_tquery(koneksi, pQuery[playerid], "prosesBeliKendaraanCash", "ii", playerid, vehid);
 						}
 						else{
@@ -5177,6 +5177,139 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_TALK_TO_DEALER_MANAGER:
+		{
+			if(response)
+				showDialogDealerManager(playerid);
+			return 1;
+		}
+		case DIALOG_TALK_TO_DEALER_MANAGER_LIST:
+		{
+			if(response)
+			{
+				ActorTalking(ACT_penjualDealer);
+				switch(listitem){
+					case 0: // Jual Vehicle
+					{
+						inline responseQuery(){
+							new rows;
+							cache_get_row_count(rows);
+							if(rows){
+								new idx = 0, harga, modelid;
+								format(pDialog[playerid], sizePDialog, "Jenis Kendaraan\tHarga Beli\n");
+								do{
+									cache_get_value_name_int(idx, "harga_beli", harga);
+									cache_get_value_name_int(idx, "id_model", modelid);
+									strcatEx(pDialog[playerid], sizePDialog, WHITE"%s\t"GREEN"$%d\n", GetVehicleModelName(modelid), harga);
+								}
+								while(++idx < rows);
+								
+								// Hapus jika ada cache sebelumnya, untuk menghindari memory leak
+								if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+								// Save cache
+								PlayerInfo[playerid][tempCache] = cache_save();
+
+								ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN, DIALOG_STYLE_LIST, "Pilih kendaraan yang ingin kamu jual", pDialog[playerid], "Pilih", "Kembali");
+							}else
+								showDialogPesan(playerid, RED"Tidak memiliki kendaraan", WHITE"Anda tidak memiliki kendaraan apapun.\n\
+									Anda hanya dapat menjual kendaraan yang merupakan milik anda.");
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM vehicle WHERE id_pemilik = %d", PlayerInfo[playerid][pID]);
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN:
+		{
+			if(response){
+				new harga_beli, modelid;
+				SetPVarInt(playerid, "index_terpilih", listitem);
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(listitem, "harga_beli", harga_beli);
+				cache_get_value_name_int(listitem, "id_model", modelid);
+				cache_unset_active();
+
+				new harga = harga_beli * (PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN / 100);
+
+				format(pDialog[playerid], sizePDialog, WHITE"\
+						Anda akan menjual kendaraan anda dengan spesifikasi berikut:\n\n\
+						Jenis Kendaraan\t: "ORANGE"%s\n\
+						"WHITE"Harga Jual\t\t: "GREEN"$%d\n", GetVehicleModelName(modelid), 
+						harga);
+				strcatEx(pDialog[playerid], sizePDialog, "\n\
+					"YELLOW"Harga didapat dari %d persen harga beli.\n\
+					Yang berarti "WHITE"$%d x %d persen = "GREEN"$%d\n\n\
+					"WHITE"Apakah anda yakin ?", PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN, harga_beli, PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN, harga);
+				ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN_KONFIRMASI, DIALOG_STYLE_MSGBOX, WHITE"Konfirmasi Jual Kendaraan", pDialog[playerid], "Jual", "Batal");
+			}else{
+				showDialogDealerManager(playerid);
+				ResetPVarTemporary(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN_KONFIRMASI:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "index_terpilih");
+				new harga_beli, id_primary, harga, id_pemilik;
+
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(idx, "id", id_primary);
+				cache_get_value_name_int(idx, "harga_beli", harga_beli);
+				cache_get_value_name_int(idx, "id_pemilik", id_pemilik);
+				cache_unset_active();
+				ResetPVarTemporary(playerid); // Reset all variabel temp
+
+				if(id_pemilik != PlayerInfo[playerid][pID]) {
+					printf("#Error 013 - ID Pemilik dengan ID penjual mobil tidak sama.");
+					return 1;
+				}
+
+				harga = harga_beli * (PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN / 100);
+				givePlayerUang(playerid, harga);
+
+				// IMPORTANT - Sebaiknya tidak didelete datanya namun dipindahkan ke table deleted vehicle
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE * FROM vehicle WHERE id = %d", PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				// Remove kunci dipinjamkan dari database
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM vehicle_keys WHERE id_vehicle  = %d", id_primary);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				// Hancurkan vehicle
+				static const kosong_pveh[PlayerVehicleInfo];
+				foreach(new i : PVehIterator){
+					if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID] && PVeh[i][pVehID] == id_primary) {
+						// Looping ke player lain apakah ada pemegang kunci
+						// Jika ada maka lepas kuncinya secara paksa
+						foreach(new j : Player){
+							if(PVeh[i][pVehPemilik] != PlayerInfo[j][pID] && Iter_Contains(PVehKeys[j], i)){
+								Iter_Remove(PVehKeys[j], i);
+								PVehKeysTime[j][i] = 0;
+								break;
+							}
+						}
+
+						new cur = i;
+						#if defined DEBUG_SERVER_LOAD
+						printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) unloaded.", PlayerInfo[playerid][pPlayerName], PVeh[i][pVehID], i);
+						#endif
+						if(IsValidVehicle(PVeh[i][pVehicle]) && Iter_Contains(IDVehToPVehIterator, PVeh[i][pVehicle]))
+						{
+							Iter_Remove(IDVehToPVehIterator, PVeh[i][pVehicle]);
+							IDVehToPVeh[PVeh[i][pVehicle]] = 0;
+							DestroyVehicle(PVeh[i][pVehicle]);
+						}
+
+						PVeh[i] = kosong_pveh;
+						Iter_SafeRemove(PVehIterator, cur, i);
+					}
+				}			
+			}else{
+				ResetPVarTemporary(playerid);
+			}
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -5718,7 +5851,7 @@ public OnPlayerText(playerid, text[]){
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
-	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation]) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1);
+	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation]) PlayerTalking(playerid);
 	// Wiki Samp - OnPlayerText
 	// Return 1 - Mengirimkan pesan default
 	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan
