@@ -6,7 +6,7 @@
 			| |  | | '__/ _ \ '_ \| | '_ \
 			| |__| | | |  __/ |_) | | | | |
 			|_____/|_|  \___|_.__/|_|_| |_|
-						©2012
+						ï¿½2012
 						
 			            v 1.1
 
@@ -474,11 +474,13 @@ public ExportMovement(playerid, inputtext[])
 	format(tagstring, sizeof(tagstring), "|----------%s----------|\r\n", inputtext);
 	format(movestring, sizeof(movestring),"InterpolateCameraPos(playerid, %f, %f, %f, %f, %f, %f, %i);\r\n",coordInfo[playerid][StartX], coordInfo[playerid][StartY], coordInfo[playerid][StartZ], coordInfo[playerid][EndX], coordInfo[playerid][EndY], coordInfo[playerid][EndZ],coordInfo[playerid][MoveSpeed]);
 	format(rotstring,sizeof(rotstring),"InterpolateCameraLookAt(playerid, %f, %f, %f, %f, %f, %f, %i);",coordInfo[playerid][StartLookX],coordInfo[playerid][StartLookY],coordInfo[playerid][StartLookZ],coordInfo[playerid][EndLookX],coordInfo[playerid][EndLookY],coordInfo[playerid][EndLookZ],coordInfo[playerid][RotSpeed]);
-	new File:File = fopen(filename, io_write);
-	fwrite(File, tagstring);
-	fwrite(File, movestring);
-	fwrite(File, rotstring);
-	fclose(File);
+	printf("%s", movestring);
+	printf("%s", rotstring);
+	// new File:File = fopen(filename, io_write);
+	// fwrite(File, tagstring);
+	// fwrite(File, movestring);
+	// fwrite(File, rotstring);
+	// fclose(File);
 	new myOutpString[256];
 	format(myOutpString, sizeof(myOutpString), "Camera movements saved under {F58282}%s {a9c4e4}to the scriptfiles folder!\n\nWhat do you want to do next?", filename);
 	ShowPlayerDialog(playerid, DIALOG_CLOSE_NEW, DIALOG_STYLE_MSGBOX,"What next?",myOutpString,"Create new","Exit");
@@ -524,7 +526,7 @@ stock MoveCamera(playerid)
 
 //--------------------------------------------------
 
-stock GetNextCameraPosition(move_mode, Float:CP[3], Float:FV[3], &Float:X, &Float:Y, &Float:Z)
+stock GetNextCameraPosition(move_mode, const Float:CP[3], const Float:FV[3], &Float:X, &Float:Y, &Float:Z)
 {
     #define OFFSET_X (FV[0]*6000.0)
 	#define OFFSET_Y (FV[1]*6000.0)
@@ -618,7 +620,7 @@ stock FlyMode(playerid)
 	return 1;
 }
 
-IsNumeric(szInput[]) {
+IsNumeric(const szInput[]) {
 	new iChar, i = 0;
 	while ((iChar = szInput[i++])) if (!('0' <= iChar <= '9')) return 0;
 	return 1;

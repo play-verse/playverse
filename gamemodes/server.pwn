@@ -118,6 +118,12 @@ public OnPlayerDisconnect(playerid, reason){
 				}
 			}
 		}
+	}else{
+		// Pastikan dia memiliki loginAttempt dan merupakan player terdaftar
+		if(PlayerInfo[playerid][pID]){
+			mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET login_attempt = %d WHERE id = %d", PlayerInfo[playerid][loginAttempt], PlayerInfo[playerid][pID]);
+			mysql_tquery(koneksi, pQuery[playerid]);
+		}
 	}
 
 
@@ -195,8 +201,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(hash, PlayerInfo[playerid][pPassword]))
 				{
 					PlayerInfo[playerid][sudahLogin] = true;
+					PlayerInfo[playerid][loginAttempt] = 0;
 
-					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `jumlah_login` = `jumlah_login` + 1 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
+					// Increment jumlah login, dan reset login attempt
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `jumlah_login` = `jumlah_login` + 1, login_attempt = 0 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
 					mysql_tquery(koneksi, pQuery[playerid]);
 
 					PlayerInfo[playerid][loginKe]++;
@@ -221,7 +229,30 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 				else
 				{
-					return ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, WHITE"Login",RED"Password salah silahkan coba lagi, perhatikan penggunaan capslock!\n"WHITE"Masukan Password untuk login ke akun!","Login","Keluar");
+					++PlayerInfo[playerid][loginAttempt];
+					if(PlayerInfo[playerid][loginAttempt] >= BATAS_SALAH_PASSWORD) {
+						PlayerInfo[playerid][loginAttempt] = 0;
+						
+						// Jenis blocked untuk akun terkunci adalah 1
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_blocked(id_user,jenis_block,happen,expired,keterangan) VALUES(%d, 1, NOW(), NOW() + INTERVAL %d MINUTE, '%e')", PlayerInfo[playerid][pID], LAMA_PENGUNCIAN_AKUN_JIKA_SALAH_PASSWORD, "Salah memasukan password hingga melebihi batas attempt.");
+						mysql_tquery(koneksi, pQuery[playerid]);
+
+						// Kirim informasi dari email juga
+						// Disini panggil fungsi kirim email
+
+						format(pDialog[playerid], sizePDialog, YELLOW"%s "RED"kamu telah melebihi batas percobaan login yang diberikan.\n\n", PlayerInfo[playerid][pPlayerName]);
+						strcatEx(pDialog[playerid], sizePDialog, YELLOW"Akun kamu akan dikunci selama %d menit.\n\n", LAMA_PENGUNCIAN_AKUN_JIKA_SALAH_PASSWORD);
+						strcatEx(pDialog[playerid], sizePDialog, RED"Jika kamu merasa akun ini bukan milik kamu, mohon agar tidak mencoba menghack akun ini.\nMencoba menghack akun merupakan pelanggaran berat peraturan server.\n");
+						strcatEx(pDialog[playerid], sizePDialog, WHITE"Namun jika ini merupakan akun kamu, dan kamu lupa password.\nKamu dapat mereset password kamu melalui website resmi dan mengirimkan verifikasi melalui email.\n");
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Login melebihi batas maksimal", pDialog[playerid], "Ok", "");
+						return KickEx(playerid);
+					}
+
+					format(pDialog[playerid], sizePDialog, WHITE"Selamat datang kembali "GREEN"%s\n\n", PlayerInfo[playerid][pPlayerName]);
+					strcatEx(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan password kamu, pastikan untuk memperhatikan huruf besar/kecil.\n");
+					strcatEx(pDialog[playerid], sizePDialog, YELLOW"Jika mengalami kesalahan password sebanyak %dx maka kamu akan otomatis dikick.\n", BATAS_SALAH_PASSWORD);
+					strcatEx(pDialog[playerid], sizePDialog, WHITE"\nPercobaan login yang dilakukan "YELLOW"%d "WHITE"dari "RED"%d\n", PlayerInfo[playerid][loginAttempt],  BATAS_SALAH_PASSWORD);
+					return ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, WHITE"Login", pDialog[playerid], "Login", "Keluar");
 				}
 			}
 			else
@@ -2723,6 +2754,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						TogglePlayerControllable(playerid, 0);
 						SetPlayerArmedWeapon(playerid, 0);
 						ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
+						PlayerInfo[playerid][isOnAnimation] = true;
 					}
 				}
 				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
@@ -3412,7 +3444,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						// Beli vehicle dan masukan ke dalam data player
 						if(Iter_Contains(DVehIterator, vehid)){
 							// Ubah jadi pakai tquery biasa, saat menggunakan tquery_inline nilai variabel vehid tidak terkirim dengan benar (val = 21946644)
-							mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO vehicle(id_pemilik, id_model, pos_x, pos_y, pos_z, pos_a, color_1, color_2) SELECT '%d' AS id_pemilik, id_model, '%f' AS pos_x, '%f' AS pos_y, '%f' AS pos_z, '%f' AS pos_a, color_1, color_2 FROM vehicle_dealer WHERE id = '%d'", PlayerInfo[playerid][pID],  DVeh[vehid][dVehCoord][0], DVeh[vehid][dVehCoord][1], DVeh[vehid][dVehCoord][2], DVeh[vehid][dVehCoord][3], DVeh[vehid][dVehID]);
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO vehicle(id_pemilik, id_model, pos_x, pos_y, pos_z, pos_a, color_1, color_2, harga_beli) SELECT '%d' AS id_pemilik, id_model, '%f' AS pos_x, '%f' AS pos_y, '%f' AS pos_z, '%f' AS pos_a, color_1, color_2, harga FROM vehicle_dealer WHERE id = '%d'", PlayerInfo[playerid][pID],  DVeh[vehid][dVehCoord][0], DVeh[vehid][dVehCoord][1], DVeh[vehid][dVehCoord][2], DVeh[vehid][dVehCoord][3], DVeh[vehid][dVehID]);
 							mysql_tquery(koneksi, pQuery[playerid], "prosesBeliKendaraanCash", "ii", playerid, vehid);
 						}
 						else{
@@ -4025,6 +4057,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										SetPlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX, 341, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
 										ApplyAnimation(playerid, "CHAINSAW", "WEAPON_csaw", 4.1, 1, 0, 0, 1, 0, 1);
 										DTree[tid][treeTumbang] = true;
+				
+										PlayerInfo[playerid][isOnAnimation] = true;						
 									}
 								}
 							}
@@ -4804,7 +4838,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
 				TogglePlayerControllable(playerid, 0);
 				GameTextForPlayer(playerid, "~w~Sedang ~y~Paintjob...", 3000, 3);
-				ApplyAnimation(playerid, "SPRAYCAN", "spraycan_fire", 4.1, 1, 0, 0, 1, 0, 1);			}
+				ApplyAnimation(playerid, "SPRAYCAN", "spraycan_fire", 4.1, 1, 0, 0, 1, 0, 1);	
+				PlayerInfo[playerid][isOnAnimation] = true;	
+			}
 
 			// Lepas
 			RemoveVehiclePaintjob(vehid);
@@ -4832,6 +4868,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				TogglePlayerControllable(playerid, 0);
 				GameTextForPlayer(playerid, "~w~Sedang ~y~Modifikasi...", 3000, 3);
 				ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
+				PlayerInfo[playerid][isOnAnimation] = true;				
 			}
 
 			// Lepas
@@ -5121,7 +5158,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								tambahItemPlayer(playerid, 43, -1);
 								TogglePlayerControllable(playerid , 0);
 								ApplyAnimation(playerid,"SWORD","sword_block", 50.0, 0, 1, 0, 1, 1);
-           					 	SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
+								SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
 								mancingSecs[playerid] = 30;
 								mancingAktif[playerid] = 1;
 								mancingTimer[playerid] = SetPreciseTimer("waktuMancing", 1000, true, "i", playerid);
@@ -5139,6 +5176,139 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 			}
 			return 1;
+		}
+		case DIALOG_TALK_TO_DEALER_MANAGER:
+		{
+			if(response)
+				showDialogDealerManager(playerid);
+			return 1;
+		}
+		case DIALOG_TALK_TO_DEALER_MANAGER_LIST:
+		{
+			if(response)
+			{
+				ActorTalking(ACT_penjualDealer);
+				switch(listitem){
+					case 0: // Jual Vehicle
+					{
+						inline responseQuery(){
+							new rows;
+							cache_get_row_count(rows);
+							if(rows){
+								new idx = 0, harga, modelid;
+								format(pDialog[playerid], sizePDialog, "Jenis Kendaraan\tHarga Beli\n");
+								do{
+									cache_get_value_name_int(idx, "harga_beli", harga);
+									cache_get_value_name_int(idx, "id_model", modelid);
+									strcatEx(pDialog[playerid], sizePDialog, WHITE"%s\t"GREEN"$%d\n", GetVehicleModelName(modelid), harga);
+								}
+								while(++idx < rows);
+								
+								// Hapus jika ada cache sebelumnya, untuk menghindari memory leak
+								if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+								// Save cache
+								PlayerInfo[playerid][tempCache] = cache_save();
+
+								ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN, DIALOG_STYLE_LIST, "Pilih kendaraan yang ingin kamu jual", pDialog[playerid], "Pilih", "Kembali");
+							}else
+								showDialogPesan(playerid, RED"Tidak memiliki kendaraan", WHITE"Anda tidak memiliki kendaraan apapun.\n\
+									Anda hanya dapat menjual kendaraan yang merupakan milik anda.");
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM vehicle WHERE id_pemilik = %d", PlayerInfo[playerid][pID]);
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN:
+		{
+			if(response){
+				new harga_beli, modelid;
+				SetPVarInt(playerid, "index_terpilih", listitem);
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(listitem, "harga_beli", harga_beli);
+				cache_get_value_name_int(listitem, "id_model", modelid);
+				cache_unset_active();
+
+				new harga = harga_beli * (PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN / 100);
+
+				format(pDialog[playerid], sizePDialog, WHITE"\
+						Anda akan menjual kendaraan anda dengan spesifikasi berikut:\n\n\
+						Jenis Kendaraan\t: "ORANGE"%s\n\
+						"WHITE"Harga Jual\t\t: "GREEN"$%d\n", GetVehicleModelName(modelid), 
+						harga);
+				strcatEx(pDialog[playerid], sizePDialog, "\n\
+					"YELLOW"Harga didapat dari %d persen harga beli.\n\
+					Yang berarti "WHITE"$%d x %d persen = "GREEN"$%d\n\n\
+					"WHITE"Apakah anda yakin ?", PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN, harga_beli, PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN, harga);
+				ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN_KONFIRMASI, DIALOG_STYLE_MSGBOX, WHITE"Konfirmasi Jual Kendaraan", pDialog[playerid], "Jual", "Batal");
+			}else{
+				showDialogDealerManager(playerid);
+				ResetPVarTemporary(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN_KONFIRMASI:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "index_terpilih");
+				new harga_beli, id_primary, harga, id_pemilik;
+
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(idx, "id", id_primary);
+				cache_get_value_name_int(idx, "harga_beli", harga_beli);
+				cache_get_value_name_int(idx, "id_pemilik", id_pemilik);
+				cache_unset_active();
+				ResetPVarTemporary(playerid); // Reset all variabel temp
+
+				if(id_pemilik != PlayerInfo[playerid][pID]) {
+					printf("#Error 013 - ID Pemilik dengan ID penjual mobil tidak sama.");
+					return 1;
+				}
+
+				harga = harga_beli * (PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN / 100);
+				givePlayerUang(playerid, harga);
+
+				// IMPORTANT - Sebaiknya tidak didelete datanya namun dipindahkan ke table deleted vehicle
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE * FROM vehicle WHERE id = %d", PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				// Remove kunci dipinjamkan dari database
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM vehicle_keys WHERE id_vehicle  = %d", id_primary);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				// Hancurkan vehicle
+				static const kosong_pveh[PlayerVehicleInfo];
+				foreach(new i : PVehIterator){
+					if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID] && PVeh[i][pVehID] == id_primary) {
+						// Looping ke player lain apakah ada pemegang kunci
+						// Jika ada maka lepas kuncinya secara paksa
+						foreach(new j : Player){
+							if(PVeh[i][pVehPemilik] != PlayerInfo[j][pID] && Iter_Contains(PVehKeys[j], i)){
+								Iter_Remove(PVehKeys[j], i);
+								PVehKeysTime[j][i] = 0;
+								break;
+							}
+						}
+
+						new cur = i;
+						#if defined DEBUG_SERVER_LOAD
+						printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) unloaded.", PlayerInfo[playerid][pPlayerName], PVeh[i][pVehID], i);
+						#endif
+						if(IsValidVehicle(PVeh[i][pVehicle]) && Iter_Contains(IDVehToPVehIterator, PVeh[i][pVehicle]))
+						{
+							Iter_Remove(IDVehToPVehIterator, PVeh[i][pVehicle]);
+							IDVehToPVeh[PVeh[i][pVehicle]] = 0;
+							DestroyVehicle(PVeh[i][pVehicle]);
+						}
+
+						PVeh[i] = kosong_pveh;
+						Iter_SafeRemove(PVehIterator, cur, i);
+					}
+				}			
+			}else{
+				ResetPVarTemporary(playerid);
+			}
 		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
@@ -5681,7 +5851,7 @@ public OnPlayerText(playerid, text[]){
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
-	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PerbaikiTimer[playerid] == -1) ApplyAnimation(playerid, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1);
+	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation]) PlayerTalking(playerid);
 	// Wiki Samp - OnPlayerText
 	// Return 1 - Mengirimkan pesan default
 	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan

@@ -224,3 +224,8 @@ dialogInventoryItemTidakMuat(playerid, jumlah_yang_ingin_dimasukan, total_didala
     }
     return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory tidak cukup", pDialog[playerid], "Ok", "");
 }
+
+showDialogDealerManager(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER_LIST, DIALOG_STYLE_LIST, "Pilih jawaban : ", "\
+        Saya ingin menjual mobil", "Pilih", "Batal");
+}

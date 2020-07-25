@@ -83,7 +83,10 @@ enum pInfo
     Cache:kotakPesan,
     reply, // -1 kalau gaada
 	bool:onSelectedTextdraw,
-    lastGlobalChat
+    lastGlobalChat,
+	bool:isOnAnimation, // Save state untuk animation
+
+	loginAttempt
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 
@@ -404,7 +407,9 @@ new PU_tempatFoto_in[2],
 	ACTOR VARIABEL
  */
 new ACT_skillMekanik,
-	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179};
+	ACT_penjualDealer, // Actor tempat player menjual mobil
+	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
+	Float:ACT_penjualDealer_Pos[4] = {1012.9276, -1733.4741, 13.4834, 90.0930};
 
 /**
     Area
