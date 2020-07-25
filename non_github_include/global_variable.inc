@@ -85,6 +85,7 @@ enum pInfo
 	bool:onSelectedTextdraw,
     lastGlobalChat,
 	bool:isOnAnimation, // Save state untuk animation
+	onTradeWith,
 
 	loginAttempt
 }

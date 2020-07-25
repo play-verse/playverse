@@ -412,6 +412,9 @@ CMD:beriuang(playerid, params[]){
     GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
     if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
         return server_message(playerid, "Pemain yang ingin diberi harus berada disekitar anda.");
+
+    if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT || GetPlayerState(target_id) != PLAYER_STATE_ONFOOT)
+        return server_message(playerid, "Anda ataupun pemain yang ingin diberi harus sedang berjalan kaki.");
     
     if(nominal <= 0 || nominal > MAXIMAL_MONEY_TRADE) 
         return server_message(playerid, "Minimal pemberian uang adalah 1 hingga 999999.");

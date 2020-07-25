@@ -3,7 +3,8 @@
 		"server"
 	],
 	"filterscripts": [
-		"cameditor"
+		"cameditor",
+		"animbrowser"
 	],
 	"plugins": [
 		"zeex/samp-plugin-crashdetect:v4.19.4",

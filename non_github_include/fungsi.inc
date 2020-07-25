@@ -194,6 +194,8 @@ resetPlayerVariable(playerid){
 
 	PlayerInfo[playerid][tampilHUDStats] = false;
 
+	lepasTandaTrade(playerid);
+
 	if(PlayerInfo[playerid][activeMarker]) DisablePlayerCheckpoint(playerid);
 	PlayerInfo[playerid][activeMarker] = false;
 

@@ -621,7 +621,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			ShowSettingDialog();
 		}
 	}
-	return true;
+	return false;
 }
 public OnPlayerCommandText(playerid, cmdtext[])
 {	

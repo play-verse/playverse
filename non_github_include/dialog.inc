@@ -25,6 +25,11 @@ showDialogPesan(playerid, const judul_pesan[], const isi_pesan[]){
 	return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, judul_pesan, isi_pesan, "Ok", "");
 }
 
+/**
+    ```
+        Keterangan diisi dengan pesan error
+    ```
+ */
 showDialogKesalahanSistem(playerid, const keterangan[]){
     format(pDialog[playerid], sizePDialog, ORANGE"Terdapat kesalah pada sistem.\n\n"WHITE"Silahkan hubungi administrator "GREEN"dengan cara mengirimkan screenshot ini.\n\n"WHITE"Keterangan error : "GREY"%s\n\n"WHITE"Silahkan screenshot sekarang dengan cara menekan "YELLOW"F8 "WHITE"dan segera hubungi administrator sertakan gambar juga. Terimakasih.", keterangan);
     ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, ORANGE"Kesalahan sistem", pDialog[playerid], "Tutup", "");

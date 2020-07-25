@@ -11,10 +11,10 @@ loadAllActor(){
 
     // Actor di pusat keahlian
     CreateDynamic3DTextLabel("Ahli Mekanik\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_WHITE, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2] + 1.0, 10.0, .testlos = 1);
-    ACT_skillMekanik = CreateDynamicActor(50, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2], ACT_skillMekanik_Pos[3], .worldid = 1, .interiorid = 18);
+    ACT_skillMekanik = CreateDynamicActor(50, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2], ACT_skillMekanik_Pos[3], .worldid = 0, .interiorid = 0);
 
     CreateDynamic3DTextLabel("Manager Dealer\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_LIGHT_BLUE, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2] + 1.0, 10.0, .testlos = 1);
-    ACT_penjualDealer = CreateDynamicActor(17, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], ACT_penjualDealer_Pos[3], .worldid = 1, .interiorid = 1);
+    ACT_penjualDealer = CreateDynamicActor(17, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], ACT_penjualDealer_Pos[3], .worldid = 0, .interiorid = 0);
 
     // Actor di pusat pemerintahan
     CreateDynamicActor(76, -500.8233, 296.5014, 2001.0950, 170.3979, .worldid = 1, .interiorid = 1);

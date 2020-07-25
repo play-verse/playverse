@@ -430,7 +430,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new id = strval(inputtext);
 				SetPVarInt(playerid, "veh_select_id", id);
-				ShowPlayerDialog(playerid, DIALOG_OPTION_KENDARAAN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi:", "Tampilkan Lokasi Kendaraan\nPinjamkan Kunci kepada orang\nLihat kunci kendaraan ini yang dipinjamkan", "Pilih", "Batal");
+				format(pDialog[playerid], sizePDialog, "\
+					Tampilkan Lokasi Kendaraan\
+					\nPinjamkan Kunci kepada orang\
+					\nLihat kunci kendaraan ini yang dipinjamkan");
+
+				if(PVeh[id][pVehPemilik] == PlayerInfo[playerid][pID]) 
+					strcat(pDialog[playerid], "\nJual ke orang");
+				
+				ShowPlayerDialog(playerid, DIALOG_OPTION_KENDARAAN_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi:", pDialog[playerid], "Pilih", "Batal");
 			}else{
 				resetPVarInventory(playerid);
 				showDialogMenuInventory(playerid);
@@ -504,9 +512,275 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT a.id, a.expired, b.nama FROM vehicle_keys a LEFT JOIN `user` b ON a.id_user = b.id WHERE a.id_vehicle = '%d' AND a.expired > UNIX_TIMESTAMP(NOW())", PVeh[id][pVehID]);
 					}
+					case 3: // Jual kepada orang
+					{
+						if(IsPlayerOnTrade(playerid)) return showDialogPesan(playerid, RED"Anda sedang dalam trade", WHITE"Anda sedang berada dalam sebuah trade.\nAnda harus menunggu hingga anda tidak dalam trade lagi.\n"YELLOW"Jika anda merasa tidak dalam trade silahkan relogin untuk mengatasi kesalahan sistem.");
+
+						new id = GetPVarInt(playerid, "veh_select_id");
+
+						// Prevent injection listitem
+						if(PVeh[id][pVehPemilik] != PlayerInfo[playerid][pID]) return 1;
+
+						format(pDialog[playerid], sizePDialog, WHITE"Masukan ID pemain yang ingin kamu tawarkan "GREEN"%s\n\
+							"YELLOW"Pastikan pemain yang kamu tawarkan berada didekat kamu.", GetVehicleModelName(PVeh[id][pVehModel]));
+						ShowPlayerDialog(playerid, DIALOG_KENDARAAN_JUAL_KE_ORANG, DIALOG_STYLE_INPUT, "Masukan id pemain", pDialog[playerid], "Pilih", "Batal");
+					}
 				}
 			}else{
 				DeletePVar(playerid, "veh_select_id");
+			}
+			return 1;
+		}
+		case DIALOG_KENDARAAN_JUAL_KE_ORANG:
+		{
+			if(response){
+				new target_id,
+					id = GetPVarInt(playerid, "veh_select_id");
+				if(sscanf(inputtext, "u", target_id)) {
+					format(pDialog[playerid], sizePDialog, 
+							RED"ID Pemain invalid\n\
+							"WHITE"Masukan ID pemain yang ingin kamu tawarkan "GREEN"%s\n\
+							"YELLOW"Pastikan pemain yang kamu tawarkan berada didekat kamu.", GetVehicleModelName(PVeh[id][pVehModel]));
+					return ShowPlayerDialog(playerid, DIALOG_KENDARAAN_JUAL_KE_ORANG, DIALOG_STYLE_INPUT, "Masukan id pemain", pDialog[playerid], "Pilih", "Batal");
+				}
+				if(!IsPlayerConnected(target_id) || target_id == INVALID_PLAYER_ID || target_id == playerid) {
+					format(pDialog[playerid], sizePDialog, 
+							RED"ID Pemain invalid\n\
+							"WHITE"Masukan ID pemain yang ingin kamu tawarkan "GREEN"%s\n\
+							"YELLOW"Pastikan pemain yang kamu tawarkan berada didekat kamu.", GetVehicleModelName(PVeh[id][pVehModel]));
+					return ShowPlayerDialog(playerid, DIALOG_KENDARAAN_JUAL_KE_ORANG, DIALOG_STYLE_INPUT, "Masukan id pemain", pDialog[playerid], "Pilih", "Batal");
+				}
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				if(!IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+					format(pDialog[playerid], sizePDialog, 
+							RED"Pemain harus berada didekat anda. Minimal 2 meter.\n\
+							"WHITE"Masukan ID pemain yang ingin kamu tawarkan "GREEN"%s\n\
+							"YELLOW"Pastikan pemain yang kamu tawarkan berada didekat kamu.", GetVehicleModelName(PVeh[id][pVehModel]));
+					return ShowPlayerDialog(playerid, DIALOG_KENDARAAN_JUAL_KE_ORANG, DIALOG_STYLE_INPUT, "Masukan id pemain", pDialog[playerid], "Pilih", "Batal");
+				}
+
+				if(IsPlayerOnTrade(target_id)){
+					return showDialogPesan(playerid, RED"Player yang dituju sedang melakukan trade", 
+						WHITE"Maaf player yang dituju sedang melakukan trade!\nAnda hanya dapat melakukan trade saat player sedang tidak melakukan trade dengan yang orang lain.");
+				}
+
+				inline responseQuery(){
+					new total;
+					cache_get_value_name_int(0, "total", total);
+					if(total >= MAX_KENDARAAN_PER_PEMAIN){
+						showDialogPesan(playerid, RED"Slot Kendaraan Penuh", 
+						WHITE"Slot kendaraan pemain yang dituju penuh, kendaraan pemain telah mencapai batas maksimal!\nSilahkan informasikan untuk menyediakan slot terlebih dahulu sebelum bertransaksi kembali.");
+					}else{
+						// Simpan ID target
+						SetPVarInt(playerid, "sell_veh_target_id", target_id);
+
+						format(pDialog[playerid], sizePDialog, 
+							WHITE"Masukan "YELLOW"harga "WHITE"yang ingin kamu tawarkan "GREEN"%s\n\n\
+							"YELLOW"Note : Untuk saat ini pembayaran hanya dapat dilakukan via uang cash.", GetVehicleModelName(PVeh[id][pVehModel]));
+						ShowPlayerDialog(playerid, DIALOG_KENDARAAN_JUAL_KE_ORANG_HARGA, DIALOG_STYLE_INPUT, "Masukan Harga Jual", pDialog[playerid], "Ok", "Batal");
+					}
+				}	
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT COUNT(*) AS total FROM vehicle WHERE id_pemilik = '%d'", PlayerInfo[target_id][pID]);
+			}else{
+				DeletePVar(playerid, "veh_select_id");		
+			}
+			return 1;
+		}
+		case DIALOG_KENDARAAN_JUAL_KE_ORANG_HARGA:
+		{
+			if(response){
+				new target_id = GetPVarInt(playerid, "sell_veh_target_id"),
+					idpv = GetPVarInt(playerid, "veh_select_id"),
+					harga;
+				if(sscanf(inputtext, "i", harga)) {
+					format(pDialog[playerid], sizePDialog, 
+						RED"Harga tidak valid.\
+						"WHITE"Masukan "YELLOW"harga "WHITE"yang ingin kamu tawarkan "GREEN"%s\n\n\
+						"YELLOW"Note : Untuk saat ini pembayaran hanya dapat dilakukan via uang cash.", GetVehicleModelName(PVeh[idpv][pVehModel]));
+					return ShowPlayerDialog(playerid, DIALOG_KENDARAAN_JUAL_KE_ORANG_HARGA, DIALOG_STYLE_INPUT, "Masukan Harga Jual", pDialog[playerid], "Ok", "Batal");
+				}
+				if(harga <= 0 || harga >= MAXIMAL_MONEY_TRADE) {
+					format(pDialog[playerid], sizePDialog, 
+						RED"Harga minimal 1 hingga %d.\n\
+						"WHITE"Masukan "YELLOW"harga "WHITE"yang ingin kamu tawarkan "GREEN"%s\n\n\
+						"YELLOW"Note : Untuk saat ini pembayaran hanya dapat dilakukan via uang cash.",MAXIMAL_MONEY_TRADE, GetVehicleModelName(PVeh[idpv][pVehModel]));
+					return ShowPlayerDialog(playerid, DIALOG_KENDARAAN_JUAL_KE_ORANG_HARGA, DIALOG_STYLE_INPUT, "Masukan Harga Jual", pDialog[playerid], "Ok", "Batal");
+				}
+
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				if(!IsPlayerConnected(target_id) || !IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+					return showDialogPesan(playerid, RED"Transaksi Batal", 
+						WHITE"Pemain yang akan ditawarkan telah meninggalkan server atau menjauh dari anda.\nSaat bertransaksi pastikan pemain tidak meninggalkan server ataupun menjauh.");
+				}
+
+				SetPVarInt(playerid, "sell_veh_harga", harga);
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan menjual sebuah kendaraan dengan spesifikasi :\n\
+					Jenis Kendaraan\t\t: "ORANGE"%s\n\
+					"WHITE"Harga Penawaran\t\t: "GREEN"$%d\n\
+					"WHITE"Target Penawaran\t\t: "PINK"%s\n\n", 
+					GetVehicleModelName(PVeh[idpv][pVehModel]),
+					harga,
+					PlayerInfo[target_id][pPlayerName]);
+				strcatEx(pDialog[playerid], sizePDialog, WHITE"Apakah anda yakin ingin mengajukan penawaran tersebut ?\n\n"RED"Important : "YELLOW"Pastikan untuk tetap pada posisi saat ini hingga nanti menyelesaikan transaksi\nTransaksi dapat batal jika salah satu pihak meninggalkan server atau berpindah posisi.");
+				ShowPlayerDialog(playerid, DIALOG_KENDARAAN_JUAL_KE_ORANG_KONFIRMASI_PIHAK_PERTAMA, DIALOG_STYLE_MSGBOX, "Konfirmasi Penawaran", pDialog[playerid], "Konfirmasi", "Batal");
+			}else{
+				DeletePVar(playerid, "sell_veh_target_id");		
+				DeletePVar(playerid, "veh_select_id");		
+			}
+			return 1;
+		}
+		case DIALOG_KENDARAAN_JUAL_KE_ORANG_KONFIRMASI_PIHAK_PERTAMA:
+		{
+			if(response){
+				new target_id = GetPVarInt(playerid, "sell_veh_target_id"),
+					idpv = GetPVarInt(playerid, "veh_select_id"),
+					harga = GetPVarInt(playerid, "sell_veh_harga");
+				
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				if(!IsPlayerConnected(target_id) || !IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+					return showDialogPesan(playerid, RED"Transaksi Batal", 
+						WHITE"Pemain yang akan ditawarkan telah meninggalkan server atau menjauh dari anda.\nSaat bertransaksi pastikan pemain tidak meninggalkan server ataupun menjauh.");
+				}
+
+				sendPesan(playerid, COLOR_YELLOW, "Kendaraan: "WHITE"Anda berhasil menawarkan kendaraan kepada "GREEN"%s", PlayerInfo[target_id][pPlayerName]);
+				SendClientMessage(playerid, COLOR_YELLOW, "Kendaraan: "WHITE"Notifikasi akan diberikan kepada anda mengenai ditolak/diterimanya tawaran anda.");
+
+				tandaiSedangTrade(playerid, target_id);
+
+				// Simpan id player ke pemain
+				SetPVarInt(target_id, "buy_veh_target_id", playerid);
+				SetPVarInt(target_id, "buy_veh_harga", harga);
+				SetPVarInt(target_id, "buy_veh_select_id", idpv);
+
+				// Remove pvar playerid karena sudah tidak dipakai
+				DeletePVar(playerid, "sell_veh_harga");		
+				DeletePVar(playerid, "sell_veh_target_id");		
+				DeletePVar(playerid, "veh_select_id");
+
+				// Tetap Pinjam dialog pihak pertama
+				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan tawaran penjualan kendaraan dengan spesifikasi :\n\
+					Jenis Kendaraan\t\t: "ORANGE"%s\n\
+					"WHITE"Harga Penawaran\t\t: "GREEN"$%d\n\
+					"WHITE"Nama Penjual\t\t\t: "PINK"%s\n\n", 
+					GetVehicleModelName(PVeh[idpv][pVehModel]),
+					harga,
+					PlayerInfo[playerid][pPlayerName]);
+				strcatEx(pDialog[playerid], sizePDialog, WHITE"Apakah anda ingin membeli kendaraan ini? Ketik "GREEN"konfirmasi "WHITE"untuk membeli.\n\n"RED"Important : "YELLOW"Pastikan untuk tetap pada posisi saat ini hingga nanti menyelesaikan transaksi\nTransaksi dapat batal jika salah satu pihak meninggalkan server atau berpindah posisi.");
+
+				ShowPlayerDialog(target_id, DIALOG_KENDARAAN_JUAL_KE_ORANG_KONFIRMASI_PIHAK_KEDUA, DIALOG_STYLE_INPUT, "Konfirmasi Pembelian", pDialog[playerid], "Konfirmasi", "Batal");
+			}else{
+				DeletePVar(playerid, "sell_veh_harga");		
+				DeletePVar(playerid, "sell_veh_target_id");		
+				DeletePVar(playerid, "veh_select_id");		
+			}
+			return 1;
+		}
+		case DIALOG_KENDARAAN_JUAL_KE_ORANG_KONFIRMASI_PIHAK_KEDUA:
+		{
+			// Fetch all pvar
+			new target_id = GetPVarInt(playerid, "buy_veh_target_id"),
+				idpv = GetPVarInt(playerid, "buy_veh_select_id"),
+				harga = GetPVarInt(playerid, "buy_veh_harga");
+			
+			// Cek dlu apakah player target masih ada disekitar dan terconnect ke server
+			new Float:pos[3];
+			GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+			if(!IsPlayerConnected(target_id) || !IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+				return showDialogPesan(playerid, RED"Transaksi Batal", 
+					WHITE"Pemain yang akan menawarkan telah meninggalkan server atau menjauh dari anda.\nSaat bertransaksi pastikan kedua pihak tidak meninggalkan server ataupun menjauh.");
+			}
+
+			if(response){
+				// Prevent dari penjualan kepada lebih dari 1 orang untuk mengambil keuntungan
+				if(PlayerInfo[target_id][pID] != PVeh[idpv][pVehPemilik]) {
+					// Remove assigned trade value
+					lepasTandaTrade(playerid);
+
+					// Remove all 
+					DeletePVar(playerid, "buy_veh_harga");		
+					DeletePVar(playerid, "buy_veh_target_id");		
+					DeletePVar(playerid, "buy_veh_select_id");
+
+					printf("Hacking Potential: Mencoba menjual kepada pemain yang berbeda sekaligus.");
+					return 1;
+				}
+
+				// Jika tidak mengetik konfirmasi
+				if(!sama("konfirmasi", inputtext)) {
+					format(pDialog[playerid], sizePDialog, RED"Tulisan konfirmasi tidak valid\n\n");
+					strcatEx(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan tawaran penjualan kendaraan dengan spesifikasi :\n\
+						Jenis Kendaraan\t\t: "ORANGE"%s\n\
+						"WHITE"Harga Penawaran\t\t: "GREEN"$%d\n\
+						"WHITE"Nama Penjual\t\t: "PINK"%s\n\n", 
+						GetVehicleModelName(PVeh[idpv][pVehModel]),
+						harga,
+						PlayerInfo[target_id][pPlayerName]);
+					strcatEx(pDialog[playerid], sizePDialog, WHITE"Apakah anda ingin membeli kendaraan ini? Ketik "GREEN"konfirmasi "WHITE"untuk membeli.\n\n"RED"Important : "YELLOW"Pastikan untuk tetap pada posisi saat ini hingga nanti menyelesaikan transaksi\nTransaksi dapat batal jika salah satu pihak meninggalkan server atau berpindah posisi.");
+
+					return ShowPlayerDialog(playerid, DIALOG_KENDARAAN_JUAL_KE_ORANG_KONFIRMASI_PIHAK_KEDUA, DIALOG_STYLE_INPUT, "Konfirmasi Pembelian", pDialog[playerid], "Konfirmasi", "Batal");
+				}
+
+				if(getUangPlayer(playerid) < harga) {
+					sendPesan(target_id, COLOR_RED, "Kendaraan: "WHITE"%s menolak penawaran penjualan kendaraan anda, dikarenakan tidak memiliki cukup uang.", PlayerInfo[playerid][pPlayerName]);
+					// Remove assigned trade value
+					lepasTandaTrade(playerid);
+					return SendClientMessage(playerid, COLOR_RED, "Uang: "WHITE"Anda tidak memiliki cukup uang untuk membayar transaksi.");
+				}
+
+				// Berikan uang
+				givePlayerUang(playerid, -harga);
+				givePlayerUang(target_id, harga);
+
+				// Play animations
+				PlayerGivesAnimation(playerid);
+				PlayerTakesAnimation(target_id);
+
+				sendPesan(target_id, COLOR_GREEN, "Kendaraan: "WHITE"%s menerima penawaran penjualan kendaraan anda.", PlayerInfo[playerid][pPlayerName]);
+				sendPesan(target_id, COLOR_GREEN, "Kendaraan: "WHITE"Anda menerima uang sebesar "GREEN"$%d "WHITE"dari hasil penjualan.", harga);
+
+				sendPesan(playerid, COLOR_GREEN, "Kendaraan: "WHITE"Anda berhasil membeli %s dari %s sebesar "GREEN"$%d", GetVehicleModelName(PVeh[idpv][pVehModel]), PlayerInfo[target_id][pPlayerName], harga);
+
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle SET id_pemilik = %d WHERE id = %d", PlayerInfo[playerid][pID], PVeh[idpv][pVehID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				// Remove kunci dipinjamkan dari database
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM vehicle_keys WHERE id_vehicle  = %d", PVeh[idpv][pVehID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				// Lepas semua kunci yang dipinjam
+				// Looping ke player lain apakah ada pemegang kunci
+				// Jika ada maka lepas kuncinya secara paksa
+				foreach(new j : Player){
+					if(Iter_Contains(PVehKeys[j], idpv)){
+						Iter_Remove(PVehKeys[j], idpv);
+						PVehKeysTime[j][idpv] = 0;
+					}
+				}
+
+				// Reassign pemilik
+				PVeh[idpv][pVehPemilik] = PlayerInfo[playerid][pID];
+				format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME + 1, "%s", PlayerInfo[playerid][pPlayerName]);
+				
+				// Remove assigned trade value
+				lepasTandaTrade(playerid);
+
+				// Remove all 
+				DeletePVar(playerid, "buy_veh_harga");		
+				DeletePVar(playerid, "buy_veh_target_id");		
+				DeletePVar(playerid, "buy_veh_select_id");				
+			}else{
+				// Remove assigned trade value
+				lepasTandaTrade(playerid);
+
+				sendPesan(target_id, COLOR_RED, "Kendaraan: "WHITE"%s menolak penawaran penjualan kendaraan anda.", PlayerInfo[playerid][pPlayerName]);
+
+				// Remove all 
+				DeletePVar(playerid, "buy_veh_harga");		
+				DeletePVar(playerid, "buy_veh_target_id");		
+				DeletePVar(playerid, "buy_veh_select_id");
 			}
 			return 1;
 		}
@@ -634,8 +908,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(pDialog[playerid], sizePDialog, "[KUNCI] "WHITE"Anda berhasil menerima kunci dari %s.", PlayerInfo[playerid][pPlayerName]);
 					SendClientMessage(playerid, COLOR_ORANGE, pDialog[playerid]);
 
-					ApplyAnimation(target_id, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1);
-					ApplyAnimation(playerid, "DEALER", "DEALER_DEAL", 4.1, 0, 1, 1, 0, 2000, 1);
+					PlayerGivesAnimation(target_id);
+					PlayerTakesAnimation(playerid);
 
 					new lama_waktu = GetPVarInt(target_id, "pinjam_kunci_waktu"), idpv = GetPVarInt(target_id, "pinjam_kunci_idpv");
 
@@ -5209,7 +5483,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								// Save cache
 								PlayerInfo[playerid][tempCache] = cache_save();
 
-								ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN, DIALOG_STYLE_LIST, "Pilih kendaraan yang ingin kamu jual", pDialog[playerid], "Pilih", "Kembali");
+								ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN, DIALOG_STYLE_TABLIST_HEADERS, "Pilih kendaraan yang ingin kamu jual", pDialog[playerid], "Pilih", "Kembali");
 							}else
 								showDialogPesan(playerid, RED"Tidak memiliki kendaraan", WHITE"Anda tidak memiliki kendaraan apapun.\n\
 									Anda hanya dapat menjual kendaraan yang merupakan milik anda.");
@@ -5229,8 +5503,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				cache_get_value_name_int(listitem, "harga_beli", harga_beli);
 				cache_get_value_name_int(listitem, "id_model", modelid);
 				cache_unset_active();
+				
+				new harga;
 
-				new harga = harga_beli * (PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN / 100);
+				// Prevent division by zero
+				if(harga_beli > 0) 
+					harga = harga_beli * PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN / 100;
+				else
+					harga = 0;
 
 				format(pDialog[playerid], sizePDialog, WHITE"\
 						Anda akan menjual kendaraan anda dengan spesifikasi berikut:\n\n\
@@ -5240,7 +5520,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				strcatEx(pDialog[playerid], sizePDialog, "\n\
 					"YELLOW"Harga didapat dari %d persen harga beli.\n\
 					Yang berarti "WHITE"$%d x %d persen = "GREEN"$%d\n\n\
-					"WHITE"Apakah anda yakin ?", PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN, harga_beli, PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN, harga);
+					"WHITE"Apakah anda yakin ?\n\n\
+					"YELLOW"Note : Penghitungan harga dilakukan dengan pembulatan kebawah.", PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN, harga_beli, PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN, harga);
 				ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN_KONFIRMASI, DIALOG_STYLE_MSGBOX, WHITE"Konfirmasi Jual Kendaraan", pDialog[playerid], "Jual", "Batal");
 			}else{
 				showDialogDealerManager(playerid);
@@ -5252,11 +5533,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				new idx = GetPVarInt(playerid, "index_terpilih");
-				new harga_beli, id_primary, harga, id_pemilik;
+				new harga_beli, id_primary, harga, id_pemilik, modelid;
 
 				cache_set_active(PlayerInfo[playerid][tempCache]);
 				cache_get_value_name_int(idx, "id", id_primary);
 				cache_get_value_name_int(idx, "harga_beli", harga_beli);
+				cache_get_value_name_int(idx, "id_model", modelid);
 				cache_get_value_name_int(idx, "id_pemilik", id_pemilik);
 				cache_unset_active();
 				ResetPVarTemporary(playerid); // Reset all variabel temp
@@ -5266,16 +5548,34 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					return 1;
 				}
 
-				harga = harga_beli * (PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN / 100);
+				// Prevent division by zero
+				if(harga_beli > 0) 
+					harga = harga_beli * PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN / 100;
+				else
+					harga = 0;				
+
+				harga = harga_beli * PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN / 100;
 				givePlayerUang(playerid, harga);
 
 				// IMPORTANT - Sebaiknya tidak didelete datanya namun dipindahkan ke table deleted vehicle
-				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE * FROM vehicle WHERE id = %d", PlayerInfo[playerid][pID]);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM vehicle WHERE id = %d", id_primary);
 				mysql_tquery(koneksi, pQuery[playerid]);
 
 				// Remove kunci dipinjamkan dari database
 				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM vehicle_keys WHERE id_vehicle  = %d", id_primary);
 				mysql_tquery(koneksi, pQuery[playerid]);
+
+				format(pDialog[playerid], sizePDialog, WHITE"\
+						Anda berhasil menjual kendaraan berikut :\n\n\
+						Jenis Kendaraan\t: "ORANGE"%s\n\
+						"WHITE"Harga Jual\t\t: "GREEN"$%d\n", GetVehicleModelName(modelid), 
+						harga);
+				strcatEx(pDialog[playerid], sizePDialog, "\n\
+					"YELLOW"Kendaraan yang dijual akan otomatis hilang dari inventory dan server. \nKendaraan yang telah dijual tidak dapat dikembalikan lagi.\nJika terjadi kesalahan user saat menjual kendaraan diluar tanggung jawab server.");
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Anda berhasil menjual kendaraan", pDialog[playerid], "Ok", "");
+
+				ApplyDynamicActorAnimation(ACT_penjualDealer, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 0);
+				ApplyAnimation(playerid, "DEALER", "DEALER_DEAL", 4.1, 0, 1, 1, 0, 2000, 1);
 
 				// Hancurkan vehicle
 				static const kosong_pveh[PlayerVehicleInfo];
@@ -5287,7 +5587,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(PVeh[i][pVehPemilik] != PlayerInfo[j][pID] && Iter_Contains(PVehKeys[j], i)){
 								Iter_Remove(PVehKeys[j], i);
 								PVehKeysTime[j][i] = 0;
-								break;
 							}
 						}
 
@@ -5309,6 +5608,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}else{
 				ResetPVarTemporary(playerid);
 			}
+			return 1;
 		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
