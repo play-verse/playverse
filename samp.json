@@ -3,10 +3,7 @@
 		"server"
 	],
 	"filterscripts": [
-		"gl_actions",
-		"vspawner",
-		"ls_mall",
-		"animbrowser"
+		"cameditor"
 	],
 	"plugins": [
 		"zeex/samp-plugin-crashdetect:v4.19.4",

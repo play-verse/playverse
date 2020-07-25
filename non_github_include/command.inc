@@ -379,12 +379,21 @@ CMD:fishing(playerid, params[]){
 
 CMD:bicara(playerid, params[]){
     if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2])){
-        ApplyDynamicActorAnimation(ACT_skillMekanik, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 0);
+        ActorTalking(ACT_skillMekanik);
         format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
             "WHITE"Saya adalah ahli mekanik. Saya dapat membantu kamu dalam mendapatkan skill mekanik.\n\
             Untuk dapat membuka skill kamu harus memiliki "LIGHT_BLUE"1 item Segel Skill.\n\
             "WHITE"Apakah kamu memilikinya ?", PlayerInfo[playerid][pPlayerName]);
         ShowPlayerDialog(playerid, DIALOG_TALK_TO_AHLI_MEKANIK, DIALOG_STYLE_MSGBOX, "Ahli Mekanik berkata :", pDialog[playerid], "Ada", "Tidak ada");
+    }
+    // Actor Dealer
+    else if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2])){
+        ActorTalking(ACT_penjualDealer);
+        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
+            "WHITE"Saya adalah manager dealer. \n\
+            Kamu dapat mengurus beberapa hal yang berkaitan dengan dealer.\n\
+            Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
+        ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER, DIALOG_STYLE_MSGBOX, "Dealer Manager berkata :", pDialog[playerid], "Jawab", "Batal");
     }
 
     // Lakukan cara yang sama seperti diatas jika menambah untuk yang lain

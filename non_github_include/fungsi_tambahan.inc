@@ -1,3 +1,9 @@
+/**
+    Macro Function 
+ */
+#define PlayerTalking(%0)     ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1)
+#define ActorTalking(%0)       ApplyDynamicActorAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 0)
+
 publicFor: sama(const kata1[], const kata2[]){
     return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2)) ? 1 : 0;
 }
