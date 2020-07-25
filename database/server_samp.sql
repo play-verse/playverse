@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 16, 2020 at 07:33 AM
+-- Generation Time: Jul 25, 2020 at 03:12 PM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.10
 
@@ -28,6 +28,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `enter_exit`
 --
 
+DROP TABLE IF EXISTS `enter_exit`;
 CREATE TABLE `enter_exit` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `posisi_x` float NOT NULL,
@@ -49,6 +50,7 @@ CREATE TABLE `enter_exit` (
 -- Table structure for table `furniture`
 --
 
+DROP TABLE IF EXISTS `furniture`;
 CREATE TABLE `furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `nama_furniture` varchar(255) NOT NULL,
@@ -71,6 +73,7 @@ INSERT INTO `furniture` (`id`, `nama_furniture`, `id_object`, `keterangan`, `kap
 -- Table structure for table `gaji`
 --
 
+DROP TABLE IF EXISTS `gaji`;
 CREATE TABLE `gaji` (
   `id_gaji` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -86,6 +89,7 @@ CREATE TABLE `gaji` (
 -- Table structure for table `house`
 --
 
+DROP TABLE IF EXISTS `house`;
 CREATE TABLE `house` (
   `id_house` int(20) NOT NULL,
   `id_user` int(20) NOT NULL DEFAULT -1,
@@ -105,6 +109,7 @@ CREATE TABLE `house` (
 -- Table structure for table `house_furniture`
 --
 
+DROP TABLE IF EXISTS `house_furniture`;
 CREATE TABLE `house_furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_house` bigint(20) NOT NULL,
@@ -123,6 +128,7 @@ CREATE TABLE `house_furniture` (
 -- Table structure for table `house_interior`
 --
 
+DROP TABLE IF EXISTS `house_interior`;
 CREATE TABLE `house_interior` (
   `id_level` int(10) UNSIGNED NOT NULL,
   `nama_level` varchar(255) NOT NULL,
@@ -157,6 +163,7 @@ INSERT INTO `house_interior` (`id_level`, `nama_level`, `pickup_out_x`, `pickup_
 -- Table structure for table `house_inv_item`
 --
 
+DROP TABLE IF EXISTS `house_inv_item`;
 CREATE TABLE `house_inv_item` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_item` bigint(20) NOT NULL,
@@ -170,6 +177,7 @@ CREATE TABLE `house_inv_item` (
 -- Table structure for table `item`
 --
 
+DROP TABLE IF EXISTS `item`;
 CREATE TABLE `item` (
   `id_item` int(255) NOT NULL,
   `nama_item` varchar(255) NOT NULL,
@@ -218,7 +226,7 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (32, 'Jeruk', 19574, 'Jeruk adalah buah hasil panen dengan rasa masam yang segar.', NULL, 1),
 (33, 'Bibit Ganja', 756, 'Biji Ganja adalah bibit terlarang yang dapat ditanam dan tumbuh menjadi Ganja.', 'pakaiBibitGanja', 9),
 (34, 'Ganja', 19473, 'Ganja adalah item terlarang yang dapat menambahkan Darah Putih sebesar 5 persen.', 'pakaiNarkoGanja', 1),
-(35, 'Tongkat Pancing', 18632, 'Tongkat Pancing adalah peralatan untuk memancing ikan.', 'pakaiTongkatPancing', 1),
+(35, 'Joran Pancing', 18632, 'Joran Pancing adalah peralatan untuk memancing ikan.', 'pakaiJoranPancing', 1),
 (36, 'Tombak Ikan', 11716, 'Tombak Ikan adalah peralatan untuk memancing ikan, tingkat keberuntungan +14 persen.', 'pakaiTombakIkan', 1),
 (37, 'Ikan Arwana', 1600, 'Ikan Arwana adalah ikan yang sangat langka, memiliki nilai yang sangat tinggi.', NULL, 1),
 (38, 'Ikan Kakap', 1604, 'Ikan Kakap adalah ikan yang langka, berguna untuk banyak hal.', NULL, 1),
@@ -231,9 +239,53 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `item_sp`
+--
+
+DROP TABLE IF EXISTS `item_sp`;
+CREATE TABLE `item_sp` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `nama_item` varchar(255) NOT NULL,
+  `model_id` int(11) DEFAULT NULL,
+  `fungsi` varchar(100) DEFAULT NULL COMMENT 'Callback public function untuk dipanggil saat menggunakan item',
+  `keterangan` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `item_sp`
+--
+
+INSERT INTO `item_sp` (`id`, `nama_item`, `model_id`, `fungsi`, `keterangan`) VALUES
+(1, 'KTP', 1581, NULL, 'KTP sebagai identitas kewarganegaraan.'),
+(2, 'SIM A', 1581, NULL, 'SIM sebagai identitas kelayakan berkendara.');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `jenis_blocked`
+--
+
+DROP TABLE IF EXISTS `jenis_blocked`;
+CREATE TABLE `jenis_blocked` (
+  `id` tinyint(1) UNSIGNED NOT NULL,
+  `nama` varchar(100) DEFAULT NULL,
+  `keterangan` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `jenis_blocked`
+--
+
+INSERT INTO `jenis_blocked` (`id`, `nama`, `keterangan`) VALUES
+(1, 'Dikunci Sementara', 'Tidak diperbolehkan login sampai waktu yang telah ditentukan');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `logs_user_konek`
 --
 
+DROP TABLE IF EXISTS `logs_user_konek`;
 CREATE TABLE `logs_user_konek` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -249,6 +301,7 @@ CREATE TABLE `logs_user_konek` (
 -- Table structure for table `lumber`
 --
 
+DROP TABLE IF EXISTS `lumber`;
 CREATE TABLE `lumber` (
   `id` int(20) NOT NULL,
   `treeX` varchar(32) NOT NULL,
@@ -265,6 +318,7 @@ CREATE TABLE `lumber` (
 -- Table structure for table `papan`
 --
 
+DROP TABLE IF EXISTS `papan`;
 CREATE TABLE `papan` (
   `id_papan` bigint(20) UNSIGNED NOT NULL,
   `id_model` bigint(20) NOT NULL,
@@ -284,6 +338,7 @@ CREATE TABLE `papan` (
 -- Table structure for table `pengambilan_ktp`
 --
 
+DROP TABLE IF EXISTS `pengambilan_ktp`;
 CREATE TABLE `pengambilan_ktp` (
   `id` bigint(20) NOT NULL,
   `id_user` bigint(20) NOT NULL,
@@ -297,6 +352,7 @@ CREATE TABLE `pengambilan_ktp` (
 -- Table structure for table `pengambilan_sim`
 --
 
+DROP TABLE IF EXISTS `pengambilan_sim`;
 CREATE TABLE `pengambilan_sim` (
   `id` bigint(20) NOT NULL,
   `id_user` bigint(20) NOT NULL,
@@ -311,6 +367,7 @@ CREATE TABLE `pengambilan_sim` (
 -- Table structure for table `skill`
 --
 
+DROP TABLE IF EXISTS `skill`;
 CREATE TABLE `skill` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `nama_skill` varchar(255) NOT NULL
@@ -330,6 +387,7 @@ INSERT INTO `skill` (`id`, `nama_skill`) VALUES
 -- Table structure for table `sms`
 --
 
+DROP TABLE IF EXISTS `sms`;
 CREATE TABLE `sms` (
   `id_sms` bigint(20) UNSIGNED NOT NULL,
   `id_user_pengirim` bigint(20) UNSIGNED NOT NULL,
@@ -345,6 +403,7 @@ CREATE TABLE `sms` (
 -- Table structure for table `tempat_atm`
 --
 
+DROP TABLE IF EXISTS `tempat_atm`;
 CREATE TABLE `tempat_atm` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `pos_x` float NOT NULL,
@@ -361,6 +420,7 @@ CREATE TABLE `tempat_atm` (
 -- Table structure for table `toko_perabot`
 --
 
+DROP TABLE IF EXISTS `toko_perabot`;
 CREATE TABLE `toko_perabot` (
   `id` bigint(20) NOT NULL,
   `text_toko` text DEFAULT NULL,
@@ -377,6 +437,7 @@ CREATE TABLE `toko_perabot` (
 -- Table structure for table `toko_perabot_item`
 --
 
+DROP TABLE IF EXISTS `toko_perabot_item`;
 CREATE TABLE `toko_perabot_item` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_furniture` bigint(20) NOT NULL,
@@ -390,6 +451,7 @@ CREATE TABLE `toko_perabot_item` (
 -- Table structure for table `trans_atm`
 --
 
+DROP TABLE IF EXISTS `trans_atm`;
 CREATE TABLE `trans_atm` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) NOT NULL,
@@ -405,6 +467,7 @@ CREATE TABLE `trans_atm` (
 -- Table structure for table `user`
 --
 
+DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` bigint(20) UNSIGNED NOT NULL COMMENT 'ID Player',
   `nama` varchar(50) NOT NULL COMMENT 'Nama Pemain',
@@ -423,6 +486,7 @@ CREATE TABLE `user` (
   `last_int` varchar(255) DEFAULT NULL COMMENT 'Letak Interior',
   `last_vw` varchar(255) DEFAULT NULL COMMENT 'Letak Virtual World',
   `nomor_handphone` varchar(50) DEFAULT NULL COMMENT 'Nomor HP Player, 1 player hanya 1 nomor HP',
+  `masa_aktif_nomor` datetime DEFAULT NULL COMMENT 'Berisi masa aktif nomor hp pemain',
   `use_phone` bigint(20) UNSIGNED DEFAULT 0 COMMENT 'Berisi id_item (handphone) bukan id_user_item',
   `rekening` varchar(50) DEFAULT NULL COMMENT 'Berisi nomor rekening player',
   `save_house` int(11) NOT NULL DEFAULT 0,
@@ -431,7 +495,24 @@ CREATE TABLE `user` (
   `last_stats_makan` float DEFAULT NULL COMMENT 'Berisi jumlah status makan',
   `last_stats_minum` float DEFAULT NULL COMMENT 'Berisi jumlah status minum',
   `playtime` bigint(20) DEFAULT NULL COMMENT 'Berisi jumlah waktu bermain dalam detik',
-  `in_house` bigint(20) DEFAULT 0 COMMENT 'ID rumah yang sedang di kunjungi'
+  `in_house` bigint(20) DEFAULT 0 COMMENT 'ID rumah yang sedang di kunjungi',
+  `login_attempt` tinyint(1) DEFAULT 0 COMMENT 'Attempt yang terjadi pada login sebelumnya'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_blocked`
+--
+
+DROP TABLE IF EXISTS `user_blocked`;
+CREATE TABLE `user_blocked` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_user` bigint(20) NOT NULL,
+  `jenis_block` tinyint(1) NOT NULL COMMENT 'Jenis Block yang didapat oleh user',
+  `happen` datetime DEFAULT NULL COMMENT 'Tanggal terjadi block',
+  `expired` datetime DEFAULT NULL COMMENT 'Expired Block',
+  `keterangan` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -440,6 +521,7 @@ CREATE TABLE `user` (
 -- Table structure for table `user_furniture`
 --
 
+DROP TABLE IF EXISTS `user_furniture`;
 CREATE TABLE `user_furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_furniture` int(11) NOT NULL,
@@ -453,6 +535,7 @@ CREATE TABLE `user_furniture` (
 -- Table structure for table `user_item`
 --
 
+DROP TABLE IF EXISTS `user_item`;
 CREATE TABLE `user_item` (
   `id_user_item` bigint(20) UNSIGNED NOT NULL,
   `id_item` bigint(20) UNSIGNED NOT NULL,
@@ -467,6 +550,7 @@ CREATE TABLE `user_item` (
 -- Table structure for table `user_item_limit`
 --
 
+DROP TABLE IF EXISTS `user_item_limit`;
 CREATE TABLE `user_item_limit` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -477,9 +561,24 @@ CREATE TABLE `user_item_limit` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `user_item_sp`
+--
+
+DROP TABLE IF EXISTS `user_item_sp`;
+CREATE TABLE `user_item_sp` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_item_sp` int(11) NOT NULL,
+  `id_user` bigint(20) NOT NULL,
+  `expired` datetime DEFAULT NULL COMMENT 'Permanen = NULL\r\nTidak Permanen =Terisi'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user_skill`
 --
 
+DROP TABLE IF EXISTS `user_skill`;
 CREATE TABLE `user_skill` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_skill` bigint(20) UNSIGNED NOT NULL,
@@ -494,6 +593,7 @@ CREATE TABLE `user_skill` (
 -- Table structure for table `user_skin`
 --
 
+DROP TABLE IF EXISTS `user_skin`;
 CREATE TABLE `user_skin` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -507,6 +607,7 @@ CREATE TABLE `user_skin` (
 -- Table structure for table `vehicle`
 --
 
+DROP TABLE IF EXISTS `vehicle`;
 CREATE TABLE `vehicle` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_pemilik` bigint(20) UNSIGNED NOT NULL COMMENT 'ID Pemilik Kendaraan',
@@ -537,7 +638,8 @@ CREATE TABLE `vehicle` (
   `status_panels` int(11) DEFAULT 0 COMMENT 'Damage status panels',
   `status_doors` int(11) DEFAULT 0 COMMENT 'Damage status doors',
   `status_lights` int(11) DEFAULT 0 COMMENT 'Damage status lights',
-  `status_tires` int(11) DEFAULT 0 COMMENT 'Damage status tires'
+  `status_tires` int(11) DEFAULT 0 COMMENT 'Damage status tires',
+  `harga_beli` bigint(50) UNSIGNED DEFAULT 0 COMMENT 'Harga beli dari dealer'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -546,6 +648,7 @@ CREATE TABLE `vehicle` (
 -- Table structure for table `vehicle_components`
 --
 
+DROP TABLE IF EXISTS `vehicle_components`;
 CREATE TABLE `vehicle_components` (
   `componentid` smallint(4) UNSIGNED NOT NULL,
   `part` enum('Exhausts','Front Bullbars','Front Bumper','Hood','Hydraulics','Lights','Misc','Rear Bullbars','Rear Bumper','Roof','Side Skirts','Spoilers','Vents','Wheels') DEFAULT NULL,
@@ -729,6 +832,7 @@ INSERT INTO `vehicle_components` (`componentid`, `part`, `type`, `cars`) VALUES
 -- Table structure for table `vehicle_dealer`
 --
 
+DROP TABLE IF EXISTS `vehicle_dealer`;
 CREATE TABLE `vehicle_dealer` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_model` int(5) NOT NULL COMMENT 'ID Jenis kendaraan',
@@ -747,6 +851,7 @@ CREATE TABLE `vehicle_dealer` (
 -- Table structure for table `vehicle_keys`
 --
 
+DROP TABLE IF EXISTS `vehicle_keys`;
 CREATE TABLE `vehicle_keys` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -760,6 +865,7 @@ CREATE TABLE `vehicle_keys` (
 -- Table structure for table `vehicle_model_parts`
 --
 
+DROP TABLE IF EXISTS `vehicle_model_parts`;
 CREATE TABLE `vehicle_model_parts` (
   `modelid` smallint(3) UNSIGNED NOT NULL,
   `parts` bit(9) NOT NULL
@@ -955,6 +1061,18 @@ ALTER TABLE `item`
   ADD PRIMARY KEY (`id_item`);
 
 --
+-- Indexes for table `item_sp`
+--
+ALTER TABLE `item_sp`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `jenis_blocked`
+--
+ALTER TABLE `jenis_blocked`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `logs_user_konek`
 --
 ALTER TABLE `logs_user_konek`
@@ -1023,6 +1141,12 @@ ALTER TABLE `user`
   ADD UNIQUE KEY `rekening` (`rekening`);
 
 --
+-- Indexes for table `user_blocked`
+--
+ALTER TABLE `user_blocked`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `user_furniture`
 --
 ALTER TABLE `user_furniture`
@@ -1040,6 +1164,12 @@ ALTER TABLE `user_item`
 --
 ALTER TABLE `user_item_limit`
   ADD PRIMARY KEY (`id`) USING BTREE;
+
+--
+-- Indexes for table `user_item_sp`
+--
+ALTER TABLE `user_item_sp`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `user_skill`
@@ -1139,6 +1269,18 @@ ALTER TABLE `item`
   MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
+-- AUTO_INCREMENT for table `item_sp`
+--
+ALTER TABLE `item_sp`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `jenis_blocked`
+--
+ALTER TABLE `jenis_blocked`
+  MODIFY `id` tinyint(1) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `logs_user_konek`
 --
 ALTER TABLE `logs_user_konek`
@@ -1193,6 +1335,12 @@ ALTER TABLE `user`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID Player';
 
 --
+-- AUTO_INCREMENT for table `user_blocked`
+--
+ALTER TABLE `user_blocked`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `user_furniture`
 --
 ALTER TABLE `user_furniture`
@@ -1208,6 +1356,12 @@ ALTER TABLE `user_item`
 -- AUTO_INCREMENT for table `user_item_limit`
 --
 ALTER TABLE `user_item_limit`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `user_item_sp`
+--
+ALTER TABLE `user_item_sp`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
