@@ -1,14 +1,22 @@
 /**
     Macro Function 
  */
-#define PlayerTalking(%0)     ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1)
-#define ActorTalking(%0)       ApplyDynamicActorAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 0)
+#define PlayerTalking(%0)           ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1)
+#define ActorTalking(%0)            ApplyDynamicActorAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 0)
+#define PlayerGivesAnimation(%0)    ApplyAnimation(%0, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1)
+#define PlayerTakesAnimation(%0)    ApplyAnimation(%0, "CASINO", "SLOT_PLYR", 4.1, 0, 1, 1, 0, 2000, 1)
 
-publicFor: sama(const kata1[], const kata2[]){
-    return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2)) ? 1 : 0;
-}
+#define IsPlayerOnTrade(%0)         (PlayerInfo[%0][onTradeWith] != INVALID_PLAYER_ID)
 
-stock SetPlayerMoney(playerid, jumlah){
+#define ClearChat(%0)               for(new _i=0;_i!=10;++_i) SendClientMessage(%0, -1, "")
+
+#define GetNamaRarity(%0)           ITEM_RARITY[%0 - 1][namaRarity]
+#define GetColorRarity(%0)          ITEM_RARITY[%0 - 1][colorRarity]
+
+sama(const kata1[], const kata2[]) return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
+
+// Hanya untuk tampilan saja
+SetPlayerMoney(playerid, jumlah){
     ResetPlayerMoney(playerid);
     GivePlayerMoney(playerid, jumlah);
 }
@@ -137,6 +145,12 @@ getIDbyModelItem(id_model){
 getKapasitasByIdItem(id_item){
     new nama_variabel[50];
     format(nama_variabel, sizeof(nama_variabel), "cIt_%d", id_item);
+    return GetSVarInt(nama_variabel);
+}
+
+getRarityByIdItem(id_item){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "rIt_%d", id_item);
     return GetSVarInt(nama_variabel);
 }
 
@@ -579,4 +593,25 @@ convStrSqlDateIntoUnix(const date_string[]){
     if(!sscanf(date_string, "P<-:>iiiiii", year, month, day, hour, minute, second))
         return datetime_to_unix(year, month, day, hour, minute, second);
     return 0;
+}
+
+
+/**
+    Penandaan trade
+ */
+tandaiSedangTrade(playerid, withplayerid){
+    PlayerInfo[playerid][onTradeWith] = withplayerid;
+    PlayerInfo[withplayerid][onTradeWith] = playerid;
+    return 1;
+}
+
+/**
+    Pelepasan Trade Sepihak
+ */
+lepasTandaTrade(playerid){
+    if(playerid == INVALID_PLAYER_ID || PlayerInfo[playerid][onTradeWith] == INVALID_PLAYER_ID) return 0;
+
+    PlayerInfo[PlayerInfo[playerid][onTradeWith]][onTradeWith] = INVALID_PLAYER_ID;
+    PlayerInfo[playerid][onTradeWith] = INVALID_PLAYER_ID;
+    return 1;
 }

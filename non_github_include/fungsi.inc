@@ -1,5 +1,8 @@
 publicFor: isRegistered(playerid)
 {
+	// ClearChat
+	ClearChat(playerid);
+
 	new randVal = random(2);
 	if(randVal){
 		InterpolateCameraPos(playerid, 354.041900, -1747.001220, 45.020599, 2453.882080, -1683.979370, 62.778331, 50000);
@@ -118,7 +121,7 @@ publicFor: isRegistered(playerid)
 		SetPlayerVirtualWorld(playerid, playerid + 100);
 		// SpawnPlayer(playerid);
 
-        ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD,""WHITE"SILAHKAN DAFTAR",""WHITE"{FFFFFF}Kamu {FF0000}belum {FFFFFF}terdaftar di server","Daftar","Keluar");
+        ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD, WHITE"SILAHKAN DAFTAR", WHITE"Kamu "RED"belum "WHITE"terdaftar di server","Daftar","Keluar");
 	}
 	return 1;
 
@@ -153,6 +156,8 @@ publicFor: filterLoginPemain(playerid){
 	strcatEx(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan password kamu, pastikan untuk memperhatikan huruf besar/kecil.\n");
 	strcatEx(pDialog[playerid], sizePDialog, YELLOW"Jika mengalami kesalahan password sebanyak %dx maka kamu akan otomatis dikick.\n", BATAS_SALAH_PASSWORD);
 	if(PlayerInfo[playerid][loginAttempt]) strcatEx(pDialog[playerid], sizePDialog, WHITE"\nPercobaan login yang dilakukan "YELLOW"%d "WHITE"dari "RED"%d\n", PlayerInfo[playerid][loginAttempt],  BATAS_SALAH_PASSWORD);
+
+	strcat(pDialog[playerid], WHITE"\n+++++++++++++++++++++ RULES +++++++++++++++++++++\n"RULES_SERVER);
 
 	ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD,WHITE"Login", pDialog[playerid], "Login","Keluar");	
 	return 1;
@@ -193,6 +198,8 @@ resetPlayerVariable(playerid){
 	PlayerInfo[playerid][isOnAnimation] = false;
 
 	PlayerInfo[playerid][tampilHUDStats] = false;
+
+	lepasTandaTrade(playerid);
 
 	if(PlayerInfo[playerid][activeMarker]) DisablePlayerCheckpoint(playerid);
 	PlayerInfo[playerid][activeMarker] = false;
@@ -654,24 +661,26 @@ publicFor: tampilInventoryFurniturePlayer(playerid){
 }
 
 publicFor: tampilInventoryBarangPlayer(playerid){
-	new rows, subString[64], jumlah, nama_item[100];
+	new rows;
 	cache_get_row_count(rows);
-	new string[1500] = "Nama\tJumlah\n"WHITE;
 	if(rows){
+		format(pDialog[playerid], sizePDialog, "Nama\tJumlah\tKapasitas per Item\tKapasitas Terpakai\n");
+		new subString[64], jumlah, nama_item[100], kapasitas, id_item;
 		for(new i = 0; i < rows; i++){
+			cache_get_value_name_int(i, "id_item", id_item);
 			cache_get_value_name_int(i, "jumlah", jumlah);
 			cache_get_value_name(i, "nama_item", nama_item);
+			cache_get_value_name_int(i, "kapasitas", kapasitas);
 
-			format(subString, sizeof(subString), "%s\t%i\n", nama_item,jumlah);
-			strcat(string, subString);
+			strcatEx(pDialog[playerid], sizePDialog, "%s%s\t"WHITE"%i\t%i\t%i\n", GetColorRarity(getRarityByIdItem(id_item)), nama_item, jumlah, kapasitas, kapasitas * jumlah);
 		}
-		strcat(string, ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+		strcat(pDialog[playerid], ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
 
 		if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
 		PlayerInfo[playerid][tempCache] = cache_save();
 
 		format(subString, 64, WHITE"Pilih barang anda : "GREEN"(page : %d)", GetPVarInt(playerid, "halaman") + 1);
-		ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Kembali");
+		ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
 	}else{
 		if(GetPVarInt(playerid, "halaman") < 1)
 			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item "RED"kosong", WHITE"Maaf saat ini inventory item anda tidak berisi apapun!\n"YELLOW"Anda bisa mendapatkan item dari bekerja, berbelanja, ataupun saling bertukar item kepada player lain!", "Ok", "");
@@ -1064,25 +1073,27 @@ publicFor: tampilSaldoPlayer(playerid){
 
 tampilInventoryItemPlayer(playerid, dialog_id, const judul[] = "Pilih item"){
 	inline responseQuery(){
-		new rows, jumlah, nama_item[100];
+		new rows;
 		cache_get_row_count(rows);
-		new string[1500] = "Nama\tJumlah\n"WHITE;
 		if(rows){
+			format(pDialog[playerid], sizePDialog, "Nama\tJumlah\tKapasitas per Item\tKapasitas Terpakai\n");
+			new subString[64], jumlah, nama_item[100], kapasitas, id_item;
 			for(new i = 0; i < rows; i++){
+				cache_get_value_name_int(i, "id_item", id_item);
 				cache_get_value_name_int(i, "jumlah", jumlah);
 				cache_get_value_name(i, "nama_item", nama_item);
+				cache_get_value_name_int(i, "kapasitas", kapasitas);
 
-				strcatEx(string, sizeof(string), "%s\t%i\n", nama_item, jumlah);
+				strcatEx(pDialog[playerid], sizePDialog, "%s%s\t"WHITE"%i\t%i\t%i\n", GetColorRarity(getRarityByIdItem(id_item)), nama_item, jumlah, kapasitas, kapasitas * jumlah);
 			}
-			strcat(string, ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+			strcat(pDialog[playerid], ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
 
 			// IMPORTANT untuk selalu menghapus cache yang lama setiap ingin menyimpannya dengan yang baru
 			if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
 			PlayerInfo[playerid][tempCache] = cache_save();
 
-			new subString[64];
 			format(subString, 64, WHITE"%s : "GREEN"(page : %d)", judul, GetPVarInt(playerid, "halaman") + 1);
-			return ShowPlayerDialog(playerid, dialog_id, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Kembali");
+			return ShowPlayerDialog(playerid, dialog_id, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
 		}else{
 			if(GetPVarInt(playerid, "halaman") < 1)
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item anda "RED"kosong", WHITE"Maaf saat ini inventory item anda tidak berisi apapun!", "Ok", "");
@@ -1094,7 +1105,7 @@ tampilInventoryItemPlayer(playerid, dialog_id, const judul[] = "Pilih item"){
 		return 1;
 	}
 
-	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT b.id_item, b.nama_item, b.keterangan, b.fungsi, b.model_id, a.kunci, a.id_user_item, a.jumlah FROM `user_item` a INNER JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0 ORDER BY nama_item ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT b.id_item, b.nama_item, b.keterangan, b.fungsi, b.model_id, a.kunci, a.id_user_item, a.jumlah, b.kapasitas FROM `user_item` a INNER JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0 ORDER BY nama_item ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
 
 	return 1;
 }
@@ -2088,12 +2099,34 @@ updateOnPlayerDisconnect(playerid){
 	return 1;
 }
 
+loadAllRarity(){
+	new Cache:result, row, idx = 0;
+	result = mysql_query(koneksi, "SELECT * FROM `item_rarity`");
+	cache_get_row_count(row);
+	while(idx < row){
+		new id, nama[50], color[50];
+		cache_get_value_name_int(idx, "id", id);
+		cache_get_value_name(idx, "nama_rarity", nama);
+		cache_get_value_name(idx, "hex_color", color);
+
+		format(ITEM_RARITY[id-1][namaRarity], 50, "%s", nama);
+		format(ITEM_RARITY[id-1][colorRarity], 14, "%s", color);
+
+		#if DEBUG_SERVER_LOAD == true
+			printf("Item rarity load id(%d) - %s", id, nama);
+		#endif
+		idx++;
+	}
+	cache_delete(result);
+}
+
 loadAllItem(){
 	new id_item, 
 		model_id, 
 		nama_item[256], 
 		keterangan_item[500],
 		kapasitas,
+		rarity,
 		fungsi[101], 
 		bool:is_null;
 	new Cache:result, row, idx = 0;
@@ -2105,6 +2138,7 @@ loadAllItem(){
 		// nIt = Nama Item > Menyimpan nama item diget dari id item
 		// kIt = Keterangan Item > Menyimpan keterangan Item diget dari id item
 		cache_get_value_name_int(idx, "id_item", id_item);
+		cache_get_value_name_int(idx, "id_rarity", rarity);
 		cache_get_value_name_int(idx, "model_id", model_id);
 		cache_get_value_name_int(idx, "kapasitas", kapasitas);
 		cache_get_value_name(idx, "nama_item", nama_item);
@@ -2116,6 +2150,9 @@ loadAllItem(){
 
 		format(msg, sizeof(msg), "iIt_%d", id_item);
 		SetSVarInt(msg, model_id);
+
+		format(msg, sizeof(msg), "rIt_%d", id_item);
+		SetSVarInt(msg, rarity);
 
 		format(msg, sizeof(msg), "mIt_%d", model_id);
 		SetSVarInt(msg, id_item);

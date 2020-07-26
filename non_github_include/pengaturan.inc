@@ -1,21 +1,19 @@
 /*
-			CONFIG SERVER
-*/
-
-/*
-	Connection Database
- */
-// Sekarang pakai mysql.ini config file - disitu atur koneksi infonya	
-// #define HOST "127.0.0.1"
-// #define USER "root"
-// #define DB  "server_samp" 
-// #define PASS "" 
-
-/*
 	DEFINITION SETTING
 */
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 50
+
+#define NAMA_SERVER			"Eternity Legend"
+#define RULES_SERVER		"\n\
+							1. Dilarang menggunakan cheat apapun.\n\
+							2. Dilarang menggunakan modifikasi (mod) yang dapat merugikan player lain.\n\
+							3. Dilarang multi-akun.\n\
+							4. Dilarang melakukan aktifitas hacking dalam jenis apapun.\n\
+							5. Dilarang random death match tanpa alasan yang jelas.\n\
+							6. Dilarang memanfaatkan bug yang ada, segera laporkan bug jika menemukannya.\n\
+							7. Harus menaati peraturan roleplay yang berlaku.\n\
+							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
 
 #define MAX_SERVER_ITEM 500 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
 
@@ -26,6 +24,8 @@
 
 #define MAX_HOUSES 1000 // Maksimal rumah yang dapat dibuat
 #define MAX_HOUSES_LEVEL 8 // Maksimal level rumah
+
+#define MAX_RARITY_ITEM 7
 
 #define MAX_BOARDS 100
 #define MODEL_PAPAN 5846
@@ -48,7 +48,7 @@
 #define MAXIMAL_MONEY_TRADE 999999
 
 // Dalam satuan jam
-#define MINIMAL_WAKTU_BERMAIN_UNTUK_BUAT_NOMOR 6
+#define MINIMAL_WAKTU_BERMAIN_UNTUK_BUAT_NOMOR 3
 
 // Dalam satuan hari (masa aktif setiap membuat / memperpanjang nomor)
 #define MASA_AKTIF_SETIAP_PERPANJANG_NOMOR 15
@@ -310,7 +310,11 @@
 #define DIALOG_TALK_TO_DEALER_MANAGER_LIST 179
 #define DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN 180
 #define DIALOG_TALK_TO_DEALER_MANAGER_JUAL_KENDARAAN_KONFIRMASI 181
-#define DIALOG_SIM_REGIS_TYPE 182
+#define DIALOG_KENDARAAN_JUAL_KE_ORANG 182
+#define DIALOG_KENDARAAN_JUAL_KE_ORANG_HARGA 183
+#define DIALOG_KENDARAAN_JUAL_KE_ORANG_KONFIRMASI_PIHAK_PERTAMA 184
+#define DIALOG_KENDARAAN_JUAL_KE_ORANG_KONFIRMASI_PIHAK_KEDUA 185
+#define DIALOG_SIM_REGIS_TYPE 186
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DI DALAM INTERIOR

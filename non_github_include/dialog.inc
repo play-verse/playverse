@@ -4,7 +4,7 @@ showDialogResepsionis(playerid){
 }
 
 showDialogListItem(playerid){
-    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT b.id_item, b.nama_item, b.keterangan, b.fungsi, b.model_id, a.kunci, a.id_user_item, a.jumlah FROM `user_item` a INNER JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0 ORDER BY nama_item ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT b.id_item, b.nama_item, b.keterangan, b.fungsi, b.model_id, a.kunci, a.id_user_item, a.jumlah, b.kapasitas FROM `user_item` a INNER JOIN `item` b ON a.id_item = b.id_item WHERE a.`id_user` = '%d' AND a.jumlah > 0 ORDER BY nama_item ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
     mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryBarangPlayer", "i", playerid);    
 }
 
@@ -25,6 +25,11 @@ showDialogPesan(playerid, const judul_pesan[], const isi_pesan[]){
 	return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, judul_pesan, isi_pesan, "Ok", "");
 }
 
+/**
+    ```
+        Keterangan diisi dengan pesan error
+    ```
+ */
 showDialogKesalahanSistem(playerid, const keterangan[]){
     format(pDialog[playerid], sizePDialog, ORANGE"Terdapat kesalah pada sistem.\n\n"WHITE"Silahkan hubungi administrator "GREEN"dengan cara mengirimkan screenshot ini.\n\n"WHITE"Keterangan error : "GREY"%s\n\n"WHITE"Silahkan screenshot sekarang dengan cara menekan "YELLOW"F8 "WHITE"dan segera hubungi administrator sertakan gambar juga. Terimakasih.", keterangan);
     ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, ORANGE"Kesalahan sistem", pDialog[playerid], "Tutup", "");

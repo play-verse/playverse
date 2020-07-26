@@ -85,6 +85,7 @@ enum pInfo
 	bool:onSelectedTextdraw,
     lastGlobalChat,
 	bool:isOnAnimation, // Save state untuk animation
+	onTradeWith,
 
 	loginAttempt
 }
@@ -366,6 +367,12 @@ new const MENU_ALAT_PANCING[][INFO_MENU_ALAT_PANCING] = {
 	{43, "Roti - Umpan Ikan", 1, 1}
 
 };
+
+enum INFO_RARITY {
+	namaRarity[50],
+	colorRarity[14] // Dalam bentuk string {hex}
+}
+new ITEM_RARITY[MAX_RARITY_ITEM][INFO_RARITY];
 
 /**
     CHECKPOINT VARIABEL
