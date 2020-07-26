@@ -8,11 +8,15 @@
 
 #define IsPlayerOnTrade(%0)         (PlayerInfo[%0][onTradeWith] != INVALID_PLAYER_ID)
 
-sama(const kata1[], const kata2[]){
-    return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
-}
+#define ClearChat(%0)               for(new _i=0;_i!=10;++_i) SendClientMessage(%0, -1, "")
 
-stock SetPlayerMoney(playerid, jumlah){
+#define GetNamaRarity(%0)           ITEM_RARITY[%0 - 1][namaRarity]
+#define GetColorRarity(%0)          ITEM_RARITY[%0 - 1][colorRarity]
+
+sama(const kata1[], const kata2[]) return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
+
+// Hanya untuk tampilan saja
+SetPlayerMoney(playerid, jumlah){
     ResetPlayerMoney(playerid);
     GivePlayerMoney(playerid, jumlah);
 }
@@ -141,6 +145,12 @@ getIDbyModelItem(id_model){
 getKapasitasByIdItem(id_item){
     new nama_variabel[50];
     format(nama_variabel, sizeof(nama_variabel), "cIt_%d", id_item);
+    return GetSVarInt(nama_variabel);
+}
+
+getRarityByIdItem(id_item){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "rIt_%d", id_item);
     return GetSVarInt(nama_variabel);
 }
 

@@ -1,21 +1,19 @@
 /*
-			CONFIG SERVER
-*/
-
-/*
-	Connection Database
- */
-// Sekarang pakai mysql.ini config file - disitu atur koneksi infonya	
-// #define HOST "127.0.0.1"
-// #define USER "root"
-// #define DB  "server_samp" 
-// #define PASS "" 
-
-/*
 	DEFINITION SETTING
 */
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 50
+
+#define NAMA_SERVER			"Eternity Legend"
+#define RULES_SERVER		"\n\
+							1. Dilarang menggunakan cheat apapun.\n\
+							2. Dilarang menggunakan modifikasi (mod) yang dapat merugikan player lain.\n\
+							3. Dilarang multi-akun.\n\
+							4. Dilarang melakukan aktifitas hacking dalam jenis apapun.\n\
+							5. Dilarang random death match tanpa alasan yang jelas.\n\
+							6. Dilarang memanfaatkan bug yang ada, segera laporkan bug jika menemukannya.\n\
+							7. Harus menaati peraturan roleplay yang berlaku.\n\
+							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
 
 #define MAX_SERVER_ITEM 500 // Diatur sesuai dengan banyak data didatabase - Boleh berlebih tapi jangan kurang
 
@@ -26,6 +24,8 @@
 
 #define MAX_HOUSES 1000 // Maksimal rumah yang dapat dibuat
 #define MAX_HOUSES_LEVEL 8 // Maksimal level rumah
+
+#define MAX_RARITY_ITEM 7
 
 #define MAX_BOARDS 100
 #define MODEL_PAPAN 5846

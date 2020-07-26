@@ -252,6 +252,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					strcatEx(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan password kamu, pastikan untuk memperhatikan huruf besar/kecil.\n");
 					strcatEx(pDialog[playerid], sizePDialog, YELLOW"Jika mengalami kesalahan password sebanyak %dx maka kamu akan otomatis dikick.\n", BATAS_SALAH_PASSWORD);
 					strcatEx(pDialog[playerid], sizePDialog, WHITE"\nPercobaan login yang dilakukan "YELLOW"%d "WHITE"dari "RED"%d\n", PlayerInfo[playerid][loginAttempt],  BATAS_SALAH_PASSWORD);
+					strcat(pDialog[playerid], WHITE"\n+++++++++++++++++++++ RULES +++++++++++++++++++++\n"RULES_SERVER);
 					return ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD, WHITE"Login", pDialog[playerid], "Login", "Keluar");
 				}
 			}
@@ -5938,6 +5939,10 @@ public OnGameModeInit()
 	printf("[ITEM] Load semua item...");
 	loadAllItem();
 	printf("[ITEM] Sukses load item!");
+
+	printf("[ITEM RARITY] Load semua item rarity...");
+	loadAllRarity();
+	printf("[ITEM RARITY] Sukses load item rarity!");
 
 	printf("[PICKUP] Load semua pickup...");
 	loadAllPickup();

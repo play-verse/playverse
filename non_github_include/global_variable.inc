@@ -368,6 +368,12 @@ new const MENU_ALAT_PANCING[][INFO_MENU_ALAT_PANCING] = {
 
 };
 
+enum INFO_RARITY {
+	namaRarity[50],
+	colorRarity[14] // Dalam bentuk string {hex}
+}
+new ITEM_RARITY[MAX_RARITY_ITEM][INFO_RARITY];
+
 /**
     CHECKPOINT VARIABEL
  */
