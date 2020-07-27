@@ -189,7 +189,7 @@ showDialogTempatMakan(playerid){
 }
 
 showDialogSimRegis(playerid){
-    return ShowPlayerDialog(playerid, DIALOG_SIM_REGIS_MENU, DIALOG_STYLE_LIST, WHITE"Pilihan tindakan SIM", "Buat SIM\nAmbil SIM yang sudah selesai", "Pilih", "Kembali");
+    return ShowPlayerDialog(playerid, DIALOG_SIM_REGIS_MENU, DIALOG_STYLE_LIST, WHITE"Pilihan tindakan SIM", "Buat SIM\nTentang SIM (Tipe Kendaraan)\nAmbil SIM yang sudah selesai", "Pilih", "Kembali");
 }
 
 showDialogSimPraktik(playerid){

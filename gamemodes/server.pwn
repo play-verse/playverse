@@ -3264,14 +3264,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					// Buat SIM
 					case 0:
 					{
-						if(todoActive(playerid) == 1){
-							return 1;
-						}
-						SetPVarString(playerid, "sim_polisi", "buat_sim");
-						getSudahBuatSIM(playerid, "cekSudahPunyaSIM");
+						ShowPlayerDialog(playerid, DIALOG_SIM_REGIS_TYPE, DIALOG_STYLE_LIST, WHITE"Pilihan jenis kendaraan SIM", "SIM A\nSIM B\nSIM C", "Pilih", "Kembali");
+					}
+					// Tipe Kendaraan
+					case 1:
+					{
+						format(pDialog[playerid], sizePDialog, "SIM adalah bukti kepada seseorang yang telah memenuhi persyaratan administrasi, memahami peraturan lalu lintas dan terampil berkendara.\n");
+						strcatEx(pDialog[playerid], sizePDialog, "Ada 3 tipe SIM kendaraan yaitu :\n");
+						strcatEx(pDialog[playerid], sizePDialog, "1. SIM A, SIM untuk mengendarai kendaraan berupa mobil pribadi.\n");
+						strcatEx(pDialog[playerid], sizePDialog, "2. SIM B, SIM untuk mengendarai kendaraan berupa mobil penumpang atau barang.\n");
+						strcatEx(pDialog[playerid], sizePDialog, "3. SIM C, SIM untuk mengendarai kendaraan berupa motor.\n");
+						strcatEx(pDialog[playerid], sizePDialog, "Jika anda sudah mengetahui info dan tipe SIM kendaraan, diharapkan anda paham ketika melakukan pendaftaraan SIM.");
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Tentang SIM", pDialog[playerid], "Ok", "");
 					}
 					// Ambil SIM yang sudah selesai
-					case 1:
+					case 2:
 					{
 						if(todoActive(playerid) == 1){
 							return 1;
@@ -3357,16 +3364,19 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal Ujian Teori SIM", pDialog[playerid], "Ok", "");
 						poinSim[playerid] = 0;
 						DeletePVar(playerid, "sim_soal");
+						DeletePVar(playerid, "tipe_sim");
 						SetPlayerVirtualWorld(playerid, 1);
 						return 1;
 					}else{
+						new tipeSIM = GetPVarInt(playerid, "tipe_sim");
 						GameTextForPlayer(playerid, "~g~Ujian Teori Selesai", 2000, 3);
 						format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan melanjutkan untuk Ujian Praktik SIM."WHITE"\nTempat Ujian Praktik SIM berada di sebelah Kantor Polisi Los Santos (Parkiran).\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Ujian Teori SIM", pDialog[playerid], "Ok", "");
 						poinSim[playerid] = 0;
 						DeletePVar(playerid, "sim_soal");
+						DeletePVar(playerid, "tipe_sim");
 						SetPlayerVirtualWorld(playerid, 1);
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,status_teori) VALUES('%d',1)", PlayerInfo[playerid][pID]);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,tipe_sim,status_teori) VALUES('%d','%d',1)", PlayerInfo[playerid][pID],tipeSIM);
 						mysql_tquery(koneksi, pQuery[playerid]);
 						return 1;
 					}
@@ -3380,6 +3390,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}else{
 				poinSim[playerid] = 0;
 				DeletePVar(playerid, "sim_soal");
+				DeletePVar(playerid, "tipe_sim");
 				SetPlayerVirtualWorld(playerid, 1);
 			}
 			return 1;
@@ -5634,6 +5645,30 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				ResetPVarTemporary(playerid);
 			}
 			return 1;
+		}
+		case DIALOG_SIM_REGIS_TYPE:
+		{
+			if(response){
+				if(todoActive(playerid) == 1){
+					return 1;
+				}
+				switch(listitem){
+					case 0:
+					{
+						SetPVarInt(playerid, "tipe_sim", 1);
+					}
+					case 1:
+					{
+						SetPVarInt(playerid, "tipe_sim", 2);
+					}
+					case 2:
+					{
+						SetPVarInt(playerid, "tipe_sim", 3);
+					}
+				}
+				SetPVarString(playerid, "sim_polisi", "buat_sim");
+				getSudahBuatSIM(playerid, "cekSudahPunyaSIM");
+			}
 		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
