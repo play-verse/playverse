@@ -491,8 +491,11 @@ new SIM_SOAL[][INFO_SOAL] = {
 /**
     Speedometer
 */
-new PlayerText:SpeedoTextDraws[MAX_PLAYERS],
-    SpeedoTimer[MAX_PLAYERS];
+new PlayerText:SpeedoTD_VehInfo[MAX_PLAYERS][2],
+	PlayerBar:SpeedoTD_VehBar[MAX_PLAYERS][2],
+    SpeedoTimer[MAX_PLAYERS] = {-1, ...},
+	Text:SpeedoTD[4];
+
 
 /**
     System Board

@@ -168,6 +168,64 @@ loadTextdrawGlobal(){
 	TextDrawSetProportional(TD_JamTanggal[1], 1);
 	TextDrawSetSelectable(TD_JamTanggal[1], 0);
 	// End Global Time
+
+	// Begin Global Speedo TD
+	SpeedoTD[0] = TextDrawCreate(312.000000, 353.000000, "_");
+	TextDrawFont(SpeedoTD[0], 1);
+	TextDrawLetterSize(SpeedoTD[0], 0.600000, 10.300003);
+	TextDrawTextSize(SpeedoTD[0], 402.000000, 168.500000);
+	TextDrawSetOutline(SpeedoTD[0], 1);
+	TextDrawSetShadow(SpeedoTD[0], 0);
+	TextDrawAlignment(SpeedoTD[0], 2);
+	TextDrawColor(SpeedoTD[0], -1);
+	TextDrawBackgroundColor(SpeedoTD[0], 255);
+	TextDrawBoxColor(SpeedoTD[0], 135);
+	TextDrawUseBox(SpeedoTD[0], 1);
+	TextDrawSetProportional(SpeedoTD[0], 1);
+	TextDrawSetSelectable(SpeedoTD[0], 0);
+
+	SpeedoTD[1] = TextDrawCreate(241.000000, 393.000000, "HUD:radar_impound");
+	TextDrawFont(SpeedoTD[1], 4);
+	TextDrawLetterSize(SpeedoTD[1], 0.600000, 2.000000);
+	TextDrawTextSize(SpeedoTD[1], 17.000000, 17.000000);
+	TextDrawSetOutline(SpeedoTD[1], 1);
+	TextDrawSetShadow(SpeedoTD[1], 0);
+	TextDrawAlignment(SpeedoTD[1], 1);
+	TextDrawColor(SpeedoTD[1], -1);
+	TextDrawBackgroundColor(SpeedoTD[1], 255);
+	TextDrawBoxColor(SpeedoTD[1], 50);
+	TextDrawUseBox(SpeedoTD[1], 1);
+	TextDrawSetProportional(SpeedoTD[1], 1);
+	TextDrawSetSelectable(SpeedoTD[1], 0);
+
+	SpeedoTD[2] = TextDrawCreate(240.000000, 421.000000, "HUD:radar_girlfriend");
+	TextDrawFont(SpeedoTD[2], 4);
+	TextDrawLetterSize(SpeedoTD[2], 0.600000, 2.000000);
+	TextDrawTextSize(SpeedoTD[2], 17.000000, 17.000000);
+	TextDrawSetOutline(SpeedoTD[2], 1);
+	TextDrawSetShadow(SpeedoTD[2], 0);
+	TextDrawAlignment(SpeedoTD[2], 1);
+	TextDrawColor(SpeedoTD[2], -1);
+	TextDrawBackgroundColor(SpeedoTD[2], 255);
+	TextDrawBoxColor(SpeedoTD[2], 50);
+	TextDrawUseBox(SpeedoTD[2], 1);
+	TextDrawSetProportional(SpeedoTD[2], 1);
+	TextDrawSetSelectable(SpeedoTD[2], 0);
+
+	SpeedoTD[3] = TextDrawCreate(375.000000, 372.000000, "~g~Km~w~/~r~Jam");
+	TextDrawFont(SpeedoTD[3], 3);
+	TextDrawLetterSize(SpeedoTD[3], 0.316666, 1.700000);
+	TextDrawTextSize(SpeedoTD[3], 400.000000, 17.000000);
+	TextDrawSetOutline(SpeedoTD[3], 1);
+	TextDrawSetShadow(SpeedoTD[3], 0);
+	TextDrawAlignment(SpeedoTD[3], 3);
+	TextDrawColor(SpeedoTD[3], -1);
+	TextDrawBackgroundColor(SpeedoTD[3], 255);
+	TextDrawBoxColor(SpeedoTD[3], 50);
+	TextDrawUseBox(SpeedoTD[3], 0);
+	TextDrawSetProportional(SpeedoTD[3], 1);
+	TextDrawSetSelectable(SpeedoTD[3], 0);
+	// End Global Speedo TD
 }
 
 unloadTextdrawGlobal(){
@@ -179,6 +237,11 @@ unloadTextdrawGlobal(){
 
 	TextDrawDestroy(TD_JamTanggal[0]);
 	TextDrawDestroy(TD_JamTanggal[1]);
+
+	TextDrawDestroy(SpeedoTD[0]);
+	TextDrawDestroy(SpeedoTD[1]);
+	TextDrawDestroy(SpeedoTD[2]);
+	TextDrawDestroy(SpeedoTD[3]);
 }
 
 // Show Item Textdraw
@@ -527,6 +590,45 @@ loadTextDrawPemain(playerid){
 
 	// Cutting bar
 	CuttingBar[playerid] = CreatePlayerProgressBar(playerid, 498.0, 104.0, 113.0, 6.2, COLOR_YELLOW, MAX_PROGRESS_BAR, 0);
+
+	// Begin Speedo Pemain
+
+	// Nama Kendaraan yang dinaikin
+	SpeedoTD_VehInfo[playerid][0] = CreatePlayerTextDraw(playerid, 241.000000, 354.000000, "Nama Kendaraan");
+	PlayerTextDrawFont(playerid, SpeedoTD_VehInfo[playerid][0], 2);
+	PlayerTextDrawLetterSize(playerid, SpeedoTD_VehInfo[playerid][0], 0.316666, 1.700000);
+	PlayerTextDrawTextSize(playerid, SpeedoTD_VehInfo[playerid][0], 400.000000, 17.000000);
+	PlayerTextDrawSetOutline(playerid, SpeedoTD_VehInfo[playerid][0], 1);
+	PlayerTextDrawSetShadow(playerid, SpeedoTD_VehInfo[playerid][0], 0);
+	PlayerTextDrawAlignment(playerid, SpeedoTD_VehInfo[playerid][0], 1);
+	PlayerTextDrawColor(playerid, SpeedoTD_VehInfo[playerid][0], -1);
+	PlayerTextDrawBackgroundColor(playerid, SpeedoTD_VehInfo[playerid][0], 255);
+	PlayerTextDrawBoxColor(playerid, SpeedoTD_VehInfo[playerid][0], 50);
+	PlayerTextDrawUseBox(playerid, SpeedoTD_VehInfo[playerid][0], 0);
+	PlayerTextDrawSetProportional(playerid, SpeedoTD_VehInfo[playerid][0], 1);
+	PlayerTextDrawSetSelectable(playerid, SpeedoTD_VehInfo[playerid][0], 0);
+
+	// Kecepatan
+	SpeedoTD_VehInfo[playerid][1] = CreatePlayerTextDraw(playerid, 328.000000, 372.000000, "0");
+	PlayerTextDrawFont(playerid, SpeedoTD_VehInfo[playerid][1], 3);
+	PlayerTextDrawLetterSize(playerid, SpeedoTD_VehInfo[playerid][1], 0.316666, 1.700000);
+	PlayerTextDrawTextSize(playerid, SpeedoTD_VehInfo[playerid][1], 400.000000, 17.000000);
+	PlayerTextDrawSetOutline(playerid, SpeedoTD_VehInfo[playerid][1], 1);
+	PlayerTextDrawSetShadow(playerid, SpeedoTD_VehInfo[playerid][1], 0);
+	PlayerTextDrawAlignment(playerid, SpeedoTD_VehInfo[playerid][1], 3);
+	PlayerTextDrawColor(playerid, SpeedoTD_VehInfo[playerid][1], -1);
+	PlayerTextDrawBackgroundColor(playerid, SpeedoTD_VehInfo[playerid][1], 255);
+	PlayerTextDrawBoxColor(playerid, SpeedoTD_VehInfo[playerid][1], 50);
+	PlayerTextDrawUseBox(playerid, SpeedoTD_VehInfo[playerid][1], 0);
+	PlayerTextDrawSetProportional(playerid, SpeedoTD_VehInfo[playerid][1], 1);
+	PlayerTextDrawSetSelectable(playerid, SpeedoTD_VehInfo[playerid][1], 0);
+
+	SpeedoTD_VehBar[playerid][0] = CreatePlayerProgressBar(playerid, 282.000000, 398.000000, 94.500000, 9.500000, -2686721, 1000.000000, 0);
+
+	// Health
+	// Untuk Health MAX_VALUE = 1000 - 260
+	SpeedoTD_VehBar[playerid][1] = CreatePlayerProgressBar(playerid, 282.000000, 425.000000, 94.500000, 9.500000, -1962934017, 1000.000000 - 260.0, 0);
+	// End Speedo Pemain
 }
 
 unloadTextDrawPemain(playerid){
@@ -555,18 +657,49 @@ unloadTextDrawPemain(playerid){
 	// Bar Stats
 	DestroyPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][0]);
 	DestroyPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][1]);
+
+	// Speedo
+	PlayerTextDrawDestroy(playerid, SpeedoTD_VehInfo[playerid][0]);
+	PlayerTextDrawDestroy(playerid, SpeedoTD_VehInfo[playerid][1]);
+	DestroyPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][0]);
+	DestroyPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][1]);
 }
 
-LoadSpeedoTextDraws(playerid){
-    SpeedoTextDraws[playerid] = CreatePlayerTextDraw(playerid, 320.0, 400.0, "Kecepatan: 0 KmpH");
-    PlayerTextDrawFont(playerid, SpeedoTextDraws[playerid], 1);
-    PlayerTextDrawLetterSize(playerid, SpeedoTextDraws[playerid], 0.258332, 1.750000);
-    PlayerTextDrawTextSize(playerid, SpeedoTextDraws[playerid], 16.000000, 98.000000);
-    PlayerTextDrawSetOutline(playerid, SpeedoTextDraws[playerid], 1);
-    PlayerTextDrawSetShadow(playerid, SpeedoTextDraws[playerid], 0);
-    PlayerTextDrawAlignment(playerid, SpeedoTextDraws[playerid], 2);
-    PlayerTextDrawColor(playerid, SpeedoTextDraws[playerid], -1);
-    PlayerTextDrawBoxColor(playerid, SpeedoTextDraws[playerid], 200);
-    PlayerTextDrawUseBox(playerid, SpeedoTextDraws[playerid], 1);
-    PlayerTextDrawSetProportional(playerid, SpeedoTextDraws[playerid], 1);
+/*
+	Show Player Speedo Textdraw
+*/
+ShowSpeedoForPlayer(playerid){
+    SpeedoTimer[playerid] = SetPreciseTimer("SpeedoUpdate", 1000, 1, "i", playerid);
+
+	TextDrawShowForPlayer(playerid, SpeedoTD[0]);
+	TextDrawShowForPlayer(playerid, SpeedoTD[1]);
+	TextDrawShowForPlayer(playerid, SpeedoTD[2]);
+	TextDrawShowForPlayer(playerid, SpeedoTD[3]);
+
+	ShowPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][0]);
+	ShowPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][1]);
+
+	PlayerTextDrawShow(playerid, SpeedoTD_VehInfo[playerid][0]);
+	PlayerTextDrawShow(playerid, SpeedoTD_VehInfo[playerid][1]);
+}
+
+/*
+	Hide Player Speedo Textdraw
+*/
+HideSpeedoForPlayer(playerid){
+	if(SpeedoTimer[playerid] != -1){ // Assume that any callback may already delete it
+        DeletePreciseTimer(SpeedoTimer[playerid]);
+        SpeedoTimer[playerid] = -1;
+	}
+
+	TextDrawHideForPlayer(playerid, SpeedoTD[0]);
+	TextDrawHideForPlayer(playerid, SpeedoTD[1]);
+	TextDrawHideForPlayer(playerid, SpeedoTD[2]);
+	TextDrawHideForPlayer(playerid, SpeedoTD[3]);
+
+	HidePlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][0]);
+	HidePlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][1]);
+
+	PlayerTextDrawHide(playerid, SpeedoTD_VehInfo[playerid][0]);
+	PlayerTextDrawHide(playerid, SpeedoTD_VehInfo[playerid][1]);
 }

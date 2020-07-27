@@ -2906,7 +2906,7 @@ stock EVF::CreateVehicle(modelid,Float:x,Float:y,Float:z,Float:angle,color1,colo
 	
 	ToggleUnoccupiedVehicleDamage(vehicleid,unoccupied_damage);
 	ToggleVehicleSticky(vehicleid,0);
-	ToggleVehicleFuel(vehicleid,0);
+	ToggleVehicleFuel(vehicleid,1);
 	
 	SetVehiclePropertyValue(vehicleid,e_VEHICLE_COLOR_1,color1);
 	SetVehiclePropertyValue(vehicleid,e_VEHICLE_COLOR_2,color2);

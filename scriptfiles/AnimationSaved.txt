@@ -2,3 +2,5 @@
 ApplyAnimation(playerid, "DEALER", "SHOP_PAY", 4.1, false, false, false, false, 0, false); // Give
 ApplyAnimation(playerid, "DEALER", "DEALER_DEAL", 4.1, false, false, false, false, 0, false); // ambil
 ApplyAnimation(playerid, "CASINO", "SLOT_PLYR", 4.1, false, false, false, false, 0, false); // menerima
+ApplyAnimation(playerid, "SHOP", "SHP_SERVE_LOOP", 4.1, false, false, false, false, 0, false); // atm anim
+ApplyAnimation(playerid, "CASINO", "CARDS_RAISE", 4.1, false, false, false, false, 0, false); // isi bensin

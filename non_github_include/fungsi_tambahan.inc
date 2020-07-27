@@ -1,10 +1,12 @@
 /**
     Macro Function 
  */
-#define PlayerTalking(%0)           ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1)
-#define ActorTalking(%0)            ApplyDynamicActorAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 0)
-#define PlayerGivesAnimation(%0)    ApplyAnimation(%0, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1)
-#define PlayerTakesAnimation(%0)    ApplyAnimation(%0, "CASINO", "SLOT_PLYR", 4.1, 0, 1, 1, 0, 2000, 1)
+#define PlayerTalking(%0)               ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1)
+#define ActorTalking(%0)                ApplyDynamicActorAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 0)
+#define PlayerGivesAnimation(%0)        ApplyAnimation(%0, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1)
+#define PlayerTakesAnimation(%0)        ApplyAnimation(%0, "CASINO", "SLOT_PLYR", 4.1, 0, 1, 1, 0, 2000, 1)
+#define PlayerFillingFuelOnLoop(%0)     ApplyAnimation(%0, "CASINO", "CARDS_RAISE", 4.1, 1, 1, 1, 0, 2000, 1)
+#define PlayerAtmAnimation(%0)          ApplyAnimation(%0, "SHOP", "SHP_SERVE_LOOP", 4.1, 0, 1, 1, 0, 2000, 1)
 
 #define IsPlayerOnTrade(%0)         (PlayerInfo[%0][onTradeWith] != INVALID_PLAYER_ID)
 

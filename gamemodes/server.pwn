@@ -7,6 +7,12 @@
 ***************************************************************************************************/
 
 #include <a_samp>
+
+// Timpa SetTimer dengan PreciseTimer
+#define SetTimerEx				SetPreciseTimer
+#define SetTimer				SetPreciseTimer
+#define KillTimer				DeletePreciseTimer
+
 #include <pengaturan> // Pengaturan server disini letak pas di bawah a_samp
 #include <colors> // https://forum.sa-mp.com/showthread.php?t=573049
 #include <sscanf2>
@@ -37,6 +43,10 @@
 	INCLUDE INCLUDE BUATAN DIBAWAH
 */
 #include <global_variable> // variable disini
+
+#include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
+#include <fungsi> // Fungsi disini
+
 #include <mapping> // Mappingan loader
 #include <textdraw> // Textdraw Function Loader
 #include <pickup> // Pickup Function Loader
@@ -45,8 +55,6 @@
 #include <area> // Area loader
 #include <actor> // Actor loader
 #include <dialog> // Function Dialog Loader
-#include <fungsi_tambahan> // Fungsi tambahan disini - Tambahan dulu baru fungsi
-#include <fungsi> // Fungsi disini
 
 #include <../include/gl_common.inc>
 
@@ -79,7 +87,6 @@ public OnPlayerConnect(playerid)
 	resetPlayerToDo(playerid);
 	TextDrawShowForPlayer(playerid, TD_JamTanggal[0]);
 	TextDrawShowForPlayer(playerid, TD_JamTanggal[1]);
-	LoadSpeedoTextDraws(playerid);
 
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
@@ -98,6 +105,11 @@ public OnPlayerDisconnect(playerid, reason){
 	#if DEBUG_MODE_FOR_PLAYER == true
 		printf("OnPlayerDisconnect terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif	
+
+	if(SpeedoTimer[playerid] != -1){
+		DeletePreciseTimer(SpeedoTimer[playerid]);
+		SpeedoTimer[playerid] = -1;
+	}
 
 	if(PlayerInfo[playerid][sudahLogin]) {
 		updateOnPlayerDisconnect(playerid);
@@ -2883,6 +2895,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_INPUT_REKENING_TUJUAN:
 		{
 			if(response){
+				PlayerAtmAnimation(playerid); // Playing while choosing dialog
+				
 				new inputan;
 				if(strlen(inputtext) != 8 || sscanf(inputtext, "i", inputan) || inputtext[0] == '-') return ShowPlayerDialog(playerid, DIALOG_INPUT_REKENING_TUJUAN, DIALOG_STYLE_INPUT, "Nomor rekening tujuan", RED"Nomor rekening harus terdiri dari 8 digit angka.\n"WHITE"Silahkan masukan nomor rekening tujuan:\nNomor rekening harus terdiri dari 8 digit.\nPastikan anda memasukan rekening yang benar.", "Ok", "Kembali");
 
@@ -2896,6 +2910,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_TRANSFER_NOMINAL:
 		{
 			if(response){
+				PlayerAtmAnimation(playerid); // Playing while choosing dialog
+
 				new nominal;
 				if(sscanf(inputtext, "i", nominal)) return ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", RED"Nominal salah, silahkan memasukan jumlah yang benar.\n"WHITE"Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
 				if(nominal < 10 || nominal > MAXIMAL_MONEY_TRADE) return ShowPlayerDialog(playerid, DIALOG_TRANSFER_NOMINAL, DIALOG_STYLE_INPUT, "Nominal yang ingin ditransfer", RED"Minimal nominal adalah $10 dan maksimal $999,999.\n"WHITE"Masukan nominal yang ingin ditransfer:\n"YELLOW"Pastikan bahwa nominal yang ingin anda transfer tidak melebihi saldo tabungan anda.", "Ok", "Batal");
@@ -2943,6 +2959,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_TARIK_UANG_NOMINAL:
 		{
 			if(response){
+				PlayerAtmAnimation(playerid); // Playing while choosing dialog
+
 				new nominal;
 				if(sscanf(inputtext, "i", nominal)) return ShowPlayerDialog(playerid, DIALOG_TARIK_UANG_NOMINAL, DIALOG_STYLE_INPUT, "Nominal penarikan uang", RED"Silahkan masukan nominal yang benar.\n"WHITE"Silahkan masukan nominal yang ingin anda ambil :\n"YELLOW"Pastikan anda memiliki cukup saldo untuk mengambilnya.", "Tarik", "Kembali");
 
@@ -2975,6 +2993,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_INFO_SALDO_HISTORY:
 		{
 			if(response){
+				PlayerAtmAnimation(playerid); // Playing while choosing dialog
+
 				showDialogATM(playerid);
 			}
 			return 1;
@@ -2982,6 +3002,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_INFO_HISTORY_ATM:
 		{
 			if(response){
+				PlayerAtmAnimation(playerid); // Playing while choosing dialog
+
 				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
 					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
 					
@@ -3798,6 +3820,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 							SetVehicleHealth(idveh, 1000);
 							PVeh[idpv][pVehDarah] = 1000;
+
+							SetVehicleFuel(idveh, MAX_VEHICLE_FUEL);
 							
 							new engine, lights, alarm, doors, bonnet, boot, objective;
 							GetVehicleParamsEx(idveh, engine, lights, alarm, doors, bonnet, boot, objective);
@@ -5762,7 +5786,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_YES)){
 		// ATM
 		new idatm = GetClosestATM(playerid);
-		if(idatm != -1) showDialogATM(playerid);
+		if(idatm != -1) return showDialogATM(playerid);
 		// Nombak Ikan
 		new Float:depth, Float:depth2;
 		if(CA_IsPlayerInWater(playerid, depth, depth2)){
@@ -6091,10 +6115,12 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 	}
 
 	if(newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER){
-		ShowPlayerSpeedo(playerid);
+		PlayerTextDrawSetString(playerid, SpeedoTD_VehInfo[playerid][0], GetVehicleModelName(GetVehicleModel(vehid)));
+		ShowSpeedoForPlayer(playerid);
+		SpeedoUpdate(playerid);
 	}
 	else if(oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER && newstate == PLAYER_STATE_ONFOOT){
-		HidePlayerSpeedo(playerid);
+		HideSpeedoForPlayer(playerid);
 	}
 
 	if(oldstate == PLAYER_STATE_ONFOOT && newstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_ONFOOT && newstate == PLAYER_STATE_PASSENGER){
@@ -6591,9 +6617,10 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 }
 
 public OnVehicleSpawn(vehicleid){
-	if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
-		LoadModifVehiclePlayer(vehicleid);		
-	}
+	if(Iter_Contains(IDVehToPVehIterator, vehicleid))
+		LoadModifVehiclePlayer(vehicleid);
+	else
+		SetVehicleFuel(vehicleid, MAX_VEHICLE_FUEL); // Set MAX_VEHICLE_FUEL
 	return 1;
 }
 

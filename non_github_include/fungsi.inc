@@ -2498,6 +2498,10 @@ resetPlayerToDo(playerid){
         DeletePreciseTimer(CuttingTimer[playerid]);
         CuttingTimer[playerid] = -1;
     }
+	if(SpeedoTimer[playerid] != -1){
+        DeletePreciseTimer(SpeedoTimer[playerid]);
+        SpeedoTimer[playerid] = -1;
+	}
     if(PerbaikiTimer[playerid] != -1){
         DeletePreciseTimer(PerbaikiTimer[playerid]);
         PerbaikiTimer[playerid] = -1;
@@ -2523,18 +2527,6 @@ mulaiPraktikSIM(playerid){
 	}
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
 	return 1;	
-}
-
-ShowPlayerSpeedo(playerid){
-    SpeedoTimer[playerid] = SetPreciseTimer("SpeedoUpdate", 1000, 1, "i", playerid);
-    PlayerTextDrawShow(playerid, SpeedoTextDraws[playerid]);
-    return 1;
-}
-
-HidePlayerSpeedo(playerid){
-    DeletePreciseTimer(SpeedoTimer[playerid]);
-    PlayerTextDrawHide(playerid, SpeedoTextDraws[playerid]);
-    return 1;
 }
 
 UnloadBoards(){
@@ -2607,7 +2599,8 @@ LoadVehiclePlayer(playerid){
 		cache_get_row_count(rows);
 		if(rows){
 			new idx = 0, idveh, idpv, temp_id, already_loaded, temp_time,
-				panels, doors, lights, tires, engine, alarm, bonnet, boot, objective;
+				panels, doors, lights, tires, engine, alarm, bonnet, boot, objective,
+				bensin;
 
 			while(idx < rows){
 				already_loaded = -1; // Bakal menyimpan idpv kendaraan
@@ -2668,6 +2661,8 @@ LoadVehiclePlayer(playerid){
 				cache_get_value_name_int(idx, "status_lights", lights);
 				cache_get_value_name_int(idx, "status_tires", tires);
 
+				cache_get_value_name_int(idx, "bensin", bensin);
+
 				format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
 
 				if(temp_time != 0){
@@ -2697,6 +2692,8 @@ LoadVehiclePlayer(playerid){
 
 					SetVehicleHealth(idveh, PVeh[idpv][pVehDarah]);
 					UpdateVehicleDamageStatus(idveh, panels, doors, lights, tires);
+
+					SetVehicleFuel(idveh, bensin);
 
 					// Memakai variable yang sama dengan UpdateVehicleDamageStatus maka di terakhirkan saja, agar tidak ditimpa value nya oleh fungsi getter VehicleParamsEx
 					GetVehicleParamsEx(idveh, engine, lights, alarm, doors, bonnet, boot, objective);
@@ -2804,7 +2801,7 @@ UpdatePosisiDarahVehiclePlayer(vehicleid){
 
 	GetVehicleDamageStatus(vehicleid, panels, doors, lights, tires);
 
-	mysql_format(koneksi, temp_sql, 1000, "UPDATE vehicle SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', darah = '%f', status_panels = '%d', status_doors = '%d', status_lights = '%d', status_tires = '%d' WHERE id = '%d'", pveh_data[pVehCoord][0], pveh_data[pVehCoord][1], pveh_data[pVehCoord][2], pveh_data[pVehCoord][3], pveh_data[pVehDarah], panels, doors, lights, tires, pveh_data[pVehID]);
+	mysql_format(koneksi, temp_sql, 1000, "UPDATE vehicle SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', darah = '%f', status_panels = '%d', status_doors = '%d', status_lights = '%d', status_tires = '%d', bensin = '%d' WHERE id = '%d'", pveh_data[pVehCoord][0], pveh_data[pVehCoord][1], pveh_data[pVehCoord][2], pveh_data[pVehCoord][3], pveh_data[pVehDarah], panels, doors, lights, tires, GetVehicleFuel(vehicleid), pveh_data[pVehID]);
 	return mysql_tquery(koneksi, temp_sql);
 }
 
@@ -3053,9 +3050,9 @@ publicFor: OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Flo
 
 publicFor: SpeedoUpdate(playerid)
 {
-    new text_speed[24],
-    	vehid = GetPlayerVehicleID(playerid),
-    	vehspeed = GetVehicleSpeed(vehid);
+    new txtspeed[5],
+		vehid = GetPlayerVehicleID(playerid),
+		vehspeed = GetVehicleSpeed(vehid);
 
 	newVehicleHealth[vehid] = VehicleHealth(vehid);
 	if(newVehicleHealth[vehid] != oldVehicleHealth[vehid]){
@@ -3063,14 +3060,17 @@ publicFor: SpeedoUpdate(playerid)
 		oldVehicleHealth[vehid] = newVehicleHealth[vehid];
 	}
 
-    //format(text_speed, 24, "Kecepatan: %i MpH", vehspeed); //Mph
-	format(text_speed, 24, "Kecepatan: %i KmpH", vehspeed); //KmpH
-    PlayerTextDrawSetString(playerid, SpeedoTextDraws[playerid], text_speed);
+	// Update speedo
+	format(txtspeed, 5, "%d", vehspeed);
+    PlayerTextDrawSetString(playerid, SpeedoTD_VehInfo[playerid][1], txtspeed);
+	SetPlayerProgressBarValue(playerid, SpeedoTD_VehBar[playerid][0], GetVehicleFuel(vehid));
+	SetPlayerProgressBarValue(playerid, SpeedoTD_VehBar[playerid][1], VehicleHealth(vehid) - 260);
+
     if(testSim[playerid] == 1){
-    	if(vehspeed >= 80){
-    		poinSim[playerid]--;
-    		GameTextForPlayer(playerid, "~y~Kecepatan Kendaraan~n~~r~Poin -1", 1000, 3);
-    	}
+		if(vehspeed >= 80){
+			poinSim[playerid]--;
+			GameTextForPlayer(playerid, "~y~Kecepatan Kendaraan~n~~r~Poin -1", 1000, 3);
+		}
 	}
     return 1;
 }

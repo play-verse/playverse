@@ -131,7 +131,9 @@ showDialogBeliBarang(playerid){
 }
 
 showDialogATM(playerid){
-	return ShowPlayerDialog(playerid, DIALOG_ATM, DIALOG_STYLE_LIST, "Menu ATM", "Transfer Uang\nPenarikan Uang\nInfo Saldo\nHistory Rekening", "Ok", "Batal");
+    PlayerAtmAnimation(playerid); // Opening dialog while playing animation
+	
+    return ShowPlayerDialog(playerid, DIALOG_ATM, DIALOG_STYLE_LIST, "Menu ATM", "Transfer Uang\nPenarikan Uang\nInfo Saldo\nHistory Rekening", "Ok", "Batal");
 }
 
 showDialogEBank(playerid){
