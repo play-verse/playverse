@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 25, 2020 at 03:12 PM
+-- Generation Time: Jul 28, 2020 at 10:49 PM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.10
 
@@ -22,13 +22,85 @@ SET time_zone = "+00:00";
 -- Database: `server_samp`
 --
 
+DELIMITER $$
+--
+-- Procedures
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_exp_skill` (`x_id_user` BIGINT, `x_id_skill` BIGINT, `x_jumlah_exp` INT)  BEGIN
+	SELECT id INTO @id_user_skill FROM `user_skill` WHERE `id_skill` = `x_id_skill` AND `id_user` = `x_id_user`;
+	IF(ROW_COUNT()) THEN
+		UPDATE `user_skill` SET `exp` = `exp` + `x_jumlah_exp` WHERE `id` = @id_user_skill;
+	ELSE
+		INSERT INTO `user_skill`(id_skill, id_user, exp) VALUES(`x_id_skill`, `x_id_user`, `x_jumlah_exp`); 
+	END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_furniture` (`x_id_user` BIGINT, `x_id_furniture` BIGINT, `x_jumlah` INT)  BEGIN
+	SELECT jumlah, id INTO @jumlah, @id_user_furniture FROM `user_furniture` WHERE `id_furniture` = `x_id_furniture` AND `id_user` = `x_id_user`;
+	IF(ROW_COUNT()) THEN
+		IF(x_jumlah < 0 AND (@jumlah - x_jumlah) < 1) THEN
+			DELETE FROM `user_furniture` WHERE `id` = @id_user_furniture;
+		ELSE
+			UPDATE `user_furniture` SET `jumlah` = `jumlah` + `x_jumlah` WHERE `id` = @id_user_furniture;
+		END IF;
+	ELSE
+		INSERT INTO `user_furniture`(id_furniture, id_user, jumlah) VALUES(`x_id_furniture`, `x_id_user`, `x_jumlah`); 
+	END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_item` (`x_id_user` BIGINT, `x_id_item` INT, `x_banyak_item` INT)  BEGIN
+	SELECT jumlah, id_user_item INTO @jumlah, @id_user_item FROM `user_item` WHERE `id_item` = `x_id_item` AND `id_user` = `x_id_user`;
+	IF(ROW_COUNT()) THEN
+		IF(x_banyak_item < 0 AND (@jumlah - x_banyak_item) < 1) THEN
+			DELETE FROM `user_item` WHERE `id_user_item` = @id_user_item;
+		ELSE
+			UPDATE `user_item` SET `jumlah` = `jumlah` + `x_banyak_item` WHERE `id_user_item` = @id_user_item;
+		END IF;
+	ELSE
+		INSERT INTO `user_item`(id_item, id_user, jumlah) VALUES(`x_id_item`, `x_id_user`, `x_banyak_item`); 
+	END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_item_house` (`x_id_house` INT, `x_id_item` INT, `x_jumlah` INT)  BEGIN
+	SELECT jumlah, id INTO @jumlah, @id_house_item FROM `house_inv_item` WHERE `id_item` = `x_id_item` AND `id_house` = `x_id_house`;
+	IF(ROW_COUNT()) THEN
+		IF(x_jumlah < 0 AND (@jumlah - x_jumlah) < 1) THEN
+			DELETE FROM `house_inv_item` WHERE `id` = @id_house_item;
+		ELSE
+			UPDATE `house_inv_item` SET `jumlah` = `jumlah` + `x_jumlah` WHERE `id` = @id_house_item;
+		END IF;
+	ELSE
+		INSERT INTO `house_inv_item`(id_item, id_house, jumlah) VALUES(`x_id_item`, `x_id_house`, `x_jumlah`); 
+	END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_skin` (`x_id_user` BIGINT, `x_id_skin` INT, `x_banyak_skin` INT)  BEGIN
+	SELECT jumlah, id INTO @jumlah, @id FROM `user_skin` WHERE `id_skin` = `x_id_skin` AND `id_user` = `x_id_user`;
+	IF(ROW_COUNT()) THEN
+		IF(x_banyak_skin < 0 AND (@jumlah - x_banyak_skin) < 1) THEN
+			DELETE FROM `user_skin` WHERE `id` = @id;
+		ELSE
+			UPDATE `user_skin` SET `jumlah` = `jumlah` + `x_banyak_skin` WHERE `id` = @id;
+		END IF;
+	ELSE
+		INSERT INTO `user_skin`(id_skin, id_user, jumlah) VALUES(`x_id_skin`, `x_id_user`, `x_banyak_skin`); 
+	END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_transaksi_atm` (`rekening_pengirim` VARCHAR(50), `rekening_penerima` VARCHAR(50), `ex_nominal` BIGINT, `ex_keterangan` TEXT)  BEGIN
+	INSERT INTO `trans_atm`(id_user, id_pengirim_penerima, nominal, tanggal, keterangan) 
+	SELECT a.id as id_user, b.id as id_pengirim_penerima, ex_nominal as nominal, NOW() as tanggal, ex_keterangan as keterangan FROM `user` a
+	LEFT JOIN `user` b ON b.rekening = rekening_pengirim WHERE a.rekening = rekening_penerima;
+END$$
+
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `enter_exit`
 --
 
-DROP TABLE IF EXISTS `enter_exit`;
 CREATE TABLE `enter_exit` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `posisi_x` float NOT NULL,
@@ -50,7 +122,6 @@ CREATE TABLE `enter_exit` (
 -- Table structure for table `furniture`
 --
 
-DROP TABLE IF EXISTS `furniture`;
 CREATE TABLE `furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `nama_furniture` varchar(255) NOT NULL,
@@ -73,7 +144,6 @@ INSERT INTO `furniture` (`id`, `nama_furniture`, `id_object`, `keterangan`, `kap
 -- Table structure for table `gaji`
 --
 
-DROP TABLE IF EXISTS `gaji`;
 CREATE TABLE `gaji` (
   `id_gaji` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -89,7 +159,6 @@ CREATE TABLE `gaji` (
 -- Table structure for table `house`
 --
 
-DROP TABLE IF EXISTS `house`;
 CREATE TABLE `house` (
   `id_house` int(20) NOT NULL,
   `id_user` int(20) NOT NULL DEFAULT -1,
@@ -109,7 +178,6 @@ CREATE TABLE `house` (
 -- Table structure for table `house_furniture`
 --
 
-DROP TABLE IF EXISTS `house_furniture`;
 CREATE TABLE `house_furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_house` bigint(20) NOT NULL,
@@ -128,7 +196,6 @@ CREATE TABLE `house_furniture` (
 -- Table structure for table `house_interior`
 --
 
-DROP TABLE IF EXISTS `house_interior`;
 CREATE TABLE `house_interior` (
   `id_level` int(10) UNSIGNED NOT NULL,
   `nama_level` varchar(255) NOT NULL,
@@ -163,7 +230,6 @@ INSERT INTO `house_interior` (`id_level`, `nama_level`, `pickup_out_x`, `pickup_
 -- Table structure for table `house_inv_item`
 --
 
-DROP TABLE IF EXISTS `house_inv_item`;
 CREATE TABLE `house_inv_item` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_item` bigint(20) NOT NULL,
@@ -177,64 +243,92 @@ CREATE TABLE `house_inv_item` (
 -- Table structure for table `item`
 --
 
-DROP TABLE IF EXISTS `item`;
 CREATE TABLE `item` (
   `id_item` int(255) NOT NULL,
   `nama_item` varchar(255) NOT NULL,
   `model_id` int(11) DEFAULT NULL,
   `keterangan` text DEFAULT NULL,
   `fungsi` varchar(100) DEFAULT NULL COMMENT 'Berisi public function yang akan di trigger saat pemilihan use item, pada item tersebut.',
-  `kapasitas` int(11) NOT NULL DEFAULT 1 COMMENT 'Berisi kapasistas yang dibutuhkan untuk satu barang'
+  `kapasitas` int(11) NOT NULL DEFAULT 1 COMMENT 'Berisi kapasistas yang dibutuhkan untuk satu barang',
+  `id_rarity` tinyint(2) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `item`
 --
 
-INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, `kapasitas`) VALUES
-(1, 'ePhone 1', 18874, 'Dapat digunakan untuk PM, BC, SMS.', 'pakaiHpFromInven', 3),
-(2, 'ePhone 2', 18872, 'Dapat digunakan untuk PM, BC, SMS, Shareloc.', 'pakaiHpFromInven', 3),
-(3, 'ePhone 3', 18870, 'Dapat digunakan untuk PM, BC, SMS, Shareloc, ATM-Banking.', 'pakaiHpFromInven', 3),
-(4, 'ePhone 4', 18867, 'Dapat digunakan untuk PM, BC, SMS, Shareloc, ATM-Banking, Marketplace.', 'pakaiHpFromInven', 3),
-(5, 'Pas Foto', 2281, 'Pas Foto untuk keperluan administrasi.', NULL, 1),
-(6, 'Materai', 2059, 'Materai untuk keperluan administrasi.', NULL, 1),
-(7, 'KTP', 1581, 'KTP sebagai identitas kewarganegaraan.', NULL, 2),
-(8, 'Palu Tambang', 19631, 'Palu Tambang digunakan untuk menambang, 1x use item ini = 15 kali kesempatan tambang.', 'pakaiPaluTambang', 3),
-(9, 'Emas', 19941, 'Emas adalah item yang langka, berguna untuk banyak hal dan memiliki nilai yang tinggi.', NULL, 4),
-(10, 'Berlian', 1559, 'Berlian adalah item yang sangat langka, berguna untuk membuat item-item langka dan dapat menghasilkan banyak uang.', NULL, 5),
-(11, 'Perunggu', 2936, 'Perunggu adalah item yang bagus dan diminati, berguna untuk banyak hal.', NULL, 2),
-(12, 'Perak', 16134, 'Perak adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1),
-(13, 'Air Minum Mineral', 2647, 'Air minum mineral dapat menambah status minum sebanyak 5', 'pakaiMinuman', 1),
-(14, 'Steak', 19882, 'Steak dapat menambah status makan sebanyak 50', 'pakaiMakanan', 2),
-(15, 'SIM', 1581, 'SIM sebagai identitas kelayakan berkendara.', NULL, 2),
-(16, 'Nasi Bungkus', 2678, 'Nasi bungkus dapat menambah status makan sebanyak 37,5', 'pakaiMakanan', 2),
-(17, 'Sate', 2858, 'Sate dapat menambah status makan sebanyak 30', 'pakaiMakanan', 2),
-(18, 'Jus Jeruk', 19564, 'Jus jeruk dapat menambah status minum sebanyak 25', 'pakaiMinuman', 1),
-(19, 'Es Teh Manis', 2647, 'Es Teh Manis dapat menambah status minum sebanyak 20', 'pakaiMinuman', 1),
-(20, 'Kopi Panas', 2647, 'Kopi Panas dapat menambah status minum sebanyak 35', 'pakaiMinuman', 1),
-(21, 'Kopi Dingin', 2647, 'Kopi Dingin dapat menambah status minum sebanyak 35', 'pakaiMinuman', 1),
-(22, 'Minuman Soda', 2647, 'Minuman Soda dapat menambah status minum sebanyak 30', 'pakaiMinuman', 1),
-(23, 'Roti', 19579, 'Roti dapat menambah status makan sebanyak 25', 'pakaiMakanan', 2),
-(24, 'Telur Dadar', 19580, 'Telur Dadar dapat menambah status makan sebanyak 12,5', 'pakaiMakanan', 2),
-(25, 'Kayu', 19793, 'Kayu adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1),
-(26, 'Gergaji Mesin', 341, 'Gergaji Mesin digunakan untuk memotong pohon.', 'pakaiGergajiMesin', 3),
-(27, 'Alat Perbaikan Kendaraan', 19921, 'Alat ini dapat digunakan untuk memperbaiki kendaraan anda, pemakaian alat tergantung kerusakan', NULL, 3),
-(28, 'Cat Kendaraan', 365, 'Bahan untuk mengecat kendaraan anda.', NULL, 2),
-(29, 'Spare-part Kendaraan', 1098, 'Sparepart kendaraan untuk modifikasi', NULL, 4),
-(30, 'Paintjob Stiker Kendaraan', 365, 'Bahan untuk mengganti paintjob dari kendaraan.', NULL, 5),
-(31, 'Bibit Jeruk', 756, 'Biji Jeruk adalah item pertanian yang dapat ditanam dan tumbuh menjadi Jeruk.', 'pakaiBibitJeruk', 9),
-(32, 'Jeruk', 19574, 'Jeruk adalah buah hasil panen dengan rasa masam yang segar.', NULL, 1),
-(33, 'Bibit Ganja', 756, 'Biji Ganja adalah bibit terlarang yang dapat ditanam dan tumbuh menjadi Ganja.', 'pakaiBibitGanja', 9),
-(34, 'Ganja', 19473, 'Ganja adalah item terlarang yang dapat menambahkan Darah Putih sebesar 5 persen.', 'pakaiNarkoGanja', 1),
-(35, 'Joran Pancing', 18632, 'Joran Pancing adalah peralatan untuk memancing ikan.', 'pakaiJoranPancing', 1),
-(36, 'Tombak Ikan', 11716, 'Tombak Ikan adalah peralatan untuk memancing ikan, tingkat keberuntungan +14 persen.', 'pakaiTombakIkan', 1),
-(37, 'Ikan Arwana', 1600, 'Ikan Arwana adalah ikan yang sangat langka, memiliki nilai yang sangat tinggi.', NULL, 1),
-(38, 'Ikan Kakap', 1604, 'Ikan Kakap adalah ikan yang langka, berguna untuk banyak hal.', NULL, 1),
-(39, 'Ikan Mas', 1599, 'Ikan Mas adalah hasil mancing yang mirip dengan Ikan Mujair tapi lebih bagus.', NULL, 1),
-(40, 'Ikan Mujair', 19630, 'Ikan Mujair adalah ikan yang berguna dan juga diminati orang banyak.', NULL, 1),
-(41, 'Ubur-ubur', 1603, 'Ubur-ubur adalah ikan yang bagus dan diminati.', NULL, 1),
-(42, 'Bintang Laut', 902, 'Bintang Laut adalah ikan yang bagus dan diminati.', NULL, 1),
-(43, 'Roti - Umpan Ikan', 19883, 'Roti - Umpan Ikan adalah umpan yang digunakan untuk memancing ikan.', 'pakaiUmpanIkan', 1);
+INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, `kapasitas`, `id_rarity`) VALUES
+(1, 'ePhone 1', 18874, 'Dapat digunakan untuk PM, BC, SMS.', 'pakaiHpFromInven', 3, 3),
+(2, 'ePhone 2', 18872, 'Dapat digunakan untuk PM, BC, SMS, Shareloc.', 'pakaiHpFromInven', 3, 3),
+(3, 'ePhone 3', 18870, 'Dapat digunakan untuk PM, BC, SMS, Shareloc, ATM-Banking.', 'pakaiHpFromInven', 3, 3),
+(4, 'ePhone 4', 18867, 'Dapat digunakan untuk PM, BC, SMS, Shareloc, ATM-Banking, Marketplace.', 'pakaiHpFromInven', 3, 4),
+(5, 'Pas Foto', 2281, 'Pas Foto untuk keperluan administrasi.', NULL, 1, 2),
+(6, 'Materai', 2059, 'Materai untuk keperluan administrasi.', NULL, 1, 2),
+(7, 'KTP', 1581, 'KTP sebagai identitas kewarganegaraan.', NULL, 2, 2),
+(8, 'Palu Tambang', 19631, 'Palu Tambang digunakan untuk menambang, 1x use item ini = 15 kali kesempatan tambang.', 'pakaiPaluTambang', 3, 2),
+(9, 'Emas', 19941, 'Emas adalah item yang langka, berguna untuk banyak hal dan memiliki nilai yang tinggi.', NULL, 4, 4),
+(10, 'Berlian', 1559, 'Berlian adalah item yang sangat langka, berguna untuk membuat item-item langka dan dapat menghasilkan banyak uang.', NULL, 5, 5),
+(11, 'Perunggu', 2936, 'Perunggu adalah item yang bagus dan diminati, berguna untuk banyak hal.', NULL, 2, 3),
+(12, 'Perak', 16134, 'Perak adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1, 3),
+(13, 'Air Minum Mineral', 2647, 'Air minum mineral dapat menambah status minum sebanyak 5', 'pakaiMinuman', 1, 1),
+(14, 'Steak', 19882, 'Steak dapat menambah status makan sebanyak 50', 'pakaiMakanan', 2, 2),
+(15, 'SIM', 1581, 'SIM sebagai identitas kelayakan berkendara.', NULL, 2, 2),
+(16, 'Nasi Bungkus', 2678, 'Nasi bungkus dapat menambah status makan sebanyak 37,5', 'pakaiMakanan', 2, 1),
+(17, 'Sate', 2858, 'Sate dapat menambah status makan sebanyak 30', 'pakaiMakanan', 2, 1),
+(18, 'Jus Jeruk', 19564, 'Jus jeruk dapat menambah status minum sebanyak 25', 'pakaiMinuman', 1, 1),
+(19, 'Es Teh Manis', 2647, 'Es Teh Manis dapat menambah status minum sebanyak 20', 'pakaiMinuman', 1, 1),
+(20, 'Kopi Panas', 2647, 'Kopi Panas dapat menambah status minum sebanyak 35', 'pakaiMinuman', 1, 1),
+(21, 'Kopi Dingin', 2647, 'Kopi Dingin dapat menambah status minum sebanyak 35', 'pakaiMinuman', 1, 1),
+(22, 'Minuman Soda', 2647, 'Minuman Soda dapat menambah status minum sebanyak 30', 'pakaiMinuman', 1, 1),
+(23, 'Roti', 19579, 'Roti dapat menambah status makan sebanyak 25', 'pakaiMakanan', 2, 1),
+(24, 'Telur Dadar', 19580, 'Telur Dadar dapat menambah status makan sebanyak 12,5', 'pakaiMakanan', 2, 1),
+(25, 'Kayu', 19793, 'Kayu adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1, 2),
+(26, 'Gergaji Mesin', 341, 'Gergaji Mesin digunakan untuk memotong pohon.', 'pakaiGergajiMesin', 3, 2),
+(27, 'Alat Perbaikan Kendaraan', 19921, 'Alat ini dapat digunakan untuk memperbaiki kendaraan anda, pemakaian alat tergantung kerusakan', NULL, 3, 3),
+(28, 'Cat Kendaraan', 365, 'Bahan untuk mengecat kendaraan anda.', NULL, 2, 3),
+(29, 'Spare-part Kendaraan', 1098, 'Sparepart kendaraan untuk modifikasi', NULL, 4, 4),
+(30, 'Paintjob Stiker Kendaraan', 365, 'Bahan untuk mengganti paintjob dari kendaraan.', NULL, 5, 4),
+(31, 'Bibit Jeruk', 756, 'Biji Jeruk adalah item pertanian yang dapat ditanam dan tumbuh menjadi Jeruk.', 'pakaiBibitJeruk', 9, 1),
+(32, 'Jeruk', 19574, 'Jeruk adalah buah hasil panen dengan rasa masam yang segar.', NULL, 1, 2),
+(33, 'Bibit Ganja', 756, 'Biji Ganja adalah bibit terlarang yang dapat ditanam dan tumbuh menjadi Ganja.', 'pakaiBibitGanja', 9, 1),
+(34, 'Ganja', 19473, 'Ganja adalah item terlarang yang dapat menambahkan Darah Putih sebesar 5 persen.', 'pakaiNarkoGanja', 1, 2),
+(35, 'Joran Pancing', 18632, 'Joran Pancing adalah peralatan untuk memancing ikan.', 'pakaiJoranPancing', 1, 1),
+(36, 'Tombak Ikan', 11716, 'Tombak Ikan adalah peralatan untuk memancing ikan, tingkat keberuntungan +14 persen.', 'pakaiTombakIkan', 1, 1),
+(37, 'Ikan Arwana', 1600, 'Ikan Arwana adalah ikan yang sangat langka, memiliki nilai yang sangat tinggi.', NULL, 1, 1),
+(38, 'Ikan Kakap', 1604, 'Ikan Kakap adalah ikan yang langka, berguna untuk banyak hal.', NULL, 1, 1),
+(39, 'Ikan Mas', 1599, 'Ikan Mas adalah hasil mancing yang mirip dengan Ikan Mujair tapi lebih bagus.', NULL, 1, 1),
+(40, 'Ikan Mujair', 19630, 'Ikan Mujair adalah ikan yang berguna dan juga diminati orang banyak.', NULL, 1, 1),
+(41, 'Ubur-ubur', 1603, 'Ubur-ubur adalah ikan yang bagus dan diminati.', NULL, 1, 1),
+(42, 'Bintang Laut', 902, 'Bintang Laut adalah ikan yang bagus dan diminati.', NULL, 1, 1),
+(43, 'Roti - Umpan Ikan', 19883, 'Roti - Umpan Ikan adalah umpan yang digunakan untuk memancing ikan.', 'pakaiUmpanIkan', 1, 1),
+(44, 'Bensin 20 Liter', 1650, 'Dapat menambahkan bensin kendaraan anda sebanyak 20 liter', 'pakaiBensin', 2, 2),
+(45, 'Bensin 50 Liter', 1650, 'Dapat menambahkan bensin kendaraan anda sebanyak 50 liter', 'pakaiBensin', 3, 2),
+(46, 'Bensin 100 Liter', 1650, 'Dapat menambahkan bensin kendaraan anda sebanyak 100 liter', 'pakaiBensin', 4, 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `item_rarity`
+--
+
+CREATE TABLE `item_rarity` (
+  `id` tinyint(2) UNSIGNED NOT NULL,
+  `nama_rarity` varchar(50) NOT NULL,
+  `hex_color` varchar(14) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `item_rarity`
+--
+
+INSERT INTO `item_rarity` (`id`, `nama_rarity`, `hex_color`) VALUES
+(1, 'Uncommon', '{FFFFFF}'),
+(2, 'Normal', '{00CC00}'),
+(3, 'Rare', '{0099CC}'),
+(4, 'Epic', '{6600FF}'),
+(5, 'Legendary', '{FF9933}'),
+(6, 'Event', '{CC99FF}'),
+(7, 'Limited', '{FF0000}');
 
 -- --------------------------------------------------------
 
@@ -242,7 +336,6 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 -- Table structure for table `item_sp`
 --
 
-DROP TABLE IF EXISTS `item_sp`;
 CREATE TABLE `item_sp` (
   `id` int(11) UNSIGNED NOT NULL,
   `nama_item` varchar(255) NOT NULL,
@@ -265,7 +358,6 @@ INSERT INTO `item_sp` (`id`, `nama_item`, `model_id`, `fungsi`, `keterangan`) VA
 -- Table structure for table `jenis_blocked`
 --
 
-DROP TABLE IF EXISTS `jenis_blocked`;
 CREATE TABLE `jenis_blocked` (
   `id` tinyint(1) UNSIGNED NOT NULL,
   `nama` varchar(100) DEFAULT NULL,
@@ -285,7 +377,6 @@ INSERT INTO `jenis_blocked` (`id`, `nama`, `keterangan`) VALUES
 -- Table structure for table `logs_user_konek`
 --
 
-DROP TABLE IF EXISTS `logs_user_konek`;
 CREATE TABLE `logs_user_konek` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -301,7 +392,6 @@ CREATE TABLE `logs_user_konek` (
 -- Table structure for table `lumber`
 --
 
-DROP TABLE IF EXISTS `lumber`;
 CREATE TABLE `lumber` (
   `id` int(20) NOT NULL,
   `treeX` varchar(32) NOT NULL,
@@ -318,7 +408,6 @@ CREATE TABLE `lumber` (
 -- Table structure for table `papan`
 --
 
-DROP TABLE IF EXISTS `papan`;
 CREATE TABLE `papan` (
   `id_papan` bigint(20) UNSIGNED NOT NULL,
   `id_model` bigint(20) NOT NULL,
@@ -338,7 +427,6 @@ CREATE TABLE `papan` (
 -- Table structure for table `pengambilan_ktp`
 --
 
-DROP TABLE IF EXISTS `pengambilan_ktp`;
 CREATE TABLE `pengambilan_ktp` (
   `id` bigint(20) NOT NULL,
   `id_user` bigint(20) NOT NULL,
@@ -352,7 +440,6 @@ CREATE TABLE `pengambilan_ktp` (
 -- Table structure for table `pengambilan_sim`
 --
 
-DROP TABLE IF EXISTS `pengambilan_sim`;
 CREATE TABLE `pengambilan_sim` (
   `id` bigint(20) NOT NULL,
   `id_user` bigint(20) NOT NULL,
@@ -367,7 +454,6 @@ CREATE TABLE `pengambilan_sim` (
 -- Table structure for table `skill`
 --
 
-DROP TABLE IF EXISTS `skill`;
 CREATE TABLE `skill` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `nama_skill` varchar(255) NOT NULL
@@ -387,7 +473,6 @@ INSERT INTO `skill` (`id`, `nama_skill`) VALUES
 -- Table structure for table `sms`
 --
 
-DROP TABLE IF EXISTS `sms`;
 CREATE TABLE `sms` (
   `id_sms` bigint(20) UNSIGNED NOT NULL,
   `id_user_pengirim` bigint(20) UNSIGNED NOT NULL,
@@ -403,7 +488,6 @@ CREATE TABLE `sms` (
 -- Table structure for table `tempat_atm`
 --
 
-DROP TABLE IF EXISTS `tempat_atm`;
 CREATE TABLE `tempat_atm` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `pos_x` float NOT NULL,
@@ -420,7 +504,6 @@ CREATE TABLE `tempat_atm` (
 -- Table structure for table `toko_perabot`
 --
 
-DROP TABLE IF EXISTS `toko_perabot`;
 CREATE TABLE `toko_perabot` (
   `id` bigint(20) NOT NULL,
   `text_toko` text DEFAULT NULL,
@@ -437,7 +520,6 @@ CREATE TABLE `toko_perabot` (
 -- Table structure for table `toko_perabot_item`
 --
 
-DROP TABLE IF EXISTS `toko_perabot_item`;
 CREATE TABLE `toko_perabot_item` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_furniture` bigint(20) NOT NULL,
@@ -451,7 +533,6 @@ CREATE TABLE `toko_perabot_item` (
 -- Table structure for table `trans_atm`
 --
 
-DROP TABLE IF EXISTS `trans_atm`;
 CREATE TABLE `trans_atm` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) NOT NULL,
@@ -467,7 +548,6 @@ CREATE TABLE `trans_atm` (
 -- Table structure for table `user`
 --
 
-DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` bigint(20) UNSIGNED NOT NULL COMMENT 'ID Player',
   `nama` varchar(50) NOT NULL COMMENT 'Nama Pemain',
@@ -505,7 +585,6 @@ CREATE TABLE `user` (
 -- Table structure for table `user_blocked`
 --
 
-DROP TABLE IF EXISTS `user_blocked`;
 CREATE TABLE `user_blocked` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) NOT NULL,
@@ -521,7 +600,6 @@ CREATE TABLE `user_blocked` (
 -- Table structure for table `user_furniture`
 --
 
-DROP TABLE IF EXISTS `user_furniture`;
 CREATE TABLE `user_furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_furniture` int(11) NOT NULL,
@@ -535,7 +613,6 @@ CREATE TABLE `user_furniture` (
 -- Table structure for table `user_item`
 --
 
-DROP TABLE IF EXISTS `user_item`;
 CREATE TABLE `user_item` (
   `id_user_item` bigint(20) UNSIGNED NOT NULL,
   `id_item` bigint(20) UNSIGNED NOT NULL,
@@ -550,7 +627,6 @@ CREATE TABLE `user_item` (
 -- Table structure for table `user_item_limit`
 --
 
-DROP TABLE IF EXISTS `user_item_limit`;
 CREATE TABLE `user_item_limit` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -564,7 +640,6 @@ CREATE TABLE `user_item_limit` (
 -- Table structure for table `user_item_sp`
 --
 
-DROP TABLE IF EXISTS `user_item_sp`;
 CREATE TABLE `user_item_sp` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_item_sp` int(11) NOT NULL,
@@ -578,7 +653,6 @@ CREATE TABLE `user_item_sp` (
 -- Table structure for table `user_skill`
 --
 
-DROP TABLE IF EXISTS `user_skill`;
 CREATE TABLE `user_skill` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_skill` bigint(20) UNSIGNED NOT NULL,
@@ -593,7 +667,6 @@ CREATE TABLE `user_skill` (
 -- Table structure for table `user_skin`
 --
 
-DROP TABLE IF EXISTS `user_skin`;
 CREATE TABLE `user_skin` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -607,7 +680,6 @@ CREATE TABLE `user_skin` (
 -- Table structure for table `vehicle`
 --
 
-DROP TABLE IF EXISTS `vehicle`;
 CREATE TABLE `vehicle` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_pemilik` bigint(20) UNSIGNED NOT NULL COMMENT 'ID Pemilik Kendaraan',
@@ -639,7 +711,8 @@ CREATE TABLE `vehicle` (
   `status_doors` int(11) DEFAULT 0 COMMENT 'Damage status doors',
   `status_lights` int(11) DEFAULT 0 COMMENT 'Damage status lights',
   `status_tires` int(11) DEFAULT 0 COMMENT 'Damage status tires',
-  `harga_beli` bigint(50) UNSIGNED DEFAULT 0 COMMENT 'Harga beli dari dealer'
+  `harga_beli` bigint(50) UNSIGNED DEFAULT 0 COMMENT 'Harga beli dari dealer',
+  `bensin` smallint(6) DEFAULT 1000 COMMENT 'Sisa Bensin'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -648,7 +721,6 @@ CREATE TABLE `vehicle` (
 -- Table structure for table `vehicle_components`
 --
 
-DROP TABLE IF EXISTS `vehicle_components`;
 CREATE TABLE `vehicle_components` (
   `componentid` smallint(4) UNSIGNED NOT NULL,
   `part` enum('Exhausts','Front Bullbars','Front Bumper','Hood','Hydraulics','Lights','Misc','Rear Bullbars','Rear Bumper','Roof','Side Skirts','Spoilers','Vents','Wheels') DEFAULT NULL,
@@ -832,7 +904,6 @@ INSERT INTO `vehicle_components` (`componentid`, `part`, `type`, `cars`) VALUES
 -- Table structure for table `vehicle_dealer`
 --
 
-DROP TABLE IF EXISTS `vehicle_dealer`;
 CREATE TABLE `vehicle_dealer` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_model` int(5) NOT NULL COMMENT 'ID Jenis kendaraan',
@@ -851,7 +922,6 @@ CREATE TABLE `vehicle_dealer` (
 -- Table structure for table `vehicle_keys`
 --
 
-DROP TABLE IF EXISTS `vehicle_keys`;
 CREATE TABLE `vehicle_keys` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -865,7 +935,6 @@ CREATE TABLE `vehicle_keys` (
 -- Table structure for table `vehicle_model_parts`
 --
 
-DROP TABLE IF EXISTS `vehicle_model_parts`;
 CREATE TABLE `vehicle_model_parts` (
   `modelid` smallint(3) UNSIGNED NOT NULL,
   `parts` bit(9) NOT NULL
@@ -1059,6 +1128,12 @@ ALTER TABLE `house_inv_item`
 --
 ALTER TABLE `item`
   ADD PRIMARY KEY (`id_item`);
+
+--
+-- Indexes for table `item_rarity`
+--
+ALTER TABLE `item_rarity`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `item_sp`
@@ -1266,7 +1341,13 @@ ALTER TABLE `house_inv_item`
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+
+--
+-- AUTO_INCREMENT for table `item_rarity`
+--
+ALTER TABLE `item_rarity`
+  MODIFY `id` tinyint(2) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `item_sp`
