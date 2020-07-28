@@ -2569,7 +2569,7 @@ EVF::Public:: OnVehicleTimeUpdate(){
 					SetVehicleParams(vehicleid,VEHICLE_TYPE_ENGINE,0);
 					new vehicle_driver = GetVehicleDriverID(vehicleid);
 					if(IsPlayerConnected(vehicle_driver)){
-						GameTextForPlayer(vehicle_driver,"~r~Vehicle out of fuel !",5000,3);
+						GameTextForPlayer(vehicle_driver,"~r~Bensin kendaraan habis!", 2000,3);
 					}
 				} else {
 					//if vehicle has some EVF::Vecitive fuel

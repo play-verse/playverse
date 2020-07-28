@@ -4,3 +4,5 @@ ApplyAnimation(playerid, "DEALER", "DEALER_DEAL", 4.1, false, false, false, fals
 ApplyAnimation(playerid, "CASINO", "SLOT_PLYR", 4.1, false, false, false, false, 0, false); // menerima
 ApplyAnimation(playerid, "SHOP", "SHP_SERVE_LOOP", 4.1, false, false, false, false, 0, false); // atm anim
 ApplyAnimation(playerid, "CASINO", "CARDS_RAISE", 4.1, false, false, false, false, 0, false); // isi bensin
+ApplyAnimation(playerid, "SPRAYCAN", "SPRAYCAN_FULL", 4.1, false, false, false, false, 0, false); // spray can full
+ApplyAnimation(playerid, "CASINO", "SLOT_WAIT", 4.1, false, false, false, false, 0, false); // isi bensin 2

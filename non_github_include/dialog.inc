@@ -236,3 +236,17 @@ showDialogDealerManager(playerid){
     return ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER_LIST, DIALOG_STYLE_LIST, "Pilih jawaban : ", "\
         Saya ingin menjual mobil", "Pilih", "Batal");
 }
+
+showDialogPilihBensin(playerid){
+    return ShowPlayerDialog(
+        playerid, 
+        DIALOG_PILIH_ISI_BENSIN, 
+        DIALOG_STYLE_LIST, 
+        "Pilih bensin yang ingin diisi.", 
+        WHITE"Bensin 20 persen\t"GREEN"$5\n\
+        "WHITE"Bensin 50 persen\t"GREEN"$10\n\
+        "WHITE"Bensin 100 persen\t"GREEN"$17", 
+        "Pilih", 
+        "Batal"
+    );
+}

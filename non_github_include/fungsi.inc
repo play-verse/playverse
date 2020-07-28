@@ -1671,6 +1671,98 @@ publicFor: progressModifKendaraan(playerid, vehicleid, componentid){
 	return 1;
 }
 
+publicFor: progressIsiBensin(playerid){
+	new vehicleid = GetPVarInt(playerid, "id_vehicle_bensin");
+
+	if(IsValidVehicle(vehicleid)){
+		new Float:vpos[3], Float:pos[3];
+
+		GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+		GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+		GetVehiclePos(vehicleid, vpos[0], vpos[1], vpos[2]);
+
+		if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
+			new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / ISI_BENSIN_TIME;
+			if(value >= MAX_PROGRESS_BAR){
+				new harga = GetPVarInt(playerid, "harga_bensin"),
+					persen = GetPVarInt(playerid, "persen_bensin");
+				
+				DeletePVar(playerid, "harga_bensin");
+				DeletePVar(playerid, "persen_bensin");
+				DeletePVar(playerid, "id_vehicle_bensin");
+
+				givePlayerUang(playerid, -harga);
+
+				// Prevent from minus value
+				if(GetVehicleFuel(vehicleid) < 0) SetVehicleFuel(vehicleid, 0);
+
+				SetVehicleFuel(vehicleid, (GetVehicleFuel(vehicleid) + (MAX_VEHICLE_FUEL * persen / 100)) > MAX_VEHICLE_FUEL ? MAX_VEHICLE_FUEL : (GetVehicleFuel(vehicleid) + (MAX_VEHICLE_FUEL * persen / 100)));
+
+				reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
+
+				sendPesan(playerid, COLOR_GREEN, "Bensin: "WHITE"Berhasil mengisi bensin sebanyak %d persen dengan harga "GREEN"$%d", persen, harga);
+			}else{
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Gagal mengisi bensin, kendaraan tidak pada posisi semula.");
+			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+		}
+    }else{
+		SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Gagal mengisi bensin, kendaraan tidak ada.");
+		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+	}
+	return 1;
+}
+
+publicFor: progressIsiBensinPakaiItem(playerid, itemid, vehicleid){
+	if(IsValidVehicle(vehicleid)){
+		new Float:vpos[3], Float:pos[3];
+
+		GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+		GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+		GetVehiclePos(vehicleid, vpos[0], vpos[1], vpos[2]);
+
+		if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
+			new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / ISI_BENSIN_TIME;
+			if(value >= MAX_PROGRESS_BAR){
+				new persen = 0;
+				switch(itemid){
+					case 44: { // 20 liter
+						persen = 20;
+					}
+					case 45: { // 50 liter
+						persen = 50;
+					}
+					case 46: { // 100 liter
+						persen = 100;
+					}
+				}
+
+				// Prevent from minus value
+				if(GetVehicleFuel(vehicleid) < 0) SetVehicleFuel(vehicleid, 0);
+
+				SetVehicleFuel(vehicleid, (GetVehicleFuel(vehicleid) + (MAX_VEHICLE_FUEL * persen / 100)) > MAX_VEHICLE_FUEL ? MAX_VEHICLE_FUEL : (GetVehicleFuel(vehicleid) + (MAX_VEHICLE_FUEL * persen / 100)));
+
+				tambahItemPlayer(playerid, itemid, -1);
+
+				reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
+
+				sendPesan(playerid, COLOR_GREEN, "Bensin: "WHITE"Berhasil mengisi bensin sebanyak "GREEN"%d liter", persen);
+			}else{
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Gagal mengisi bensin, kendaraan tidak pada posisi semula.");
+			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+		}
+    }else{
+		SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Gagal mengisi bensin, kendaraan tidak ada.");
+		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+	}
+	return 1;
+}
+
 publicFor: konfirmasiBuatAlatPerbaikan(playerid, ada){
 	if(ada){
 		new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expMekanik], 1);
@@ -1991,6 +2083,40 @@ publicFor: pakaiMakanan(playerid, itemid){
 	return 1;
 }
 
+publicFor: pakaiBensin(playerid, itemid){
+	if(IsPlayerInAnyVehicle(playerid))
+		return SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Tidak dapat mengisi bensin didalam kendaraan.");
+
+	new Float:pos[3], Float:vpos[3], vehid = INVALID_VEHICLE_ID;
+	GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+	GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 3.0);
+
+	foreach(new vid : Vehicle){
+		if(!IsValidVehicle(vid)) continue;
+		GetVehiclePos(vid, vpos[0], vpos[1], vpos[2]);
+		if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 2.0)){
+			vehid = vid;
+			break;
+		}
+	}
+
+	if(vehid == INVALID_VEHICLE_ID) 
+		return SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Kendaraan yang akan diisi bensin harus berada didepan anda.");
+	
+	// Pinjam timer perbaiki
+	PerbaikiTimer[playerid] = SetPreciseTimer("progressIsiBensinPakaiItem", 1000, true, "iii", playerid, itemid, vehid);
+
+	// Pinjam progress bar dari potong pohon
+	SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+	ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+	TogglePlayerControllable(playerid, 0);
+	PlayerFillingFuelOnLoop(playerid);
+	GameTextForPlayer(playerid, "~w~Sedang ~y~Mengisi Bensin...", 3000, 3);
+
+	PlayerInfo[playerid][isOnAnimation] = true;
+	return 1;
+}
+
 publicFor: cekSudahPunyaSIM(playerid){
 	new tanggal_pengambilan[50];
 	if(cache_num_rows()){
@@ -2153,9 +2279,6 @@ loadAllItem(){
 
 		format(msg, sizeof(msg), "rIt_%d", id_item);
 		SetSVarInt(msg, rarity);
-
-		format(msg, sizeof(msg), "mIt_%d", model_id);
-		SetSVarInt(msg, id_item);
 
 		format(msg, sizeof(msg), "cIt_%d", id_item);
 		SetSVarInt(msg, kapasitas);
@@ -3052,19 +3175,23 @@ publicFor: SpeedoUpdate(playerid)
 {
     new txtspeed[5],
 		vehid = GetPlayerVehicleID(playerid),
-		vehspeed = GetVehicleSpeed(vehid);
+		vehspeed = GetVehicleSpeed(vehid),
+		Float:vehhealth;
 
-	newVehicleHealth[vehid] = VehicleHealth(vehid);
-	if(newVehicleHealth[vehid] != oldVehicleHealth[vehid]){
-		OnPlayerVehicleHealthChange(playerid, vehid, newVehicleHealth[vehid], oldVehicleHealth[vehid]);
-		oldVehicleHealth[vehid] = newVehicleHealth[vehid];
+	GetVehicleHealth(vehid, vehhealth);
+
+	if(vehhealth != oldVehicleHealth[vehid]){
+		OnPlayerVehicleHealthChange(playerid, vehid, vehhealth, oldVehicleHealth[vehid]);
+
+		oldVehicleHealth[vehid] = vehhealth;
+
+		SetPlayerProgressBarValue(playerid, SpeedoTD_VehBar[playerid][1], vehhealth - 260);
 	}
 
 	// Update speedo
 	format(txtspeed, 5, "%d", vehspeed);
     PlayerTextDrawSetString(playerid, SpeedoTD_VehInfo[playerid][1], txtspeed);
 	SetPlayerProgressBarValue(playerid, SpeedoTD_VehBar[playerid][0], GetVehicleFuel(vehid));
-	SetPlayerProgressBarValue(playerid, SpeedoTD_VehBar[playerid][1], VehicleHealth(vehid) - 260);
 
     if(testSim[playerid] == 1){
 		if(vehspeed >= 80){

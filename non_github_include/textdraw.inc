@@ -669,7 +669,7 @@ unloadTextDrawPemain(playerid){
 	Show Player Speedo Textdraw
 */
 ShowSpeedoForPlayer(playerid){
-    SpeedoTimer[playerid] = SetPreciseTimer("SpeedoUpdate", 1000, 1, "i", playerid);
+    SpeedoTimer[playerid] = SetPreciseTimer("SpeedoUpdate", 750, true, "i", playerid);
 
 	TextDrawShowForPlayer(playerid, SpeedoTD[0]);
 	TextDrawShowForPlayer(playerid, SpeedoTD[1]);

@@ -8,32 +8,32 @@
 
 #include <a_samp>
 
-// Timpa SetTimer dengan PreciseTimer
-#define SetTimerEx				SetPreciseTimer
-#define SetTimer				SetPreciseTimer
-#define KillTimer				DeletePreciseTimer
-
 #include <pengaturan> // Pengaturan server disini letak pas di bawah a_samp
 #include <colors> // https://forum.sa-mp.com/showthread.php?t=573049
 #include <sscanf2>
 #include <streamer>
+#include <a_mysql>
+
+#define YSI_NO_HEAP_MALLOC
+#define YSI_NO_VERSION_CHECK
+#include <YSI_Data\y_iterate>
+#include <YSI_Coding\y_inline>
 
 #include <progress2>
 
 #include <samp-precise-timers>
 #include <colandreas>
 #include <geolite>
+
+// Timpa SetTimer dengan PreciseTimer
+#define SetTimerEx				SetPreciseTimer
+#define SetTimer				SetPreciseTimer
+#define KillTimer				DeletePreciseTimer
+
 #include <EVF> // Fungsi tambahan vehicle
 #include <garage_block> // Block all PayNSpray dan modshop lain
 
-#include <a_mysql>
 #include <zcmd>
-
-#define YSI_NO_HEAP_MALLOC
-#define YSI_NO_VERSION_CHECK
-#include <YSI_Data\y_iterate>
-#include <YSI_Coding\y_timers>
-#include <YSI_Coding\y_inline>
 
 #include <core>
 #include <float>
@@ -2160,7 +2160,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama("set_harga_rumah", infoRumah)){
 					if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_INFO_RUMAH, DIALOG_STYLE_INPUT, "Ubah Harga Rumah", RED"Harga tidak boleh kosong!\n"WHITE"Silahkan input harga berupa angka.", "Jual", "Batal");
 					if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_INFO_RUMAH, DIALOG_STYLE_INPUT, "Ubah Harga Rumah", RED"Harga tidak valid!\n"WHITE"Anda harus menginput harga berupa angka.", "Jual", "Batal");
-					if(strval(inputtext) < 0 || strval(inputtext) > 99999999) return ShowPlayerDialog(playerid, DIALOG_INFO_RUMAH, DIALOG_STYLE_INPUT, "Ubah Harga Rumah", RED"Harga tidak valid!\n"WHITE"Silahkan input harga minimal 0 dan maksimal 99999999.\nJika anda mengisi 0 harga akan default, sesuai level dan harga beli.", "Jual", "Batal");
+					if(strval(inputtext) < 0 || strval(inputtext) > MAXIMAL_MONEY_TRADE) return ShowPlayerDialog(playerid, DIALOG_INFO_RUMAH, DIALOG_STYLE_INPUT, "Ubah Harga Rumah", RED"Harga tidak valid!\n"WHITE"Silahkan input harga minimal 0 dan maksimal 9999999.\nJika anda mengisi 0 harga akan default, sesuai level dan harga beli.", "Jual", "Batal");
 					goto label_set_harga_rumah;
 				}
 				if(sama("batal_jual", infoRumah)){
@@ -2433,7 +2433,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
 					}else{
-						tambahItemPlayer(playerid, getIDbyModelItem(BARANG_MARKET[index_barang][idModelBarang]), jumlah);
+						tambahItemPlayer(playerid, BARANG_MARKET[index_barang][idItemMarket], jumlah);
 						givePlayerUang(playerid, -harga);
 
 						format(pDialog[playerid], sizePDialog, "Anda berhasil membeli "YELLOW"%s"WHITE".\nSebanyak "YELLOW"%d"WHITE" dengan harga "GREEN"%d", BARANG_MARKET[index_barang][namaBarang], jumlah, harga);
@@ -5669,6 +5669,96 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SetPVarString(playerid, "sim_polisi", "buat_sim");
 				getSudahBuatSIM(playerid, "cekSudahPunyaSIM");
 			}
+			return 1;
+		}
+		case DIALOG_PILIH_ISI_BENSIN:
+		{
+			if(response){
+				new vehicleid = GetPVarInt(playerid, "id_vehicle_bensin"),
+					harga = 0,
+					persen = 0;
+
+				switch(listitem){
+					case 0: // 20 persen - $5
+					{
+						harga = 5;
+						persen = 20;
+					}
+					case 1: // 50 persen - $10
+					{
+						harga = 10;
+						persen = 50;
+					}
+					case 2: // 100 persen - $17
+					{
+						harga = 17;
+						persen = 100;
+					}
+				}
+
+				format(
+					pDialog[playerid], 
+					sizePDialog, 
+					WHITE"Bensin anda akan diisi dengan spesifikasi berikut.\n\n\
+					Nama Kendaraan\t: %s\n\
+					Bensin yang diisi\t: %d\n\
+					Harga Bensin\t\t: $%d\n\n\
+					"YELLOW"Apakah anda yakin ingin membeli bensin ini ?", 
+					GetVehicleModelName(GetVehicleModel(vehicleid)),
+					persen,
+					harga
+				);
+
+				SetPVarInt(playerid, "harga_bensin", harga);
+				SetPVarInt(playerid, "persen_bensin", persen);
+
+				ShowPlayerDialog(
+					playerid, 
+					DIALOG_KONFIRMASI_BELI_BENSIN, DIALOG_STYLE_MSGBOX, 
+					"Konfirmasi Pembelian",	
+					pDialog[playerid],
+					"Konfirmasi", 
+					"Kembali"
+				);
+			}else
+				DeletePVar(playerid, "id_vehicle_bensin");
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BELI_BENSIN:
+		{
+			if(response){
+				new harga = GetPVarInt(playerid, "harga_bensin"),
+					vehid = GetPVarInt(playerid, "id_vehicle_bensin");
+
+				if(getUangPlayer(playerid) < harga) 
+					return SendClientMessage(playerid, COLOR_RED, "Uang: "WHITE"Anda tidak memiliki cukup uang.");
+
+				new Float:pos[3], Float:vpos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 3.0);
+				GetVehiclePos(vehid, vpos[0], vpos[1], vpos[2]);
+
+				if(!IsValidVehicle(vehid) || !IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 2.0))
+					return SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Kendaraan harus tetap berada didekat anda.");
+
+				// Pinjam timer perbaiki
+				PerbaikiTimer[playerid] = SetPreciseTimer("progressIsiBensin", 1000, true, "i", playerid);
+
+				// Pinjam progress bar dari potong pohon
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+				ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+				TogglePlayerControllable(playerid, 0);
+				PlayerFillingFuelOnLoop(playerid);
+				GameTextForPlayer(playerid, "~w~Sedang ~y~Mengisi Bensin...", 3000, 3);
+				
+				PlayerInfo[playerid][isOnAnimation] = true;
+			}else{
+				DeletePVar(playerid, "harga_bensin");
+				DeletePVar(playerid, "persen_bensin");
+
+				showDialogPilihBensin(playerid);
+			}
+			return 1;
 		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
@@ -5731,6 +5821,9 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			}
 		}
 
+		if(GetVehicleFuel(vehid) <= 0) 
+			return SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Kendaraan kehabisan bensin.");
+
 		new engine, lights, alarm, doors, bonnet, boot, objective;
 		GetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
 		if(engine) {
@@ -5787,6 +5880,27 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		if(GetPVarType(playerid, "last_area")){
 			if(AREA_beliPerabot[0] <= GetPVarInt(playerid, "last_area") && GetPVarInt(playerid, "last_area") <= AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT) - 1]){
 				return showDialogBeliPerabot(playerid);
+			}
+			else if(AREA_pomBensin[0] <= GetPVarInt(playerid, "last_area") && GetPVarInt(playerid, "last_area") <= AREA_pomBensin[sizeof(POSISI_POM_BENSIN) - 1]){
+				// Run stuff
+				new Float:pos[3], Float:vpos[3], vehid = INVALID_VEHICLE_ID;
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 3.0);
+
+				foreach(new vid : Vehicle){
+					if(!IsValidVehicle(vid)) continue;
+					GetVehiclePos(vid, vpos[0], vpos[1], vpos[2]);
+					if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 2.0)){
+						vehid = vid;
+						break;
+					}
+				}
+
+				if(vehid != INVALID_VEHICLE_ID){
+					SetPVarInt(playerid, "id_vehicle_bensin", vehid);
+					showDialogPilihBensin(playerid);
+				}
+				return 1;
 			}
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO)){
@@ -5880,6 +5994,7 @@ public OnPlayerSpawn(playerid)
 		PreloadAnimLib(playerid,"VENDING");
 		PreloadAnimLib(playerid,"CHAINSAW");
 		PreloadAnimLib(playerid,"SPRAYCAN");
+		PreloadAnimLib(playerid,"CASINO");
 		PlayerInfo[playerid][preloadAnim] = 1;
 	}
 
@@ -6049,6 +6164,10 @@ public OnGameModeInit()
 	printf("[ACTOR] Load semua Actor");
 	loadAllActor();
 	printf("[ACTOR] Sukses load Actor.");
+	
+	printf("[TEXTDRAW] Load textdraw global..");
+	loadTextdrawGlobal();
+	printf("[TEXTDRAW] Sukses load textdraw!");
 
 	// Setting up Game mode
 	SetGameModeText("EL v0.5");
@@ -6059,10 +6178,8 @@ public OnGameModeInit()
 	DisableInteriorEnterExits();
 	
 	BlockGarages(.text="DITUTUP");
-	
-	printf("[TEXTDRAW] Load textdraw global..");
-	loadTextdrawGlobal();
-	printf("[TEXTDRAW] Sukses load textdraw!");
+
+	worldTimer = SetPreciseTimer("updateWorldTime", 1000, true);
 
 	// SPECIAL
 	total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/trains.txt");
@@ -6110,6 +6227,7 @@ public OnGameModeExit(){
 	unloadTextdrawGlobal();
 	unloadAllHouse();
 	UnloadBoards();
+	DeletePreciseTimer(worldTimer);
 	mysql_close(koneksi);
 	return 1;
 }
@@ -6704,7 +6822,7 @@ public OnPlayerCommandReceived(playerid, cmdtext[]){
 /**
 	TIMER TASK
 **/
-task updateWorldTime[1000]()
+publicFor: updateWorldTime()
 {
 	new temp_jam, temp_menit, temp_detik, str_waktu[32],
 		temp_tahun, temp_bulan, temp_hari;
@@ -6723,6 +6841,7 @@ task updateWorldTime[1000]()
 	foreach(new i : Player){
 		SetPlayerTime(i, temp_jam, temp_menit);
 	}
+	return 1;
 }
 
 public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)

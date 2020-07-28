@@ -417,7 +417,7 @@ CMD:beriuang(playerid, params[]){
         return server_message(playerid, "Anda ataupun pemain yang ingin diberi harus sedang berjalan kaki.");
     
     if(nominal <= 0 || nominal > MAXIMAL_MONEY_TRADE) 
-        return server_message(playerid, "Minimal pemberian uang adalah 1 hingga 999999.");
+        return server_message(playerid, "Minimal pemberian uang adalah 1 hingga 9999999.");
     
     if(getUangPlayer(playerid) < nominal)
         return server_message(playerid, "Uang anda tidak mencukupi dengan nominal yang dimasukan.");
@@ -431,5 +431,11 @@ CMD:beriuang(playerid, params[]){
     sendPesan(target_id, COLOR_GREEN, "Uang: "WHITE"Anda telah menerima uang dari "ORANGE"%s "WHITE"sebanyak "GREEN"$%d", PlayerInfo[playerid][pPlayerName], nominal);
 
     sendPesan(playerid, COLOR_ORANGE, "Uang: "WHITE"Berhasil memberi uang ke "ORANGE"%s "WHITE"sebanyak "GREEN"$%d", PlayerInfo[target_id][pPlayerName], nominal);
+    return 1;
+}
+
+CMD:habiskanbensin(playerid, params[]){
+    new vehicleid = GetPlayerVehicleID(playerid);
+    if(vehicleid != INVALID_VEHICLE_ID) SetVehicleFuel(vehicleid, 2);
     return 1;
 }

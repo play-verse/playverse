@@ -1,7 +1,8 @@
 /*
     GLOBAL VARIABEL FOR SERVER
 */
-new last_hari;
+new last_hari,
+	worldTimer;
 
 /*
 	GLOBAL DEFINITION VARIABLE FOR MYSQL
@@ -225,10 +226,6 @@ new const POSISI_SPAWN_REPARASI_MOBIL[][SPAWN_POINT_INFO] = {
     {988.2432,-1697.1013,14.2885,272.8525, 0, 0}
 };
 
-
-/**
-    TAMBANG
- */
 enum COORD_OBJ {
 	Float:POSISI_X,
 	Float:POSISI_Y,
@@ -281,19 +278,28 @@ new const POSISI_PEMOTONGAN_KAYU[][COORD_OBJ] = {
 	{2351.5806, -659.4711, 128.1192, 0, 0}
 };
 
+new const POSISI_POM_BENSIN[][COORD_OBJ] = {
+	{1938.1053, -1769.1456, 13.4661, 0, 0},
+	{1944.9032, -1776.5444, 13.4743, 0, 0}
+};
+
 /**
     MARKET DIALOG
  */
 enum INFO_BARANG_MARKET {
+	idItemMarket,
     idModelBarang,
     namaBarang[100],
     hargaBarang
 }
 
 new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
-    {2059, "Materai", 5}, // Materai
-    {19631, "Palu Tambang", 10}, // Palu Tambang
-    {341, "Gergaji Mesin", 10} // Gergaji Mesin
+    {6, 2059, "Materai", 5}, // Materai
+    {8, 19631, "Palu Tambang", 10}, // Palu Tambang
+    {26, 341, "Gergaji Mesin", 10}, // Gergaji Mesin
+	{44, 1650, "Bensin 20 Liter", 8},
+	{45, 1650, "Bensin 50 Liter", 15},
+	{46, 1650, "Bensin 100 Liter", 23}
 };
 
 enum INFO_JUAL_PERABOT {
@@ -466,8 +472,7 @@ new Iterator:vehicleSIM<MAX_VEHICLES>,
     vehicleIdSIM[MAX_PLAYERS] = {-1},
     vehicleSIM[3],
     limitVehSIM[MAX_VEHICLES],
-    Float:oldVehicleHealth[MAX_VEHICLES], 
-    Float:newVehicleHealth[MAX_VEHICLES];
+    Float:oldVehicleHealth[MAX_VEHICLES];
 
 enum INFO_SOAL {
     simQuestion[16],
@@ -966,7 +971,8 @@ new Iterator:TreeIterator<MAX_TREES>,
     PlayerBar: CuttingBar[MAX_PLAYERS] = {INVALID_PLAYER_BAR_ID, ...},
     treeEditID[MAX_PLAYERS] = {-1, ...};
 
-new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)];
+new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
+	AREA_pomBensin[sizeof(POSISI_POM_BENSIN)];
 
 enum    E_ATM
 {

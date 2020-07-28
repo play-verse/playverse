@@ -5,7 +5,7 @@
 #define ActorTalking(%0)                ApplyDynamicActorAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 0)
 #define PlayerGivesAnimation(%0)        ApplyAnimation(%0, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1)
 #define PlayerTakesAnimation(%0)        ApplyAnimation(%0, "CASINO", "SLOT_PLYR", 4.1, 0, 1, 1, 0, 2000, 1)
-#define PlayerFillingFuelOnLoop(%0)     ApplyAnimation(%0, "CASINO", "CARDS_RAISE", 4.1, 1, 1, 1, 0, 2000, 1)
+#define PlayerFillingFuelOnLoop(%0)     ApplyAnimation(%0, "CASINO", "SLOT_WAIT", 4.1, 1, 1, 1, 0, 0, 1)
 #define PlayerAtmAnimation(%0)          ApplyAnimation(%0, "SHOP", "SHP_SERVE_LOOP", 4.1, 0, 1, 1, 0, 2000, 1)
 
 #define IsPlayerOnTrade(%0)         (PlayerInfo[%0][onTradeWith] != INVALID_PLAYER_ID)
@@ -137,12 +137,6 @@ dialogMsgUangTdkCukup(playerid){
 //     format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
 //     return GetSVarInt(nama_variabel);
 // }
-
-getIDbyModelItem(id_model){
-    new nama_variabel[50];
-    format(nama_variabel, sizeof(nama_variabel), "mIt_%d", id_model);
-    return GetSVarInt(nama_variabel);
-}
 
 getKapasitasByIdItem(id_item){
     new nama_variabel[50];
@@ -357,12 +351,6 @@ stock GetVehicleSpeed(vehicleid) // Credits someone on SAMP Forums forgot the na
     vel = floatround(floatsqroot(x*x+y*y+z*z)*180); // KM/H
     //vel = floatround(floatsqroot(x*x+y*y+z*z)*180/1.60934); // M/H
     return vel;
-}
-
-Float:VehicleHealth(vehicleid){
-    new Float:health;
-    GetVehicleHealth(vehicleid, health);
-    return health;
 }
 
 /*stock IsVehicleOccupied(vehicleid){
