@@ -164,7 +164,9 @@ publicFor: filterLoginPemain(playerid){
 }
 
 // Hanya digunakan saat Disconnect dan Connect
-resetPlayerVariable(playerid){
+// dari_callback = 1 (dari OnPlayerConnect)
+// dari_callback = 2 (dari OnPlayerDisconnect)
+resetPlayerVariable(playerid, dari_callback){
 	if(cache_is_valid(PlayerInfo[playerid][kotakPesan])) cache_delete(PlayerInfo[playerid][kotakPesan]);
 	PlayerInfo[playerid][kotakPesan] = MYSQL_INVALID_CACHE;
 
@@ -228,6 +230,18 @@ resetPlayerVariable(playerid){
 	PlayerInfo[playerid][lastArmour] = 0;
 
 	PlayerInfo[playerid][loginAttempt] = 0;
+
+	// Timer Pemain
+	// Reset ID timer jadi -1 terlebih dahulu
+	if(dari_callback == 1) PlayerInfo[playerid][timerPemain] = -1;
+	else{
+		if(PlayerInfo[playerid][timerPemain] != -1){
+			DeletePreciseTimer(PlayerInfo[playerid][timerPemain]);
+			PlayerInfo[playerid][timerPemain] = -1;
+		}
+	}
+
+	PlayerInfo[playerid][hungryStackedTime] = 0;
 
 	DeletePreciseTimer(PlayerAction[playerid][timerNambang]);
 	PlayerAction[playerid][sedangNambang] = false;
@@ -335,6 +349,9 @@ publicFor: spawnPemain(playerid)
 
 	// Tampilkan hanya jika settingan hidup
 	if(PlayerInfo[playerid][tampilHUDStats]) tampilkanHUDStats(playerid);
+
+	if(PlayerInfo[playerid][timerPemain] == -1)
+		PlayerInfo[playerid][timerPemain] = SetPreciseTimer("pemainUpdate", INTERVAL_WAKTU_UPDATE_PEMAIN * 1000, true, "i", playerid);
 
 	if(PlayerInfo[playerid][last_stats_makan] == 0 && PlayerInfo[playerid][last_stats_minum] == 0){
 		setStatusMakanPemain(playerid, 80);
@@ -3639,6 +3656,22 @@ publicFor: delayNombak(playerid){
 			nombakDelay[playerid] = 0;
 			DeletePreciseTimer(nombakTimer[playerid]);
 		}
+	}
+	return 1;
+}
+
+publicFor: pemainUpdate(playerid){
+	if(!IsPlayerConnected(playerid)){
+		if(PlayerInfo[playerid][timerPemain] != -1){
+			DeletePreciseTimer(PlayerInfo[playerid][timerPemain]);
+			PlayerInfo[playerid][timerPemain] = -1;
+		}
+		return 1;
+	}
+
+	// Setiap 90 detik sekali kurangi status makan sebanyak constanta STATUS_MAKAN_BERKURANG_PER_WAKTU
+	if(++PlayerInfo[playerid][hungryStackedTime] >= 90){
+		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - STATUS_MAKAN_BERKURANG_PER_WAKTU);
 	}
 	return 1;
 }

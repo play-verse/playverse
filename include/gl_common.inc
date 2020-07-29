@@ -59,8 +59,8 @@ stock LoadStaticVehiclesFromFile(const filename[])
   		Color2 = strval(var_from_line);
   		
   		//printf("%d,%.2f,%.2f,%.2f,%.4f,%d,%d",vehicletype,SpawnX,SpawnY,SpawnZ,SpawnRot,Color1,Color2);
-  		
-  		AddStaticVehicleEx(vehicletype,SpawnX,SpawnY,SpawnZ,SpawnRot,Color1,Color2,(30*60)); // respawn 30 minutes
+
+  		AddStaticVehicleEx(vehicletype,SpawnX,SpawnY,SpawnZ,SpawnRot,Color1,Color2,-1); // respawn 30 minutes
 		
 		/*new numplate_test[32+1];
 		format(numplate_test,32,"GRLC{44AA33}%d",vid);

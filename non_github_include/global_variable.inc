@@ -88,6 +88,9 @@ enum pInfo
 	bool:isOnAnimation, // Save state untuk animation
 	onTradeWith,
 
+	hungryStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
+
+	timerPemain,
 	loginAttempt
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];

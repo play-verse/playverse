@@ -209,8 +209,21 @@ Float:getStatusMakanPemain(playerid){
 }
 
 setStatusMakanPemain(playerid, Float:jumlah){
-    PlayerInfo[playerid][statusMakan] = jumlah;
+    if(jumlah < 0) 
+        PlayerInfo[playerid][statusMakan] = 0;
+    else
+        PlayerInfo[playerid][statusMakan] = jumlah;
+
     SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][0], jumlah);
+
+    if(PlayerInfo[playerid][statusMakan] <= 0) {
+        SetPlayerHealth(playerid, 0);
+        PlayerInfo[playerid][statusMakan] = 0;
+    }
+    else if(PlayerInfo[playerid][statusMakan] <= 10)
+        SetPlayerDrunkLevel(playerid, 1000);
+    else
+        SetPlayerDrunkLevel(playerid, 0);
 }
 
 Float:getStatusMinumPemain(playerid){

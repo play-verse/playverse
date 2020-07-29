@@ -81,7 +81,7 @@ public OnPlayerConnect(playerid)
 
 	SetPlayerColor(playerid, COLOR_WHITE);
 	
-	resetPlayerVariable(playerid);
+	resetPlayerVariable(playerid, 1);
 	ResetPVarTemporary(playerid);
 	ResetPlayerMoney(playerid);
 	resetPlayerToDo(playerid);
@@ -160,7 +160,7 @@ public OnPlayerDisconnect(playerid, reason){
 
 	resetPVarInventory(playerid);
 	resetPlayerToDo(playerid);
-	resetPlayerVariable(playerid);
+	resetPlayerVariable(playerid, 2);
 	// hideTextDrawUang(playerid);
 	ResetPlayerMoney(playerid);
 	unloadTextDrawPemain(playerid);
@@ -6025,6 +6025,11 @@ public OnPlayerDeath(playerid, killerid, reason)
 
 	PlayerInfo[playerid][inHouse] = 0;
 	PlayerInfo[playerid][sudahSpawn] = false;
+
+	if(PlayerInfo[playerid][timerPemain] != -1) {
+		DeletePreciseTimer(PlayerInfo[playerid][timerPemain]);
+		PlayerInfo[playerid][timerPemain] = -1;
+	}
 
 	hideHUDStats(playerid);
 	

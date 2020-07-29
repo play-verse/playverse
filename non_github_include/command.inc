@@ -433,9 +433,3 @@ CMD:beriuang(playerid, params[]){
     sendPesan(playerid, COLOR_ORANGE, "Uang: "WHITE"Berhasil memberi uang ke "ORANGE"%s "WHITE"sebanyak "GREEN"$%d", PlayerInfo[target_id][pPlayerName], nominal);
     return 1;
 }
-
-CMD:habiskanbensin(playerid, params[]){
-    new vehicleid = GetPlayerVehicleID(playerid);
-    if(vehicleid != INVALID_VEHICLE_ID) SetVehicleFuel(vehicleid, 2);
-    return 1;
-}
