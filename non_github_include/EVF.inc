@@ -2565,24 +2565,25 @@ EVF::Public:: OnVehicleTimeUpdate(){
 				//fuel system
 				new Float:vehicle_speed = EVF::GetVehicleSpeed(vehicleid);
 				//if vehicle out of fuel
-				if(GetVehicleFuel(vehicleid) <= 0){
-					SetVehicleParams(vehicleid,VEHICLE_TYPE_ENGINE,0);
-					new vehicle_driver = GetVehicleDriverID(vehicleid);
-					if(IsPlayerConnected(vehicle_driver)){
-						GameTextForPlayer(vehicle_driver,"~r~Bensin kendaraan habis!", 2000,3);
-					}
-				} else {
+
+				// Already encountered on server.pwn
+				// if(GetVehicleFuel(vehicleid) <= 0){
+				// 	SetVehicleParams(vehicleid,VEHICLE_TYPE_ENGINE,0);
+				// } else {
+				if(GetVehicleFuel(vehicleid) > 0){
 					//if vehicle has some EVF::Vecitive fuel
 					EVF::VehicleTempData[vehicleid][e_uptime] += 1;
 					if(EVF::VehicleTempData[vehicleid][e_uptime] > 20){ // 250 ms * 20 = 5 seconds
 						EVF::VehicleTempData[vehicleid][e_uptime] = 0;
 						
 						new fuel_consumption_level = 0;
-						if(vehicle_speed == 0.0){
-							if(GetVehicleParams(vehicleid,VEHICLE_TYPE_ENGINE)){
-								fuel_consumption_level = MULTIPLIER_FUEL_SYSTEM;
-							}
-						} else {
+						// if vehicle doesn't move but engine is on
+						// if(vehicle_speed == 0.0){
+						// 	if(GetVehicleParams(vehicleid,VEHICLE_TYPE_ENGINE)){
+						// 		fuel_consumption_level = MULTIPLIER_FUEL_SYSTEM;
+						// 	}
+						// } else {
+						if(vehicle_speed > 0.0){
 							for(new i = 20, j = floatround(GetVehicleTopSpeed(vehicleid)); i <= j; i += 20){
 								if(vehicle_speed > i){
 									fuel_consumption_level += MULTIPLIER_FUEL_SYSTEM;

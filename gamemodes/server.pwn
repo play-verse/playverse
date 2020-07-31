@@ -4679,8 +4679,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0: // Mekanik
 					{
 						if(!PlayerInfo[playerid][activeMekanik]) return server_message(playerid, "Maaf skill mekanik anda tidak aktif.");
-						format(pDialog[playerid], sizePDialog, "Craft Alat Perbaikan");
+						format(pDialog[playerid], sizePDialog, "Rakit Alat Perbaikan");
 						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_DUA) strcat(pDialog[playerid], "\nPerbaiki Kendaraan");
+						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_DUA) strcat(pDialog[playerid], "\nHidupkan Kendaraan yang rusak total");
 						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_TIGA) strcat(pDialog[playerid], "\nWarnain Kendaraan");
 						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_EMPAT) strcat(pDialog[playerid], "\nPasang Sparepart (Modif)");
 						if(PlayerInfo[playerid][expMekanik] >= LEVEL_SKILL_LIMA) strcat(pDialog[playerid], "\nPaintjob kendaraan (khusus)");
@@ -4736,6 +4737,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						new Float:veh_darah, alat_dibutuhkan = 0;
 						GetVehicleHealth(vehid, veh_darah);
 
+						if(veh_darah <= 260.0)
+							return showDialogPesan(playerid, RED"Kendaraan rusak total", WHITE"Kendaraan rusak total tidak dapat diperbaiki dengan cara biasa.\nGunakan skill "YELLOW"Perbaiki kendaraan yang rusak total"WHITE" untuk dapat memperbaikinya.");
+
 						if(veh_darah > 600) alat_dibutuhkan = 1;
 						else alat_dibutuhkan = 2;
 
@@ -4748,7 +4752,45 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							Anda yakin ingin memperbaikinya ?\n", GetVehicleModelName(GetVehicleModel(vehid)), veh_darah, alat_dibutuhkan);
 						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_PERBAIKI_MEKANIK, DIALOG_STYLE_MSGBOX, "Perbaiki kendaraan", pDialog[playerid], "Perbaiki", "Batal");
 					}
-					case 2: // Warnain kendaraan
+					case 2: // Perbaiki vehicle yang rusak total
+					{
+						new Float:pos[3];
+						GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+						GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 1.0);
+
+						new vehid = INVALID_VEHICLE_ID;
+						new Float:vpos[3];
+
+						foreach(new vid : Vehicle){
+							if(!IsValidVehicle(vid)) continue;
+							if(GetVehicleHood(vid, vpos[0], vpos[1], vpos[2])){
+								if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 2.0)){
+									vehid = vid;
+									break;
+								}
+							}
+						}
+						
+						if(vehid == INVALID_VEHICLE_ID) return showDialogPesan(playerid, RED"Tidak ada kendaraan didepan anda", WHITE"Tidak terdapat kendaraan yang berada didepan anda.\n"YELLOW"Anda harus mendekati kendaraan tersebut dan berdiri didepan kap nya.\nJika yang ingin diperbaiki bukan kendaraan yang memiliki kap\nMaka anda juga cukup berdiri didepannya.");
+
+						if(!GetVehicleParams(vehid, VEHICLE_TYPE_BONNET)) return showDialogPesan(playerid, RED"Buka Kap terlebih dahulu", WHITE"Untuk dapat memperbaiki kendaraan, anda harus membuka kapnya terlebih dahulu.");
+
+						new Float:veh_darah, alat_dibutuhkan = 3;
+						GetVehicleHealth(vehid, veh_darah);
+
+						if(veh_darah > 260.0)
+							return showDialogPesan(playerid, RED"Kendaraan rusak biasa", WHITE"Kendaraan tidak rusak total.\nGunakan skill "YELLOW"Perbaiki kendaraan"WHITE" untuk dapat memperbaikinya.");
+
+						SetPVarInt(playerid, "mekanik_alat_dibutuhkan", alat_dibutuhkan);
+						SetPVarInt(playerid, "mekanik_vehicle_id", vehid);
+
+						format(pDialog[playerid], sizePDialog, WHITE"Anda akan memperbaiki kendaraan jenis "GREEN"%s\n\
+							"WHITE"Kendaraan saat ini rusak total dan akan diperbaiki mesinnya terlebih dahulu.\n\n\
+							Anda memerlukan "RED"%d alat perbaikan "WHITE"untuk dapat memperbaiki.\n\
+							Anda yakin ingin memperbaikinya ?\n", GetVehicleModelName(GetVehicleModel(vehid)), alat_dibutuhkan);
+						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_PERBAIKI_MEKANIK, DIALOG_STYLE_MSGBOX, "Perbaiki kendaraan", pDialog[playerid], "Perbaiki", "Batal");
+					}
+					case 3: // Warnain kendaraan
 					{
 						new Float:pos[3];
 						GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
@@ -4778,7 +4820,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							Anda yakin ingin mewarnainya ?\n", GetVehicleModelName(GetVehicleModel(vehid)));
 						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_WARNAIN_MEKANIK, DIALOG_STYLE_MSGBOX, "Warnain kendaraan", pDialog[playerid], "Warnain", "Batal");
 					}
-					case 3: // Modifikasi Vehicle
+					case 4: // Modifikasi Vehicle
 					{
 						new Float:pos[3];
 						GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
@@ -4810,7 +4852,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							Anda yakin ingin memodifnya ?\n", GetVehicleModelName(GetVehicleModel(vehid)));
 						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_MODIF_MEKANIK, DIALOG_STYLE_MSGBOX, "Modif kendaraan", pDialog[playerid], "Modifikasi", "Batal");
 					}
-					case 4: // Paintjob Vehicle
+					case 5: // Paintjob Vehicle
 					{
 						new Float:pos[3];
 						GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
@@ -5825,6 +5867,11 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			}
 		}
 
+		new Float:vehhealth;
+		GetVehicleHealth(vehid, vehhealth);
+		if(vehhealth <= 260.0)
+			return SendClientMessage(playerid, COLOR_RED, "Kendaraan: "WHITE"Darah kendaraan habis dan rusak total.");
+
 		if(GetVehicleFuel(vehid) <= 0) 
 			return SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Kendaraan kehabisan bensin.");
 
@@ -6783,6 +6830,28 @@ public OnVehicleSpawn(vehicleid){
 		LoadModifVehiclePlayer(vehicleid);
 	else
 		SetVehicleFuel(vehicleid, MAX_VEHICLE_FUEL); // Set MAX_VEHICLE_FUEL
+	return 1;
+}
+
+public OnVehicleVelocityChange(vehicleid,Float:newx,Float:newy,Float:newz,Float:oldx,Float:oldy,Float:oldz){
+	if(GetVehicleFuel(vehicleid) <= 0) {
+		SetVehicleParams(vehicleid, VEHICLE_TYPE_ENGINE, 0);
+		SetVehicleParams(vehicleid, VEHICLE_TYPE_LIGHTS, 0);
+	}
+	return 1;
+}
+
+public OnVehicleHealthChange(vehicleid,Float:newhealth,Float:oldhealth){
+	if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
+		if(newhealth <= 260.0){
+			new temp_engine, temp_lights, temp_alarm, temp_doors, temp_bonnet, temp_boot, temp_objective;
+			GetVehicleParamsEx(vehicleid, temp_engine, temp_lights, temp_alarm, temp_doors, temp_bonnet, temp_boot, temp_objective);
+			SetVehicleParamsEx(vehicleid, 0, 0, temp_alarm, temp_doors, temp_bonnet, temp_boot, temp_objective);
+
+			// Restore vehicle HP
+			SetVehicleHealth(vehicleid, 260.0);
+		}
+	}
 	return 1;
 }
 

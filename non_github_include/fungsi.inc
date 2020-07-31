@@ -1489,8 +1489,16 @@ publicFor: progressPerbaikiKendaraan(playerid, vehicleid, alat_dibutuhkan){
 			new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / PERBAIKI_KENDARAAN_TIME;
 			if(value >= MAX_PROGRESS_BAR){
 				tambahItemPlayer(playerid, 27, -alat_dibutuhkan);
-				PVeh[vehicleid][pVehDarah] = 1000.0;
-				RepairVehicle(vehicleid);
+
+				new Float:vehdarah;
+				GetVehicleHealth(vehicleid, vehdarah);
+				if(vehdarah <= 260.0){
+					PVeh[vehicleid][pVehDarah] = 300.0;
+					SetVehicleHealth(vehicleid, 300.0);
+				}else{
+					PVeh[vehicleid][pVehDarah] = 1000.0;
+					RepairVehicle(vehicleid);
+				}
 				PlayerPlaySound(playerid, 1133, 0.0, 0.0, 0.0);
 
 				sendPesan(playerid, COLOR_GREEN, "[MEKANIK] "WHITE"Berhasil memperbaiki kendaraan %s, alat yang terpakai %d pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)), alat_dibutuhkan);
