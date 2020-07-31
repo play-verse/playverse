@@ -4731,6 +4731,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						
 						if(vehid == INVALID_VEHICLE_ID) return showDialogPesan(playerid, RED"Tidak ada kendaraan didepan anda", WHITE"Tidak terdapat kendaraan yang berada didepan anda.\n"YELLOW"Anda harus mendekati kendaraan tersebut dan berdiri didepan kap nya.\nJika yang ingin diperbaiki bukan kendaraan yang memiliki kap\nMaka anda juga cukup berdiri didepannya.");
 
+						if(!GetVehicleParams(vehid, VEHICLE_TYPE_BONNET)) return showDialogPesan(playerid, RED"Buka Kap terlebih dahulu", WHITE"Untuk dapat memperbaiki kendaraan, anda harus membuka kapnya terlebih dahulu.");
+
 						new Float:veh_darah, alat_dibutuhkan = 0;
 						GetVehicleHealth(vehid, veh_darah);
 
@@ -4798,6 +4800,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(vehid == INVALID_VEHICLE_ID) return showDialogPesan(playerid, RED"Tidak ada kendaraan didepan anda", WHITE"Tidak terdapat kendaraan yang berada didepan anda.\n"YELLOW"Anda harus mendekati kendaraan tersebut dan berdiri didekat bagian tengahnya.\nJika tidak bisa juga, coba diberbagai posisi bagian kendaraan untukk mendapatkan titik yang terdeteksi.");
 
 						if(!Iter_Contains(IDVehToPVehIterator, vehid)) return showDialogPesan(playerid, RED"Kendaraan tidak berpemilik", WHITE"Kendaraan yang dapat di modif adalah kendaraan yang memiliki pemilik.\n"YELLOW"Kendaraan yang ada didepan anda saat ini tidak memiliki pemilik.");
+
+						if(!GetVehicleParams(vehid, VEHICLE_TYPE_BONNET)) return showDialogPesan(playerid, RED"Buka Kap terlebih dahulu", WHITE"Untuk dapat memodifikasi kendaraan, anda harus membuka kapnya terlebih dahulu.");
 
 						SetPVarInt(playerid, "mekanik_vehicle_id", vehid);
 
@@ -5593,7 +5597,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				harga = harga_beli * PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN / 100;
 				givePlayerUang(playerid, harga);
 
-				// IMPORTANT - Sebaiknya tidak didelete datanya namun dipindahkan ke table deleted vehicle
+				// IMPORTANT TODO - Sebaiknya tidak didelete datanya namun dipindahkan ke table deleted vehicle
 				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM vehicle WHERE id = %d", id_primary);
 				mysql_tquery(koneksi, pQuery[playerid]);
 
@@ -6259,30 +6263,27 @@ public OnPlayerUpdate(playerid)
 }
 
 public OnPlayerStateChange(playerid, newstate, oldstate){
-	new vehid = GetPlayerVehicleID(playerid);
-	if(newstate == PLAYER_STATE_DRIVER && Iter_Contains(DVehIterator, vehid)){
-		format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
-		format(pDialog[playerid], sizePDialog, "%s"ORANGE"Kendaraan ini dijual dengan informasi sebagai berikut :\n\n", pDialog[playerid]);
-		format(pDialog[playerid], sizePDialog, "%s"PURPLE"Nama Kendaraan: "WHITE"%s\n", pDialog[playerid], GetVehicleModelName(DVeh[vehid][dVehModel]));
-		format(pDialog[playerid], sizePDialog, "%sHarga: "GREEN"$%d\n\n", pDialog[playerid], DVeh[vehid][dVehHarga]);
-		format(pDialog[playerid], sizePDialog, "%s"YELLOW"Anda ingin membeli kendaraan ini ?\n\n"CYAN"*********************************************************************************\n", pDialog[playerid]);
-		ShowPlayerDialog(playerid, DIALOG_BELI_KENDARAAN_DEALER, DIALOG_STYLE_MSGBOX, "Kendaraan ini dijual.", pDialog[playerid], GREEN"Beli", GREY"Tidak");
-	}else if(newstate == PLAYER_STATE_PASSENGER && Iter_Contains(DVehIterator, vehid)){
-		error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang dijual.");
-		RemovePlayerFromVehicle(playerid);
-	}
-
-	if(newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER){
+	new const vehid = GetPlayerVehicleID(playerid);	
+	/*
+	 *	Stating entering vehicle or exiting vehicle
+	 */
+	if(oldstate == PLAYER_STATE_ONFOOT && (newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER)){
+		// Stuff need to be executed 
 		PlayerTextDrawSetString(playerid, SpeedoTD_VehInfo[playerid][0], GetVehicleModelName(GetVehicleModel(vehid)));
-		ShowSpeedoForPlayer(playerid);
-		SpeedoUpdate(playerid);
-	}
-	else if(oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER && newstate == PLAYER_STATE_ONFOOT){
-		HideSpeedoForPlayer(playerid);
-	}
+		ShowSpeedoForPlayer(playerid, vehid);
 
-	if(oldstate == PLAYER_STATE_ONFOOT && newstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_ONFOOT && newstate == PLAYER_STATE_PASSENGER){
-		if(Iter_Contains(vehicleSIM, vehid)){
+		// Filtering state and condition
+		if(newstate == PLAYER_STATE_DRIVER && Iter_Contains(DVehIterator, vehid)){
+			format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
+			format(pDialog[playerid], sizePDialog, "%s"ORANGE"Kendaraan ini dijual dengan informasi sebagai berikut :\n\n", pDialog[playerid]);
+			format(pDialog[playerid], sizePDialog, "%s"PURPLE"Nama Kendaraan: "WHITE"%s\n", pDialog[playerid], GetVehicleModelName(DVeh[vehid][dVehModel]));
+			format(pDialog[playerid], sizePDialog, "%sHarga: "GREEN"$%d\n\n", pDialog[playerid], DVeh[vehid][dVehHarga]);
+			format(pDialog[playerid], sizePDialog, "%s"YELLOW"Anda ingin membeli kendaraan ini ?\n\n"CYAN"*********************************************************************************\n", pDialog[playerid]);
+			ShowPlayerDialog(playerid, DIALOG_BELI_KENDARAAN_DEALER, DIALOG_STYLE_MSGBOX, "Kendaraan ini dijual.", pDialog[playerid], GREEN"Beli", GREY"Tidak");
+		}else if(newstate == PLAYER_STATE_PASSENGER && Iter_Contains(DVehIterator, vehid)){
+			error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang dijual.");
+			RemovePlayerFromVehicle(playerid);
+		}else if(Iter_Contains(vehicleSIM, vehid)){
 			if(testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(testSim[playerid] == 1 && vehicleIdSIM[playerid] != vehid){
@@ -6305,6 +6306,9 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 				RemovePlayerFromVehicle(playerid);
 			}
 		}
+	}
+	else if((oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER) && newstate == PLAYER_STATE_ONFOOT){
+		HideSpeedoForPlayer(playerid);
 	}
 	return 1;
 }

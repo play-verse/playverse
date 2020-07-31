@@ -3175,36 +3175,40 @@ UpdateVehicleDealer(vehicleid){
 }
 
 publicFor: OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Float:oldhealth){
-  if(newhealth < oldhealth){
-    if(testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehicleid){
-		poinSim[playerid]--;
-    	GameTextForPlayer(playerid, "~y~Kesehatan Kendaraan~n~~r~Poin -1", 1000, 3);
+	if(newhealth < oldhealth){
+		if(testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehicleid){
+			poinSim[playerid]--;
+			GameTextForPlayer(playerid, "~y~Kesehatan Kendaraan~n~~r~Poin -1", 1000, 3);
+		}
 	}
-  }
-  return true;
+	return true;
 }
 
-publicFor: SpeedoUpdate(playerid)
+publicFor: SpeedoUpdate(playerid, vehid)
 {
     new txtspeed[5],
-		vehid = GetPlayerVehicleID(playerid),
 		vehspeed = GetVehicleSpeed(vehid),
 		Float:vehhealth;
 
 	GetVehicleHealth(vehid, vehhealth);
 
+	// BUG :  (Remove this if you solved it)
+	// Jika fungsi telah tereksekusi pada player lain yang menaiki kendaraan yang sama
+	// Maka player lain yang menaiki kendaraan yang sama, tidak akan terpanggil callback OnPlayerVehicle Change
 	if(vehhealth != oldVehicleHealth[vehid]){
 		OnPlayerVehicleHealthChange(playerid, vehid, vehhealth, oldVehicleHealth[vehid]);
-
 		oldVehicleHealth[vehid] = vehhealth;
-
-		SetPlayerProgressBarValue(playerid, SpeedoTD_VehBar[playerid][1], vehhealth - 260);
 	}
+
+	// Update Health
+	SetPlayerProgressBarValue(playerid, SpeedoTD_VehBar[playerid][1], vehhealth - 260);
+
+	// Update Fuel
+	SetPlayerProgressBarValue(playerid, SpeedoTD_VehBar[playerid][0], GetVehicleFuel(vehid));
 
 	// Update speedo
 	format(txtspeed, 5, "%d", vehspeed);
     PlayerTextDrawSetString(playerid, SpeedoTD_VehInfo[playerid][1], txtspeed);
-	SetPlayerProgressBarValue(playerid, SpeedoTD_VehBar[playerid][0], GetVehicleFuel(vehid));
 
     if(testSim[playerid] == 1){
 		if(vehspeed >= 80){
@@ -3656,6 +3660,11 @@ publicFor: delayNombak(playerid){
 	return 1;
 }
 
+/*
+ *	Dieksekusi setiap detik
+ *  
+ *  Pada saat player mati/belum login maka timer akan berhenti 
+ */
 publicFor: pemainUpdate(playerid){
 	if(!IsPlayerConnected(playerid)){
 		if(PlayerInfo[playerid][timerPemain] != -1){
