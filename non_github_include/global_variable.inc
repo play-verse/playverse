@@ -89,6 +89,7 @@ enum pInfo
 	onTradeWith,
 
 	hungryStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
+	thirstyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 
 	timerPemain,
 	loginAttempt

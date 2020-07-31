@@ -242,6 +242,7 @@ resetPlayerVariable(playerid, dari_callback){
 	}
 
 	PlayerInfo[playerid][hungryStackedTime] = 0;
+	PlayerInfo[playerid][thirstyStackedTime] = 0;
 
 	DeletePreciseTimer(PlayerAction[playerid][timerNambang]);
 	PlayerAction[playerid][sedangNambang] = false;
@@ -315,8 +316,7 @@ publicFor: registerUser(playerid)
 		PlayerInfo[playerid][pID] = cache_insert_id();
 		PlayerInfo[playerid][loginKe] = 1;
 		PlayerInfo[playerid][jenisKelamin] = registerInfo[playerid][jenisKelamin];
-		PlayerInfo[playerid][skinID] = registerInfo[playerid][freeSkinID];
-	
+
 		PlayerInfo[playerid][sudahLogin] = true;
 		PlayerInfo[playerid][waktuSaatLogin] = gettime();
 		PlayerInfo[playerid][lamaBermain] = 0;
@@ -328,7 +328,8 @@ publicFor: registerUser(playerid)
 		setUangPlayer(playerid, 100);
 		// tampilkanTextDrawUang(playerid);
 
-		tambahSkinPlayer(playerid, registerInfo[playerid][freeSkinID], 1, true);
+		// Register dan bind skin
+		updatePlayerCurrentSkin(playerid, registerInfo[playerid][freeSkinID]);
 
 		saveHistoryLogin(playerid);
 		spawnPemain(playerid);
@@ -587,24 +588,15 @@ publicFor: lihatPesanTerkirim(playerid){
 }
 
 publicFor: updatePlayerCurrentSkin(playerid, skinid){
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user_skin` WHERE id_skin = '%d' AND id_user = '%d'", skinid, PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, pQuery[playerid], "checkIfSkinExist", "dd", playerid, skinid);
-	return 1;
-}
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET current_skin = '%d' WHERE id = '%d'",skinid, PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
 
-publicFor: checkIfSkinExist(playerid, skinid){
-	if(cache_num_rows()){
-		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET current_skin = '%d' WHERE id = '%d'",skinid, PlayerInfo[playerid][pID]);
-		mysql_tquery(koneksi, pQuery[playerid]);
+	// Kembalikan skin yang lama
+	tambahSkinPlayer(playerid, PlayerInfo[playerid][skinID], 1, false);
 
-		// Kembalikan skin yang sama
-		tambahSkinPlayer(playerid, PlayerInfo[playerid][skinID], 1, false);
-
-		// Kurangkan setelah teruse
-		tambahSkinPlayer(playerid, skinid, -1, false);
-		PlayerInfo[playerid][skinID] = skinid;
-
-	}
+	// Kurangkan skin yang baru
+	tambahSkinPlayer(playerid, skinid, -1, false);
+	PlayerInfo[playerid][skinID] = skinid;
 	return 1;
 }
 
@@ -2646,6 +2638,10 @@ resetPlayerToDo(playerid){
         DeletePreciseTimer(PerbaikiTimer[playerid]);
         PerbaikiTimer[playerid] = -1;
     }
+
+	PlayerInfo[playerid][hungryStackedTime] = 0;
+	PlayerInfo[playerid][thirstyStackedTime] = 0;
+
 	return 1;
 }
 
@@ -3671,7 +3667,13 @@ publicFor: pemainUpdate(playerid){
 
 	// Setiap 90 detik sekali kurangi status makan sebanyak constanta STATUS_MAKAN_BERKURANG_PER_WAKTU
 	if(++PlayerInfo[playerid][hungryStackedTime] >= 90){
+		PlayerInfo[playerid][hungryStackedTime] = 0;
 		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - STATUS_MAKAN_BERKURANG_PER_WAKTU);
+	}
+
+	if(++PlayerInfo[playerid][thirstyStackedTime] >= 60){
+		PlayerInfo[playerid][thirstyStackedTime] = 0;
+		setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - STATUS_MINUM_BERKURANG_PER_WAKTU);
 	}
 	return 1;
 }

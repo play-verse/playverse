@@ -54,6 +54,7 @@
 #define INTERVAL_WAKTU_UPDATE_PEMAIN 1
 
 #define STATUS_MAKAN_BERKURANG_PER_WAKTU 1
+#define STATUS_MINUM_BERKURANG_PER_WAKTU 1
 
 // Dalam satuan hari (masa aktif setiap membuat / memperpanjang nomor)
 #define MASA_AKTIF_SETIAP_PERPANJANG_NOMOR 15

@@ -209,18 +209,18 @@ Float:getStatusMakanPemain(playerid){
 }
 
 setStatusMakanPemain(playerid, Float:jumlah){
-    if(jumlah < 0) 
-        PlayerInfo[playerid][statusMakan] = 0;
+    if(jumlah < 0.0) 
+        PlayerInfo[playerid][statusMakan] = 0.0;
     else
         PlayerInfo[playerid][statusMakan] = jumlah;
 
-    SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][0], jumlah);
+    SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][0], PlayerInfo[playerid][statusMakan]);
 
     if(PlayerInfo[playerid][statusMakan] <= 0) {
-        SetPlayerHealth(playerid, 0);
-        PlayerInfo[playerid][statusMakan] = 0;
+        SetPlayerHealth(playerid, 0.0);
+        PlayerInfo[playerid][statusMakan] = 0.0;
     }
-    else if(PlayerInfo[playerid][statusMakan] <= 10)
+    else if(PlayerInfo[playerid][statusMakan] <= 10.0)
         SetPlayerDrunkLevel(playerid, 1000);
     else
         SetPlayerDrunkLevel(playerid, 0);
@@ -231,8 +231,12 @@ Float:getStatusMinumPemain(playerid){
 }
 
 setStatusMinumPemain(playerid, Float:jumlah){
-    PlayerInfo[playerid][statusMinum] = jumlah;
-    SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][1], jumlah);
+    if(jumlah < 0.0) 
+        PlayerInfo[playerid][statusMinum] = 0.0;
+    else
+        PlayerInfo[playerid][statusMinum] = jumlah;
+
+    SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][1], PlayerInfo[playerid][statusMinum]);
 }
 
 // -- Uncomment fungsi jika ingin menggunakan
