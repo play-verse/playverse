@@ -5,12 +5,12 @@ CMD:kick(playerid, params[]){
     if(!IsPlayerConnected(target_id)) return  error_command(playerid, "Player dengan id tersebut tidak ada!");
     if(target_id == playerid) return  error_command(playerid, "Tidak dapat mengusir diri sendiri!");
 
-    format(msg, sizeof(msg),  RED"[KICK] "WHITE"Anda telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", pesan);
-    SendClientMessage(target_id, COLOR_WHITE, msg);
+    format(msg, sizeof(msg),  TAG_KICK" "WHITE"Anda telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", pesan);
+    SendClientMessage(target_id, COLOR_RED, msg);
     KickEx(target_id);
 
-    format(msg, sizeof(msg), ORANGE"[ADMIN] "RED"%s "WHITE"telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", PlayerInfo[target_id][pPlayerName], pesan);
-    SendClientMessageToAll(COLOR_WHITE, msg);
+    format(msg, sizeof(msg), TAG_ADMIN" "RED"%s "WHITE"telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", PlayerInfo[target_id][pPlayerName], pesan);
+    SendClientMessageToAll(COLOR_ORANGE, msg);
 	return 1;
 }
 

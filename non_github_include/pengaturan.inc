@@ -439,3 +439,17 @@
 #define CP_simLS37 1532.4727,-1706.3722,13.1041
 #define CP_simLS38 1533.2340,-1630.4303,13.1048
 #define CP_simLS39 1590.3997,-1634.8812,13.1595
+
+/** Text Tagging 
+	
+	Contoh : [RUMAH] << adalah tag
+**/
+#define TAG_SERVER				"Server:"
+#define TAG_KENDARAAN   		"Kendaraan:"
+#define TAG_RUMAH   			"Rumah:"
+#define TAG_MEKANIK   			"Mekanik:"
+#define TAG_BENSIN   			"Bensin:"
+#define TAG_ADMIN_DEALER   		"A-Dealer:"
+#define TAG_JOB					"Pekerjaan:"
+#define TAG_ADMIN				"Admin:"
+#define TAG_KICK				"Kick:"

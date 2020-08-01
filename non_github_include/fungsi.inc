@@ -1501,7 +1501,7 @@ publicFor: progressPerbaikiKendaraan(playerid, vehicleid, alat_dibutuhkan){
 				}
 				PlayerPlaySound(playerid, 1133, 0.0, 0.0, 0.0);
 
-				sendPesan(playerid, COLOR_GREEN, "[MEKANIK] "WHITE"Berhasil memperbaiki kendaraan %s, alat yang terpakai %d pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)), alat_dibutuhkan);
+				sendPesan(playerid, COLOR_GREEN, TAG_MEKANIK" "WHITE"Berhasil memperbaiki kendaraan %s, alat yang terpakai %d pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)), alat_dibutuhkan);
 				reset_PerbaikiKendaraan(playerid);
 
 				/**
@@ -1520,11 +1520,11 @@ publicFor: progressPerbaikiKendaraan(playerid, vehicleid, alat_dibutuhkan){
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
 		}else{
-			SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal memperbaiki kendaraan. Kendaraan berpindah keposisi lain.");
+			SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal memperbaiki kendaraan. Kendaraan berpindah keposisi lain.");
 			reset_PerbaikiKendaraan(playerid);
 		}
     }else{
-		SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal memperbaiki kendaraan, disebabkan oleh kendaraan tidak ada.");
+		SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal memperbaiki kendaraan, disebabkan oleh kendaraan tidak ada.");
 		reset_PerbaikiKendaraan(playerid);
 	}
     return 1;
@@ -1552,7 +1552,7 @@ publicFor: progressWarnainKendaraan(playerid, vehicleid, color1, color2){
 
 				PlayerPlaySound(playerid, 1133, 0.0, 0.0, 0.0);
 
-				sendPesan(playerid, COLOR_GREEN, "[MEKANIK] "WHITE"Berhasil mewarnain kendaraan %s, item pewarna yang terpakai 1 pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)));
+				sendPesan(playerid, COLOR_GREEN, TAG_MEKANIK" "WHITE"Berhasil mewarnain kendaraan %s, item pewarna yang terpakai 1 pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)));
 				reset_PerbaikiKendaraan(playerid);
 
 				/**
@@ -1571,11 +1571,11 @@ publicFor: progressWarnainKendaraan(playerid, vehicleid, color1, color2){
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
 		}else{
-			SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal mewarnain kendaraan. Kendaraan berpindah keposisi lain.");
+			SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal mewarnain kendaraan. Kendaraan berpindah keposisi lain.");
 			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 		}
     }else{
-		SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal mewarnain kendaraan, disebabkan oleh kendaraan tidak ada.");
+		SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal mewarnain kendaraan, disebabkan oleh kendaraan tidak ada.");
 		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 	}
 	return 1;
@@ -1602,7 +1602,7 @@ publicFor: progressPaintjobKendaraan(playerid, vehicleid, paintjobid){
 
 				PlayerPlaySound(playerid, 1133, 0.0, 0.0, 0.0);
 
-				sendPesan(playerid, COLOR_GREEN, "[MEKANIK] "WHITE"Berhasil paintjob kendaraan %s, dengan item yang terpakai 1 pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)));
+				sendPesan(playerid, COLOR_GREEN, TAG_MEKANIK" "WHITE"Berhasil paintjob kendaraan %s, dengan item yang terpakai 1 pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)));
 				reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
 
 				/**
@@ -1621,11 +1621,11 @@ publicFor: progressPaintjobKendaraan(playerid, vehicleid, paintjobid){
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
 		}else{
-			SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal paintjob kendaraan. Kendaraan berpindah keposisi lain.");
+			SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal paintjob kendaraan. Kendaraan berpindah keposisi lain.");
 			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 		}
     }else{
-		SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal paintjob kendaraan, disebabkan oleh kendaraan tidak ada.");
+		SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal paintjob kendaraan, disebabkan oleh kendaraan tidak ada.");
 		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 	}
 	return 1;
@@ -1659,7 +1659,7 @@ publicFor: progressModifKendaraan(playerid, vehicleid, componentid){
 
 				PlayerPlaySound(playerid, 1133, 0.0, 0.0, 0.0);
 
-				sendPesan(playerid, COLOR_GREEN, "[MEKANIK] "WHITE"Berhasil modifikasi kendaraan %s, dengan item yang terpakai 1 pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)));
+				sendPesan(playerid, COLOR_GREEN, TAG_MEKANIK" "WHITE"Berhasil modifikasi kendaraan %s, dengan item yang terpakai 1 pcs.", GetVehicleModelName(GetVehicleModel(vehicleid)));
 				reset_PerbaikiKendaraan(playerid);
 
 				/**
@@ -1678,11 +1678,11 @@ publicFor: progressModifKendaraan(playerid, vehicleid, componentid){
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
 		}else{
-			SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan. Kendaraan berpindah keposisi lain.");
+			SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal modif kendaraan. Kendaraan berpindah keposisi lain.");
 			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 		}
     }else{
-		SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan, disebabkan oleh kendaraan tidak ada.");
+		SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal modif kendaraan, disebabkan oleh kendaraan tidak ada.");
 		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 	}
 	return 1;
@@ -1717,16 +1717,16 @@ publicFor: progressIsiBensin(playerid){
 
 				reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
 
-				sendPesan(playerid, COLOR_GREEN, "Bensin: "WHITE"Berhasil mengisi bensin sebanyak %d persen dengan harga "GREEN"$%d", persen, harga);
+				sendPesan(playerid, COLOR_GREEN, TAG_BENSIN" "WHITE"Berhasil mengisi bensin sebanyak %d persen dengan harga "GREEN"$%d", persen, harga);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
 		}else{
-			SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Gagal mengisi bensin, kendaraan tidak pada posisi semula.");
+			SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Gagal mengisi bensin, kendaraan tidak pada posisi semula.");
 			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 		}
     }else{
-		SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Gagal mengisi bensin, kendaraan tidak ada.");
+		SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Gagal mengisi bensin, kendaraan tidak ada.");
 		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 	}
 	return 1;
@@ -1765,16 +1765,16 @@ publicFor: progressIsiBensinPakaiItem(playerid, itemid, vehicleid){
 
 				reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
 
-				sendPesan(playerid, COLOR_GREEN, "Bensin: "WHITE"Berhasil mengisi bensin sebanyak "GREEN"%d liter", persen);
+				sendPesan(playerid, COLOR_GREEN, TAG_BENSIN" "WHITE"Berhasil mengisi bensin sebanyak "GREEN"%d liter", persen);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
 		}else{
-			SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Gagal mengisi bensin, kendaraan tidak pada posisi semula.");
+			SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Gagal mengisi bensin, kendaraan tidak pada posisi semula.");
 			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 		}
     }else{
-		SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Gagal mengisi bensin, kendaraan tidak ada.");
+		SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Gagal mengisi bensin, kendaraan tidak ada.");
 		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 	}
 	return 1;
@@ -2102,7 +2102,7 @@ publicFor: pakaiMakanan(playerid, itemid){
 
 publicFor: pakaiBensin(playerid, itemid){
 	if(IsPlayerInAnyVehicle(playerid))
-		return SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Tidak dapat mengisi bensin didalam kendaraan.");
+		return SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Tidak dapat mengisi bensin didalam kendaraan.");
 
 	new Float:pos[3], Float:vpos[3], vehid = INVALID_VEHICLE_ID;
 	GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
@@ -2118,7 +2118,7 @@ publicFor: pakaiBensin(playerid, itemid){
 	}
 
 	if(vehid == INVALID_VEHICLE_ID) 
-		return SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Kendaraan yang akan diisi bensin harus berada didepan anda.");
+		return SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Kendaraan yang akan diisi bensin harus berada didepan anda.");
 	
 	// Pinjam timer perbaiki
 	PerbaikiTimer[playerid] = SetPreciseTimer("progressIsiBensinPakaiItem", 1000, true, "iii", playerid, itemid, vehid);
@@ -2570,7 +2570,7 @@ getKayuForUpgradeHouse(level){
 
 todoActive(playerid){
 	if(sweeperJob[playerid] == 1){
-		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Maaf anda sedang bekerja sebagai Sweeper, silahkan kembali bekerja!");
+		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Maaf anda sedang bekerja sebagai Sweeper, silahkan kembali bekerja!");
 		return 1;
 	}
 	if(testSim[playerid] == 1){
@@ -2593,7 +2593,7 @@ publicFor: todoExit(playerid, paramid){
 		sweeperId[playerid] = -1;
 		DisablePlayerRaceCheckpoint(playerid);
 		SetVehicleToRespawn(paramid);
-		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda telah berhenti bekerja!");
+		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
 	}
 	if(testSim[playerid] == 1){
 		testSim[playerid] = 0;
@@ -2608,7 +2608,7 @@ publicFor: todoExit(playerid, paramid){
 
 resetPlayerToDo(playerid){
 	if(sweeperJob[playerid] == 1){
-		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda telah berhenti bekerja!");
+		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
 		SetVehicleToRespawn(sweeperId[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
 		DeletePreciseTimer(todoTimer[playerid]);

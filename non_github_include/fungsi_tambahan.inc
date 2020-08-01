@@ -84,7 +84,7 @@ error_command(playerid, const message[]){
 
 server_message(playerid, const message[]){
     new pesan[200];
-    format(pesan, 200, "Server: "GREY"%s", message);
+    format(pesan, 200, TAG_SERVER" "GREY"%s", message);
     return SendClientMessage(playerid, COLOR_ORANGE, pesan);
 }
 

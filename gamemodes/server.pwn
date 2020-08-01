@@ -820,7 +820,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						Iter_Remove(PVehKeys[i], GetPVarInt(playerid, "veh_select_id"));
 						PVehKeysTime[i][GetPVarInt(playerid, "veh_select_id")] = 0;
 
-						format(pDialog[playerid], sizePDialog, "[KENDARAAN] "WHITE"Kunci "YELLOW"%s "WHITE"yang anda pinjam dari "GREEN"%s "WHITE"telah ditarik.",PlayerInfo[playerid][pPlayerName], GetVehicleModelName(PVeh[GetPVarInt(playerid, "veh_select_id")][pVehModel]));
+						format(pDialog[playerid], sizePDialog, TAG_KENDARAAN" "WHITE"Kunci "YELLOW"%s "WHITE"yang anda pinjam dari "GREEN"%s "WHITE"telah ditarik.",PlayerInfo[playerid][pPlayerName], GetVehicleModelName(PVeh[GetPVarInt(playerid, "veh_select_id")][pVehModel]));
 						SendClientMessage(i, COLOR_ORANGE, pDialog[playerid]);
 						break;
 					}
@@ -1967,7 +1967,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				inline responseQuery(){
 					new id = cache_insert_id();
 					createHouse(id, -1, level_rumah, harga, 0, 1, 1, me_x, me_y, me_z);
-					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membuat rumah!");
+					SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil membuat rumah!");
 					
 					DeletePVar(playerid, "level_rumah");
 				}
@@ -2020,7 +2020,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				loadAllHouse();
 
-				SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil mereset semua rumah!");
+				SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil mereset semua rumah!");
 			}
 			return 1;
 		}
@@ -2091,10 +2091,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `house` WHERE `id_house` = '%d'", id);
 						mysql_tquery(koneksi, pQuery[playerid]);
-						format(pmsg, sizeof(pmsg),  GREEN"[RUMAH] "WHITE"Anda berhasil menghapus rumah (id:"YELLOW"%d"WHITE")!", id);
-						SendClientMessage(playerid, COLOR_WHITE, pmsg);
+						format(pmsg, sizeof(pmsg),  TAG_RUMAH" "WHITE"Anda berhasil menghapus rumah (id:"YELLOW"%d"WHITE")!", id);
+						SendClientMessage(playerid, COLOR_GREEN, pmsg);
 					}else{
-						SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf ID Rumah tidak ada!");
+						SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf ID Rumah tidak ada!");
 					}
 				}
 				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM `house` WHERE `id_house` = '%d'", id);
@@ -2145,7 +2145,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				mysql_tquery(koneksi, "UPDATE `user` SET `save_house` = 0");
 				mysql_tquery(koneksi, "TRUNCATE TABLE `house`");
-				SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil menghapus semua rumah!");
+				SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil menghapus semua rumah!");
 			}
 			return 1;
 		}
@@ -2175,7 +2175,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `jual` = 0 WHERE `id_house` = '%d'", id);
 							mysql_tquery(koneksi, pQuery[playerid]);
 						 	reloadHouseLabel(id);
-							SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Rumah anda batal untuk dijual!");
+							SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Rumah anda batal untuk dijual!");
 							DeletePVar(playerid, "info_rumah");
 						}
 						case 2:
@@ -2215,7 +2215,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `jual` = 1, `setharga` = '%d' WHERE `id_house` = '%d'", setHarga, id);
 							mysql_tquery(koneksi, pQuery[playerid]);
 						 	reloadHouseLabel(id);
-							format(msg, sizeof(msg),  "[RUMAH] "YELLOW"Rumah anda berhasil untuk dijual dengan harga ("GREEN"%d"YELLOW")!", setHarga);
+							format(msg, sizeof(msg),  TAG_RUMAH" "YELLOW"Rumah anda berhasil untuk dijual dengan harga ("GREEN"%d"YELLOW")!", setHarga);
 							SendClientMessage(playerid, COLOR_GREEN, msg);
 							DeletePVar(playerid, "info_rumah");
 						}
@@ -2224,7 +2224,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							label_upgrade_rumah:							    
 							if(houseLevel < MAX_HOUSES_LEVEL){
 								new upgradeRate = getHousePrice(id, "upgrade");
-								if(getUangPlayer(playerid) < upgradeRate) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
+								if(getUangPlayer(playerid) < upgradeRate) return SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf uang anda tidak mencukupi!");
 
 								inline responseQuery(){
 									new terpasang, cukup;
@@ -2240,16 +2240,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
 										mysql_tquery(koneksi, pQuery[playerid]);
 										reloadHouseLabel(id);
-										sendPesan(playerid, COLOR_GREEN, "[RUMAH] "WHITE"Anda berhasil mengupgrade rumah ke level %d.", houseInfo[id][hLevel]);
+										sendPesan(playerid, COLOR_GREEN, TAG_RUMAH" "WHITE"Anda berhasil mengupgrade rumah ke level %d.", houseInfo[id][hLevel]);
 										sendPesan(playerid, COLOR_YELLOW, "[INFO] "WHITE"Anda telah dikenakan harga "GREEN"$%d", upgradeRate);
 										return 1;
 									}else{
-										return sendPesan(playerid, COLOR_GREEN, "[RUMAH] "RED"Anda harus melepas semua furniture di dalam rumah terlebih dahulu!");
+										return sendPesan(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Anda harus melepas semua furniture di dalam rumah terlebih dahulu!");
 									}
 								}
 								MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT(SELECT COUNT(*) FROM house_furniture WHERE id_house = '%d') as terpasang, (SELECT COUNT(*) FROM user_item WHERE id_user = '%d' AND id_item = '%d' AND jumlah >= '%d') as cukup", id, PlayerInfo[playerid][pID], 25, getKayuForUpgradeHouse(houseInfo[id][hLevel]));
 							}else{
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf level rumah anda sudah maksimal!");
+								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf level rumah anda sudah maksimal!");
 							}
 							DeletePVar(playerid, "info_rumah");
 						}
@@ -2260,12 +2260,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								houseInfo[id][hKunci] = 0;
 								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `kunci` = '%d'", houseInfo[id][hKunci]);
 							    mysql_tquery(koneksi, pQuery[playerid]);
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membuka kunci rumah!");
+								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil membuka kunci rumah!");
 							}else{
 								houseInfo[id][hKunci] = 1;
 								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `kunci` = '%d'", houseInfo[id][hKunci]);
 							    mysql_tquery(koneksi, pQuery[playerid]);
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil mengunci rumah!");
+								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil mengunci rumah!");
 							}
 							DeletePVar(playerid, "info_rumah");
 						}
@@ -2277,12 +2277,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								PlayerInfo[playerid][sHouse] = 0;
 								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
 							    mysql_tquery(koneksi, pQuery[playerid]);
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil membatalkan spawn disini!");
+								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil membatalkan spawn disini!");
 							}else{
 								PlayerInfo[playerid][sHouse] = id;
 								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = '%d' WHERE `id` = '%d'", id, PlayerInfo[playerid][pID]);
 							    mysql_tquery(koneksi, pQuery[playerid]);
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil menyimpan spawn disini!");
+								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil menyimpan spawn disini!");
 							}
 							DeletePVar(playerid, "info_rumah");
 						}
@@ -2302,7 +2302,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(houseInfo[id][hSetHarga] != 0){
 								beliRate = houseInfo[id][hSetHarga];
 							}
-							if(PlayerInfo[playerid][uang] < beliRate) return SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf uang anda tidak mencukupi!");
+							if(PlayerInfo[playerid][uang] < beliRate) return SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf uang anda tidak mencukupi!");
 							if(houseInfo[id][hOwner] != -1){
 								new ownerId = INVALID_PLAYER_ID;
 								foreach(new i : Player){
@@ -2330,8 +2330,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `id_user` = '%d', `jual` = 0 WHERE `id_house` = '%d'", PlayerInfo[playerid][pID], id);
 						    mysql_tquery(koneksi, pQuery[playerid]);
 						    reloadHouseLabel(id);
-						    format(msg, sizeof(msg),  GREEN"[RUMAH] "WHITE"Anda telah berhasil membeli rumah (id:"YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hID], beliRate);
-						    SendClientMessage(playerid, COLOR_WHITE, msg);
+						    format(msg, sizeof(msg),  TAG_RUMAH" "WHITE"Anda telah berhasil membeli rumah (id:"YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hID], beliRate);
+						    SendClientMessage(playerid, COLOR_GREEN, msg);
 							DeletePVar(playerid, "info_rumah");
 						}
 						case 2:
@@ -2365,13 +2365,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							new id_level = houseInfo[id][hLevel];
 							if(houseInfo[id][hKunci] != 1){
 								pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
-								SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
+								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil masuk rumah!");
 							}else{
 								if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
 									pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
 									SendClientMessage(playerid, COLOR_YELLOW, "Rumah: "WHITE"Ketik "YELLOW"/rumah "WHITE"untuk mengelola inventory & furniture rumah.");
 								}else{
-									SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf rumah terkunci dan tidak dapat masuk!");
+									SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf rumah terkunci dan tidak dapat masuk!");
 								}
 							}
 							DeletePVar(playerid, "info_rumah");
@@ -3249,8 +3249,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				sweeperId[playerid] = vehid;
 				usedSweeper[vehid] = 1;
 				SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper1, CP_sweeper2, 3.0);
-				SendClientMessage(playerid, COLOR_GREEN, "[JOB] "YELLOW"Anda berhasil bekerja sebagai "GREEN"Sweeper"YELLOW"!");
-				SendClientMessage(playerid, COLOR_GREEN, "[JOB] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
+				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Sweeper"YELLOW"!");
+				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
 				todoTimeout[playerid] = SetPreciseTimer("todoExit", 600000, false, "ii", playerid, vehid);
 			}else{
 				RemovePlayerFromVehicle(playerid);
@@ -3607,7 +3607,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 								UpdateVehicleDealer(idveh);
 
-								format(pDialog[playerid], sizePDialog, "[A-DEALER] "WHITE"Berhasil memarkirkan kendaraan dealer %s pada tempat ini.", GetVehicleModelName(DVeh[idveh][dVehModel]));
+								format(pDialog[playerid], sizePDialog, TAG_ADMIN_DEALER" "WHITE"Berhasil memarkirkan kendaraan dealer %s pada tempat ini.", GetVehicleModelName(DVeh[idveh][dVehModel]));
 								SendClientMessage(playerid, COLOR_CYAN, pDialog[playerid]);
 
 								EVF::SetVehicleSpawnInfo(idveh, DVeh[idveh][dVehCoord][0], DVeh[idveh][dVehCoord][1], DVeh[idveh][dVehCoord][2], DVeh[idveh][dVehCoord][3], GetPlayerVirtualWorld(playerid), GetPlayerInterior(playerid));
@@ -3623,11 +3623,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(!IsVehicleOccupied(i)) // Respawn kendaraan yang tidak sedang dinaiki
 								SetVehicleToRespawn(i);
 						}
-						SendClientMessage(playerid, COLOR_CYAN, "[A-DEALER] "WHITE"Berhasil merespawn semua kendaraan pada semua dealer!");
+						SendClientMessage(playerid, COLOR_CYAN, TAG_ADMIN_DEALER" "WHITE"Berhasil merespawn semua kendaraan pada semua dealer!");
 					}
 					case 3: // Hapus kendaraan dealer
 					{
-						if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_RED, "[A-DEALER] "WHITE"Anda harus di dalam kendaraan dealer yang ingin dihapus untuk dapat menggunakan perintah ini!");
+						if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessage(playerid, COLOR_RED, TAG_ADMIN_DEALER" "WHITE"Anda harus di dalam kendaraan dealer yang ingin dihapus untuk dapat menggunakan perintah ini!");
 
 						new idveh = GetPlayerVehicleID(playerid);
 						if(Iter_Contains(DVehIterator, idveh) && DVeh[idveh][dVehID]){
@@ -3643,9 +3643,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							static const kosong_dveh[DealerVehicleInfo];
 							DVeh[idveh] = kosong_dveh;
 
-							SendClientMessage(playerid, COLOR_CYAN, "[A-DEALER] "WHITE"Berhasil menghapus kendaraan dealer!");
+							SendClientMessage(playerid, COLOR_CYAN, TAG_ADMIN_DEALER" "WHITE"Berhasil menghapus kendaraan dealer!");
 						}else{
-							SendClientMessage(playerid, COLOR_RED, "[A-DEALER] "WHITE"Kendaraan ini bukan kendaraan dealer yang dapat dihapus!");
+							SendClientMessage(playerid, COLOR_RED, TAG_ADMIN_DEALER" "WHITE"Kendaraan ini bukan kendaraan dealer yang dapat dihapus!");
 						}
 					}
 				}
@@ -3876,20 +3876,20 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						new idpv = IDVehToPVeh[vehid];
 						if(kendaraan_berpemilik && PVeh[idpv][pVehPemilik] != PlayerInfo[playerid][pID] && !( Iter_Contains(PVehKeys[playerid], idpv) && PVehKeysTime[playerid][idpv] > gettime()))
-							return SendClientMessage(playerid, COLOR_RED, "[KENDARAAN] "WHITE"Anda tidak memiliki kunci kendaraan untuk membuka kap.");
+							return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda tidak memiliki kunci kendaraan untuk membuka kap.");
 
 						SetVehicleParams(vehid, VEHICLE_TYPE_BONNET, ((GetVehicleParams(vehid, VEHICLE_TYPE_BONNET) + 1) % 2));						
-						SendClientMessage(playerid, COLOR_LIGHT_BLUE, "[KENDARAAN] "WHITE"Berhasil membuka kap kendaraan ini.");
+						SendClientMessage(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil membuka kap kendaraan ini.");
 						return 1;
 					}
 					case 2: // Tutup atau buka bagasi
 					{
 						new idpv = IDVehToPVeh[vehid];
 						if(kendaraan_berpemilik && PVeh[idpv][pVehPemilik] != PlayerInfo[playerid][pID] && !( Iter_Contains(PVehKeys[playerid], idpv) && PVehKeysTime[playerid][idpv] > gettime()))
-							return SendClientMessage(playerid, COLOR_RED, "[KENDARAAN] "WHITE"Anda tidak memiliki kunci kendaraan untuk membuka bagasi.");
+							return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda tidak memiliki kunci kendaraan untuk membuka bagasi.");
 
 						SetVehicleParams(vehid, VEHICLE_TYPE_BOOT, ((GetVehicleParams(vehid, VEHICLE_TYPE_BOOT) + 1) % 2));
-						SendClientMessage(playerid, COLOR_LIGHT_BLUE, "[KENDARAAN] "WHITE"Berhasil membuka bagasi kendaraan ini.");
+						SendClientMessage(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil membuka bagasi kendaraan ini.");
 						return 1;
 					}
 				}
@@ -5008,7 +5008,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new vid = GetPVarInt(playerid, "mekanik_vehicle_id");
 
 				if(!IsValidVehicle(vid)) {
-					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan, disebabkan oleh kendaraan tidak ada.");
+					SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal modif kendaraan, disebabkan oleh kendaraan tidak ada.");
 
 					DeletePVar(playerid, "mekanik_vehicle_id");
 					DeletePVar(playerid, "mekanik_warna_1");
@@ -5017,7 +5017,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 				GetVehiclePos(vid, vpos[0], vpos[1], vpos[2]);
 				if(!IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
-					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan. Kendaraan berpindah keposisi lain.");			
+					SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal modif kendaraan. Kendaraan berpindah keposisi lain.");			
 
 					DeletePVar(playerid, "mekanik_vehicle_id");
 					DeletePVar(playerid, "mekanik_warna_1");
@@ -5068,14 +5068,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new vid = GetPVarInt(playerid, "mekanik_vehicle_id");
 
 				if(!IsValidVehicle(vid)) {
-					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan, disebabkan oleh kendaraan tidak ada.");
+					SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal modif kendaraan, disebabkan oleh kendaraan tidak ada.");
 
 					DeletePVar(playerid, "mekanik_vehicle_id");
 					return 1;
 				}
 				GetVehiclePos(vid, vpos[0], vpos[1], vpos[2]);
 				if(!IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
-					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal modif kendaraan. Kendaraan berpindah keposisi lain.");			
+					SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal modif kendaraan. Kendaraan berpindah keposisi lain.");			
 
 					DeletePVar(playerid, "mekanik_vehicle_id");
 					return 1;
@@ -5087,7 +5087,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(PVeh[IDVehToPVeh[vid]][pVehMod][GetVehicleComponentType(componentid)] == componentid) {
 							new nama_komponen[50];
 							GetComponentName(componentid, nama_komponen);
-							sendPesan(playerid, COLOR_RED, "[MEKANIK] "WHITE"Komponen %s telah terpasang pada kendaraan ini.", nama_komponen);
+							sendPesan(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Komponen %s telah terpasang pada kendaraan ini.", nama_komponen);
 
 							DeletePVar(playerid, "mekanik_vehicle_id");
 							return 1;
@@ -5096,8 +5096,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 					AddVehicleComponent(vid, componentid);
 				}else{
-					SendClientMessage(playerid, COLOR_BLUE, "[KENDARAAN] "WHITE"Berhasil melepas hydraulics dari kendaraan anda.");
-					SendClientMessage(playerid, COLOR_YELLOW, "[KENDARAAN] "WHITE"Khusus untuk penyabutan barang, anda tidak dikenakan biaya atau apapaun.");
+					SendClientMessage(playerid, COLOR_BLUE, TAG_KENDARAAN" "WHITE"Berhasil melepas hydraulics dari kendaraan anda.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_KENDARAAN" "WHITE"Khusus untuk penyabutan barang, anda tidak dikenakan biaya atau apapaun.");
 
 					// Lepas komponen hydraulics
 					PVeh[IDVehToPVeh[vid]][pVehMod][GetVehicleComponentType(1087)] = 0;
@@ -5135,22 +5135,22 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new vid = GetPVarInt(playerid, "mekanik_vehicle_id");
 
 				if(!IsValidVehicle(vid)) {
-					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal paintjob kendaraan, disebabkan oleh kendaraan tidak ada.");
+					SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal paintjob kendaraan, disebabkan oleh kendaraan tidak ada.");
 
 					DeletePVar(playerid, "mekanik_vehicle_id");
 					return 1;
 				}
 				GetVehiclePos(vid, vpos[0], vpos[1], vpos[2]);
 				if(!IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
-					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal paintjob kendaraan. Kendaraan berpindah keposisi lain.");			
+					SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal paintjob kendaraan. Kendaraan berpindah keposisi lain.");			
 
 					DeletePVar(playerid, "mekanik_vehicle_id");
 					return 1;
 				}
 
 				if(!strcmp(inputtext, "Lepas Paintjob")){
-					SendClientMessage(playerid, COLOR_BLUE, "[KENDARAAN] "WHITE"Berhasil melepas paintjob dari kendaraan anda.");
-					SendClientMessage(playerid, COLOR_YELLOW, "[KENDARAAN] "WHITE"Khusus untuk penyabutan barang, anda tidak dikenakan biaya atau apapaun.");
+					SendClientMessage(playerid, COLOR_BLUE, TAG_KENDARAAN" "WHITE"Berhasil melepas paintjob dari kendaraan anda.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_KENDARAAN" "WHITE"Khusus untuk penyabutan barang, anda tidak dikenakan biaya atau apapaun.");
 
 					// Lepas paintjob
 					PVeh[IDVehToPVeh[vid]][pVehPaintJob] = INVALID_PAINTJOB_ID;
@@ -5161,7 +5161,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				if(IsValidPaintjobForVehicle(vid, PVeh[IDVehToPVeh[vid]][pVehPaintJob])){
 					if(PVeh[IDVehToPVeh[vid]][pVehPaintJob] == listitem) {
-						sendPesan(playerid, COLOR_RED, "[MEKANIK] "WHITE"Paintjob tipe %d telah terpasang pada kendaraan ini.", listitem + 1);
+						sendPesan(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Paintjob tipe %d telah terpasang pada kendaraan ini.", listitem + 1);
 
 						DeletePVar(playerid, "mekanik_vehicle_id");
 						return 1;
@@ -5358,7 +5358,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new vid = GetPVarInt(playerid, "mekanik_vehicle_id");
 
 				if(!IsValidVehicle(vid)) {
-					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal mewarnai kendaraan, disebabkan oleh kendaraan tidak ada.");
+					SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal mewarnai kendaraan, disebabkan oleh kendaraan tidak ada.");
 
 					DeletePVar(playerid, "mekanik_vehicle_id");
 					DeletePVar(playerid, "mekanik_warna_1");
@@ -5367,7 +5367,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 				GetVehiclePos(vid, vpos[0], vpos[1], vpos[2]);
 				if(!IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
-					SendClientMessage(playerid, COLOR_RED, "[MEKANIK] "WHITE"Gagal mewarnai kendaraan. Kendaraan berpindah keposisi lain.");			
+					SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal mewarnai kendaraan. Kendaraan berpindah keposisi lain.");			
 
 					DeletePVar(playerid, "mekanik_vehicle_id");
 					DeletePVar(playerid, "mekanik_warna_1");
@@ -5785,7 +5785,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				GetVehiclePos(vehid, vpos[0], vpos[1], vpos[2]);
 
 				if(!IsValidVehicle(vehid) || !IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 2.0))
-					return SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Kendaraan harus tetap berada didekat anda.");
+					return SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Kendaraan harus tetap berada didekat anda.");
 
 				// Pinjam timer perbaiki
 				PerbaikiTimer[playerid] = SetPreciseTimer("progressIsiBensin", 1000, true, "i", playerid);
@@ -5873,7 +5873,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			return SendClientMessage(playerid, COLOR_RED, "Kendaraan: "WHITE"Darah kendaraan habis dan rusak total.");
 
 		if(GetVehicleFuel(vehid) <= 0) 
-			return SendClientMessage(playerid, COLOR_RED, "Bensin: "WHITE"Kendaraan kehabisan bensin.");
+			return SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Kendaraan kehabisan bensin.");
 
 		new engine, lights, alarm, doors, bonnet, boot, objective;
 		GetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
@@ -5971,14 +5971,14 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				PlayerInfo[playerid][inHouse] = id;
 				
 				pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
-				SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "YELLOW"Anda berhasil masuk rumah!");
+				SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil masuk rumah!");
 			}else{
 				if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
 					PlayerInfo[playerid][inHouse] = id;
 					pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
 					SendClientMessage(playerid, COLOR_YELLOW, "Rumah: "WHITE"Ketik "YELLOW"/rumah "WHITE"untuk mengelola inventory & furniture rumah.");
 				}else{
-					SendClientMessage(playerid, COLOR_GREEN, "[RUMAH] "RED"Maaf rumah terkunci dan tidak dapat masuk!");
+					SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf rumah terkunci dan tidak dapat masuk!");
 				}
 			}
 		}
@@ -6363,7 +6363,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 public OnPlayerExitVehicle(playerid, vehicleid)
 {
 	if(Iter_Contains(vehicleSweeper, vehicleid) && sweeperJob[playerid] == 1 && sweeperId[playerid] == vehicleid){
-		SendClientMessage(playerid, COLOR_GREEN, "[JOB] "RED"Anda keluar dari kendaraan, silahkan kembali bekerja! "WHITE"Sebelum 30 detik atau anda berhenti bekerja.");
+		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda keluar dari kendaraan, silahkan kembali bekerja! "WHITE"Sebelum 30 detik atau anda berhenti bekerja.");
 		todoTimer[playerid] = SetPreciseTimer("todoExit", 30000, false, "ii", playerid, sweeperId[playerid]);
 	}else if(Iter_Contains(vehicleSIM, vehicleid) && testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehicleid){
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda keluar dari kendaraan, silahkan kembali praktik! "WHITE"Sebelum 30 detik atau anda gagal Ujian Praktik SIM.");
@@ -6470,7 +6470,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		lastHousePickup[playerid] = pickupid;
 		if(houseNotif[playerid] != id){
 			houseNotif[playerid] = id;
-			format(msg, 256, "[RUMAH]"WHITE" Ketik "GREEN"/inforumah"WHITE" untuk melihat info tentang rumah.");
+			format(msg, 256, TAG_RUMAH""WHITE" Ketik "GREEN"/inforumah"WHITE" untuk melihat info tentang rumah.");
 			SendClientMessage(playerid, COLOR_GREEN, msg);
 		}
 	}else if(pickupid == PU_cityHallMasuk[0] || pickupid == PU_cityHallMasuk[1] || pickupid == PU_cityHallMasuk[2]){
@@ -6863,7 +6863,7 @@ public OnVehicleDeath(vehicleid, killerid){
 		foreach(new i : Player){
 			if(PVeh[IDVehToPVeh[vehicleid]][pVehPemilik] == PlayerInfo[i][pID] && IsPlayerConnected(i)){
 				new temp_msg[128];
-				format(temp_msg, 128,"[KENDARAAN] "WHITE"Kendaraan "ORANGE"%s "WHITE"milik anda telah rusak total dan masuk pusat reparasi.", GetVehicleModelName(PVeh[IDVehToPVeh[vehicleid]][pVehModel]));
+				format(temp_msg, 128,TAG_KENDARAAN" "WHITE"Kendaraan "ORANGE"%s "WHITE"milik anda telah rusak total dan masuk pusat reparasi.", GetVehicleModelName(PVeh[IDVehToPVeh[vehicleid]][pVehModel]));
 				SendClientMessage(i, COLOR_RED, temp_msg);
 				break;
 			}
