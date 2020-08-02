@@ -5714,6 +5714,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 				SetPVarString(playerid, "sim_polisi", "buat_sim");
 				getSudahBuatSIM(playerid, "cekSudahPunyaSIM");
+			}else{
+				ShowPlayerDialog(playerid, DIALOG_SIM_REGIS_MENU, DIALOG_STYLE_LIST, WHITE"Pilihan tindakan SIM", "Buat SIM\nTentang SIM (Tipe Kendaraan)\nAmbil SIM yang sudah selesai", "Pilih", "Batal");
 			}
 			return 1;
 		}
@@ -6266,9 +6268,9 @@ public OnGameModeInit()
 
 
 	// SIM Vehicle
-	vehicleSIM[0] = CreateVehicle(410, 1584.9463, -1606.8075, 13.1038, 180.6711, -1, -1, 60);
-	vehicleSIM[1] = CreateVehicle(410, 1580.1217, -1607.0674, 13.1037, 179.7378, -1, -1, 60);
-	vehicleSIM[2] = CreateVehicle(410, 1575.1067, -1606.8228, 13.1040, 179.4362, -1, -1, 60);
+	vehicleSIM[0] = CreateVehicle(410, 1362.7140, -1651.1733, 13.1261, 270.3739, -1, -1, 60);
+	vehicleSIM[1] = CreateVehicle(414, 1362.9814, -1643.2692, 13.1263, 269.2806, -1, -1, 60);
+	vehicleSIM[2] = CreateVehicle(462, 1362.8998, -1635.5781, 13.1262, 269.8343, -1, -1, 60);
 	Iter_Add(vehicleSIM, vehicleSIM[0]);
 	Iter_Add(vehicleSIM, vehicleSIM[1]);
 	Iter_Add(vehicleSIM, vehicleSIM[2]);

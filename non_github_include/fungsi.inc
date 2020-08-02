@@ -1967,7 +1967,7 @@ getSudahBuatSIM(playerid, const fungsi_callback[], bool:cek_untuk_buat = true)
 	if(cek_untuk_buat) {
 		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil FROM pengambilan_sim WHERE id_user = '%d' AND tanggal_ambil > NOW()", PlayerInfo[playerid][pID]);
 	}else{
-		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil, (CASE WHEN tanggal_ambil <= NOW() THEN 1 ELSE 0 END) AS hasil FROM `pengambilan_sim` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT tanggal_ambil, tipe_sim, (CASE WHEN tanggal_ambil <= NOW() THEN 1 ELSE 0 END) AS hasil FROM `pengambilan_sim` WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 	}
 	mysql_tquery(koneksi, pQuery[playerid], fungsi_callback, "i", playerid);
 }
@@ -2006,13 +2006,17 @@ publicFor: cekPembuatanSIM(playerid, ada){
 }
 
 publicFor: cekSudahBisaAmbilSIM(playerid){
-	new sudah_selesai, tanggal_pengambilan[50];
+	new sudah_selesai, tipe_sim, tanggal_pengambilan[50];
 	if(cache_num_rows()){
 		cache_get_value_name_int(0, "hasil", sudah_selesai);
+		cache_get_value_name_int(0, "tipe_sim", tipe_sim);
 		if(sudah_selesai){
+			if(tipe_sim == 1) tipe_sim = 15;
+			else if(tipe_sim == 2) tipe_sim = 44;
+			else if(tipe_sim == 3) tipe_sim = 45;
+			else return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Maaf SIM tidak ditemukan", WHITE"Maaf SIM atas nama anda tidak ditemukan, anda harus membuatnya terlebih dahulu. \nMaka setelah anda membuatnya, anda dapat mengambilnya disini.", "Ok", "");
 			hapusSetelahPengambilanSIM(playerid);
-			
-			tambahItemPlayer(playerid, 15, 1);
+			tambahItemPlayer(playerid, tipe_sim, 1);
 
 			format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil mendapatkan SIM yang sudah anda proses selama beberapa waktu.\nSilahkan berkendara dengan sebaik mungkin.\n"ORANGE"\nMelakukan pelanggaran lalu lintas akan mendapat tindakan tegas.");
 			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"SIM sudah selesai", pDialog[playerid], "Ok", "");
@@ -2143,7 +2147,11 @@ publicFor: cekSudahPunyaSIM(playerid){
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"SIM sedang diproses", pDialog[playerid], "Ok", "");
 	}else{
 		// ID SIM = 15
-		cekKetersediaanItem(playerid, 15, 1, "isBisaBuatSIM");
+		new tipe_sim = GetPVarInt(playerid, "tipe_sim");
+		if(tipe_sim == 1) tipe_sim = 15;
+		else if(tipe_sim == 2) tipe_sim = 44;
+		else if(tipe_sim == 3) tipe_sim = 45;
+		cekKetersediaanItem(playerid, tipe_sim, 1, "isBisaBuatSIM");
 	}
 	return 1;
 }
@@ -2654,22 +2662,32 @@ resetPlayerToDo(playerid){
 }
 
 mulaiPraktikSIM(playerid){
-	foreach(new i : Player){
-		foreach(new v : vehicleSIM){
-			if(limitVehSIM[v] != 1){
-				testSim[playerid] = 1;
-				poinSim[playerid] = 100;
-				PutPlayerInVehicle(playerid, v, 0);
-				vehicleIdSIM[playerid] = v;
-				limitVehSIM[v] = 1;
-				SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
-				SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
-				todoTimeout[playerid] = SetPreciseTimer("todoExit", 600000, false, "ii", playerid, v);
-				return 1;
+	inline responseQuery(){
+		new tipe_sim;
+		cache_get_value_name_int(0, "tipe_sim", tipe_sim);
+		if(cache_num_rows()){
+			foreach(new i : Player){
+				new v = vehicleSIM[tipe_sim-1];
+				if(limitVehSIM[v] != 1){
+					testSim[playerid] = 1;
+					poinSim[playerid] = 100;
+					PutPlayerInVehicle(playerid, v, 0);
+					vehicleIdSIM[playerid] = v;
+					limitVehSIM[v] = 1;
+					SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
+					SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
+					todoTimeout[playerid] = SetPreciseTimer("todoExit", 600000, false, "ii", playerid, v);
+					return 1;
+				}else{
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
+					return 1;
+				}
 			}
+		}else{
+			showDialogPesan(playerid, RED"Anda Belum Ujian Teori", WHITE"Maaf anda belum melakukan Ujian Teori SIM, anda tidak dapat melakukan Ujian Praktik SIM!\nSilahkan melakukan Ujian Teori SIM terlebih dahulu, tempat Ujian Teori SIM berada di Kantor Polisi Los Santos.");
 		}
 	}
-	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT tipe_sim FROM `pengambilan_sim` WHERE `id_user` = '%d' AND status_teori = '1'", PlayerInfo[playerid][pID]);
 	return 1;	
 }
 
