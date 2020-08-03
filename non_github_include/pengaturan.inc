@@ -453,3 +453,5 @@
 #define TAG_JOB					"Pekerjaan:"
 #define TAG_ADMIN				"Admin:"
 #define TAG_KICK				"Kick:"
+#define TAG_FACTION				"Faction:"
+#define TAG_NOTE				"Note:"

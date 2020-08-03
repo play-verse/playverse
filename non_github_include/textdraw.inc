@@ -82,7 +82,7 @@ loadTextdrawGlobal(){
 	TextDrawSetProportional(HUD_Stats_PB[4], 1);
 	TextDrawSetSelectable(HUD_Stats_PB[4], 0);
 
-	HUD_Stats_PB[0] = TextDrawCreate(502.000000, 344.000000, "~w~Lapar");
+	HUD_Stats_PB[0] = TextDrawCreate(502.000000, 344.000000, "~w~Makan");
 	TextDrawFont(HUD_Stats_PB[0], 1);
 	TextDrawLetterSize(HUD_Stats_PB[0], 0.400000, 1.649999);
 	TextDrawTextSize(HUD_Stats_PB[0], 400.000000, 17.000000);
@@ -110,7 +110,7 @@ loadTextdrawGlobal(){
 	TextDrawSetProportional(HUD_Stats_PB[1], 1);
 	TextDrawSetSelectable(HUD_Stats_PB[1], 0);
 
-	HUD_Stats_PB[2] = TextDrawCreate(502.000000, 391.000000, "~w~Haus");
+	HUD_Stats_PB[2] = TextDrawCreate(502.000000, 391.000000, "~w~Minum");
 	TextDrawFont(HUD_Stats_PB[2], 1);
 	TextDrawLetterSize(HUD_Stats_PB[2], 0.400000, 1.649999);
 	TextDrawTextSize(HUD_Stats_PB[2], 400.000000, 17.000000);
@@ -585,8 +585,8 @@ loadTextDrawPemain(playerid){
 	// End HUD Stats
 
 	// Stats Bar
-	HUD_Stats_Bar[playerid][0] = CreatePlayerProgressBar(playerid, 503.000000, 365.000000, 81.500000, 7.000000, -65281, 100.000000, 0);
-	HUD_Stats_Bar[playerid][1] = CreatePlayerProgressBar(playerid, 503.000000, 412.000000, 81.500000, 7.000000, 1097458175, 100.000000, 0);
+	HUD_Stats_Bar[playerid][0] = CreatePlayerProgressBar(playerid, 503.000000, 365.000000, 81.500000, 7.000000, COLOR_YELLOW, 100.000000, 0);
+	HUD_Stats_Bar[playerid][1] = CreatePlayerProgressBar(playerid, 503.000000, 412.000000, 81.500000, 7.000000, COLOR_LIGHT_BLUE, 100.000000, 0);
 
 	// Cutting bar
 	CuttingBar[playerid] = CreatePlayerProgressBar(playerid, 498.0, 104.0, 113.0, 6.2, COLOR_YELLOW, MAX_PROGRESS_BAR, 0);

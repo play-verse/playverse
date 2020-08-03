@@ -96,7 +96,14 @@ public OnPlayerConnect(playerid)
 		printf("OnPlayerConnect terpanggil (%d - %s)", playerid, nama);
 	#endif
 
-    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.*, sum(b.jumlah) as limit_item FROM `user` a LEFT JOIN user_item_limit b ON b.id_user = a.id WHERE nama = '%e' AND (b.expired > NOW() OR b.expired IS NULL)", PlayerInfo[playerid][pPlayerName]);
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
+	SELECT a.*, \
+		sum(b.jumlah) as limit_item \
+	FROM `user` a \
+	LEFT JOIN user_item_limit b \
+		ON b.id_user = a.id \
+	WHERE nama = '%e' \
+		AND (b.expired > NOW() OR b.expired IS NULL)", PlayerInfo[playerid][pPlayerName]);
 	mysql_tquery(koneksi, pQuery[playerid], "isRegistered", "d", playerid);
 	return 1;
 }
@@ -225,6 +232,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 					// tampilkanTextDrawUang(playerid);
 					LoadVehiclePlayer(playerid);
+				
+					LoadFactionPlayer(playerid);
 
 					// Set player uang tanpa menambahkan di database - maka diset false untuk parameter terakhir
 					setUangPlayer(playerid, PlayerInfo[playerid][uang], false);

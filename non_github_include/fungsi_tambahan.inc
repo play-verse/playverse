@@ -70,16 +70,21 @@ stock strreplace(sstring[], const search[], const replacement[], bool:ignorecase
 
 
 error_syntax(playerid, const syntax[]){
-    new pesan[256] = "Invalid"GREY" : Gunakan "WHITE"";
-
+    new pesan[256] = "Invalid: "GREY"Gunakan "WHITE"";
     strcat(pesan, syntax);
     return SendClientMessage(playerid, COLOR_RED, pesan);
 }
 
 error_command(playerid, const message[]){
-    new pesan[256] = "Error"GREY" : ";
+    new pesan[256] = "Error: "GREY;
     strcat(pesan, message);
     return SendClientMessage(playerid, COLOR_RED, pesan);
+}
+
+note_message(playerid, const message[]){
+    new pesan[256] = "Note: "WHITE;
+    strcat(pesan, message);
+    return SendClientMessage(playerid, COLOR_YELLOW, pesan);
 }
 
 server_message(playerid, const message[]){
@@ -214,6 +219,13 @@ setStatusMakanPemain(playerid, Float:jumlah){
     else
         PlayerInfo[playerid][statusMakan] = jumlah;
 
+    if(PlayerInfo[playerid][statusMakan] <= 15.0)
+        SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][0], COLOR_RED);
+    else if(PlayerInfo[playerid][statusMakan] <= 30.0)
+        SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][0], COLOR_ORANGE);
+    else
+        SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][0], COLOR_YELLOW);
+    
     SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][0], PlayerInfo[playerid][statusMakan]);
 
     if(PlayerInfo[playerid][statusMakan] <= 0) {
@@ -235,6 +247,13 @@ setStatusMinumPemain(playerid, Float:jumlah){
         PlayerInfo[playerid][statusMinum] = 0.0;
     else
         PlayerInfo[playerid][statusMinum] = jumlah;
+
+    if(PlayerInfo[playerid][statusMinum] <= 15.0)
+        SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][1], COLOR_DARK_BLUE);
+    else if(PlayerInfo[playerid][statusMinum] <= 30.0)
+        SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][1], COLOR_BLUE);
+    else
+        SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][1], COLOR_LIGHT_BLUE);
 
     SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][1], PlayerInfo[playerid][statusMinum]);
 }
@@ -621,4 +640,53 @@ lepasTandaTrade(playerid){
     PlayerInfo[PlayerInfo[playerid][onTradeWith]][onTradeWith] = INVALID_PLAYER_ID;
     PlayerInfo[playerid][onTradeWith] = INVALID_PLAYER_ID;
     return 1;
+}
+
+stock bool:IsValidDate(dStr[]) {
+
+    new
+        monthDays[12] = {
+            31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+        },
+        temp_YMD[3],
+        temp_Pos    = 0,
+        temp_ePos   = 0,
+        temp_Index  = 0
+    ;
+        //Thought about implementing SSCANF_QUIET, but it requires spaces to work "currently".
+    for(temp_Index = strlen(dStr) - 1; temp_Index != 0; temp_Index--) {
+
+        if(!(dStr[temp_Index] >= 48 && dStr[temp_Index] <= 57))
+            dStr[temp_Index] = ' ';
+    }
+    if(sscanf(dStr, "iii", temp_YMD[0], temp_YMD[1], temp_YMD[2]))
+        return false;
+
+    temp_ePos = temp_Pos = -1;
+    for(temp_Index = 0; temp_Index < 3; temp_Index++) {
+
+        if(temp_YMD[temp_Index] > 1750) {
+
+            if((temp_YMD[temp_Index] % 400) == 0 || ((temp_YMD[temp_Index] % 100) != 0 && (temp_YMD[temp_Index] % 4) == 0))
+                monthDays[1] = 29;
+
+        }
+        else if(temp_YMD[temp_Index] > 12)
+            temp_Pos = temp_Index;
+        else
+            if(temp_ePos == -1)
+                temp_ePos = temp_Index;
+            else
+                temp_Pos = temp_Index;
+    }
+    if(temp_ePos == -1 || temp_Pos == -1)
+        return false;
+
+    if(temp_YMD[temp_ePos] < 1 || temp_YMD[temp_ePos] > 12)
+        return false;
+
+    if(temp_YMD[temp_Pos] < 1 || temp_YMD[temp_Pos] > monthDays[temp_YMD[temp_ePos] - 1])
+        return false;
+
+    return true;
 }

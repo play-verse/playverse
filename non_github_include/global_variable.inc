@@ -88,6 +88,9 @@ enum pInfo
 	bool:isOnAnimation, // Save state untuk animation
 	onTradeWith,
 
+	levelMedic,	
+	levelPolice,
+
 	hungryStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 	thirstyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 
@@ -1092,3 +1095,31 @@ new mancingTimer[MAX_PLAYERS],
 	nombakSecs[MAX_PLAYERS],
 	nombakDelay[MAX_PLAYERS],
 	Float:nombakDepth[MAX_PLAYERS];
+
+
+/**
+	Begin Faction
+ */
+
+/**		Define Faction ID	 **/
+#define ID_FACTION_POLISI 1
+#define ID_FACTION_MEDIC 2
+#define ID_FACTION_PEMERINTAH 3
+
+enum InfoLevelFaction {
+	namaJabatan[50]
+}
+
+// Medic
+// NOTE : Level sesuai dengan urutan array
+new const MEDIC_LEVEL[][InfoLevelFaction] = {
+	"Perawat",
+	"Dokter"
+};
+
+// Get Nama Level Medic menggunakan Macro
+#define GetNamaLevelMedic(%0)		MEDIC_LEVEL[%0 - 1][namaJabatan]
+
+/**
+	End Faction
+ */

@@ -223,6 +223,9 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][expMedic] = 0;
 	PlayerInfo[playerid][activeMedic] = 0;
 
+	PlayerInfo[playerid][levelMedic] = 0;
+	PlayerInfo[playerid][levelPolice] = 0;
+
 	PlayerInfo[playerid][last_int] = 0;
 	PlayerInfo[playerid][last_vw] = 0;
 
@@ -2735,6 +2738,28 @@ SaveBoard(modelid, Float:x, Float:y, Float:z, Float:rot_x, Float:rot_y, Float:ro
 		mysql_format(koneksi, sQuery, sizeSQuery, "UPDATE papan SET id_model = '%d', pos_x = '%f', pos_y = '%f',pos_z = '%f', rot_x = '%f', rot_y = '%f', rot_z = '%f', text = '%e', font_size = '%d' WHERE id_papan = '%d'", modelid, x, y, z, rot_x, rot_y, rot_z, text, fontsize, boardid);
 	}
 	mysql_tquery(koneksi, sQuery);
+}
+
+LoadFactionPlayer(playerid){
+	inline responseLoadFaction(){
+		new rows;
+		cache_get_row_count(rows);
+		if(rows){
+			new id_faction, temp_level;
+			for(new idx=0; idx<rows; idx++){
+				cache_get_value_name_int(idx, "id_faction", id_faction);
+				cache_get_value_name_int(idx, "level", temp_level);
+
+				switch(id_faction){
+					case 1: // Polisi
+						PlayerInfo[playerid][levelPolice] = temp_level;
+					case 2: // Medis
+						PlayerInfo[playerid][levelMedic] = temp_level;
+				}
+			}
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseLoadFaction, "SELECT * FROM user_faction WHERE (expired > NOW() OR expired IS NULL) AND id_user = %d", PlayerInfo[playerid][pID]);
 }
 
 LoadVehiclePlayer(playerid){
