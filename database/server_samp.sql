@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 28, 2020 at 10:49 PM
+-- Generation Time: Aug 03, 2020 at 06:09 PM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.10
 
@@ -22,85 +22,13 @@ SET time_zone = "+00:00";
 -- Database: `server_samp`
 --
 
-DELIMITER $$
---
--- Procedures
---
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_exp_skill` (`x_id_user` BIGINT, `x_id_skill` BIGINT, `x_jumlah_exp` INT)  BEGIN
-	SELECT id INTO @id_user_skill FROM `user_skill` WHERE `id_skill` = `x_id_skill` AND `id_user` = `x_id_user`;
-	IF(ROW_COUNT()) THEN
-		UPDATE `user_skill` SET `exp` = `exp` + `x_jumlah_exp` WHERE `id` = @id_user_skill;
-	ELSE
-		INSERT INTO `user_skill`(id_skill, id_user, exp) VALUES(`x_id_skill`, `x_id_user`, `x_jumlah_exp`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_furniture` (`x_id_user` BIGINT, `x_id_furniture` BIGINT, `x_jumlah` INT)  BEGIN
-	SELECT jumlah, id INTO @jumlah, @id_user_furniture FROM `user_furniture` WHERE `id_furniture` = `x_id_furniture` AND `id_user` = `x_id_user`;
-	IF(ROW_COUNT()) THEN
-		IF(x_jumlah < 0 AND (@jumlah - x_jumlah) < 1) THEN
-			DELETE FROM `user_furniture` WHERE `id` = @id_user_furniture;
-		ELSE
-			UPDATE `user_furniture` SET `jumlah` = `jumlah` + `x_jumlah` WHERE `id` = @id_user_furniture;
-		END IF;
-	ELSE
-		INSERT INTO `user_furniture`(id_furniture, id_user, jumlah) VALUES(`x_id_furniture`, `x_id_user`, `x_jumlah`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_item` (`x_id_user` BIGINT, `x_id_item` INT, `x_banyak_item` INT)  BEGIN
-	SELECT jumlah, id_user_item INTO @jumlah, @id_user_item FROM `user_item` WHERE `id_item` = `x_id_item` AND `id_user` = `x_id_user`;
-	IF(ROW_COUNT()) THEN
-		IF(x_banyak_item < 0 AND (@jumlah - x_banyak_item) < 1) THEN
-			DELETE FROM `user_item` WHERE `id_user_item` = @id_user_item;
-		ELSE
-			UPDATE `user_item` SET `jumlah` = `jumlah` + `x_banyak_item` WHERE `id_user_item` = @id_user_item;
-		END IF;
-	ELSE
-		INSERT INTO `user_item`(id_item, id_user, jumlah) VALUES(`x_id_item`, `x_id_user`, `x_banyak_item`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_item_house` (`x_id_house` INT, `x_id_item` INT, `x_jumlah` INT)  BEGIN
-	SELECT jumlah, id INTO @jumlah, @id_house_item FROM `house_inv_item` WHERE `id_item` = `x_id_item` AND `id_house` = `x_id_house`;
-	IF(ROW_COUNT()) THEN
-		IF(x_jumlah < 0 AND (@jumlah - x_jumlah) < 1) THEN
-			DELETE FROM `house_inv_item` WHERE `id` = @id_house_item;
-		ELSE
-			UPDATE `house_inv_item` SET `jumlah` = `jumlah` + `x_jumlah` WHERE `id` = @id_house_item;
-		END IF;
-	ELSE
-		INSERT INTO `house_inv_item`(id_item, id_house, jumlah) VALUES(`x_id_item`, `x_id_house`, `x_jumlah`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_skin` (`x_id_user` BIGINT, `x_id_skin` INT, `x_banyak_skin` INT)  BEGIN
-	SELECT jumlah, id INTO @jumlah, @id FROM `user_skin` WHERE `id_skin` = `x_id_skin` AND `id_user` = `x_id_user`;
-	IF(ROW_COUNT()) THEN
-		IF(x_banyak_skin < 0 AND (@jumlah - x_banyak_skin) < 1) THEN
-			DELETE FROM `user_skin` WHERE `id` = @id;
-		ELSE
-			UPDATE `user_skin` SET `jumlah` = `jumlah` + `x_banyak_skin` WHERE `id` = @id;
-		END IF;
-	ELSE
-		INSERT INTO `user_skin`(id_skin, id_user, jumlah) VALUES(`x_id_skin`, `x_id_user`, `x_banyak_skin`); 
-	END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_transaksi_atm` (`rekening_pengirim` VARCHAR(50), `rekening_penerima` VARCHAR(50), `ex_nominal` BIGINT, `ex_keterangan` TEXT)  BEGIN
-	INSERT INTO `trans_atm`(id_user, id_pengirim_penerima, nominal, tanggal, keterangan) 
-	SELECT a.id as id_user, b.id as id_pengirim_penerima, ex_nominal as nominal, NOW() as tanggal, ex_keterangan as keterangan FROM `user` a
-	LEFT JOIN `user` b ON b.rekening = rekening_pengirim WHERE a.rekening = rekening_penerima;
-END$$
-
-DELIMITER ;
-
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `enter_exit`
 --
 
+DROP TABLE IF EXISTS `enter_exit`;
 CREATE TABLE `enter_exit` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `posisi_x` float NOT NULL,
@@ -119,9 +47,31 @@ CREATE TABLE `enter_exit` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `faction`
+--
+
+DROP TABLE IF EXISTS `faction`;
+CREATE TABLE `faction` (
+  `id` tinyint(3) UNSIGNED NOT NULL,
+  `nama_faction` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `faction`
+--
+
+INSERT INTO `faction` (`id`, `nama_faction`) VALUES
+(1, 'Departemen Polisi'),
+(2, 'Departemen Medis'),
+(3, 'Departemen Pemerintah');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `furniture`
 --
 
+DROP TABLE IF EXISTS `furniture`;
 CREATE TABLE `furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `nama_furniture` varchar(255) NOT NULL,
@@ -144,6 +94,7 @@ INSERT INTO `furniture` (`id`, `nama_furniture`, `id_object`, `keterangan`, `kap
 -- Table structure for table `gaji`
 --
 
+DROP TABLE IF EXISTS `gaji`;
 CREATE TABLE `gaji` (
   `id_gaji` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -159,6 +110,7 @@ CREATE TABLE `gaji` (
 -- Table structure for table `house`
 --
 
+DROP TABLE IF EXISTS `house`;
 CREATE TABLE `house` (
   `id_house` int(20) NOT NULL,
   `id_user` int(20) NOT NULL DEFAULT -1,
@@ -178,6 +130,7 @@ CREATE TABLE `house` (
 -- Table structure for table `house_furniture`
 --
 
+DROP TABLE IF EXISTS `house_furniture`;
 CREATE TABLE `house_furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_house` bigint(20) NOT NULL,
@@ -196,6 +149,7 @@ CREATE TABLE `house_furniture` (
 -- Table structure for table `house_interior`
 --
 
+DROP TABLE IF EXISTS `house_interior`;
 CREATE TABLE `house_interior` (
   `id_level` int(10) UNSIGNED NOT NULL,
   `nama_level` varchar(255) NOT NULL,
@@ -210,26 +164,13 @@ CREATE TABLE `house_interior` (
   `limit_item` int(10) NOT NULL COMMENT 'Limit item yang didapat di simpan pada rumah'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `house_interior`
---
-
-INSERT INTO `house_interior` (`id_level`, `nama_level`, `pickup_out_x`, `pickup_out_y`, `pickup_out_z`, `spawn_in_x`, `spawn_in_y`, `spawn_in_z`, `spawn_in_a`, `spawn_in_interior`, `limit_item`) VALUES
-(1, 'Rumah Kecil I', 223.2, 1287.08, 1082.14, 223.253, 1288.57, 1082.13, 357.976, 1, 50),
-(2, 'Rumah Kecil II', 328.05, 1477.73, 1084.44, 328.666, 1481.18, 1084.44, 355.848, 15, 100),
-(3, 'Rumah Medium I', 377.15, 1417.41, 1081.33, 373.995, 1417.33, 1081.33, 87.4219, 15, 150),
-(4, 'Rumah Medium II', 260.85, 1237.24, 1084.26, 260.985, 1240.1, 1084.26, 356.931, 9, 200),
-(5, 'Rumah Besar I', 2324.53, -1149.54, 1050.71, 2324.36, -1146.56, 1050.71, 357.809, 12, 250),
-(6, 'Rumah Besar II', 2317.89, -1026.76, 1050.22, 2320.36, -1024.11, 1050.21, 1.2377, 9, 300),
-(7, 'Rumah Mansion I', 234.19, 1063.73, 1084.21, 234.253, 1067.19, 1084.21, 358.955, 6, 350),
-(8, 'Rumah Mansion II', 1260.64, -785.37, 1091.91, 1265.12, -782.524, 1091.91, 282.015, 5, 400);
-
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `house_inv_item`
 --
 
+DROP TABLE IF EXISTS `house_inv_item`;
 CREATE TABLE `house_inv_item` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_item` bigint(20) NOT NULL,
@@ -243,6 +184,7 @@ CREATE TABLE `house_inv_item` (
 -- Table structure for table `item`
 --
 
+DROP TABLE IF EXISTS `item`;
 CREATE TABLE `item` (
   `id_item` int(255) NOT NULL,
   `nama_item` varchar(255) NOT NULL,
@@ -272,7 +214,7 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (12, 'Perak', 16134, 'Perak adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1, 3),
 (13, 'Air Minum Mineral', 2647, 'Air minum mineral dapat menambah status minum sebanyak 5', 'pakaiMinuman', 1, 1),
 (14, 'Steak', 19882, 'Steak dapat menambah status makan sebanyak 50', 'pakaiMakanan', 2, 2),
-(15, 'SIM', 1581, 'SIM sebagai identitas kelayakan berkendara.', NULL, 2, 2),
+(15, 'SIM A', 1581, 'SIM A sebagai identitas kelayakan mengendarai kendaraan berupa mobil pribadi.', NULL, 2, 2),
 (16, 'Nasi Bungkus', 2678, 'Nasi bungkus dapat menambah status makan sebanyak 37,5', 'pakaiMakanan', 2, 1),
 (17, 'Sate', 2858, 'Sate dapat menambah status makan sebanyak 30', 'pakaiMakanan', 2, 1),
 (18, 'Jus Jeruk', 19564, 'Jus jeruk dapat menambah status minum sebanyak 25', 'pakaiMinuman', 1, 1),
@@ -303,7 +245,9 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (43, 'Roti - Umpan Ikan', 19883, 'Roti - Umpan Ikan adalah umpan yang digunakan untuk memancing ikan.', 'pakaiUmpanIkan', 1, 1),
 (44, 'Bensin 20 Liter', 1650, 'Dapat menambahkan bensin kendaraan anda sebanyak 20 liter', 'pakaiBensin', 2, 2),
 (45, 'Bensin 50 Liter', 1650, 'Dapat menambahkan bensin kendaraan anda sebanyak 50 liter', 'pakaiBensin', 3, 2),
-(46, 'Bensin 100 Liter', 1650, 'Dapat menambahkan bensin kendaraan anda sebanyak 100 liter', 'pakaiBensin', 4, 2);
+(46, 'Bensin 100 Liter', 1650, 'Dapat menambahkan bensin kendaraan anda sebanyak 100 liter', 'pakaiBensin', 4, 2),
+(47, 'SIM B', 1581, 'SIM B sebagai identitas kelayakan mengendarai kendaraan berupa mobil penumpang atau barang.', NULL, 1, 2),
+(48, 'SIM C', 1581, 'SIM C sebagai identitas kelayakan mengendarai kendaraan berupa motor.', NULL, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -311,6 +255,7 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 -- Table structure for table `item_rarity`
 --
 
+DROP TABLE IF EXISTS `item_rarity`;
 CREATE TABLE `item_rarity` (
   `id` tinyint(2) UNSIGNED NOT NULL,
   `nama_rarity` varchar(50) NOT NULL,
@@ -336,6 +281,7 @@ INSERT INTO `item_rarity` (`id`, `nama_rarity`, `hex_color`) VALUES
 -- Table structure for table `item_sp`
 --
 
+DROP TABLE IF EXISTS `item_sp`;
 CREATE TABLE `item_sp` (
   `id` int(11) UNSIGNED NOT NULL,
   `nama_item` varchar(255) NOT NULL,
@@ -358,18 +304,12 @@ INSERT INTO `item_sp` (`id`, `nama_item`, `model_id`, `fungsi`, `keterangan`) VA
 -- Table structure for table `jenis_blocked`
 --
 
+DROP TABLE IF EXISTS `jenis_blocked`;
 CREATE TABLE `jenis_blocked` (
   `id` tinyint(1) UNSIGNED NOT NULL,
   `nama` varchar(100) DEFAULT NULL,
   `keterangan` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `jenis_blocked`
---
-
-INSERT INTO `jenis_blocked` (`id`, `nama`, `keterangan`) VALUES
-(1, 'Dikunci Sementara', 'Tidak diperbolehkan login sampai waktu yang telah ditentukan');
 
 -- --------------------------------------------------------
 
@@ -377,6 +317,7 @@ INSERT INTO `jenis_blocked` (`id`, `nama`, `keterangan`) VALUES
 -- Table structure for table `logs_user_konek`
 --
 
+DROP TABLE IF EXISTS `logs_user_konek`;
 CREATE TABLE `logs_user_konek` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -392,6 +333,7 @@ CREATE TABLE `logs_user_konek` (
 -- Table structure for table `lumber`
 --
 
+DROP TABLE IF EXISTS `lumber`;
 CREATE TABLE `lumber` (
   `id` int(20) NOT NULL,
   `treeX` varchar(32) NOT NULL,
@@ -408,6 +350,7 @@ CREATE TABLE `lumber` (
 -- Table structure for table `papan`
 --
 
+DROP TABLE IF EXISTS `papan`;
 CREATE TABLE `papan` (
   `id_papan` bigint(20) UNSIGNED NOT NULL,
   `id_model` bigint(20) NOT NULL,
@@ -427,6 +370,7 @@ CREATE TABLE `papan` (
 -- Table structure for table `pengambilan_ktp`
 --
 
+DROP TABLE IF EXISTS `pengambilan_ktp`;
 CREATE TABLE `pengambilan_ktp` (
   `id` bigint(20) NOT NULL,
   `id_user` bigint(20) NOT NULL,
@@ -440,11 +384,13 @@ CREATE TABLE `pengambilan_ktp` (
 -- Table structure for table `pengambilan_sim`
 --
 
+DROP TABLE IF EXISTS `pengambilan_sim`;
 CREATE TABLE `pengambilan_sim` (
   `id` bigint(20) NOT NULL,
   `id_user` bigint(20) NOT NULL,
   `tanggal_buat` datetime NOT NULL,
   `tanggal_ambil` datetime NOT NULL,
+  `tipe_sim` tinyint(1) DEFAULT NULL,
   `status_teori` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
@@ -454,6 +400,7 @@ CREATE TABLE `pengambilan_sim` (
 -- Table structure for table `skill`
 --
 
+DROP TABLE IF EXISTS `skill`;
 CREATE TABLE `skill` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `nama_skill` varchar(255) NOT NULL
@@ -473,6 +420,7 @@ INSERT INTO `skill` (`id`, `nama_skill`) VALUES
 -- Table structure for table `sms`
 --
 
+DROP TABLE IF EXISTS `sms`;
 CREATE TABLE `sms` (
   `id_sms` bigint(20) UNSIGNED NOT NULL,
   `id_user_pengirim` bigint(20) UNSIGNED NOT NULL,
@@ -488,6 +436,7 @@ CREATE TABLE `sms` (
 -- Table structure for table `tempat_atm`
 --
 
+DROP TABLE IF EXISTS `tempat_atm`;
 CREATE TABLE `tempat_atm` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `pos_x` float NOT NULL,
@@ -504,6 +453,7 @@ CREATE TABLE `tempat_atm` (
 -- Table structure for table `toko_perabot`
 --
 
+DROP TABLE IF EXISTS `toko_perabot`;
 CREATE TABLE `toko_perabot` (
   `id` bigint(20) NOT NULL,
   `text_toko` text DEFAULT NULL,
@@ -520,6 +470,7 @@ CREATE TABLE `toko_perabot` (
 -- Table structure for table `toko_perabot_item`
 --
 
+DROP TABLE IF EXISTS `toko_perabot_item`;
 CREATE TABLE `toko_perabot_item` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_furniture` bigint(20) NOT NULL,
@@ -533,6 +484,7 @@ CREATE TABLE `toko_perabot_item` (
 -- Table structure for table `trans_atm`
 --
 
+DROP TABLE IF EXISTS `trans_atm`;
 CREATE TABLE `trans_atm` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) NOT NULL,
@@ -542,12 +494,57 @@ CREATE TABLE `trans_atm` (
   `keterangan` text DEFAULT NULL COMMENT 'Berisi keterangan dari pengirim'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `trans_atm`
+--
+
+INSERT INTO `trans_atm` (`id`, `id_user`, `id_pengirim_penerima`, `nominal`, `tanggal`, `keterangan`) VALUES
+(1, 22, NULL, 2000, '2020-05-19 11:52:04', 'tes'),
+(2, 22, NULL, 10, '2020-05-19 12:20:34', 'Deposit tabungan'),
+(3, 22, NULL, -10, '2020-05-20 22:29:34', 'Penarikan uang'),
+(4, 22, NULL, 1050, '2020-05-23 14:50:16', 'Pencairan gaji'),
+(5, 22, NULL, -100, '2020-05-23 14:50:48', 'Penarikan uang'),
+(6, 22, NULL, -100, '2020-05-23 14:50:55', 'Penarikan uang'),
+(7, 22, NULL, 400, '2020-05-23 14:51:28', 'Deposit tabungan'),
+(8, 22, NULL, 70, '2020-05-23 14:51:56', 'Deposit tabungan'),
+(9, 22, NULL, -3000, '2020-05-23 14:52:11', 'Penarikan uang'),
+(10, 22, NULL, 2800, '2020-05-23 21:55:28', 'Deposit tabungan'),
+(11, 22, NULL, -20, '2020-05-25 16:01:41', 'Pembelian Air Minum Mineral sebanyak 10'),
+(12, 22, NULL, -3000, '2020-05-25 16:06:31', 'Penarikan uang'),
+(13, 22, NULL, -10, '2020-05-25 16:07:54', 'Pembelian Steak sebanyak 1'),
+(14, 22, NULL, -2, '2020-05-25 16:09:06', 'Pembelian Air Minum Mineral sebanyak 1'),
+(15, 22, NULL, -2, '2020-05-25 16:09:13', 'Pembelian Air Minum Mineral sebanyak 1'),
+(16, 22, NULL, -2, '2020-05-25 16:09:35', 'Pembelian Air Minum Mineral sebanyak 1'),
+(17, 22, NULL, -2, '2020-05-25 16:09:42', 'Pembelian Air Minum Mineral sebanyak 1'),
+(18, 22, NULL, -2, '2020-05-25 16:09:48', 'Pembelian Air Minum Mineral sebanyak 1'),
+(19, 22, NULL, -2, '2020-05-25 16:09:56', 'Pembelian Air Minum Mineral sebanyak 1'),
+(20, 22, NULL, -2, '2020-05-25 16:10:05', 'Pembelian Air Minum Mineral sebanyak 1'),
+(21, 22, NULL, -2, '2020-05-25 16:10:11', 'Pembelian Air Minum Mineral sebanyak 1'),
+(22, 22, NULL, -2, '2020-05-25 16:20:31', 'Pembelian Air Minum Mineral sebanyak 1'),
+(23, 22, NULL, 0, '2020-05-25 16:24:24', 'Pembelian Steak sebanyak 0'),
+(24, 22, NULL, 0, '2020-05-25 16:24:50', 'Pembelian Steak sebanyak 0'),
+(25, 22, NULL, -2, '2020-05-25 16:26:34', 'Pembelian Air Minum Mineral sebanyak 1'),
+(26, 22, NULL, -20, '2020-05-25 18:28:51', 'Pembelian Air Minum Mineral sebanyak 10'),
+(27, 22, NULL, 2000, '2020-05-26 13:12:46', 'Deposit tabungan'),
+(28, 22, NULL, 1000, '2020-05-26 14:15:57', 'Deposit tabungan'),
+(29, 22, NULL, -100, '2020-05-26 14:16:05', 'Penarikan uang'),
+(30, 22, NULL, -1000, '2020-05-26 14:16:14', 'Penarikan uang'),
+(31, 22, NULL, -250, '2020-05-30 14:23:01', 'biaya perbaikan Windsor'),
+(32, 22, NULL, -250, '2020-05-31 11:42:41', 'biaya perbaikan FCR-900'),
+(33, 22, NULL, -200, '2020-05-31 14:22:52', 'Pembelian Air Minum Mineral sebanyak 100'),
+(34, 22, NULL, -100, '2020-06-01 23:34:43', 'Pembelian Air Minum Mineral sebanyak 50'),
+(35, 22, NULL, -32, '2020-06-01 23:37:04', 'Pembelian Air Minum Mineral sebanyak 16'),
+(36, 24, NULL, 10000, '2020-07-14 22:50:01', 'Deposit tabungan'),
+(37, 24, NULL, -1000, '2020-07-14 22:50:25', 'Pembelian Savanna dari dealer'),
+(38, 22, NULL, -1000, '2020-07-31 21:22:55', 'Pembelian Stratum dari dealer');
+
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `user`
 --
 
+DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` bigint(20) UNSIGNED NOT NULL COMMENT 'ID Player',
   `nama` varchar(50) NOT NULL COMMENT 'Nama Pemain',
@@ -579,12 +576,31 @@ CREATE TABLE `user` (
   `login_attempt` tinyint(1) DEFAULT 0 COMMENT 'Attempt yang terjadi pada login sebelumnya'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`id`, `nama`, `password`, `current_skin`, `jumlah_login`, `join_date`, `uang`, `jenis_kelamin`, `email`, `account_status`, `last_x`, `last_y`, `last_z`, `last_a`, `last_int`, `last_vw`, `nomor_handphone`, `masa_aktif_nomor`, `use_phone`, `rekening`, `save_house`, `last_hp`, `last_armour`, `last_stats_makan`, `last_stats_minum`, `playtime`, `in_house`, `login_attempt`) VALUES
+(22, 'cosinus', '6E1789AD7F6CFF1BAF1DA2A6B7745F9F6CA6F0F3CCDBA5C97FC40EB22EF7793C', 28, 457, '2020-04-24 21:12:03', 106043, 0, 'nathan@gmail.com', 0, '1691.275635', '-1618.101074', '13.382813', '191.118088', '0', '0', '621234', '2020-08-20 16:31:12', 4, '12345678', 2, 95, 0, 61, 58.5, 128818, 0, 0),
+(23, 'Anxitail', '465EBC8A47CC6776C8131DC0EA4EA26B621D72E4B86852B0D51F7A14ACBBA214', 24, 1, '2020-04-25 16:48:59', 100, 0, 'kolak@gmail.com', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0),
+(24, 'cosine', '2308812CE036BE27F4D6818D366094F107A5DB381F4B91973A7A4F6DA4AE1557', 19, 105, '2020-04-30 15:31:48', 154815, 0, 'natan@gmail.com', 0, '1480.604614', '-1652.693726', '13.292188', '264.581512', '0', '0', '629876', NULL, 3, '12345671', 0, 95, 0, 80, 37, 5245, 0, 0),
+(25, 'cosines', '9E3645C36D5625B86030BC447A51771E48B0C1D82360E4FCFD15AE896407663B', 76, 4, '2020-05-03 01:51:46', 0, 1, 'nathan@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0),
+(26, 'cosinec', '4673452E1D20E8417166B9FF852DC48246F1D1D24FD11076976A3DCB4307675B', 298, 3, '2020-05-03 16:56:12', 0, 1, 'nathan@gmail.com', 0, '188.238831', '-1935.149414', '-0.552782', '273.730988', '0', '0', NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0),
+(27, 'cosiozo', 'EEF3ABEA0977171744D9AC2BF8A4761A389F8C55136BDC00B02E9E49524340B1', 9, 1, '2020-05-10 16:59:42', 100, 1, 'asd2@gmail.com', 0, '285.288879', '-1863.428467', '2.890330', '309.904419', '0', '0', NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0),
+(28, 'cosine_xx', 'FE1F21653A573338CC45562B2F50BD5F0F4B5DBC7AE9E67DD7702A3FEA265DB2', 25, 3, '2020-05-13 14:14:19', 100, 0, 'natan@gmail.com', 0, '597.599731', '-1747.577515', '37.244843', '312.951660', '0', '0', NULL, NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0),
+(29, 'xoxo', 'FC922095F45335113D9195483EA4E2F6CBA407DAB53BF08D7F1C8B58177FD0EB', 172, 2, '2020-05-23 17:35:10', 100, 1, 'xoxo@gmail.com', 0, '329.041931', '-1804.449341', '4.580854', '307.374207', '0', '0', '621234', NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0),
+(30, 'sin', '406F041ABFCF5AFC6A7A6A4FF6F7D4FAED5707AC7E4DD6A50B77950E19339215', 17, 2, '2020-05-26 20:05:42', 100, 0, 'fasda@gmail.com', 0, '299.019104', '-2026.331421', '1.413125', '1.111884', '0', '0', '621234', NULL, 3, NULL, 0, 100, 0, 80, 80, NULL, 0, 0),
+(31, 'sors', 'F73EBB3BBF72A9E75B5C4676A2313AC1BE6CF8B14F4749E03EAA38924F04E646', 41, 1, '2020-07-16 11:43:58', 100, 1, 'asd@gmail.com', 0, '289.497101', '-1963.463501', '2.463300', '356.134369', '0', '0', NULL, NULL, 0, NULL, 0, 100, 0, 80, 79, 9, 0, 0),
+(32, 'sorse', '488C5AA934DBD590833909689E833E7BE7AD1DDAD40BF0AD5730C38317B0C27B', 21, 1, '2020-07-16 11:44:43', 100, 0, 'ads@gmail.com', 0, '1668.485474', '-2319.720215', '13.382813', '271.152710', '0', '0', NULL, NULL, 0, NULL, 0, 100, 0, 80, 78.5, 16, 0, 0),
+(33, 'cosinuszz', '7CF2E85D8734E1AEE3B99349E3F7BCCE92DC85634D0C479EA2D56247381170D4', 20, 2, '2020-07-31 18:42:40', 8600, 0, 'fasdmas@gmail.com', 0, '1435.767212', '-1437.876587', '25.185537', '86.357544', '0', '0', NULL, NULL, 0, NULL, 0, 100, 0, 79, 78, 117, 0, 0);
+
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `user_blocked`
 --
 
+DROP TABLE IF EXISTS `user_blocked`;
 CREATE TABLE `user_blocked` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) NOT NULL,
@@ -597,9 +613,25 @@ CREATE TABLE `user_blocked` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `user_faction`
+--
+
+DROP TABLE IF EXISTS `user_faction`;
+CREATE TABLE `user_faction` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_faction` tinyint(3) UNSIGNED NOT NULL COMMENT 'Tipe Job Pemain :',
+  `id_user` bigint(20) NOT NULL,
+  `level` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
+  `expired` datetime DEFAULT NULL COMMENT 'Expired jika masa kerja temporary'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user_furniture`
 --
 
+DROP TABLE IF EXISTS `user_furniture`;
 CREATE TABLE `user_furniture` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_furniture` int(11) NOT NULL,
@@ -613,6 +645,7 @@ CREATE TABLE `user_furniture` (
 -- Table structure for table `user_item`
 --
 
+DROP TABLE IF EXISTS `user_item`;
 CREATE TABLE `user_item` (
   `id_user_item` bigint(20) UNSIGNED NOT NULL,
   `id_item` bigint(20) UNSIGNED NOT NULL,
@@ -627,6 +660,7 @@ CREATE TABLE `user_item` (
 -- Table structure for table `user_item_limit`
 --
 
+DROP TABLE IF EXISTS `user_item_limit`;
 CREATE TABLE `user_item_limit` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -634,12 +668,31 @@ CREATE TABLE `user_item_limit` (
   `expired` datetime DEFAULT NULL COMMENT 'Jika null berarti permanent'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `user_item_limit`
+--
+
+INSERT INTO `user_item_limit` (`id`, `id_user`, `jumlah`, `expired`) VALUES
+(1, 23, 150, NULL),
+(2, 24, 150, NULL),
+(3, 26, 150, NULL),
+(4, 25, 150, NULL),
+(5, 28, 150, NULL),
+(6, 22, 150, NULL),
+(7, 27, 150, NULL),
+(8, 30, 150, NULL),
+(9, 29, 150, NULL),
+(10, 31, 150, NULL),
+(11, 32, 150, NULL),
+(12, 33, 150, NULL);
+
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `user_item_sp`
 --
 
+DROP TABLE IF EXISTS `user_item_sp`;
 CREATE TABLE `user_item_sp` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_item_sp` int(11) NOT NULL,
@@ -653,6 +706,7 @@ CREATE TABLE `user_item_sp` (
 -- Table structure for table `user_skill`
 --
 
+DROP TABLE IF EXISTS `user_skill`;
 CREATE TABLE `user_skill` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_skill` bigint(20) UNSIGNED NOT NULL,
@@ -667,6 +721,7 @@ CREATE TABLE `user_skill` (
 -- Table structure for table `user_skin`
 --
 
+DROP TABLE IF EXISTS `user_skin`;
 CREATE TABLE `user_skin` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -680,6 +735,7 @@ CREATE TABLE `user_skin` (
 -- Table structure for table `vehicle`
 --
 
+DROP TABLE IF EXISTS `vehicle`;
 CREATE TABLE `vehicle` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_pemilik` bigint(20) UNSIGNED NOT NULL COMMENT 'ID Pemilik Kendaraan',
@@ -721,6 +777,7 @@ CREATE TABLE `vehicle` (
 -- Table structure for table `vehicle_components`
 --
 
+DROP TABLE IF EXISTS `vehicle_components`;
 CREATE TABLE `vehicle_components` (
   `componentid` smallint(4) UNSIGNED NOT NULL,
   `part` enum('Exhausts','Front Bullbars','Front Bumper','Hood','Hydraulics','Lights','Misc','Rear Bullbars','Rear Bumper','Roof','Side Skirts','Spoilers','Vents','Wheels') DEFAULT NULL,
@@ -904,6 +961,7 @@ INSERT INTO `vehicle_components` (`componentid`, `part`, `type`, `cars`) VALUES
 -- Table structure for table `vehicle_dealer`
 --
 
+DROP TABLE IF EXISTS `vehicle_dealer`;
 CREATE TABLE `vehicle_dealer` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_model` int(5) NOT NULL COMMENT 'ID Jenis kendaraan',
@@ -922,6 +980,7 @@ CREATE TABLE `vehicle_dealer` (
 -- Table structure for table `vehicle_keys`
 --
 
+DROP TABLE IF EXISTS `vehicle_keys`;
 CREATE TABLE `vehicle_keys` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
@@ -935,6 +994,7 @@ CREATE TABLE `vehicle_keys` (
 -- Table structure for table `vehicle_model_parts`
 --
 
+DROP TABLE IF EXISTS `vehicle_model_parts`;
 CREATE TABLE `vehicle_model_parts` (
   `modelid` smallint(3) UNSIGNED NOT NULL,
   `parts` bit(9) NOT NULL
@@ -1088,6 +1148,12 @@ ALTER TABLE `enter_exit`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `faction`
+--
+ALTER TABLE `faction`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `furniture`
 --
 ALTER TABLE `furniture`
@@ -1222,6 +1288,12 @@ ALTER TABLE `user_blocked`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `user_faction`
+--
+ALTER TABLE `user_faction`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `user_furniture`
 --
 ALTER TABLE `user_furniture`
@@ -1302,6 +1374,12 @@ ALTER TABLE `enter_exit`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `faction`
+--
+ALTER TABLE `faction`
+  MODIFY `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `furniture`
 --
 ALTER TABLE `furniture`
@@ -1329,7 +1407,7 @@ ALTER TABLE `house_furniture`
 -- AUTO_INCREMENT for table `house_interior`
 --
 ALTER TABLE `house_interior`
-  MODIFY `id_level` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_level` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `house_inv_item`
@@ -1341,7 +1419,7 @@ ALTER TABLE `house_inv_item`
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `item_rarity`
@@ -1359,7 +1437,7 @@ ALTER TABLE `item_sp`
 -- AUTO_INCREMENT for table `jenis_blocked`
 --
 ALTER TABLE `jenis_blocked`
-  MODIFY `id` tinyint(1) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` tinyint(1) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `logs_user_konek`
@@ -1407,18 +1485,24 @@ ALTER TABLE `toko_perabot_item`
 -- AUTO_INCREMENT for table `trans_atm`
 --
 ALTER TABLE `trans_atm`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID Player';
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID Player', AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `user_blocked`
 --
 ALTER TABLE `user_blocked`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `user_faction`
+--
+ALTER TABLE `user_faction`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -1437,7 +1521,7 @@ ALTER TABLE `user_item`
 -- AUTO_INCREMENT for table `user_item_limit`
 --
 ALTER TABLE `user_item_limit`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `user_item_sp`
