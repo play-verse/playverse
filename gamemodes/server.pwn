@@ -2371,6 +2371,36 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							DeletePVar(playerid, "info_rumah");
 						}
 					}
+				}else if(sama("trashM_rumah", infoRumah)){
+					switch(listitem){
+						case 0:
+						{
+							goto label_tentang_rumah;
+						}
+						case 1:
+						{
+							// Ambil Sampah
+							if(trashM_BagCap[playerid] == 1) return error_command(playerid, "Anda sedang membawa sampah, taruh ke dalam truk sampah terlebih dahulu!");
+							trashM_BagCap[playerid] = 1;
+							new houseClosest = GetClosestHouse(playerid, 10, 10000, 1);
+							if(houseClosest == -1){
+								error_command(playerid, "Mohon maaf saat ini tidak tersedia sampah untuk di ambil.");
+								TogglePlayerAllDynamicCPs(playerid, 1);
+								SetPlayerCheckpoint(playerid, 1644.5551,-1537.3542,13.5697, 3.0);
+								return 1;
+							}
+							trashM_House[playerid] = houseClosest;
+							trashM_HouseTake[playerid][houseClosest] = 1;
+							trashM_X[playerid] = houseInfo[houseClosest][icon_x];
+							trashM_Y[playerid] = houseInfo[houseClosest][icon_y];
+							trashM_Z[playerid] = houseInfo[houseClosest][icon_z];
+							SetPlayerAttachedObject(playerid, TRASH_ATTACH_INDEX, 1264, 6, 0.222, 0.024, 0.128, 1.90, -90.0, 0.0, 0.5,0.5, 0.5);
+							SetPlayerCheckpoint(playerid, trashM_X[playerid], trashM_Y[playerid], trashM_Z[playerid], 3.0);
+							GameTextForPlayer(playerid, "~y~Terus Bekerja", 2000, 3);
+							ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 1, 1, 0, 0, 1);
+							SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda berhasil mengangkut sampah ke dalam tas sampah.");
+						}
+					}
 				}
 			}else{
 				DeletePVar(playerid, "info_rumah");
@@ -3244,8 +3274,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				usedSweeper[vehid] = 1;
 				SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper1, CP_sweeper2, 3.0);
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Sweeper"YELLOW"!");
-				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
-				todoTimeout[playerid] = SetPreciseTimer("todoExit", 600000, false, "ii", playerid, vehid);
+				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit, jika belum selesai anda akan gagal.", TIME_SWEEPER);
+				todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_SWEEPER*60000, false, "i", playerid);
 			}else{
 				RemovePlayerFromVehicle(playerid);
 			}
@@ -5802,6 +5832,74 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_JOB_TRASHMASTER_ENTER:
+		{
+			if(response){
+				if(todoActive(playerid) == 1){
+					RemovePlayerFromVehicle(playerid);
+					return 1;
+				}
+				new vehid = GetPlayerVehicleID(playerid),
+				houseClosest = GetClosestHouse(playerid, 10, 10000, 1);
+				if(houseClosest == -1){
+					SetVehicleToRespawn(vehid);
+					error_command(playerid, "Mohon maaf saat ini tidak tersedia sampah untuk di ambil.");
+					return 1;
+				}
+				trashM_House[playerid] = houseClosest;
+				trashM_X[playerid] = houseInfo[houseClosest][icon_x];
+				trashM_Y[playerid] = houseInfo[houseClosest][icon_y];
+				trashM_Z[playerid] = houseInfo[houseClosest][icon_z];
+				trashM_Job[playerid] = 1;
+				trashM_Id[playerid] = vehid;
+				trashM_Used[vehid] = 1;
+				TogglePlayerAllDynamicCPs(playerid, 0);
+				SetPlayerCheckpoint(playerid, trashM_X[playerid], trashM_Y[playerid], trashM_Z[playerid], 3.0);
+				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Trashmaster"YELLOW"!");
+				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit, jika belum selesai anda akan gagal.", TIME_TRASHMASTER);
+				todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_TRASHMASTER*60000, false, "i", playerid);
+			}else{
+				RemovePlayerFromVehicle(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_JOB_TRASHMASTER_CMD:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						// Angkut Sampah
+						if(trashM_Job[playerid] != 1) return error_command(playerid, "Anda bukan pengangkut sampah dan tidak dapat melakukan ini.");
+						new vid = GetNearestVehicleToPlayer(playerid);
+						if(GetVehicleModel(vid) != 408) return error_command(playerid, "Anda tidak berada disekitar truk sampah.");
+						new Float: x, Float: y, Float: z;
+						GetVehicleBoot(vid, x, y, z);
+						if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Anda tidak berada tepat dibelakang truk sampah.");
+						if(trashM_VehCap[vid] >= VEH_TRASH_LIMIT) return error_command(playerid, "Maaf kapasitas truk sampah sudah penuh, tidak dapat mengangkut lagi.");
+						trashM_VehCap[vid] += trashM_BagCap[playerid];
+						trashM_BagCap[playerid] = 0;
+						SetPlayerLookAt(playerid, x, y);
+						ApplyAnimation(playerid, "GRENADE", "WEAPON_throwu", 4.1, 0, 0, 0, 0, 0);
+						if(IsPlayerAttachedObjectSlotUsed(playerid, TRASH_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TRASH_ATTACH_INDEX);
+						SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda berhasil mengangkut sampah ke dalam truk sampah.");
+						if(trashM_VehCap[vid] == VEH_TRASH_LIMIT){
+							TogglePlayerAllDynamicCPs(playerid, 1);
+							SetPlayerCheckpoint(playerid, 1644.5551,-1537.3542,13.5697, 3.0);
+						}
+					}
+					case 1:
+					{
+						// Muatan Sampah
+						new vid = GetPlayerVehicleID(playerid);
+						if(!IsPlayerInVehicle(playerid, vid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
+						if(GetVehicleModel(vid) != 408) return error_command(playerid, "Anda tidak berada di dalam kendaraan truk sampah.");
+						format(pDialog[playerid], sizePDialog, WHITE"Kendaraan anda memiliki muatan sampah sebanyak "GREEN"%d"WHITE" buah.", trashM_VehCap[vid]);
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Muatan Sampah", pDialog[playerid], "Ok", "");
+					}
+				}
+			}
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -6260,6 +6358,13 @@ public OnGameModeInit()
 	Iter_Add(vehicleSweeper, vehicleSweeper[1]);
 	Iter_Add(vehicleSweeper, vehicleSweeper[2]);
 
+	// Trashmaster Vehicle
+    trashM_Veh[0] = CreateVehicle(408, 1617.6511, -1554.3311, 13.4784, 0.0000, -1, -1, 60);
+	trashM_Veh[1] = CreateVehicle(408, 1607.9219, -1554.7930, 13.4762, 0.0000, -1, -1, 60);
+	trashM_Veh[2] = CreateVehicle(408, 1597.0359, -1554.9255, 13.4827, 0.0000, -1, -1, 60);
+	Iter_Add(trashM_Veh, trashM_Veh[0]);
+	Iter_Add(trashM_Veh, trashM_Veh[1]);
+	Iter_Add(trashM_Veh, trashM_Veh[2]);
 
 	// SIM Vehicle
 	vehicleSIM[0] = CreateVehicle(410, 1362.7140, -1651.1733, 13.1261, 270.3739, -1, -1, 60);
@@ -6348,9 +6453,20 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 				error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang melakukan pekerjaan Sweeper.");
 				RemovePlayerFromVehicle(playerid);
 			}
+		}else if(Iter_Contains(trashM_Veh, vehid)){
+			if(trashM_Job[playerid] == 0 && trashM_Used[vehid] != 1){
+				ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_ENTER, DIALOG_STYLE_MSGBOX, "Trashmaster Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Trashmaster"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+			}else if(trashM_Job[playerid] == 1 && trashM_Id[playerid] == vehid){
+				DeletePreciseTimer(todoTimer[playerid]);
+			}else if(trashM_Job[playerid] == 1 && trashM_Id[playerid] != vehid){
+				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
+				RemovePlayerFromVehicle(playerid);
+			}else if(trashM_Job[playerid] == 0 && trashM_Used[vehid] == 1){
+				error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang melakukan pekerjaan Sweeper.");
+				RemovePlayerFromVehicle(playerid);
+			}
 		}
-	}
-	else if((oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER) && newstate == PLAYER_STATE_ONFOOT){
+	}else if((oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER) && newstate == PLAYER_STATE_ONFOOT){
 		HideSpeedoForPlayer(playerid);
 	}
 	return 1;
@@ -6360,10 +6476,13 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 {
 	if(Iter_Contains(vehicleSweeper, vehicleid) && sweeperJob[playerid] == 1 && sweeperId[playerid] == vehicleid){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda keluar dari kendaraan, silahkan kembali bekerja! "WHITE"Sebelum 30 detik atau anda berhenti bekerja.");
-		todoTimer[playerid] = SetPreciseTimer("todoExit", 30000, false, "ii", playerid, sweeperId[playerid]);
+		todoTimer[playerid] = SetPreciseTimer("resetPlayerToDo", 30000, false, "i", playerid);
+	}else if(Iter_Contains(trashM_Veh, vehicleid) && trashM_Job[playerid] == 1 && trashM_Id[playerid] == vehicleid){
+		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Silahkan lakukan pekerjaan dengan benar! "WHITE"Sebelum 5 menit atau anda berhenti bekerja.");
+		todoTimer[playerid] = SetPreciseTimer("resetPlayerToDo", 5*60000, false, "i", playerid);
 	}else if(Iter_Contains(vehicleSIM, vehicleid) && testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehicleid){
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda keluar dari kendaraan, silahkan kembali praktik! "WHITE"Sebelum 30 detik atau anda gagal Ujian Praktik SIM.");
-		todoTimer[playerid] = SetPreciseTimer("todoExit", 30000, false, "ii", playerid, vehicleIdSIM[playerid]);
+		todoTimer[playerid] = SetPreciseTimer("resetPlayerToDo", 30000, false, "i", playerid);
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER){ // Jika player baru saja keluar dari mengemudi
 		if(Iter_Contains(IDVehToPVehIterator, vehicleid)){ // Jika kendaraan adalah kendaraan berpemilik
 			new Float:darah;
@@ -6662,16 +6781,12 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 			SetPlayerRaceCheckpoint(playerid, 1, CP_sweeper35, 0.0, 0.0, 0.0, 3.0);
 			GameTextForPlayer(playerid, "~y~Membersihkan...", 2000, 3);
 		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper35)){
-			addGajiPemain(playerid, 100, "Pembersih jalan (sweeper)");
+			todoFinish[playerid] = 1;
+			resetPlayerToDo(playerid);
+			addGajiPemain(playerid, GAJI_SWEEPER, "Pembersih jalan (sweeper)");
 			GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
-			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$100\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", "Ok", "");
-			DisablePlayerRaceCheckpoint(playerid);
-			SetVehicleToRespawn(sweeperId[playerid]);
-			DeletePreciseTimer(todoTimer[playerid]);
-			DeletePreciseTimer(todoTimeout[playerid]);
-			sweeperJob[playerid] = 0;
-			sweeperId[playerid] = -1;
-			usedSweeper[vehid] = 0;
+			format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", GAJI_SWEEPER);
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
 		}
 	}
 	if(Iter_Contains(vehicleSIM, vehid) && testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehid){
@@ -6791,30 +6906,18 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 			GameTextForPlayer(playerid, "~y~Terus Mengemudi", 2000, 3);
 		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS39)){
 			if(poinSim[playerid] <= 80){
+				todoFinish[playerid] = 1;
+				resetPlayerToDo(playerid);
 				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan mencoba kembali ketika anda sudah siap.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal Praktik SIM", pDialog[playerid], "Ok", "");
-				DisablePlayerRaceCheckpoint(playerid);
-				SetVehicleToRespawn(vehicleIdSIM[playerid]);
-				DeletePreciseTimer(todoTimer[playerid]);
-				DeletePreciseTimer(todoTimeout[playerid]);
-				testSim[playerid] = 0;
-				poinSim[playerid] = 0;
-				vehicleIdSIM[playerid] = -1;
-				limitVehSIM[vehid] = 0;
 			}else{
+				todoFinish[playerid] = 1;
+				resetPlayerToDo(playerid);
 				prosesPembuatanSIM(playerid, 30);
 				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan tunggu sekitar 30 menit real-time."WHITE"\nAnda dapat mengecek dan mengambilnya di tempat Registrasi sebelumnya, setelah sudah 30 menit berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Praktik SIM", pDialog[playerid], "Ok", "");
-				DisablePlayerRaceCheckpoint(playerid);
-				SetVehicleToRespawn(vehicleIdSIM[playerid]);
-				DeletePreciseTimer(todoTimer[playerid]);
-				DeletePreciseTimer(todoTimeout[playerid]);
-				testSim[playerid] = 0;
-				poinSim[playerid] = 0;
-				vehicleIdSIM[playerid] = -1;
-				limitVehSIM[vehid] = 0;
 			}
 		}
 	}
@@ -6876,9 +6979,22 @@ public OnVehicleDeath(vehicleid, killerid){
 }
 
 public OnPlayerEnterCheckpoint(playerid){
+	new vehid = GetPlayerVehicleID(playerid);
 	if(PlayerInfo[playerid][activeMarker]){
 		PlayerInfo[playerid][activeMarker] = false;
 		DisablePlayerCheckpoint(playerid);
+	}
+	if(Iter_Contains(trashM_Veh, vehid) && trashM_Job[playerid] == 1 && trashM_Id[playerid] == vehid){
+		if(IsPlayerInRangeOfPoint(playerid, 3.0, 1644.5551, -1537.3542, 13.5697)){
+			new jumlah_trash = trashM_VehCap[trashM_Id[playerid]],
+			gaji = jumlah_trash*GAJI_TRASHMASTER;
+			todoFinish[playerid] = 1;
+			resetPlayerToDo(playerid);
+			addGajiPemain(playerid, gaji, "Truk Sampah (Trashmaster)");
+			GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
+			format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+		}
 	}
 	return 1;
 }

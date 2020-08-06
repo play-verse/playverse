@@ -2014,9 +2014,12 @@ publicFor: cekSudahBisaAmbilSIM(playerid){
 		cache_get_value_name_int(0, "hasil", sudah_selesai);
 		cache_get_value_name_int(0, "tipe_sim", tipe_sim);
 		if(sudah_selesai){
+			// ID SIM A = 15
+			// ID SIM B = 47
+			// ID SIM C = 48
 			if(tipe_sim == 1) tipe_sim = 15;
-			else if(tipe_sim == 2) tipe_sim = 44;
-			else if(tipe_sim == 3) tipe_sim = 45;
+			else if(tipe_sim == 2) tipe_sim = 47;
+			else if(tipe_sim == 3) tipe_sim = 48;
 			else return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Maaf SIM tidak ditemukan", WHITE"Maaf SIM atas nama anda tidak ditemukan, anda harus membuatnya terlebih dahulu. \nMaka setelah anda membuatnya, anda dapat mengambilnya disini.", "Ok", "");
 			hapusSetelahPengambilanSIM(playerid);
 			tambahItemPlayer(playerid, tipe_sim, 1);
@@ -2149,11 +2152,13 @@ publicFor: cekSudahPunyaSIM(playerid){
 
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, YELLOW"SIM sedang diproses", pDialog[playerid], "Ok", "");
 	}else{
-		// ID SIM = 15
+		// ID SIM A = 15
+		// ID SIM B = 47
+		// ID SIM C = 48
 		new tipe_sim = GetPVarInt(playerid, "tipe_sim");
 		if(tipe_sim == 1) tipe_sim = 15;
-		else if(tipe_sim == 2) tipe_sim = 44;
-		else if(tipe_sim == 3) tipe_sim = 45;
+		else if(tipe_sim == 2) tipe_sim = 47;
+		else if(tipe_sim == 3) tipe_sim = 48;
 		cekKetersediaanItem(playerid, tipe_sim, 1, "isBisaBuatSIM");
 	}
 	return 1;
@@ -2391,7 +2396,7 @@ loadAllHouseLevel(){
 
 		idx++;
 	}
-	if(PU_tempatKeluarRumah[0] + rows - 1 != PU_tempatKeluarRumah[1]){
+	if(rows >= 1 && PU_tempatKeluarRumah[0] + rows - 1 != PU_tempatKeluarRumah[1]){
 		printf("[ERROR] #012 Pickup House Level tidak memiliki ID yang simetris.");
         SendRconCommand("exit");
 	}
@@ -2584,6 +2589,10 @@ todoActive(playerid){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Maaf anda sedang bekerja sebagai Sweeper, silahkan kembali bekerja!");
 		return 1;
 	}
+	if(trashM_Job[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Maaf anda sedang bekerja sebagai Trashmaster, silahkan kembali bekerja!");
+		return 1;
+	}
 	if(testSim[playerid] == 1){
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Maaf anda sedang melakukan Ujian Praktik SIM, silahkan kembali praktik!");
 		return 1;
@@ -2597,29 +2606,11 @@ updatePVehReparasi(primary_id, status){
 	mysql_tquery(koneksi, temp_query);
 }
 
-publicFor: todoExit(playerid, paramid){
+publicFor: resetPlayerToDo(playerid){
 	if(sweeperJob[playerid] == 1){
-		sweeperJob[playerid] = 0;
-		usedSweeper[sweeperId[playerid]] = 0;
-		sweeperId[playerid] = -1;
-		DisablePlayerRaceCheckpoint(playerid);
-		SetVehicleToRespawn(paramid);
-		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
-	}
-	if(testSim[playerid] == 1){
-		testSim[playerid] = 0;
-		vehicleIdSIM[playerid] = -1;
-		limitVehSIM[paramid] = 0;
-		DisablePlayerRaceCheckpoint(playerid);
-		SetVehicleToRespawn(paramid);
-		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan Ujian Praktik SIM, silahkan coba lagi!");
-	}
-	return 1;
-}
-
-resetPlayerToDo(playerid){
-	if(sweeperJob[playerid] == 1){
-		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
+		if(todoFinish[playerid] != 1){
+			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
+		}
 		SetVehicleToRespawn(sweeperId[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
 		DeletePreciseTimer(todoTimer[playerid]);
@@ -2627,9 +2618,36 @@ resetPlayerToDo(playerid){
 		sweeperJob[playerid] = 0;
 		usedSweeper[sweeperId[playerid]] = 0;
 		sweeperId[playerid] = -1;
+		todoFinish[playerid] = 0;
+	}
+	if(trashM_Job[playerid] == 1){
+		if(todoFinish[playerid] != 1){
+			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
+		}
+		for(new i = 0; i < MAX_HOUSES; i++){
+			if(housePickup[i] != -1){
+				if(trashM_HouseTake[playerid][i] == 1){
+					trashM_HouseTake[playerid][i] = 0;
+				}
+			}
+		}
+		DisablePlayerCheckpoint(playerid);
+		TogglePlayerAllDynamicCPs(playerid, 1);
+		SetVehicleToRespawn(trashM_Id[playerid]);
+		DeletePreciseTimer(todoTimer[playerid]);
+		DeletePreciseTimer(todoTimeout[playerid]);
+		if(IsPlayerAttachedObjectSlotUsed(playerid, TRASH_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TRASH_ATTACH_INDEX);
+		todoFinish[playerid] = 0;
+		trashM_Job[playerid] = 0;
+		trashM_Used[trashM_Id[playerid]] = 0;
+		trashM_BagCap[playerid] = 0;
+		trashM_VehCap[trashM_Id[playerid]] = 0;
+		trashM_Id[playerid] = -1;
 	}
 	if(testSim[playerid] == 1){
-		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan Ujian Praktik SIM, silahkan coba lagi!");
+		if(todoFinish[playerid] != 1){
+			SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan Ujian Praktik SIM, silahkan coba lagi!");
+		}
 		SetVehicleToRespawn(vehicleIdSIM[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
 		DeletePreciseTimer(todoTimer[playerid]);
@@ -2638,6 +2656,7 @@ resetPlayerToDo(playerid){
 		poinSim[playerid] = 0;
 		limitVehSIM[vehicleIdSIM[playerid]] = 0;
 		vehicleIdSIM[playerid] = -1;
+		todoFinish[playerid] = 0;
 	}
 	if(CuttingTreeID[playerid] != -1){
 		CuttingTreeID[playerid] = -1;
@@ -2679,7 +2698,7 @@ mulaiPraktikSIM(playerid){
 					limitVehSIM[v] = 1;
 					SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
 					SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
-					todoTimeout[playerid] = SetPreciseTimer("todoExit", 600000, false, "ii", playerid, v);
+					todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", 600000, false, "i", playerid);
 					return 1;
 				}else{
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
@@ -3311,7 +3330,7 @@ createTree(tree_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tR
 		new label[256];
 		format(label, sizeof(label), WHITE"["GREEN"Pohon"WHITE"]\nNo : "GREEN"%d\n\n"WHITE"Ketik "GREEN"/lumberjack"WHITE" (pilih menu "GREEN"Potong Pohon"WHITE")\nUntuk memotong pohon", tree_Id);
 		DTree[tree_Id][treeLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, DTree[tree_Id][treeX], DTree[tree_Id][treeY], DTree[tree_Id][treeZ]+1.5, 3.0);
-		DTree[tree_Id][treeCP] = CreateDynamicCP(DTree[tree_Id][treeX], DTree[tree_Id][treeY], DTree[tree_Id][treeZ], 3.0, -1, -1, -1, 20.0);
+		DTree[tree_Id][treeCP] = CreateDynamicCP(DTree[tree_Id][treeX], DTree[tree_Id][treeY], DTree[tree_Id][treeZ], 3.0, 0, 0, -1, 5.0);
 		DTree[tree_Id][treeTumbang] = false;
 		Iter_Add(TreeIterator, tree_Id);
 		reloadTreeLabel(tree_Id);
@@ -3360,6 +3379,29 @@ GetClosestATM(playerid, Float: range = 3.0)
 		}
 	}
 	return id;
+}
+
+GetClosestHouse(playerid, Float: min = 0.0, Float: max = 2.0, job = 0){
+    new id = -1, Float: dist = min, Float: tempdist;
+    for(new i = 0; i < MAX_HOUSES; i++){
+		if(housePickup[i] != -1){
+			tempdist = GetPlayerDistanceFromPoint(playerid, houseInfo[i][icon_x], houseInfo[i][icon_y], houseInfo[i][icon_z]);
+			if(tempdist > max) continue;
+			if(tempdist >= dist && tempdist <= max){
+				if(job == 1){
+					if(trashM_HouseTake[playerid][i] != 1){
+						dist = tempdist;
+						id = i;
+						trashM_HouseTake[playerid][i] = 1;
+					}
+				}else{
+					dist = tempdist;
+					id = i;
+				}
+			}
+		}
+    }
+    return id;
 }
 
 Player_ResetCutting(playerid){
