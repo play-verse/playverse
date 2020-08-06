@@ -58,14 +58,6 @@
 
 #include <../include/gl_common.inc>
 
-/**
-	Unused params is here
- */
-
-/**
-	End Unused Params
- */
-
 public OnPlayerConnect(playerid)
 {
 	removeBangunanUntukMapping(playerid);
@@ -91,10 +83,6 @@ public OnPlayerConnect(playerid)
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
 	PlayerInfo[playerid][pPlayerName] = nama;
-
-	#if DEBUG_MODE_FOR_PLAYER == true
-		printf("OnPlayerConnect terpanggil (%d - %s)", playerid, nama);
-	#endif
 
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
 	SELECT a.*, \
@@ -237,10 +225,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 					// Set player uang tanpa menambahkan di database - maka diset false untuk parameter terakhir
 					setUangPlayer(playerid, PlayerInfo[playerid][uang], false);
-					#if defined DEBUG_MODE_FOR_PLAYER
-					print("Spawn Called in Login Success");
-					#endif
-					
+
 					PlayerInfo[playerid][tampilHUDStats] = true;
 					spawnPemain(playerid);
 
@@ -7195,6 +7180,23 @@ public OnPlayerEnterDynamicArea(playerid, areaid){
 
 public OnPlayerLeaveDynamicArea(playerid, areaid){
 	DeletePVar(playerid, "last_area");
+	return 1;
+}
+
+/*
+ * IMPORTANT : issuerid perlu dicek apakah INVALID_PLAYER_ID
+ */
+public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
+{
+	if(GetArmour(playerid) > 0.0) SetArmour(playerid, ((GetArmour(playerid) - amount <= 0.0) ? 0.0 : GetArmour(playerid) - amount));
+	else SetHealth(playerid, ((GetHealth(playerid) - amount <= 0.0) ? 0.0 : GetHealth(playerid) - amount));
+
+	/*
+		Returning : @source wiki.sa-mp.com
+
+		1 - Callback will not be called in other filterscripts.
+		0 - Allows this callback to be called in other filterscripts. 
+	*/
 	return 1;
 }
 

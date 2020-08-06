@@ -15,6 +15,15 @@
 #define GetNamaRarity(%0)           ITEM_RARITY[%0 - 1][namaRarity]
 #define GetColorRarity(%0)          ITEM_RARITY[%0 - 1][colorRarity]
 
+/**
+ *  Health & Armour function
+ */
+#define SetPlayerHealth(%0,%1)             SetHealth(%0,%1)
+#define SetPlayerArmour(%0,%1)             SetArmour(%0,%1)
+
+#define GetPlayerHealth(%0)                 GetHealth(%0)
+#define GetPlayerArmour(%0)                 GetArmour(%0)
+
 sama(const kata1[], const kata2[]) return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
 
 // Hanya untuk tampilan saja
@@ -689,4 +698,17 @@ stock bool:IsValidDate(dStr[]) {
         return false;
 
     return true;
+}
+
+#define GetHealth(%0)                     PlayerInfo[%0][currentHP]
+#define GetArmour(%0)                     PlayerInfo[%0][currentArmour]
+
+SetHealth(playerid, Float:health){
+    PlayerInfo[playerid][currentHP] = health;
+    return SetPlayerHealth(playerid, health);
+}
+
+SetArmour(playerid, Float:armour){
+    PlayerInfo[playerid][currentArmour] = armour;
+    return SetPlayerArmour(playerid, armour);
 }
