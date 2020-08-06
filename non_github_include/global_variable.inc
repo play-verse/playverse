@@ -52,6 +52,9 @@ enum pInfo
     Float:lastHp,
     Float:lastArmour,
 
+	Float:currentHP,
+	Float:currentArmour,
+
     Float:statusMakan,
     Float:statusMinum,
 
@@ -491,7 +494,7 @@ enum INFO_SOAL {
     simQuestionMSG[240]
 };
 
-new SIM_SOAL[][INFO_SOAL] = {
+new const SIM_SOAL[][INFO_SOAL] = {
     {"Pertanyaan 1", "A. Jalur tengah", "B. Jalur kiri", "C. Jalur kanan", "D. Semua salah", 1, GREEN"[HALO Polisi] "WHITE"Saat berkendara kita harus memilih jalur?"},
     {"Pertanyaan 2", "A. 80 KmpH", "B. 35 KmpH", "C. 75 KmpH", "D. 50 KmpH", 2, GREEN"[HALO Polisi] "WHITE"Batas kecepatan saat mengendarai kendaraan?"},
     {"Pertanyaan 3", "A. Membawa surat lengkap", "B. Jalur kanan untuk mengurangi kecepatan", "C. Berhenti jika lampu lalu lintas merah", "D. Semua benar", 3, GREEN"[HALO Polisi] "WHITE"Berikut merupakan aturan berkendara yang benar?"},
@@ -582,7 +585,7 @@ enum    e_sazone
     Float: SAZONE_AREA[6]
 };
 
-new
+new const
 	SAZones[][e_sazone] = {
 		{"The Big Ear",	                {-410.00,1403.30,-3.00,-137.90,1681.20,200.00}},
 		{"Aldea Malvada",               {-1372.10,2498.50,0.00,-1277.50,2615.30,200.00}},
@@ -1119,6 +1122,16 @@ new const MEDIC_LEVEL[][InfoLevelFaction] = {
 
 // Get Nama Level Medic menggunakan Macro
 #define GetNamaLevelMedic(%0)		MEDIC_LEVEL[%0 - 1][namaJabatan]
+
+// Poolice
+// NOTE : Level sesuai dengan urutan array
+new const POLICE_LEVEL[][InfoLevelFaction] = {
+	"Polisi",
+	"Kapten"
+};
+
+// Get Nama Level Medic menggunakan Macro
+#define GetNamaLevelPolice(%0)		POLICE_LEVEL[%0 - 1][namaJabatan]
 
 /**
 	End Faction

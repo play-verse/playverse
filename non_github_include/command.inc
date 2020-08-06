@@ -434,7 +434,7 @@ CMD:setmedic(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
 
     new target_id, text_temporary[10], masa_aktif, level, status_temp = 0;
-    if(sscanf(params, "us[10]iI", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setmedic [id] [permanent/expired] [level] [masa aktif (hari)]");
+    if(sscanf(params, "us[10]iI(1)", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setmedic [id] [permanent/expired] [level] [masa aktif (hari)]");
 
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Player tidak ada");
@@ -464,9 +464,12 @@ CMD:setmedic(playerid, params[]){
     mysql_tquery(koneksi, pQuery[playerid]);
     PlayerInfo[target_id][levelMedic] = level;
 
-    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil membuat %s(%d) sebagai medic.", PlayerInfo[target_id][pPlayerName], target_id);
+    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil menjadikan %s(%d) sebagai medic.", PlayerInfo[target_id][pPlayerName], target_id);
     
-    sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi medic dengan level %d selama %d hari kedepan.", level, masa_aktif);
+    if(status_temp == 1)
+        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi medic dengan level %d selama %d hari kedepan.", level, masa_aktif);
+    else
+        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi medic dengan level %d dengan jangka waktu permanen.", level);
 
     sendPesan(target_id, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda sekarang dapat bekerja pada rumah sakit sebagai %s.", GetNamaLevelMedic(level));
     return 1;
@@ -493,5 +496,74 @@ CMD:pecatmedic(playerid, params[]){
     sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat medic %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
 
     sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari medic.");
+    return 1;
+}
+
+CMD:setpolisi(playerid, params[]){
+    if(!IsPlayerAdmin(playerid)) return 0;
+
+    new target_id, text_temporary[10], masa_aktif, level, status_temp = 0;
+    if(sscanf(params, "us[10]iI(1)", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setpolisi [id] [permanent/expired] [level] [masa aktif (hari)]");
+
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Player tidak ada");
+
+    if(PlayerInfo[target_id][levelPolice] > 0){
+        error_command(playerid, "Pemain sudah menjadi polisi.");
+        return note_message(playerid, "Jika anda berniat menambah masa aktif. silahkan pecat dahulu, lalu set kembali.");
+    }
+
+    if(sama("permanent", text_temporary)) status_temp = -1;    
+    else if(sama("expired", text_temporary)) status_temp = 1;
+    
+    if(status_temp == 0)
+        return error_command(playerid, "Pastikan untuk memilih option permanent/expired.");
+
+    if(status_temp == 1 && masa_aktif <= 0)
+        return error_command(playerid, "Pastikan untuk memasukan hari yang valid.");
+
+    if(level < 1 || level > sizeof(POLICE_LEVEL))
+        return sendPesan(playerid, COLOR_RED, "* "WHITE"Level polisi hanya berkisar antara 1 hingga %d.", sizeof(POLICE_LEVEL));
+
+    if(status_temp == 1)
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_faction(id_faction, id_user, level, expired) VALUES(%d, %d, %d, NOW() + INTERVAL %d DAY)", ID_FACTION_POLISI, PlayerInfo[target_id][pID], level, masa_aktif);
+    else
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_faction(id_faction, id_user, level) VALUES(%d, %d, %d)", ID_FACTION_POLISI, PlayerInfo[target_id][pID], level);
+    
+    mysql_tquery(koneksi, pQuery[playerid]);
+    PlayerInfo[target_id][levelPolice] = level;
+
+    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil menjadikan %s(%d) sebagai polisi.", PlayerInfo[target_id][pPlayerName], target_id);
+    
+    if(status_temp == 1)
+        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi polisi dengan level %d selama %d hari kedepan.", level, masa_aktif);
+    else
+        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi polisi dengan level %d dengan jangka waktu permanen.", level);
+
+    sendPesan(target_id, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda sekarang dapat bekerja pada kantor polisi dengan jabatan sebagai %s.", GetNamaLevelPolice(level));
+    return 1;
+}
+
+CMD:pecatpolisi(playerid, params[]){
+    if(!IsPlayerAdmin(playerid)) return 0;
+
+    new target_id;
+    if(sscanf(params, "u", target_id)) 
+        return error_syntax(playerid, "/pecatpolisi [id]");
+
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Player tidak ada");
+
+    if(PlayerInfo[target_id][levelPolice] == 0)
+        return error_command(playerid, "Pemain bukan polisi.");
+
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM user_faction id_user = %d AND id_faction = %d", PlayerInfo[target_id][pID], ID_FACTION_POLISI);    
+    mysql_tquery(koneksi, pQuery[playerid]);
+
+    PlayerInfo[target_id][levelPolice] = 0;
+
+    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat polisi %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
+
+    sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari polisi.");
     return 1;
 }

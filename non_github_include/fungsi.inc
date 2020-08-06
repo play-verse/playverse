@@ -2235,8 +2235,8 @@ updateOnPlayerDisconnect(playerid){
 		last_spawn_info_vw = GetPlayerVirtualWorld(playerid);
 		last_spawn_info_int = GetPlayerInterior(playerid);
 
-		GetPlayerHealth(playerid, last_hp);
-		GetPlayerArmour(playerid, last_armour);
+		last_hp = GetPlayerHealth(playerid);
+		last_armour = GetPlayerArmour(playerid);
 
 		temp_stats_makan = getStatusMakanPemain(playerid);
 		temp_stats_minum = getStatusMinumPemain(playerid);
