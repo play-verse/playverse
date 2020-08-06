@@ -462,8 +462,9 @@ new A_tokoNarko;
 /**
     Job / Aktifitas
 */
-new todoTimer[MAX_PLAYERS];
-new todoTimeout[MAX_PLAYERS];
+new	todoFinish[MAX_PLAYERS],
+	todoTimer[MAX_PLAYERS],
+	todoTimeout[MAX_PLAYERS];
 
 /* Sweeper */
 new Iterator:vehicleSweeper<MAX_VEHICLES>,
@@ -471,6 +472,20 @@ new Iterator:vehicleSweeper<MAX_VEHICLES>,
     sweeperId[MAX_PLAYERS] = {-1},
     vehicleSweeper[3],
     usedSweeper[MAX_VEHICLES];
+
+/* Trashmaster */
+new Iterator:trashM_Veh<MAX_VEHICLES>,
+    trashM_Job[MAX_PLAYERS],
+    trashM_Id[MAX_PLAYERS] = {-1},
+    trashM_Veh[3],
+    trashM_Used[MAX_VEHICLES],
+	trashM_House[MAX_PLAYERS],
+	trashM_HouseTake[MAX_PLAYERS][MAX_HOUSES],
+	trashM_BagCap[MAX_PLAYERS],
+	trashM_VehCap[MAX_VEHICLES],
+	Float:trashM_X[MAX_PLAYERS],
+	Float:trashM_Y[MAX_PLAYERS],
+	Float:trashM_Z[MAX_PLAYERS];
 
 /* SIM Kendaraan */
 new Iterator:vehicleSIM<MAX_VEHICLES>,
