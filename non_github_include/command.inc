@@ -265,6 +265,9 @@ CMD:inforumah(playerid, const params[]){
     if(trashM_Job[playerid] == 1 && trashM_House[playerid] == id){
         SetPVarString(playerid, "info_rumah", "trashM_rumah");
         format(string, sizeof(string), "Tentang Rumah\nAmbil Sampah");
+    }else if(pizza_Job[playerid] == 1 && pizza_House[playerid] == id){
+        SetPVarString(playerid, "info_rumah", "pizza_rumah");
+        format(string, sizeof(string), "Tentang Rumah\nTaruh Pizza");
     }else{
         if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
             new upgradeRate = getHousePrice(id, "upgrade");
@@ -361,6 +364,11 @@ CMD:trashmaster(playerid, const params[]){
     return 1;
 }
 
+CMD:pizzaboy(playerid, const params[]){
+    ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_CMD, DIALOG_STYLE_LIST, WHITE"Pizzaboy System :", "Restok Pizza\nAmbil Pizza\nCek Muatan Pizza", "Pilih", "Batal");
+    return 1;
+}
+
 CMD:aatm(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
     ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM, DIALOG_STYLE_LIST, "Menu admin untuk ATM :", "Buat ATM\nEdit ATM\nHapus ATM", "Pilih", "Batal");    
@@ -394,6 +402,33 @@ CMD:bicara(playerid, params[]){
             Kamu dapat mengurus beberapa hal yang berkaitan dengan dealer.\n\
             Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
         ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER, DIALOG_STYLE_MSGBOX, "Dealer Manager berkata :", pDialog[playerid], "Jawab", "Batal");
+    }
+    // Actor Toko Peralatan Pancing
+    else if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2])){
+        ActorTalking(ACT_peralatanPancing);
+        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
+            "WHITE"Saya adalah penjual peralatan pancing. \n\
+            Kamu dapat mengurus beberapa hal yang berkaitan dengan peralatan pancing.\n\
+            Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
+        ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_PANCING, DIALOG_STYLE_MSGBOX, "Penjual Peralatan Pancing berkata :", pDialog[playerid], "Jawab", "Batal");
+    }
+    // Actor Toko Bibit
+    else if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2])){
+        ActorTalking(ACT_tokoBibit);
+        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
+            "WHITE"Saya adalah penjual bibit. \n\
+            Kamu dapat mengurus beberapa hal yang berkaitan dengan bibit.\n\
+            Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
+        ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_BIBIT, DIALOG_STYLE_MSGBOX, "Penjual Bibit berkata :", pDialog[playerid], "Jawab", "Batal");
+    }
+    // Actor Toko Bibit Narko
+    else if(IsPlayerInRangeOfPoint(playerid, 3.0, POINT_NARKO[MrPuyengRand][NARKO_X], POINT_NARKO[MrPuyengRand][NARKO_Y], POINT_NARKO[MrPuyengRand][NARKO_Z])){
+        ActorTalking(ACT_tokoNarko);
+        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
+            "WHITE"Saya adalah penjual bibit ilegal. \n\
+            Kamu dapat mengurus beberapa hal yang berkaitan dengan bibit ilegal.\n\
+            Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
+        ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_BIBIT_NARKO, DIALOG_STYLE_MSGBOX, "Penjual Bibit Ilegal berkata :", pDialog[playerid], "Jawab", "Batal");
     }
 
     // Lakukan cara yang sama seperti diatas jika menambah untuk yang lain

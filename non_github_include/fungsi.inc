@@ -860,7 +860,8 @@ publicFor: pakaiTombakIkan(playerid){
 	if(PlayerInfo[playerid][sisaTombak] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 36, -1);
 	PlayerInfo[playerid][sisaTombak] += 15;
-	
+
+	SetPlayerArmedWeapon(playerid, 0);
 	SetPlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX, 11716, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Tombak Ikan = "GREEN"Penambahan kesempatan pakai tombak ikan sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan pakai tombak ikan anda direset jadi 0.", "Ok", "");
 	return 1;
@@ -2563,7 +2564,7 @@ reloadHouseLabel(house_Id){
 	format(text_info, 256, "%s"WHITE"Level : "PINK"%s", text_info, HouseLevel[houseInfo[house_Id][hLevel]][namaLevel]);
 	strcat(text_info, "\n"WHITE"Tekan "GREEN"N "WHITE"untuk masuk");
 	
-    houseTextInfo[house_Id] = CreateDynamic3DTextLabel(text_info, COLOR_WHITE, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z]+0.75, 20);
+    houseTextInfo[house_Id] = CreateDynamic3DTextLabel(text_info, COLOR_WHITE, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z]+0.75, 5.0);
 }
 
 getHousePrice(house_Id, const method[16] = ""){
@@ -2591,6 +2592,10 @@ todoActive(playerid){
 	}
 	if(trashM_Job[playerid] == 1){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Maaf anda sedang bekerja sebagai Trashmaster, silahkan kembali bekerja!");
+		return 1;
+	}
+	if(pizza_Job[playerid] == 1){
+		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Maaf anda sedang bekerja sebagai Pizzaboy, silahkan kembali bekerja!");
 		return 1;
 	}
 	if(testSim[playerid] == 1){
@@ -2624,13 +2629,6 @@ publicFor: resetPlayerToDo(playerid){
 		if(todoFinish[playerid] != 1){
 			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
 		}
-		for(new i = 0; i < MAX_HOUSES; i++){
-			if(housePickup[i] != -1){
-				if(trashM_HouseTake[playerid][i] == 1){
-					trashM_HouseTake[playerid][i] = 0;
-				}
-			}
-		}
 		DisablePlayerCheckpoint(playerid);
 		TogglePlayerAllDynamicCPs(playerid, 1);
 		SetVehicleToRespawn(trashM_Id[playerid]);
@@ -2643,6 +2641,40 @@ publicFor: resetPlayerToDo(playerid){
 		trashM_BagCap[playerid] = 0;
 		trashM_VehCap[trashM_Id[playerid]] = 0;
 		trashM_Id[playerid] = -1;
+		for(new i = 0; i < MAX_HOUSES; i++){
+			if(housePickup[i] != -1){
+				if(trashM_HouseTake[playerid][i] == 1){
+					trashM_HouseTake[playerid][i] = 0;
+				}
+			}
+		}
+		trashM_House[playerid] = -1;
+	}
+	if(pizza_Job[playerid] == 1){
+		if(todoFinish[playerid] != 1){
+			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
+		}
+		DisablePlayerCheckpoint(playerid);
+		TogglePlayerAllDynamicCPs(playerid, 1);
+		SetVehicleToRespawn(pizza_Id[playerid]);
+		DeletePreciseTimer(todoTimer[playerid]);
+		DeletePreciseTimer(todoTimeout[playerid]);
+		if(IsPlayerAttachedObjectSlotUsed(playerid, TRASH_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TRASH_ATTACH_INDEX);
+		todoFinish[playerid] = 0;
+		pizza_Job[playerid] = 0;
+		pizza_Used[pizza_Id[playerid]] = 0;
+		pizza_Carry[playerid] = 0;
+		pizza_VehCap[pizza_Id[playerid]] = 0;
+		pizza_Id[playerid] = -1;
+		for(new i = 0; i < MAX_HOUSES; i++){
+			if(housePickup[i] != -1){
+				if(pizza_HouseTake[playerid][i] == 1){
+					pizza_HouseTake[playerid][i] = 0;
+				}
+			}
+		}
+		pizza_House[playerid] = -1;
+		pizza_HouseDrop[playerid] = 0;
 	}
 	if(testSim[playerid] == 1){
 		if(todoFinish[playerid] != 1){
@@ -3329,7 +3361,7 @@ createTree(tree_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tR
 		
 		new label[256];
 		format(label, sizeof(label), WHITE"["GREEN"Pohon"WHITE"]\nNo : "GREEN"%d\n\n"WHITE"Ketik "GREEN"/lumberjack"WHITE" (pilih menu "GREEN"Potong Pohon"WHITE")\nUntuk memotong pohon", tree_Id);
-		DTree[tree_Id][treeLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, DTree[tree_Id][treeX], DTree[tree_Id][treeY], DTree[tree_Id][treeZ]+1.5, 3.0);
+		DTree[tree_Id][treeLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, DTree[tree_Id][treeX], DTree[tree_Id][treeY], DTree[tree_Id][treeZ]+1.5, 5.0);
 		DTree[tree_Id][treeCP] = CreateDynamicCP(DTree[tree_Id][treeX], DTree[tree_Id][treeY], DTree[tree_Id][treeZ], 3.0, 0, 0, -1, 5.0);
 		DTree[tree_Id][treeTumbang] = false;
 		Iter_Add(TreeIterator, tree_Id);
@@ -3389,10 +3421,17 @@ GetClosestHouse(playerid, Float: min = 0.0, Float: max = 2.0, job = 0){
 			if(tempdist > max) continue;
 			if(tempdist >= dist && tempdist <= max){
 				if(job == 1){
-					if(trashM_HouseTake[playerid][i] != 1){
-						dist = tempdist;
-						id = i;
-						trashM_HouseTake[playerid][i] = 1;
+					if(trashM_Job[playerid] == 1){
+						if(trashM_HouseTake[playerid][i] != 1){
+							dist = tempdist;
+							id = i;
+						}
+					}
+					if(pizza_Job[playerid] == 1){
+						if(pizza_HouseTake[playerid][i] != 1){
+							dist = tempdist;
+							id = i;
+						}
 					}
 				}else{
 					dist = tempdist;
@@ -3623,22 +3662,20 @@ GetClosestPlant(playerid, Float: range = 5.0){
 }
 
 publicFor: buatTokoNarko(){
-	new rand_narko = random(sizeof(POINT_NARKO));
+	MrPuyengRand = random(sizeof(POINT_NARKO));
 	DeletePreciseTimer(MrPuyengStart);
-	labelTokoNarko = CreateDynamic3DTextLabel("Mr. Puyeng", COLOR_WHITE, POINT_NARKO[rand_narko][NARKO_X], POINT_NARKO[rand_narko][NARKO_Y], POINT_NARKO[rand_narko][NARKO_Z], 20);
-    CP_tokoNarko = CreateDynamicCP(POINT_NARKO[rand_narko][NARKO_X], POINT_NARKO[rand_narko][NARKO_Y], POINT_NARKO[rand_narko][NARKO_Z], 1.0, 0, 0, -1, 5.0);
-	A_tokoNarko = CreateDynamicActor(272, POINT_NARKO_ACTOR[rand_narko][NARKO_X], POINT_NARKO_ACTOR[rand_narko][NARKO_Y], POINT_NARKO_ACTOR[rand_narko][NARKO_Z], POINT_NARKO_ACTOR[rand_narko][NARKO_A]);
+	labelTokoNarko = CreateDynamic3DTextLabel("Mr. Puyeng\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_WHITE, POINT_NARKO[MrPuyengRand][NARKO_X], POINT_NARKO[MrPuyengRand][NARKO_Y], POINT_NARKO[MrPuyengRand][NARKO_Z] + 1.0, 10.0, .testlos = 1);
+	ACT_tokoNarko = CreateDynamicActor(272, POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_A], .worldid = 0, .interiorid = 0);
 	MrPuyengEnd = SetPreciseTimer("re_TokoNarko", 300000, false); // Buat random toko
 	return 1;
 }
 
 publicFor: re_TokoNarko(){
 	DeletePreciseTimer(MrPuyengEnd);
-	if(IsValidDynamicCP(CP_tokoNarko)) DestroyDynamicCP(CP_tokoNarko);
 	if(IsValidDynamic3DTextLabel(labelTokoNarko)) DestroyDynamic3DTextLabel(labelTokoNarko);
-	if(IsValidDynamicActor(A_tokoNarko)) DestroyDynamicActor(A_tokoNarko);
+	if(IsValidDynamicActor(ACT_tokoNarko)) DestroyDynamicActor(ACT_tokoNarko);
+	MrPuyengRand = -1;
 	MrPuyengEnd = -1;
-	CP_tokoNarko = -1;
 	labelTokoNarko = Text3D: -1;
 	MrPuyengStart = SetPreciseTimer("buatTokoNarko", 60000, false); // Cooldown toko
 	return 1;

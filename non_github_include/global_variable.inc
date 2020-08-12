@@ -141,12 +141,12 @@ enum hInfo
     Float:icon_z,
     Float:last_a
 }
-new houseInfo[MAX_HOUSES][hInfo];
-new lastHousePickup[MAX_PLAYERS] = {-1};
-new Text3D:houseTextInfo[MAX_HOUSES];
-new housePickup[MAX_HOUSES] = {-1};
-new houseId[MAX_HOUSES] = {-1};
-new houseNotif[MAX_PLAYERS];
+new houseInfo[MAX_HOUSES][hInfo],
+	lastHousePickup[MAX_PLAYERS] = {-1},
+	Text3D:houseTextInfo[MAX_HOUSES],
+	housePickup[MAX_HOUSES] = {-1},
+	houseId[MAX_HOUSES] = {-1},
+	houseNotif[MAX_PLAYERS];
 
 enum hLevelInfo {
     namaLevel[50],
@@ -404,10 +404,7 @@ new CP_tempatFoto,
     CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)],
     CP_simRegis[1],
     CP_simPraktik[1],
-    CP_pusatProperti[1],
-	CP_tokoBibit[1],
-	CP_tokoNarko,
-	CP_tokoPancing[1];
+    CP_pusatProperti[1];
 
 /**
     PICKUP VARIABEL
@@ -431,8 +428,13 @@ new PU_tempatFoto_in[2],
  */
 new ACT_skillMekanik,
 	ACT_penjualDealer, // Actor tempat player menjual mobil
+	ACT_peralatanPancing,
+	ACT_tokoBibit,
+	ACT_tokoNarko,
 	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
-	Float:ACT_penjualDealer_Pos[4] = {1012.9276, -1733.4741, 13.4834, 90.0930};
+	Float:ACT_penjualDealer_Pos[4] = {1012.9276, -1733.4741, 13.4834, 90.0930},
+	Float:ACT_peralatanPancing_Pos[4] = {1021.7353, -1892.2639, 12.7341, 273.1771},
+	Float:ACT_tokoBibit_Pos[4] = {1494.2061, -1659.1025, 13.2922, 358.1933};
 
 /**
     Area
@@ -447,11 +449,6 @@ new palangToll[2],
     isTollUsed[2],
     palangToll_LSLV[2],
     isTollUsed_LSLV[2];
-
-/**
-	Actor
- */
-new A_tokoNarko;
 
 /*
     Virtual World untuk ngebedain pickup
@@ -482,13 +479,29 @@ new Iterator:trashM_Veh<MAX_VEHICLES>,
     trashM_Id[MAX_PLAYERS] = {-1},
     trashM_Veh[3],
     trashM_Used[MAX_VEHICLES],
-	trashM_House[MAX_PLAYERS],
+	trashM_House[MAX_PLAYERS] = {-1},
 	trashM_HouseTake[MAX_PLAYERS][MAX_HOUSES],
 	trashM_BagCap[MAX_PLAYERS],
 	trashM_VehCap[MAX_VEHICLES],
 	Float:trashM_X[MAX_PLAYERS],
 	Float:trashM_Y[MAX_PLAYERS],
 	Float:trashM_Z[MAX_PLAYERS];
+
+/* Pizzaboy */
+new Iterator:pizza_Veh<MAX_VEHICLES>,
+    pizza_Job[MAX_PLAYERS],
+    pizza_Id[MAX_PLAYERS] = {-1},
+    pizza_Veh[3],
+    pizza_Used[MAX_VEHICLES],
+	pizza_House[MAX_PLAYERS] = {-1},
+	pizza_HouseDrop[MAX_PLAYERS],
+	pizza_HouseTake[MAX_PLAYERS][MAX_HOUSES],
+	pizza_Carry[MAX_PLAYERS],
+	pizza_VehCap[MAX_VEHICLES],
+	Float:pizza_X[MAX_PLAYERS],
+	Float:pizza_Y[MAX_PLAYERS],
+	Float:pizza_Z[MAX_PLAYERS];
+
 
 /* SIM Kendaraan */
 new Iterator:vehicleSIM<MAX_VEHICLES>,
@@ -1066,6 +1079,7 @@ new const POINT_NARKO_ACTOR[][POINT_NARKO_ACTOR_INFO] = {
 new Iterator:PlantIterator<MAX_PLANTS>,
     DFarm[MAX_PLANTS][FarmInfo],
 	Text3D:labelTokoNarko,
+	MrPuyengRand,
 	MrPuyengStart,
 	MrPuyengEnd,
 	puyengTimer[MAX_PLAYERS],

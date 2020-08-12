@@ -1,9 +1,11 @@
 loadAllActor(){
-    // Toko Peralatan Pancing
-    CreateDynamicActor(65, 1021.7375,-1892.3024,12.7341,264.4317, .worldid = 0, .interiorid = 0);
+    // Actor di toko peraltan pancing
+    CreateDynamic3DTextLabel("Penjual Peralatan Pancing\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_WHITE, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2] + 1.0, 10.0, .testlos = 1);
+    ACT_peralatanPancing = CreateDynamicActor(65, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2], ACT_peralatanPancing_Pos[3], .worldid = 0, .interiorid = 0);
 
-    // Toko Bibit
-    CreateDynamicActor(130, 1494.2061,-1659.1025,13.2922,358.1933, .worldid = 0, .interiorid = 0);
+    // Actor di toko bibit
+    CreateDynamic3DTextLabel("Penjual Bibit\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_WHITE, ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2] + 1.0, 10.0, .testlos = 1);
+    ACT_tokoBibit = CreateDynamicActor(130, ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2], ACT_tokoBibit_Pos[3], .worldid = 0, .interiorid = 0);
 
     // Actor di pusat keahlian
     CreateDynamic3DTextLabel("Ahli Mekanik\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_WHITE, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2] + 1.0, 10.0, .testlos = 1);
