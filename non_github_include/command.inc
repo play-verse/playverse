@@ -51,6 +51,7 @@ CMD:spawn(playerid, params[]){
 }
 
 CMD:inventory(playerid, const params[]){
+    if(PlayerInfo[playerid][isBusy]) return SendClientMessage(playerid, COLOR_RED, TAG_SIBUK" "WHITE"Tidak dapat membuka inventory sekarang, anda sedang melakukan hal lain.");
     showDialogMenuInventory(playerid);
     return 1;
 }
@@ -132,6 +133,7 @@ CMD:infosaya(playerid, params[]){
 }
 
 CMD:skill(playerid, const params[]){
+    if(PlayerInfo[playerid][isBusy]) return SendClientMessage(playerid, COLOR_RED, TAG_SIBUK" "WHITE"Tidak dapat menggunakan skill sekarang, anda sedang melakukan hal lain.");
     ShowPlayerDialog(playerid, DIALOG_MENU_SKILL, DIALOG_STYLE_LIST, "Skill", "Mekanik\nMedic", "Pilih", "Batal");
     return 1;
 }
@@ -212,6 +214,7 @@ CMD:r(playerid, params[]){
 
 CMD:ephone(playerid, const params[]){
     if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
+    if(PlayerInfo[playerid][isBusy]) return SendClientMessage(playerid, COLOR_RED, TAG_SIBUK" "WHITE"Tidak dapat membuka HP sekarang, anda sedang melakukan hal lain.");
     showDialogEPhone(playerid);
     return 1;
 }

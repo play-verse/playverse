@@ -37,4 +37,8 @@ loadAllArea(){
         printf("[ERROR] #05 Area pom bensin tidak memiliki ID yang simetris.");
         SendRconCommand("exit");
     }
+
+    // Pakai area karena pickup gak muncul
+    AREA_keluarRumahSakit[0] = CreateDynamicSphere(159.4088, 1772.5681, 10000.0225, 1.5, 1, 1);
+    CreateDynamic3DTextLabel("Rumah Sakit Los Santos\n"GREEN"Pintu Keluar", COLOR_WHITE, 159.4088, 1772.5681, 10000.0225, 3.0, .testlos = 1, .worldid = 1, .interiorid = 1, .streamdistance = 5.0);
 }

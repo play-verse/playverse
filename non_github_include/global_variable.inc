@@ -91,8 +91,13 @@ enum pInfo
 	bool:isOnAnimation, // Save state untuk animation
 	onTradeWith,
 
+	bool:isBusy, // Saat melakukan kegiatan yang tidak dapat diganggu
+
 	levelMedic,	
 	levelPolice,
+
+	onDutyPolice,
+	onDutyMedic,
 
 	hungryStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 	thirstyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
@@ -424,7 +429,8 @@ new PU_tempatFoto_in[2],
     PU_tempatKeluarRumah[2], // Hanya menyimpan ID terkecil dan Terbesar
     PU_policeDept_in[1],
     PU_policeDept_out[1],
-	PU_pusatKeahlian[2]; 
+	PU_pusatKeahlian[2],
+	PU_rumahSakit[1]; // Untuk pintu keluar pakai Dynamic Area karena pickup tidak muncul
 
 /**
 	ACTOR VARIABEL
@@ -997,7 +1003,8 @@ new Iterator:TreeIterator<MAX_TREES>,
     treeEditID[MAX_PLAYERS] = {-1, ...};
 
 new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
-	AREA_pomBensin[sizeof(POSISI_POM_BENSIN)];
+	AREA_pomBensin[sizeof(POSISI_POM_BENSIN)],
+	AREA_keluarRumahSakit[1]; // Rumah Sakit pakai AREA karena pickup tidak bisa muncul di mappingannya
 
 enum    E_ATM
 {
@@ -1124,6 +1131,10 @@ new mancingTimer[MAX_PLAYERS],
 #define ID_FACTION_MEDIC 2
 #define ID_FACTION_PEMERINTAH 3
 
+/*
+	Jika tidak ada skin Female dan Male seperti Intel 
+		> (berarti tidak perlu pakai skin dari faction) - Langsung On duty tanpa ganti skin
+ */
 enum InfoLevelFaction {
 	namaJabatan[50]
 }
@@ -1135,18 +1146,48 @@ new const MEDIC_LEVEL[][InfoLevelFaction] = {
 	"Dokter"
 };
 
-// Get Nama Level Medic menggunakan Macro
-#define GetNamaLevelMedic(%0)		MEDIC_LEVEL[%0 - 1][namaJabatan]
+new const MEDIC_SKIN_MALE[][] = {
+	{274, 275, 276},
+	{70}
+};
 
-// Poolice
-// NOTE : Level sesuai dengan urutan array
-new const POLICE_LEVEL[][InfoLevelFaction] = {
-	"Polisi",
-	"Kapten"
+new const MEDIC_SKIN_FEMALE[][] = {
+	{308,
+	{}
 };
 
 // Get Nama Level Medic menggunakan Macro
-#define GetNamaLevelPolice(%0)		POLICE_LEVEL[%0 - 1][namaJabatan]
+#define GetNamaLevelMedic(%0)				MEDIC_LEVEL[%0 - 1][namaJabatan]
+#define GetMaleSkinMedicByLevel(%0)			MEDIC_SKIN_MALE[%0 - 1]
+#define GetFemaleSkinMedicByLevel(%0)		MEDIC_SKIN_FEMALE[%0 - 1]
+
+// Police
+// NOTE : Level sesuai dengan urutan array
+new const POLICE_LEVEL[][InfoLevelFaction] = {
+	"Polisi",
+	"FBI",
+	"S.W.A.T", 
+	"CIA" // CIA bisa pakai skin orang biasa
+};
+
+new const POLICE_SKIN_MALE[][] = {
+	{280, 281, 282, 283, 284, 310, 311, 300, 301},
+	{286},
+	{285},
+	{165, 166, 163, 164}
+};
+
+new const POLICE_SKIN_FEMALE[][] = {
+	{306, 307, 309},
+	{},
+	{},
+	{}
+};
+
+// Get Nama Level Medic menggunakan Macro
+#define GetNamaLevelPolice(%0)				POLICE_LEVEL[%0 - 1][namaJabatan]
+#define GetMaleSkinPoliceByLevel(%0)		POLICE_SKIN_MALE[%0 - 1]
+#define GetFemaleSkinPoliceByLevel(%0)		POLICE_SKIN_FEMALE[%0 - 1]
 
 /**
 	End Faction

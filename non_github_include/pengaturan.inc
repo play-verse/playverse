@@ -460,6 +460,7 @@
 #define TAG_KICK				"Kick:"
 #define TAG_FACTION				"Faction:"
 #define TAG_NOTE				"Note:"
+#define TAG_SIBUK				"Sibuk:"
 
 /*
 	Job Define

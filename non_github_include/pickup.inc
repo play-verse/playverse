@@ -39,4 +39,7 @@ loadAllPickup(){
         format(tempLabel, 128, "Lumberjack "ORANGE"%s\n"GREEN"Tempat Pemotongan Kayu #%d", GetZoneName(POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z]), i + 1);
         buatPickupDanLabel(1239, POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z], tempLabel);
     }
+
+    // Rumah Sakit
+    PU_rumahSakit[0] = buatPickupDanLabel(1318, 1172.2648, -1323.4558, 15.4032, "Rumah Sakit Los Santos\n"GREEN"Pintu Masuk");
 }

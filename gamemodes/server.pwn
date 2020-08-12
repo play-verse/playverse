@@ -30,6 +30,10 @@
 #define SetTimer				SetPreciseTimer
 #define KillTimer				DeletePreciseTimer
 
+/**
+	Include EVF sudah gak 100% original
+	Sudah diedit beberapa kali sesuai kebutuhan server
+ */
 #include <EVF> // Fungsi tambahan vehicle
 #include <garage_block> // Block all PayNSpray dan modshop lain
 
@@ -3076,6 +3080,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SetPlayerArmedWeapon(playerid, 0);
 						ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
 						PlayerInfo[playerid][isOnAnimation] = true;
+						PlayerInfo[playerid][isBusy] = true;
 					}
 				}
 				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
@@ -4393,6 +4398,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										DTree[tid][treeTumbang] = true;
 				
 										PlayerInfo[playerid][isOnAnimation] = true;						
+										PlayerInfo[playerid][isBusy] = true;
 									}
 								}
 							}
@@ -5220,6 +5226,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				GameTextForPlayer(playerid, "~w~Sedang ~y~Paintjob...", 3000, 3);
 				ApplyAnimation(playerid, "SPRAYCAN", "spraycan_fire", 4.1, 1, 0, 0, 1, 0, 1);	
 				PlayerInfo[playerid][isOnAnimation] = true;	
+				PlayerInfo[playerid][isBusy] = true;	
 			}
 
 			// Lepas
@@ -5249,6 +5256,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				GameTextForPlayer(playerid, "~w~Sedang ~y~Modifikasi...", 3000, 3);
 				ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
 				PlayerInfo[playerid][isOnAnimation] = true;				
+				PlayerInfo[playerid][isBusy] = true;				
 			}
 
 			// Lepas
@@ -5824,6 +5832,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				GameTextForPlayer(playerid, "~w~Sedang ~y~Mengisi Bensin...", 3000, 3);
 				
 				PlayerInfo[playerid][isOnAnimation] = true;
+				PlayerInfo[playerid][isBusy] = true;
 			}else{
 				DeletePVar(playerid, "harga_bensin");
 				DeletePVar(playerid, "persen_bensin");
@@ -6564,6 +6573,10 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		}
 		return 1;
 	}
+	else if(pickupid == PU_rumahSakit[0]){
+		pindahkanPemain(playerid, 160.7758, 1770.8013, 10000.0225, 269.8320, 1, 1, true);
+		return 1;
+	}
 	else if(pickupid == PU_miniMarket[0][ENTER_PICKUP]){
 		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, 1, false);
 		return 1;
@@ -7175,6 +7188,10 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 
 public OnPlayerEnterDynamicArea(playerid, areaid){
 	SetPVarInt(playerid, "last_area", areaid);
+	if(areaid == AREA_keluarRumahSakit[0]){
+		pindahkanPemain(playerid, 1177.5511, -1323.2318, 14.0763, 272.1194, 0, 0, false);
+		return 1;
+	}
 	return 1;
 }
 

@@ -198,6 +198,7 @@ resetPlayerVariable(playerid, dari_callback){
 
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
 	PlayerInfo[playerid][isOnAnimation] = false;
+	PlayerInfo[playerid][isBusy] = false;
 
 	PlayerInfo[playerid][tampilHUDStats] = false;
 
@@ -261,6 +262,8 @@ ResetPVarTemporary(playerid){
 	DeletePVar(playerid, "veh_select_id");
 	DeletePVar(playerid, "halaman");
 	DeletePVar(playerid, "index_terpilih");
+
+	PlayerInfo[playerid][isBusy] = false;
 
 	if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
 	PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
@@ -1449,6 +1452,7 @@ publicFor: konfirmasiPerbaikiMekanik(playerid, ada){
 			GameTextForPlayer(playerid, "~w~Sedang ~y~memperbaiki...", 3000, 3);
 			ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
 			PlayerInfo[playerid][isOnAnimation] = true;				
+			PlayerInfo[playerid][isBusy] = true;				
 		}else{
 			showDialogPesan(playerid, RED"Kendaraan tidak ada", WHITE"Maaf kendaraan tidak ada. \nDisebabkan akibat kendaraan hancur atau pemilik kendaraan telah keluar dari server.");
 		}
@@ -1467,6 +1471,7 @@ reset_PerbaikiKendaraan(playerid){
 	if(IsPlayerConnected(playerid)){
 		ClearAnimations(playerid);
 		PlayerInfo[playerid][isOnAnimation] = false;
+		PlayerInfo[playerid][isBusy] = false;
 		TogglePlayerControllable(playerid, 1);
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
 		HidePlayerProgressBar(playerid, CuttingBar[playerid]);
@@ -1764,8 +1769,6 @@ publicFor: progressIsiBensinPakaiItem(playerid, itemid, vehicleid){
 
 				SetVehicleFuel(vehicleid, (GetVehicleFuel(vehicleid) + (MAX_VEHICLE_FUEL * persen / 100)) > MAX_VEHICLE_FUEL ? MAX_VEHICLE_FUEL : (GetVehicleFuel(vehicleid) + (MAX_VEHICLE_FUEL * persen / 100)));
 
-				tambahItemPlayer(playerid, itemid, -1);
-
 				reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
 
 				sendPesan(playerid, COLOR_GREEN, TAG_BENSIN" "WHITE"Berhasil mengisi bensin sebanyak "GREEN"%d liter", persen);
@@ -1870,6 +1873,7 @@ publicFor: selesaiNambang(playerid){
 	PlayerAction[playerid][sedangNambang] = false;
 	ClearAnimations(playerid);
 	PlayerInfo[playerid][isOnAnimation] = false;
+	PlayerInfo[playerid][isBusy] = false;
 
 	TogglePlayerControllable(playerid, 1);
 	if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
@@ -2129,7 +2133,10 @@ publicFor: pakaiBensin(playerid, itemid){
 
 	if(vehid == INVALID_VEHICLE_ID) 
 		return SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Kendaraan yang akan diisi bensin harus berada didepan anda.");
-	
+
+	// Langsung kurangkan item
+	tambahItemPlayer(playerid, itemid, -1);
+
 	// Pinjam timer perbaiki
 	PerbaikiTimer[playerid] = SetPreciseTimer("progressIsiBensinPakaiItem", 1000, true, "iii", playerid, itemid, vehid);
 
@@ -2141,6 +2148,7 @@ publicFor: pakaiBensin(playerid, itemid){
 	GameTextForPlayer(playerid, "~w~Sedang ~y~Mengisi Bensin...", 3000, 3);
 
 	PlayerInfo[playerid][isOnAnimation] = true;
+	PlayerInfo[playerid][isBusy] = true;
 	return 1;
 }
 
@@ -3410,6 +3418,7 @@ Player_ResetCutting(playerid){
     if(DTree[id][treeSecs] < 1) Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[id][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
     ClearAnimations(playerid);
 	PlayerInfo[playerid][isOnAnimation] = false;
+	PlayerInfo[playerid][isBusy] = false;
 
     TogglePlayerControllable(playerid, 1);
 	if(IsPlayerAttachedObjectSlotUsed(playerid, CUTTING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX);
