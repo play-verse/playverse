@@ -237,6 +237,21 @@ showDialogDealerManager(playerid){
         Saya ingin menjual mobil", "Pilih", "Batal");
 }
 
+showDialogPenjualPancing(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_PANCING_LIST, DIALOG_STYLE_LIST, "Pilih jawaban : ", "\
+        Saya ingin membeli peralatan pancing", "Pilih", "Batal");
+}
+
+showDialogPenjualBibit(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_BIBIT_LIST, DIALOG_STYLE_LIST, "Pilih jawaban : ", "\
+        Saya ingin membeli bibit", "Pilih", "Batal");
+}
+
+showDialogPenjualBibitNarko(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_BIBIT_NARKO_LIST, DIALOG_STYLE_LIST, "Pilih jawaban : ", "\
+        Saya ingin membeli bibit ilegal", "Pilih", "Batal");
+}
+
 showDialogPilihBensin(playerid){
     return ShowPlayerDialog(
         playerid, 

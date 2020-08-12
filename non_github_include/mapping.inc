@@ -19,6 +19,7 @@
 //SIM Kantor Polisi Los Santos
 //Sweeper Job Los Santos
 //Trashmaster Job Los Santos
+//Pizzaboy Job Los Santos
 //Palang Toll LS bawah
 //Palang Toll LS LV
 //Stasiun LS
@@ -49,6 +50,7 @@ loadAllMapingan(){
     simKantorPolisiLS();
     sweeperJobLS();
     trashmasterJobLS();
+    pizzaboyJobLS();
     palangTollLSBawah();
     palangTollLSLV();
     stasiunLS();
@@ -4877,6 +4879,24 @@ trashmasterJobLS(){
     CreateDynamicObject(2773, 1638.26587, -1553.29993, 13.21680,   0.00000, 0.00000, -89.88000);
     CreateDynamicObject(2773, 1640.60217, -1553.28906, 13.21680,   0.00000, 0.00000, -89.88000);
     CreateDynamicObject(2773, 1622.10071, -1554.02197, 13.21680,   0.00000, 0.00000, -52.08006);
+}
+
+pizzaboyJobLS(){    
+    CreateDynamicObject(2725, 2105.01367, -1809.01233, 12.96600,   0.00000, 0.00000, 0.00000);
+    CreateDynamicObject(2814, 2105.00439, -1808.99744, 13.39980,   0.00000, 0.00000, 0.00000);
+    CreateDynamicObject(2814, 2105.00439, -1808.99744, 13.48980,   0.00000, 0.00000, 0.00000);
+    CreateDynamicObject(2814, 2105.00439, -1808.99744, 13.57980,   0.00000, 0.00000, 0.00000);
+    CreateDynamicObject(2814, 2105.00439, -1808.99744, 13.66980,   0.00000, 0.00000, 0.00000);
+    CreateDynamicObject(2773, 2092.81982, -1825.61975, 13.05650,   0.00000, 0.00000, -91.08001);
+    CreateDynamicObject(2773, 2091.43018, -1824.65881, 13.05650,   0.00000, 0.00000, 0.11997);
+    CreateDynamicObject(2773, 2092.64063, -1823.56152, 13.05650,   0.00000, 0.00000, -0.00003);
+    CreateDynamicObject(2773, 2093.76733, -1824.70911, 13.05650,   0.00000, 0.00000, -0.00003);
+    CreateDynamicObject(2773, 2095.16455, -1825.66260, 13.05650,   0.00000, 0.00000, -91.08001);
+    CreateDynamicObject(2773, 2094.82178, -1823.49219, 13.05650,   0.00000, 0.00000, -0.00003);
+    CreateDynamicObject(2773, 2096.11890, -1824.75061, 13.05650,   0.00000, 0.00000, -0.00003);
+    CreateDynamicObject(2773, 2097.50659, -1825.70813, 13.05650,   0.00000, 0.00000, -91.08001);
+    CreateDynamicObject(2773, 2097.34839, -1823.47815, 13.05650,   0.00000, 0.00000, -0.00003);
+    CreateDynamicObject(2773, 2098.46289, -1824.78320, 13.05650,   0.00000, 0.00000, -0.00003);
 }
 
 removeObjectInteriorRumah(playerid){

@@ -26,6 +26,9 @@ loadAllMapIcon(){
     // Trashmaster Job
     CreateDynamicMapIcon(1607.9501, -1553.7773, 14.1433, 13, 1, 0, 0, -1, 100.0);
     
+    // Pizzaboy Job
+    CreateDynamicMapIcon(2102.8638, -1823.5295, 13.1555, 13, 1, 0, 0, -1, 100.0);
+
     // Reparasi
     CreateDynamicMapIcon(997.6110,-1701.3304,14.5905, 34, 1, 0, 0, -1, 100.0);
 
