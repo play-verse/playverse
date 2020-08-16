@@ -393,6 +393,20 @@ new const MENU_ALAT_PANCING[][INFO_MENU_ALAT_PANCING] = {
 
 };
 
+enum INFO_MENU_PHONE {
+    idItem,
+    namaItem[100],
+    hargaItem
+}
+
+new const MENU_PHONE[][INFO_MENU_PHONE] = {
+// Item Phone
+    {1, "ePhone 1", 150},
+    {2, "ePhone 2", 300},
+	{3, "ePhone 3", 450},
+    {4, "ePhone 4", 600}
+};
+
 enum INFO_RARITY {
 	namaRarity[50],
 	colorRarity[14] // Dalam bentuk string {hex}
@@ -431,20 +445,24 @@ new PU_tempatFoto_in[2],
     PU_policeDept_in[1],
     PU_policeDept_out[1],
 	PU_pusatKeahlian[2],
-	PU_rumahSakit[1]; // Untuk pintu keluar pakai Dynamic Area karena pickup tidak muncul
+	PU_rumahSakit[1], // Untuk pintu keluar pakai Dynamic Area karena pickup tidak muncul
+	PU_tokoGadget[1][2];
 
 /**
 	ACTOR VARIABEL
  */
-new ACT_skillMekanik,
+new ACT__reload,
+	ACT_skillMekanik,
 	ACT_penjualDealer, // Actor tempat player menjual mobil
 	ACT_peralatanPancing,
 	ACT_tokoBibit,
 	ACT_tokoNarko,
+	ACT_tokoGadget,
 	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
 	Float:ACT_penjualDealer_Pos[4] = {1012.9276, -1733.4741, 13.4834, 90.0930},
 	Float:ACT_peralatanPancing_Pos[4] = {1021.7353, -1892.2639, 12.7341, 273.1771},
-	Float:ACT_tokoBibit_Pos[4] = {1494.2061, -1659.1025, 13.2922, 358.1933};
+	Float:ACT_tokoBibit_Pos[4] = {1494.2061, -1659.1025, 13.2922, 358.1933},
+	Float:ACT_tokoGadget_Pos[4] = {446.3421, 1238.8604, 1081.9045, 89.6002};
 
 /**
     Area

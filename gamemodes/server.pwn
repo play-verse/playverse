@@ -6112,6 +6112,73 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				 * Lakukan Reset Skill dan Sebagainya
 				 */
 			}
+		}
+		case DIALOG_MENU_BELI_PHONE:
+		{
+			if(response){
+				SetPVarInt(playerid, "index_terpilih", listitem);
+				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PHONE, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+			}else{
+				DeletePVar(playerid, "index_terpilih");
+				DeletePVar(playerid, "jumlah_terpilih");
+			}
+			return 1;
+		}
+		case DIALOG_JUMLAH_PEMBELIAN_PHONE:
+		{
+			if(response){
+				new jumlah;
+				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PHONE, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PHONE, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+				SetPVarInt(playerid, "jumlah_terpilih", jumlah);
+				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItem], jumlah);
+				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItem], "selesaiBeliPhone", pDialog[playerid]);
+			}else{
+				DeletePVar(playerid, "index_terpilih");
+				DeletePVar(playerid, "jumlah_terpilih");
+				showDialogBeliPhone(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_TALK_TO_PENJUAL_GADGET:
+		{
+			if(response)
+				showDialogPenjualGadget(playerid);
+			return 1;
+		}
+		case DIALOG_TALK_TO_PENJUAL_GADGET_LIST:
+		{
+			if(response)
+			{
+				ActorTalking(ACT_tokoGadget);
+				switch(listitem){
+					case 0: // Beli phone
+					{
+						showDialogBeliPhone(playerid);
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_ACTOR:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Respawn Actor
+					{
+						ACT__reload = 1;
+						// Hapus actor
+						if(IsValidDynamicActor(ACT_skillMekanik)) DestroyDynamicActor(ACT_skillMekanik);
+						if(IsValidDynamicActor(ACT_penjualDealer)) DestroyDynamicActor(ACT_penjualDealer);
+						if(IsValidDynamicActor(ACT_peralatanPancing)) DestroyDynamicActor(ACT_peralatanPancing);
+						if(IsValidDynamicActor(ACT_tokoBibit)) DestroyDynamicActor(ACT_tokoBibit);
+						if(IsValidDynamicActor(ACT_tokoNarko)) DestroyDynamicActor(ACT_tokoNarko);
+						if(IsValidDynamicActor(ACT_tokoGadget)) DestroyDynamicActor(ACT_tokoGadget);
+						// Reload actor
+						re_loadAllActor();
+					}
+				}
+			}
 			return 1;
 		}
     }
@@ -6866,6 +6933,12 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		return 1;
 	}else if(pickupid == PU_policeDept_out[0]){
 		pindahkanPemain(playerid, 1552.9425,-1675.7598,16.1953,92.6288, 0, 0, false);
+		return 1;
+	}else if(pickupid == PU_tokoGadget[0][ENTER_PICKUP]){
+		pindahkanPemain(playerid, 440.6347,1243.1987,1081.9045,269.2776, 1, 1, true);
+		return 1;
+	}else if(pickupid == PU_tokoGadget[0][EXIT_PICKUP]){
+		pindahkanPemain(playerid, 1097.6973,-1372.5007,13.9844,178.3555, 0, 0, true);
 		return 1;
 	}
 	return 1;

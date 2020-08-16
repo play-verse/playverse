@@ -36,14 +36,17 @@ loadAllMapIcon(){
     CreateDynamicMapIcon(1087.9688,-1529.9100,22.7421, 12, 1, 0, 0, -1, 100.0);
 
     // Pemotongan Kayu Lumberjack
-    CreateDynamicMapIcon(2351.5806,-659.4711,128.1192, 13, 1, 0, 0, -1, 100.0);
+    CreateDynamicMapIcon(2351.5806, -659.4711, 128.1192, 13, 1, 0, 0, -1, 100.0);
 
     // Police LS Icon
-    CreateDynamicMapIcon(1555.4991,-1675.5791,16.1953, 30, 1, 0, 0, -1, 100.0);
+    CreateDynamicMapIcon(1555.4991, -1675.5791, 16.1953, 30, 1, 0, 0, -1, 100.0);
 
     // Toko Bibit Icon
     CreateDynamicMapIcon(1494.2545, -1657.3724, 12.8556, 38, 1, 0, 0, -1, 100.0);
 
     // Toko Peralatan Pancing
-    CreateDynamicMapIcon(1024.2606,-1892.4369,12.8019, 38, 1, 0, 0, -1, 100.0);
+    CreateDynamicMapIcon(1024.2606, -1892.4369, 12.8019, 38, 1, 0, 0, -1, 100.0);
+
+    // Toko Gadget
+    CreateDynamicMapIcon(1097.6610, -1370.0361, 13.9844, 38, 1, 0, 0, -1, 100.0);
 }
