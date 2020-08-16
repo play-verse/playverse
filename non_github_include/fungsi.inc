@@ -1022,6 +1022,14 @@ publicFor: selesaiBeliPancing(playerid) {
 	return 1;
 }
 
+publicFor: selesaiBeliPhone(playerid) {
+	tambahItemPlayer(playerid, MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][idItem], GetPVarInt(playerid, "jumlah_terpilih"));
+
+	format(pDialog[playerid], sizePDialog, "Anda berhasil membeli %s.\nSebanyak %d dengan harga total $%d.\nSilahkan cek inventory anda untuk melihat.", MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][namaItem], GetPVarInt(playerid, "jumlah_terpilih"), GetPVarInt(playerid, "jumlah_terpilih") * MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItem]);
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli phone", pDialog[playerid], "Ok", "");
+	return 1;
+}
+
 publicFor: isRekeningTujuanAda(playerid, const rekening[]){
 	new result_nama[50], rekening_temp[10];
 	if(cache_num_rows()){

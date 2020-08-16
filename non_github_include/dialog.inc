@@ -165,15 +165,15 @@ showDialogBeliBibitNarko(playerid){
 }
 
 showDialogBeliAlatPancing(playerid){
-    static str_daftar_bibit[sizeof(MENU_ALAT_PANCING) * 100 + 100], subString[100];
-    if(str_daftar_bibit[0] == EOS){
-        strcat(str_daftar_bibit, WHITE"Nama\tHarga\n");
+    static str_daftar_pancing[sizeof(MENU_ALAT_PANCING) * 100 + 100], subString[100];
+    if(str_daftar_pancing[0] == EOS){
+        strcat(str_daftar_pancing, WHITE"Nama\tHarga\n");
         for(new i = 0; i < sizeof(MENU_ALAT_PANCING); i++){
             format(subString, 100, WHITE"%s\t"GREEN"$%d\n", MENU_ALAT_PANCING[i][namaItem], MENU_ALAT_PANCING[i][hargaItem]);
-            strcat(str_daftar_bibit, subString);
+            strcat(str_daftar_pancing, subString);
         }
     }
-    return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_ALAT_PANCING, DIALOG_STYLE_TABLIST_HEADERS, "Menu Peralatan Pancing", str_daftar_bibit, "Pilih", "Batal");
+    return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_ALAT_PANCING, DIALOG_STYLE_TABLIST_HEADERS, "Menu Peralatan Pancing", str_daftar_pancing, "Pilih", "Batal");
 }
 
 showDialogTempatMakan(playerid){
@@ -186,6 +186,18 @@ showDialogTempatMakan(playerid){
         }
     }
     return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_MAKAN, DIALOG_STYLE_TABLIST_HEADERS, "Menu hidangan.", str_daftar_makanan, "Pilih", "Batal");
+}
+
+showDialogBeliPhone(playerid){
+    static str_daftar_phone[sizeof(MENU_PHONE) * 100 + 100], subString[100];
+    if(str_daftar_phone[0] == EOS){
+        strcat(str_daftar_phone, WHITE"Nama\tHarga\n");
+        for(new i = 0; i < sizeof(MENU_PHONE); i++){
+            format(subString, 100, WHITE"%s\t"GREEN"$%d\n", MENU_PHONE[i][namaItem], MENU_PHONE[i][hargaItem]);
+            strcat(str_daftar_phone, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_PHONE, DIALOG_STYLE_TABLIST_HEADERS, "Menu Gadget.", str_daftar_phone, "Pilih", "Batal");
 }
 
 showDialogSimRegis(playerid){
@@ -250,6 +262,11 @@ showDialogPenjualBibit(playerid){
 showDialogPenjualBibitNarko(playerid){
     return ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_BIBIT_NARKO_LIST, DIALOG_STYLE_LIST, "Pilih jawaban : ", "\
         Saya ingin membeli bibit ilegal", "Pilih", "Batal");
+}
+
+showDialogPenjualGadget(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_GADGET_LIST, DIALOG_STYLE_LIST, "Pilih jawaban : ", "\
+        Saya ingin membeli phone", "Pilih", "Batal");
 }
 
 showDialogPilihBensin(playerid){

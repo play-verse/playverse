@@ -433,6 +433,15 @@ CMD:bicara(playerid, params[]){
             Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
         ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_BIBIT_NARKO, DIALOG_STYLE_MSGBOX, "Penjual Bibit Ilegal berkata :", pDialog[playerid], "Jawab", "Batal");
     }
+    // Actor Toko Gadget
+    else if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2])){
+        ActorTalking(ACT_tokoGadget);
+        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
+            "WHITE"Saya adalah penjual gadget. \n\
+            Kamu dapat mengurus beberapa hal yang berkaitan dengan gadget.\n\
+            Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
+        ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_GADGET, DIALOG_STYLE_MSGBOX, "Penjual Gadget berkata :", pDialog[playerid], "Jawab", "Batal");
+    }
 
     // Lakukan cara yang sama seperti diatas jika menambah untuk yang lain
     // GetDynamicActor... IsPlayerInRange .. return
@@ -610,5 +619,11 @@ CMD:pecatpolisi(playerid, params[]){
     sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat polisi %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
 
     sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari polisi.");
+    return 1;
+}
+
+CMD:aactor(playerid, params[]){
+    if(!IsPlayerAdmin(playerid)) return 0;
+    ShowPlayerDialog(playerid, DIALOG_ADMIN_ACTOR, DIALOG_STYLE_LIST, "Menu admin untuk Actor :", "Respawn Actor", "Pilih", "Batal");    
     return 1;
 }

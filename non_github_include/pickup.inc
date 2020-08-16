@@ -42,4 +42,8 @@ loadAllPickup(){
 
     // Rumah Sakit
     PU_rumahSakit[0] = buatPickupDanLabel(1318, 1172.2648, -1323.4558, 15.4032, "Rumah Sakit Los Santos\n"GREEN"Pintu Masuk");
+
+    // Toko Gadget
+    PU_tokoGadget[0][ENTER_PICKUP] = buatPickupDanLabel(1318, 1097.6610, -1370.0361, 13.9844, "Toko Gadget "nama_A"\n"GREEN"Pintu Masuk");
+    PU_tokoGadget[0][EXIT_PICKUP] = buatPickupDanLabel(1318, 438.7690, 1243.2151, 1081.9045, "Toko Gadget "nama_A"\n"GREEN"Pintu Keluar");
 }
