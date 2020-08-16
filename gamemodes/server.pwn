@@ -6099,6 +6099,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_TALK_TO_AHLI_MEKANIK:
+		{
+			if(response){
+				ActorTalking(ACT_skillMekanik);
+				/*
+				 * Lakukan Reset Skill dan Sebagainya
+				 */
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -7135,9 +7145,9 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 			}else{
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
-				prosesPembuatanSIM(playerid, 30);
+				prosesPembuatanSIM(playerid, LAMA_PEMBUATAN_SIM);
 				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
-				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan tunggu sekitar 30 menit real-time."WHITE"\nAnda dapat mengecek dan mengambilnya di tempat Registrasi sebelumnya, setelah sudah 30 menit berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
+				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan tunggu sekitar %d jam real-time."WHITE"\nAnda dapat mengecek dan mengambilnya di tempat Registrasi sebelumnya, setelah sudah %d jam berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid], LAMA_PEMBUATAN_SIM, LAMA_PEMBUATAN_SIM);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Praktik SIM", pDialog[playerid], "Ok", "");
 			}
 		}
@@ -7164,6 +7174,12 @@ public OnVehicleVelocityChange(vehicleid,Float:newx,Float:newy,Float:newz,Float:
 public OnVehicleHealthChange(vehicleid,Float:newhealth,Float:oldhealth){
 	if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
 		if(newhealth <= 260.0){
+			if(IsVehicleFlipped(vehicleid)) {
+				new Float:ang;
+				GetVehicleZAngle(vehicleid, ang);
+				SetVehicleZAngle(vehicleid, ang);
+			}
+
 			new temp_engine, temp_lights, temp_alarm, temp_doors, temp_bonnet, temp_boot, temp_objective;
 			GetVehicleParamsEx(vehicleid, temp_engine, temp_lights, temp_alarm, temp_doors, temp_bonnet, temp_boot, temp_objective);
 			SetVehicleParamsEx(vehicleid, 0, 0, temp_alarm, temp_doors, temp_bonnet, temp_boot, temp_objective);

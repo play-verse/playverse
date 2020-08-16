@@ -70,6 +70,12 @@
 // Dalam satuan menit - Lama penguncian akun jika melebihi attempt login yang ada
 #define LAMA_PENGUNCIAN_AKUN_JIKA_SALAH_PASSWORD 10
 
+/*
+ *	Lama Pembuatan KTP, SIM, dll
+ */
+#define LAMA_PEMBUATAN_SIM 24 // Dalam Satuan Jam
+#define LAMA_PEMBUATAN_KTP 24 // Dalam Satuan Jam
+
 #define PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN 60
 
 // Limit Item

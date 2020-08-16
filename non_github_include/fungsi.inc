@@ -810,9 +810,11 @@ publicFor: cekKetersediaanItemBuatKTP(playerid, cukup){
 		tambahItemPlayer(playerid, 6, -2);
 		givePlayerUang(playerid, -100);
 
-		prosesPembuatanKTP(playerid, 30);
+		prosesPembuatanKTP(playerid, LAMA_PEMBUATAN_KTP);
 
-        ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat KTP", "Berhasil membuat KTP, "YELLOW"pembuatan KTP akan memakan waktu sekitar 30 menit real-time."WHITE"\nAnda dapat mengeceknya dan mengambilnya pada resepsionis kembali, setelah sudah 30 menit berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Pemerintah Lost Santos", "Ok", "");
+		format(pDialog[playerid], sizePDialog, "Berhasil membuat KTP, "YELLOW"pembuatan KTP akan memakan waktu sekitar %d jam real-time."WHITE"\nAnda dapat mengeceknya dan mengambilnya pada resepsionis kembali, setelah sudah %d jam berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Pemerintah Lost Santos", LAMA_PEMBUATAN_KTP, LAMA_PEMBUATAN_KTP);
+
+        ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat KTP", pDialog[playerid], "Ok", "");
     }else{
         ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat KTP", WHITE"Maaf item yang diperlukan tidak mencukupi.", "Ok", "");
 	}
@@ -1958,9 +1960,9 @@ publicFor: showHistoryGajiPemain(playerid){
 	return 1;
 }
 
-prosesPembuatanKTP(playerid, interval_menit){
-	// Interval dalam menit
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_ktp(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d MINUTE)", PlayerInfo[playerid][pID], interval_menit);
+prosesPembuatanKTP(playerid, interval_jam){
+	// Interval dalam jam
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_ktp(id_user,tanggal_buat,tanggal_ambil) VALUES('%d', NOW(), NOW() + INTERVAL %d HOUR)", PlayerInfo[playerid][pID], interval_jam);
 	mysql_tquery(koneksi, pQuery[playerid]);
 }
 
@@ -1980,9 +1982,9 @@ getSudahBuatSIM(playerid, const fungsi_callback[], bool:cek_untuk_buat = true)
 	mysql_tquery(koneksi, pQuery[playerid], fungsi_callback, "i", playerid);
 }
 
-prosesPembuatanSIM(playerid, interval_menit){
-	// Interval dalam menit
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE pengambilan_sim SET tanggal_buat = NOW(), tanggal_ambil = NOW() + INTERVAL %d MINUTE WHERE id_user = '%d'", interval_menit, PlayerInfo[playerid][pID]);
+prosesPembuatanSIM(playerid, interval_jam){
+	// Interval dalam jam
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE pengambilan_sim SET tanggal_buat = NOW(), tanggal_ambil = NOW() + INTERVAL %d HOUR WHERE id_user = '%d'", interval_jam, PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 }
 
