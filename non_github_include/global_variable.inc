@@ -99,6 +99,10 @@ enum pInfo
 	onDutyPolice,
 	onDutyMedic,
 
+	// menyimpan ID item (mask/helm) yang sedang digunakan
+	// 0 jika tidak memakai apapun
+	isOnMask, 
+
 	hungryStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 	thirstyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 

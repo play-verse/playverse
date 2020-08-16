@@ -65,6 +65,8 @@ publicFor: isRegistered(playerid)
 
 		cache_get_value_name_int(0, "login_attempt", PlayerInfo[playerid][loginAttempt]);
 
+		cache_get_value_name_int(0, "on_mask", PlayerInfo[playerid][isOnMask]);
+
 		// Get Player Position
 		cache_get_value_name(0, "last_x", temp_value);
 		PlayerInfo[playerid][last_x] = floatstr(temp_value);
@@ -201,6 +203,8 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][isBusy] = false;
 
 	PlayerInfo[playerid][tampilHUDStats] = false;
+
+	PlayerInfo[playerid][isOnMask] = 0;
 
 	lepasTandaTrade(playerid);
 
@@ -371,6 +375,18 @@ publicFor: spawnPemain(playerid)
 		PlayerInfo[playerid][last_stats_minum] = 0;
 	}
 	
+	/*
+	 * Jika menggunakan mask maka hide name tag
+	 */
+	if(PlayerInfo[playerid][isOnMask] && IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
+		HidePlayerMarker(playerid);
+		AttachHelmetOrMask(playerid, PlayerInfo[playerid][isOnMask]);
+	}
+	else{
+		PlayerInfo[playerid][isOnMask] = 0;
+		ShowPlayerMarker(playerid);
+	}
+
 	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
 		
@@ -796,6 +812,25 @@ publicFor: itemTidakDapatDipakai(playerid){
 publicFor: pakaiHpFromInven(playerid, itemid){
 	updatePlayerCurrentPhone(playerid, itemid);
 	resetPVarInventory(playerid);
+	return 1;
+}
+
+publicFor: pakaiHelm(playerid, itemid){
+	if(PlayerInfo[playerid][isOnMask])
+		return server_message(playerid, "Anda telah menggunakan masker/helm silahkan lepas terlebih dahulu.");
+
+	if(!IsMaskOrHelmet(itemid)) { // Jika ID item lain
+		PlayerInfo[playerid][isOnMask] = 0;
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
+		return 1;
+	}
+
+	PlayerInfo[playerid][isOnMask] = itemid;
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = %d WHERE id = %d", itemid, PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
+	AttachHelmetOrMask(playerid, itemid);
+	tambahItemPlayer(playerid, itemid, -1);
 	return 1;
 }
 

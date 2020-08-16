@@ -612,3 +612,50 @@ CMD:pecatpolisi(playerid, params[]){
     sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari polisi.");
     return 1;
 }
+
+
+/*
+ * Lepas Helm Dan Mask
+ */
+CMD:lepashelm(playerid, params[]){
+    if(!PlayerInfo[playerid][isOnMask]) return server_message(playerid, "Anda tidak sedang menggunakan helm.");
+    if(!IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
+        /* Reset Jika iditem tidak valid */
+        PlayerInfo[playerid][isOnMask] = 0;
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
+        mysql_tquery(koneksi, pQuery[playerid]);
+        return server_message(playerid, "Anda tidak sedang menggunakan helm.");
+    }
+    tambahItemPlayer(playerid, PlayerInfo[playerid][isOnMask], 1);
+    
+    PlayerInfo[playerid][isOnMask] = 0;
+    RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX); // Lepas Object
+    ShowPlayerMarker(playerid);
+
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
+    return 1;
+}
+
+CMD:lepastopeng(playerid, params[]){
+    if(!PlayerInfo[playerid][isOnMask]) return server_message(playerid, "Anda tidak sedang menggunakan topeng.");
+    if(!IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
+        /* Reset Jika iditem tidak valid */
+        PlayerInfo[playerid][isOnMask] = 0;
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
+        mysql_tquery(koneksi, pQuery[playerid]);
+        return server_message(playerid, "Anda tidak sedang menggunakan topeng.");
+    }
+    tambahItemPlayer(playerid, PlayerInfo[playerid][isOnMask], 1);
+
+    PlayerInfo[playerid][isOnMask] = 0;
+    RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX); // Lepas Object
+    ShowPlayerMarker(playerid);
+
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
+    return 1;
+}
+/**
+ * End Lepas Helm dan Mask
+ */

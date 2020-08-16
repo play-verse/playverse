@@ -84,6 +84,11 @@ public OnPlayerConnect(playerid)
 	TextDrawShowForPlayer(playerid, TD_JamTanggal[0]);
 	TextDrawShowForPlayer(playerid, TD_JamTanggal[1]);
 
+	/*
+	 * Synching Marker
+	 */
+	SyncMarkerMaskToPlayer(playerid); // Sync juga
+
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
 	PlayerInfo[playerid][pPlayerName] = nama;
@@ -103,7 +108,7 @@ public OnPlayerConnect(playerid)
 public OnPlayerDisconnect(playerid, reason){
 	#if DEBUG_MODE_FOR_PLAYER == true
 		printf("OnPlayerDisconnect terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
-	#endif	
+	#endif
 
 	if(SpeedoTimer[playerid] != -1){
 		DeletePreciseTimer(SpeedoTimer[playerid]);
@@ -6380,6 +6385,15 @@ public OnPlayerDeath(playerid, killerid, reason)
 	PlayerInfo[playerid][inHouse] = 0;
 	PlayerInfo[playerid][sudahSpawn] = false;
 
+	/*
+	 * Hilangkan Mask jika sedang terpakai
+	 */
+	if(PlayerInfo[playerid][isOnMask]){
+		PlayerInfo[playerid][isOnMask] = 0;
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
+	}
+
 	if(PlayerInfo[playerid][timerPemain] != -1) {
 		DeletePreciseTimer(PlayerInfo[playerid][timerPemain]);
 		PlayerInfo[playerid][timerPemain] = -1;
@@ -6735,7 +6749,11 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 }
 
 public OnPlayerText(playerid, text[]){
-	format(msg,sizeof(msg), "[%d] %s : %s", playerid,  PlayerInfo[playerid][pPlayerName], text);
+	if(PlayerInfo[playerid][isOnMask])
+		format(msg,sizeof(msg), "Tidak dikenali: %s",  text);
+	else
+		format(msg,sizeof(msg), "%s: %s", PlayerInfo[playerid][pPlayerName], text);
+
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);

@@ -103,12 +103,16 @@
 /**
 	INDEX ATTACHED OBJECT PLAYER
  */
-#define MINING_ATTACH_INDEX 1
-#define CUTTING_ATTACH_INDEX 2
-#define TOMBAK_ATTACH_INDEX 3
-#define PANCINGAN_ATTACH_INDEX 4
-#define TRASH_ATTACH_INDEX 5
-#define PIZZA_ATTACH_INDEX 6
+/* Disamain Karena Gak Mungkin Mereka Dalam 4 Pekerjaan Sekaligus */
+#define MINING_ATTACH_INDEX 0
+#define CUTTING_ATTACH_INDEX 0
+#define TRASH_ATTACH_INDEX 0  
+#define PIZZA_ATTACH_INDEX 0 
+
+#define TOMBAK_ATTACH_INDEX 1
+#define PANCINGAN_ATTACH_INDEX 2
+
+#define MASK_ATTACH_INDEX 3 // Helmet dan Mask Gak Boleh di satuin
 
 /**
 	Skill Definition
@@ -490,3 +494,12 @@
 #define TIME_SWEEPER			15
 #define TIME_TRASHMASTER		25
 #define TIME_PIZZABOY			20
+
+/*
+ * Constant untuk ID item yang diperlukan
+ */
+#define ID_ITEM_HELM   49
+#define ID_ITEM_MASK   50
+/*
+ * End Defining Constant for ID item
+ */

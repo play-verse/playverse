@@ -712,3 +712,131 @@ SetArmour(playerid, Float:armour){
     PlayerInfo[playerid][currentArmour] = armour;
     return SetPlayerArmour(playerid, armour);
 }
+
+stock IsABike(vehicleid)
+{
+	new model = GetVehicleModel(vehicleid);
+    switch(model)
+    {
+        case 509, 481, 510, 462, 448, 581, 522, 461, 521, 523, 463, 586, 468, 471: 
+            return true;
+        default:
+            return false;
+    }
+}
+
+IsMaskOrHelmet(itemid){
+    return (itemid == ID_ITEM_HELM || itemid == ID_ITEM_MASK);
+}
+
+#define AttachHelmetFixed(%0,%1,%2,%3,%4,%5,%6) \
+    SetPlayerAttachedObject(%0, MASK_ATTACH_INDEX, 18645, 2, (%1), (%2), (%3), (%4), (%5), (%6))
+
+#define AttachMaskToPlayer(%0)       \
+    SetPlayerAttachedObject(%0, MASK_ATTACH_INDEX, 19037, 2, 10, 4.7, 0.0, 90, 90, 0)
+#define AttachHelmetToPlayer(%0)     \
+    SetPlayerAttachedObject(%0, MASK_ATTACH_INDEX, 18645, 2, 0.101, -0.0, 0.0, 5.50, 84.60, 83.7)
+
+AttachHelmetOrMask(playerid, itemid){
+    if(!IsMaskOrHelmet(itemid)) return 1;
+    switch(itemid){
+        case ID_ITEM_HELM:
+            AttachHelmetToPlayerFixed(playerid);
+        case ID_ITEM_MASK:
+            AttachMaskToPlayer(playerid);
+        default:
+            return 1;
+    }
+    return 1;
+}
+
+AttachHelmetToPlayerFixed(playerid)
+{
+    switch(GetPlayerSkin(playerid))
+    {
+        case 0, 65, 74, 149, 208, 273:  
+            AttachHelmetFixed(playerid, 0.070000, 0.000000, 0.000000, 88.000000, 75.000000, 0.000000);
+        case 1..6, 8, 14, 16, 22, 27, 29, 33, 41..49, 82..84, 86, 87, 119, 289: 
+            AttachHelmetFixed(playerid, 0.070000, 0.000000, 0.000000, 88.000000, 77.000000, 0.000000);
+        case 7, 10: 
+            AttachHelmetFixed(playerid, 0.090000, 0.019999, 0.000000, 88.000000, 90.000000, 0.000000);
+        case 9: 
+            AttachHelmetFixed(playerid, 0.059999, 0.019999, 0.000000, 88.000000, 90.000000, 0.000000);
+        case 11..13: 
+            AttachHelmetFixed(playerid, 0.070000, 0.019999, 0.000000, 88.000000, 90.000000, 0.000000);
+        case 15: 
+            AttachHelmetFixed(playerid, 0.059999, 0.000000, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 17..21: 
+            AttachHelmetFixed(playerid, 0.059999, 0.019999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 23..26, 28, 30..32, 34..39, 57, 58, 98, 99, 104..118, 120..131: 
+            AttachHelmetFixed(playerid, 0.079999, 0.019999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 40: 
+            AttachHelmetFixed(playerid, 0.050000, 0.009999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 50, 100..103, 148, 150..189, 222: 
+            AttachHelmetFixed(playerid, 0.070000, 0.009999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 51..54: 
+            AttachHelmetFixed(playerid, 0.100000, 0.009999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 55, 56, 63, 64, 66..73, 75, 76, 78..81, 133..143, 147, 190..207, 209..219, 221, 247..272, 274..288, 290..293: 
+            AttachHelmetFixed(playerid, 0.070000, 0.019999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 59..62: 
+            AttachHelmetFixed(playerid, 0.079999, 0.029999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 77: 
+            AttachHelmetFixed(playerid, 0.059999, 0.019999, 0.000000, 87.000000, 82.000000, 0.000000);
+        case 85, 88, 89: 
+            AttachHelmetFixed(playerid, 0.070000, 0.039999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 90..97: 
+            AttachHelmetFixed(playerid, 0.050000, 0.019999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 132: 
+            AttachHelmetFixed(playerid, 0.000000, 0.019999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 144..146: 
+            AttachHelmetFixed(playerid, 0.090000, 0.000000, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 220: 
+            AttachHelmetFixed(playerid, 0.029999, 0.019999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 223, 246: 
+            AttachHelmetFixed(playerid, 0.070000, 0.050000, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 224..245: 
+            AttachHelmetFixed(playerid, 0.070000, 0.029999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 294: 
+            AttachHelmetFixed(playerid, 0.070000, 0.019999, 0.000000, 91.000000, 84.000000, 0.000000);
+        case 295: 
+            AttachHelmetFixed(playerid, 0.050000, 0.019998, 0.000000, 86.000000, 82.000000, 0.000000);
+        case 296..298: 
+            AttachHelmetFixed(playerid, 0.064999, 0.009999, 0.000000, 88.000000, 82.000000, 0.000000);
+        case 299: 
+            AttachHelmetFixed(playerid, 0.064998, 0.019999, 0.000000, 88.000000, 82.000000, 0.000000);
+        default:
+            AttachHelmetToPlayer(playerid);
+    }
+}
+
+HidePlayerMarker(playerid){
+    if(!IsPlayerConnected(playerid)) return; 
+    foreach(new i : Player){
+        if(i != playerid)
+            ShowPlayerNameTagForPlayer(i, playerid, 0);
+    } 
+}
+
+ShowPlayerMarker(playerid){
+    if(!IsPlayerConnected(playerid)) return; 
+    foreach(new i : Player) {
+        if(i != playerid)
+            ShowPlayerNameTagForPlayer(i, playerid, 1);
+    }
+}
+
+
+/*
+ * Digunakan untuk menghide player lain yang menggunakan mask 
+ * dari playerid yang menjadi parameter
+ */
+SyncMarkerMaskToPlayer(playerid){
+    foreach(new i : Player){
+        if(i != playerid) {
+            if(PlayerInfo[i][isOnMask])
+                ShowPlayerNameTagForPlayer(playerid, i, 0);
+            else
+                ShowPlayerNameTagForPlayer(playerid, i, 1);
+        }
+    }
+}
