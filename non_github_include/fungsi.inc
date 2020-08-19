@@ -222,6 +222,11 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][last_z] = 0;
 	PlayerInfo[playerid][last_a] = 0;
 
+	/**
+		Invetory Item
+	 */
+	bersihkanVariabelItemPlayer(playerid);
+
 	// Reset skill
 	PlayerInfo[playerid][expMekanik] = 0;
 	PlayerInfo[playerid][activeMekanik] = 0;
@@ -751,6 +756,8 @@ publicFor: tambahItemHouse(house_id, itemid, jumlah){
 }
 
 publicFor: tambahItemPlayer(playerid, itemid, jumlah){
+	SetJumlahItemPlayer(playerid, itemid, GetJumlahItemPlayer(playerid, itemid) + jumlah);
+
 	// Pakai trigger procedure
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "CALL tambah_item(%d, %d, %d)", PlayerInfo[playerid][pID], itemid, jumlah);
 	mysql_tquery(koneksi, pQuery[playerid]);
@@ -2345,6 +2352,12 @@ loadAllItem(){
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `item`");
 	cache_get_row_count(row);
+
+	if(row != MAX_SERVER_ITEM){
+		printf("PENGATURAN SERVER: MAX_SERVER_ITEM != jumlah_item_di_database. MAX_SERVER_ITEM = %d dan row ", id_item, nama_item);
+		SendRconCommand("exit");
+	}
+
 	while(idx < row){
 		// iIt = Id Item > Menyimpan model id item
 		// mIt = Model Item > Menyimpan id item
@@ -2383,6 +2396,12 @@ loadAllItem(){
 		#if DEBUG_SERVER_LOAD == true
 			printf("Item load id(%d) - %s", id_item, nama_item);
 		#endif
+
+		if(id_item - 1 != idx){
+			printf("PENGATURAN SERVER: id_item pada database tidak berurut. ditemukan id item %d dan selanjutnya %d.", idx, id_item);
+			SendRconCommand("exit");
+			break;
+		}
 
 		idx++;
 	}
@@ -2882,6 +2901,31 @@ LoadFactionPlayer(playerid){
 		}
 	}
 	MySQL_TQueryInline(koneksi, using inline responseLoadFaction, "SELECT * FROM user_faction WHERE (expired > NOW() OR expired IS NULL) AND id_user = %d", PlayerInfo[playerid][pID]);
+}
+
+LoadItemPlayer(playerid){
+	inline responseQuery(){
+		new rows;
+		cache_get_row_count(rows);
+		if(rows){			
+			new idx = 0,
+				id_item,
+				jumlah,
+				kunci;
+			while(idx < rows){
+				cache_get_value_name_int(idx, "id_item", id_item);
+				cache_get_value_name_int(idx, "jumlah", jumlah);
+				cache_get_value_name_int(idx, "kunci", kunci);
+
+				printf("loaded item for player %d (%d, %d)", playerid, id_item, jumlah);
+
+				SetJumlahItemPlayer(playerid, id_item, jumlah);
+				SetKunciItemPlayer(playerid, id_item, kunci);
+				idx++;
+			}
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 }
 
 LoadVehiclePlayer(playerid){

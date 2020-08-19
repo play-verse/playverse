@@ -111,6 +111,15 @@ enum pInfo
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 
+/**
+	Index 0 pada ID_ITEM akan dikosongkan sebagai INVALID_ID_ITEM
+ */
+enum PLAYER_ITEM_INFO {
+	jumlahItem,
+	kunciItem
+};
+new PlayerItem[MAX_PLAYERS][MAX_SERVER_ITEM + 1][PLAYER_ITEM_INFO];
+
 enum pInfoAct {
     timerNambang,
     bool:sedangNambang

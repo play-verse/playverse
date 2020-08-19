@@ -232,6 +232,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 					LoadFactionPlayer(playerid);
 
+					LoadItemPlayer(playerid);
+
 					// Set player uang tanpa menambahkan di database - maka diset false untuk parameter terakhir
 					setUangPlayer(playerid, PlayerInfo[playerid][uang], false);
 
@@ -2544,25 +2546,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new harga = (GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
 				harga = jumlah * harga;
 				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
+				
+				if(CekJikaInventoryPlayerMuat(playerid,ID_PAS_FOTO,jumlah)){
+					tambahItemPlayer(playerid, ID_PAS_FOTO, jumlah);
+					givePlayerUang(playerid, -harga);
 
-				inline responseQuery(){
-					new total_item;
-					
-					// 5 adalah id item untuk pas foto
-					static const id_item_pas_foto = 5;
-
-					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + jumlah * getKapasitasByIdItem(id_item_pas_foto)) > PlayerInfo[playerid][limitItem]){	
-						dialogInventoryItemTidakMuat(playerid, jumlah, total_item, id_item_pas_foto);
-					}else{
-						tambahItemPlayer(playerid, id_item_pas_foto, jumlah);
-						givePlayerUang(playerid, -harga);
-
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli foto", WHITE"Anda berhasil membeli foto, foto anda sudah masuk inventory.\nSilahkan cek pada inventory anda.", "Ok", "");
-						DeletePVar(playerid, "foto_jumlahFoto");
-					}
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli foto", WHITE"Anda berhasil membeli foto, foto anda sudah masuk inventory.\nSilahkan cek pada inventory anda.", "Ok", "");
+					DeletePVar(playerid, "foto_jumlahFoto");
+				}else{
+					dialogInventoryItemTidakMuat(playerid, jumlah, GetSlotInventoryPlayer(playerid), ID_PAS_FOTO);
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);				
 				return 1;
 			}else{
 				DeletePVar(playerid, "foto_jumlahFoto");

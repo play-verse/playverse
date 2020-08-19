@@ -24,6 +24,18 @@
 #define GetPlayerHealth(%0)                 GetHealth(%0)
 #define GetPlayerArmour(%0)                 GetArmour(%0)
 
+/**
+    Bantuan Item
+ */
+
+/**
+    Get slot yang terpakai oleh item dengan jumlah tertentu
+
+    %0 - itemid
+    %1 - jumlah
+ */
+#define GetSlotItemTerpakai(%0,%1) (getKapasitasByIdItem(%0) * %1)
+
 sama(const kata1[], const kata2[]) return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
 
 // Hanya untuk tampilan saja
@@ -840,3 +852,84 @@ SyncMarkerMaskToPlayer(playerid){
         }
     }
 }
+
+/**
+    Manipulasi Array Item
+
+    IMPORTANT: INI HANYA FUNGSI BANTUAN UNTUK MANIPULASI ARRAY
+    IMPORTANT: TETAP GUNAKAN tambahItemPlayer UNTUK MENGURANGI DAN MENAMBAHKAN ITEM
+ */
+#define LoopingItem(%0) \
+    for(new %0=1;%0<=MAX_SERVER_ITEM;%0++)
+
+#define bersihkanVariabelItemPlayer(%0) \
+    LoopingItem(i) PlayerItem[%0][i][jumlahItem] = 0, PlayerItem[%0][i][kunciItem] = 0
+
+
+/**
+    Params:
+        %0 = playerid
+        %1 = id item
+*/
+#define IsPlayerHaveItem(%0,%1) \
+    (PlayerItem[%0][%1][jumlahItem] > 0)
+
+#define IsItemPlayerTerkunci(%0,%1) \
+    (PlayerItem[%0][%1][kunciItem] > 0)
+
+#define GetJumlahItemPlayer(%0,%1) \
+    PlayerItem[%0][%1][jumlahItem]
+
+#define GetStatusKunciItemPlayer(%0,%1) \
+    PlayerItem[%0][%1][kunciItem]
+
+
+/**
+    Params:
+        %0 = playerid
+ */
+#define GetAllItemPlayer(%0) \
+    PlayerItem[%0]
+
+GetSlotInventoryPlayer(playerid){
+    new kapasitas = 0;
+    LoopingItem(i){
+        if(GetJumlahItemPlayer(playerid, i) < 1) continue;
+        kapasitas += GetJumlahItemPlayer(playerid, i) * getKapasitasByIdItem(i);
+    }
+    return kapasitas;
+}
+
+/**
+    %0 = playerid
+    %1 = id item yang akan masuk
+    %2 = jumlah item yang akan masuk
+ */
+#define CekJikaInventoryPlayerMuat(%0,%1,%2) \
+    ((GetSlotInventoryPlayer(%0) + GetSlotItemTerpakai(%1,%2)) <= PlayerInfo[%0][limitItem])
+
+/**
+    Params:
+        %0 = playerid
+        %1 = id item
+        %2 = jumlah 
+ */
+#define SetJumlahItemPlayer(%0,%1,%2) \
+    PlayerItem[%0][%1][jumlahItem] = %2
+
+/**
+    Params:
+        %0 = playerid
+        %1 = id item
+        %2 = status (0 untuk tidak kunci, 1 untuk kunci)
+ */
+#define SetKunciItemPlayer(%0,%1,%2) \
+    PlayerItem[%0][%1][kunciItem] = %2
+
+/**
+    Params:
+        %0 = playerid
+        %1 = id item
+*/
+#define ResetItemPlayer(%0,%1) \
+    PlayerItem[%0][%1][kunciItem] = 0, PlayerItem[%0][%1][kunciItem] = 0

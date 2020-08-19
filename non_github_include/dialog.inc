@@ -72,18 +72,13 @@ showDialogAmbilMobilReparasi(playerid){
 }
 
 showDialogMenuInventory(playerid){
-    inline responseQuery(){
-        new total_item, string[500];
-        cache_get_value_name_int(0, "total_item", total_item);
-        if(total_item >= PlayerInfo[playerid][limitItem]){
-            format(string, 500, WHITE"Item\t"RED"(%i/%i)\nSkin\nKendaraan\nFurniture\nRumah", total_item, PlayerInfo[playerid][limitItem]);
-            ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", string, "Pilih", "Batal");
-        }else{
-            format(string, 500, WHITE"Item\t"GREEN"(%i/%i)\nSkin\nKendaraan\nFurniture\nRumah", total_item, PlayerInfo[playerid][limitItem]);
-            ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", string, "Pilih", "Batal");
-        }
+    if(GetSlotInventoryPlayer(playerid) >= PlayerInfo[playerid][limitItem]){
+        format(pDialog[playerid], 200, WHITE"Item\t"RED"(%i/%i)\nSkin\nKendaraan\nFurniture\nRumah", GetSlotInventoryPlayer(playerid), PlayerInfo[playerid][limitItem]);
+        ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", pDialog[playerid], "Pilih", "Batal");
+    }else{
+        format(pDialog[playerid], 200, WHITE"Item\t"GREEN"(%i/%i)\nSkin\nKendaraan\nFurniture\nRumah", GetSlotInventoryPlayer(playerid), PlayerInfo[playerid][limitItem]);
+        ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", pDialog[playerid], "Pilih", "Batal");
     }
-	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 }
 
 showDialogEPhone(playerid){

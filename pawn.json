@@ -14,7 +14,8 @@
 		"Southclaws/zcmd",
 		"maddinat0r/sscanf:v2.8.3",
 		"BigETI/pawn-memory:2.0.1",
-		"bmisiak/samp-precise-timers:v2.0.2"
+		"bmisiak/samp-precise-timers:v2.0.2",
+		"IllidanS4/PawnPlus#4038e8e0ae4d3a6dcd376f91466527cbee8065b7"
 	],
 	"builds": [
 		{
