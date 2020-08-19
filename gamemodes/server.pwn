@@ -3192,16 +3192,19 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0: // Bayar cash
 					{
 						new idx = GetPVarInt(playerid, "bmakan_index"), jumlah = GetPVarInt(playerid, "bmakan_jumlah");
-						new harga = jumlah * MENU_MAKANAN[idx][hargaMakanan];
+						new harga = jumlah * MENU_MAKANAN[idx][hargaMakanan],
+							nama_item[50];
 						DeletePVar(playerid, "bmakan_index");
 						DeletePVar(playerid, "bmakan_jumlah");
 						if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
+
+						getNamaByIdItem(MENU_MAKANAN[idx][idItemMakanan], nama_item);
 
 						if(CekJikaInventoryPlayerMuat(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah)){	
 							givePlayerUang(playerid, -harga);
 							tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
 
-							format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_MAKANAN[idx][namaMakanan], jumlah, harga);
+							format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", nama_item, jumlah, harga);
 							showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
 						}else{
 							dialogInventoryItemTidakMuat(playerid, jumlah, GetSlotInventoryPlayer(playerid), MENU_MAKANAN[idx][idItemMakanan]);

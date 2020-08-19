@@ -386,7 +386,6 @@ new const PERABOT_DIJUAL[][INFO_JUAL_PERABOT] = {
 
 enum INFO_MENU_MAKANAN {
     idItemMakanan,
-    namaMakanan[100],
     hargaMakanan,
     Float:energiNambah
 }
@@ -394,22 +393,24 @@ enum INFO_MENU_MAKANAN {
 /*  
     $1 Minuman = 5%
     $1 Food = 2.5% 
+
+	IMPORTANT: Definisikan Semua Makanan & Minuman Disini
 */
 new const MENU_MAKANAN[][INFO_MENU_MAKANAN] = {
 // Makanan
-    {14, "Steak", 20, 50.0},
-    {16, "Nasi Bungkus", 15, 37.5},
-    {17, "Sate", 12, 30.0},
-    {23, "Roti", 10, 25.0},
-    {24, "Telur Dadar", 5, 12.5},
+    {14, 20, 50.0}, // Steak
+    {16, 15, 37.5}, // Nasi Bungkus
+    {17, 12, 30.0}, // Sate
+    {23, 10, 25.0}, // Roti
+    {24, 5, 12.5}, // Telur Dadar
 
 // Minuman
-    {13, "Air Mineral", 1, 5.0},
-    {18, "Jus Jeruk", 5, 25.0},
-    {19, "Es Teh Manis", 4, 20.0},
-    {20, "Kopi Panas", 7, 35.0},
-    {21, "Kopi Dingin", 7, 35.0},
-    {22, "Minuman Soda", 6, 30.0}
+    {13, 1, 5.0}, // Air Mineral
+    {18, 5, 25.0}, // Jus Jeruk
+    {19, 4, 20.0}, // Es teh manis
+    {20, 7, 35.0}, // Kopi Panas
+    {21, 7, 35.0}, // Kopi Dingin
+    {22, 6, 30.0} // Minuman Soda
 };
 
 enum INFO_MENU_BIBIT {

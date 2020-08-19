@@ -211,11 +211,13 @@ showDialogBeliAlatPancing(playerid){
 }
 
 showDialogTempatMakan(playerid){
-    static str_daftar_makanan[sizeof(MENU_MAKANAN) * 100 + 100], subString[100];
+    static str_daftar_makanan[sizeof(MENU_MAKANAN) * 100 + 100], subString[100],
+        nama_item[50];
     if(str_daftar_makanan[0] == EOS){
         strcat(str_daftar_makanan, WHITE"Nama\tHarga\n");
         for(new i = 0; i < sizeof(MENU_MAKANAN); i++){
-            format(subString, 100, WHITE"%s\t"GREEN"$%d\n", MENU_MAKANAN[i][namaMakanan], MENU_MAKANAN[i][hargaMakanan]);
+            getNamaByIdItem(MENU_MAKANAN[i][idItemMakanan], nama_item);
+            format(subString, 100, WHITE"%s\t"GREEN"$%d\n", nama_item, MENU_MAKANAN[i][hargaMakanan]);
             strcat(str_daftar_makanan, subString);
         }
     }
