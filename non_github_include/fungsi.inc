@@ -2277,6 +2277,9 @@ publicFor: isBisaBuatSIM(playerid, tidak_bisa){
  */
 
 updateStatusKunciItem(playerid, id_item, status){
+	// Update secara variable
+	SetKunciItemPlayer(playerid, id_item, status);
+
 	new temp_query[200];
 	mysql_format(koneksi, temp_query, 200, "UPDATE user_item SET kunci = '%d' WHERE id_user = '%d' AND id_item = '%d'", status, PlayerInfo[playerid][pID], id_item);
 	mysql_tquery(koneksi, temp_query);

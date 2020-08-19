@@ -1258,21 +1258,17 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					return 1;
 				}
 
-				// mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT jumlah FROM `user_item` WHERE id_user = '%d' AND id_item = '%d'", PlayerInfo[playerid][pID], strval(inputtext));
-				// mysql_tquery(koneksi, pQuery[playerid], "cekJumlahItem", "ii", playerid, strval(inputtext));
-
 				SetPVarInt(playerid, "inv_indexlist", listitem);
-				cache_set_active(PlayerInfo[playerid][tempCache]);
-				new temp_kunci;
-				cache_get_value_name_int(listitem, "kunci", temp_kunci);
-				cache_unset_active();
-
-				if(temp_kunci)
+				if(GetStatusKunciItemPlayer(playerid, TempPlayerDialog[playerid][listitem]))
 					format(pDialog[playerid], sizePDialog, GREEN"Pakai Item\n"WHITE"Beritahu Item\nInfo Item\n"ORANGE"Beri Item\n"GREEN"Buka Item "RED"(sedang terkunci)\n"RED"Buang Item");
 				else
 					format(pDialog[playerid], sizePDialog, GREEN"Pakai Item\n"WHITE"Beritahu Item\nInfo Item\n"ORANGE"Beri Item\n"RED"Kunci Item "GREEN"(sedang terbuka)\n"RED"Buang Item");
 
-				ShowPlayerDialog(playerid, DIALOG_OPTION_ITEM_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", pDialog[playerid], "Ok", "Keluar");
+				new temp_string[100],
+					nama_item[50];
+				getNamaByIdItem(TempPlayerDialog[playerid][listitem], nama_item);
+				format(temp_string, sizeof(temp_string), WHITE"Pilih aksi untuk %s", nama_item);
+				ShowPlayerDialog(playerid, DIALOG_OPTION_ITEM_INVENTORY, DIALOG_STYLE_LIST, temp_string, pDialog[playerid], "Ok", "Keluar");
 			}else{
 				showDialogMenuInventory(playerid);
 				resetPVarInventory(playerid);
@@ -1285,82 +1281,59 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						new id_item, fungsi[50];
-						cache_set_active(PlayerInfo[playerid][tempCache]);
-						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", id_item);
-
-						new bool:is_null;
-						cache_is_value_name_null(GetPVarInt(playerid, "inv_indexlist"), "fungsi", is_null);
-						if(is_null) format(fungsi, 50, "itemTidakDapatDipakai");
-						else cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "fungsi", fungsi);
-
-						cache_delete(PlayerInfo[playerid][tempCache]);
-						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
-
+						new id_item = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")], fungsi[50];
+						getFungsiByIdItem(id_item, fungsi);
 						CallRemoteFunction(fungsi, "ii", playerid, id_item);
 						resetPVarInventory(playerid);
 					}
 					case 1:
 					{
-						new modelid, keterangan[100];
-						cache_set_active(PlayerInfo[playerid][tempCache]);
-						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "model_id", modelid);
-						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
-						cache_delete(PlayerInfo[playerid][tempCache]);
-						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+						new keterangan[100],
+							id_item = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")]
+						;
+						getKeteranganByIdItem(id_item, keterangan);
 
 						SetPVarString(playerid, "inv_keterangan", keterangan);
-						SetPVarInt(playerid, "inv_model", modelid);
+						SetPVarInt(playerid, "inv_model", getModelByIdItem(id_item));
 
 						ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
 					}
 					case 2:
 					{
-						new modelid, keterangan[100], jumlah;
-						cache_set_active(PlayerInfo[playerid][tempCache]);
-						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "model_id", modelid);
-						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
-						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
-						cache_delete(PlayerInfo[playerid][tempCache]);
-						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
-
-						tampilkanTextDrawShowItem(playerid, modelid, jumlah, keterangan, PlayerInfo[playerid][pPlayerName]);
+						new keterangan[100], 
+							id_item = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")]
+						;
+						getKeteranganByIdItem(id_item, keterangan);
+						tampilkanTextDrawShowItem(playerid, getModelByIdItem(id_item), GetJumlahItemPlayer(playerid, id_item), keterangan, PlayerInfo[playerid][pPlayerName]);
 
 						resetPVarInventory(playerid);
 					}
 					case 3: // Beri item
 					{
-						new jumlah, nama_item[50], temp_kunci;
-						cache_set_active(PlayerInfo[playerid][tempCache]);
-						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
-						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
-						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "kunci", temp_kunci);
-						cache_unset_active();
-
-						if(temp_kunci){
-							// Selalu hapus cache setelah dipakai (tidak perlu di unset_active kalau mau langsung di hapus)
-							cache_delete(PlayerInfo[playerid][tempCache]);
-							PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE; // Selalu set jadi invalid_cache saat sudah di hapus kalau gak nanti ga ke deteksi bahwa udah di hapus
-
+						new 
+							nama_item[50], 
+							id_item = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")]
+						;
+						if(GetStatusKunciItemPlayer(playerid, id_item)){
 							resetPVarInventory(playerid);
 
 							ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, ORANGE"Item tidak dapat diberi", WHITE"Item ini "RED"dikunci.\n\n"YELLOW"Note : Item yang dikunci tidak dapat dibuang/dijual/diberi kepada orang lain.\nJika tetap ingin melakukan hal tersebut silahkan buka item terlebih dahulu.", "Ok", "");
 							return 1;
 						}
 
-						format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah item yang ingin diberi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item saat ini: "GREEN"%d", nama_item, jumlah);
+						getNamaByIdItem(id_item, nama_item);
+
+						format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah item yang ingin diberi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item saat ini: "GREEN"%d", nama_item, GetJumlahItemPlayer(playerid, id_item));
 						strcat(pDialog[playerid], YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.");
 						ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
 					}
 					case 4: // Kunci/Buka Kunci
 					{
-						new id_item, temp_kunci;
-						cache_set_active(PlayerInfo[playerid][tempCache]);
-						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", id_item);
-						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "kunci", temp_kunci);
-						cache_delete(PlayerInfo[playerid][tempCache]);
-						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
-						
+						new id_item = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")], 
+							temp_kunci
+						;
+						temp_kunci = GetStatusKunciItemPlayer(playerid, id_item);
+
 						updateStatusKunciItem(playerid, id_item, (temp_kunci + 1) % 2);
 
 						if(temp_kunci == 0){ // Jika sebelumnya terbuka berarti sekarang terkunci
@@ -1376,31 +1349,27 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 5: // Buang item
 					{
-						new jumlah, nama_item[50], temp_kunci;
-						cache_set_active(PlayerInfo[playerid][tempCache]);
-						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
-						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
-						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "kunci", temp_kunci);
-						cache_unset_active();
+						new 
+							id_item = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")],
+							nama_item[50]
+						;
 
-						if(temp_kunci){
-							// Selalu hapus cache setelah dipakai (tidak perlu di unset_active kalau mau langsung di hapus)
-							cache_delete(PlayerInfo[playerid][tempCache]);
-							PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE; // Selalu set jadi invalid_cache saat sudah di hapus kalau gak nanti ga ke deteksi bahwa udah di hapus
+						getNamaByIdItem(id_item, nama_item);
 
+						if(GetStatusKunciItemPlayer(playerid, id_item)){
 							resetPVarInventory(playerid);
 
 							ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, ORANGE"Item tidak dapat dibuang", WHITE"Item ini "RED"dikunci.\n\n"YELLOW"Note : Item yang dikunci tidak dapat dibuang/dijual/diberi kepada orang lain.\nJika tetap ingin melakukan hal tersebut silahkan buka item terlebih dahulu.", "Ok", "");
 							return 1;
 						}
 
-						format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah item yang ingin dibuang.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, jumlah);
+						format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah item yang ingin dibuang.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, GetJumlahItemPlayer(playerid, id_item));
 						strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
 						ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
 					}
 				}
 			}else{
-				resetPVarInventory(playerid);
+				showDialogListItem(playerid);
 			}
 			return 1;
 		}
@@ -1447,21 +1416,20 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_BUANG_ITEM:
 		{
 			if(response){
-				new jumlah, nama_item[50], input_jumlah, item_id;
-				cache_set_active(PlayerInfo[playerid][tempCache]);
-				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
-				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", item_id);
-				cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
-				if(sscanf(inputtext, "i", input_jumlah)) {
-					cache_unset_active(); // Unset_active agar tidak terjadi hal yang tidak diinginkan
+				new jumlah, 
+					nama_item[50], 
+					input_jumlah, 
+					item_id = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")];
 
+				jumlah = GetJumlahItemPlayer(playerid, item_id);
+				getNamaByIdItem(item_id, nama_item);
+
+				if(sscanf(inputtext, "i", input_jumlah)) {
 					format(pDialog[playerid], sizePDialog, RED"Masukan inputan yang benar.\n"WHITE"Silahkan masukan jumlah item yang ingin dibuang.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, jumlah);
 					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
 					return ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
 				}
 				if(input_jumlah < 1 || input_jumlah > jumlah){
-					cache_unset_active(); // Unset_active agar tidak terjadi hal yang tidak diinginkan
-
 					format(pDialog[playerid], sizePDialog, RED"Jumlah yang ingin anda buang salah.\n"WHITE"Silahkan masukan jumlah item yang ingin dibuang.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, jumlah);
 					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
 					return ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
@@ -1474,10 +1442,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuang item", pDialog[playerid], "Ok", "");
 				
-				// Selalu hapus cache setelah dipakai (tidak perlu di unset_active kalau mau langsung di hapus)
-				cache_delete(PlayerInfo[playerid][tempCache]);
-				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE; // Selalu set jadi invalid_cache saat sudah di hapus kalau gak nanti ga ke deteksi bahwa udah di hapus
-
 				resetPVarInventory(playerid);
 			}else{
 				resetPVarInventory(playerid);
@@ -1487,26 +1451,26 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_BERI_ITEM:
 		{
 			if(response){
-				new jumlah, nama_item[50], input_jumlah, item_id;
-				cache_set_active(PlayerInfo[playerid][tempCache]);
-				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
-				cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item", item_id);
-				cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
-				cache_unset_active(); // Unset_active agar tidak terjadi hal yang tidak diinginkan
+				new 
+					nama_item[50], 
+					input_jumlah, 
+					jumlah,
+					item_id = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")]
+				;
+
+				getNamaByIdItem(item_id, nama_item);
+				jumlah = GetJumlahItemPlayer(playerid, item_id);
+
 				if(sscanf(inputtext, "i", input_jumlah)) {
 					format(pDialog[playerid], sizePDialog, RED"Masukan inputan yang benar.\n"WHITE"Silahkan masukan jumlah item yang ingin diberi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item saat ini: "GREEN"%d", nama_item, jumlah);
 					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.");
 					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
-				}
+				}				
 				if(input_jumlah < 1 || input_jumlah > jumlah){
 					format(pDialog[playerid], sizePDialog, RED"Jumlah yang ingin anda beri tidak valid.\n"WHITE"Silahkan masukan jumlah item yang ingin diberi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item saat ini: "GREEN"%d", nama_item, jumlah);
 					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.");
 					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
 				}
-
-				// Selalu hapus cache setelah dipakai (tidak perlu di unset_active kalau mau langsung di hapus)
-				cache_delete(PlayerInfo[playerid][tempCache]);
-				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE; // Selalu set jadi invalid_cache saat sudah di hapus kalau gak nanti ga ke deteksi bahwa udah di hapus
 
 				SetPVarInt(playerid, "beri_item_jumlah", input_jumlah);
 				SetPVarInt(playerid, "beri_item_id_item", item_id);
@@ -3233,20 +3197,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						DeletePVar(playerid, "bmakan_jumlah");
 						if(harga > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.");
 
-						inline responseQuery(){
-							new total_item;
-							cache_get_value_name_int(0, "total_item", total_item);
-							if((total_item + jumlah * getKapasitasByIdItem(MENU_MAKANAN[idx][idItemMakanan])) > PlayerInfo[playerid][limitItem]){		
-								dialogInventoryItemTidakMuat(playerid, jumlah, total_item, MENU_MAKANAN[idx][idItemMakanan]);
-							}else{
-								givePlayerUang(playerid, -harga);
-								tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
+						if(CekJikaInventoryPlayerMuat(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah)){	
+							givePlayerUang(playerid, -harga);
+							tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
 
-								format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_MAKANAN[idx][namaMakanan], jumlah, harga);
-								showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
-							}
+							format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", MENU_MAKANAN[idx][namaMakanan], jumlah, harga);
+							showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
+						}else{
+							dialogInventoryItemTidakMuat(playerid, jumlah, GetSlotInventoryPlayer(playerid), MENU_MAKANAN[idx][idItemMakanan]);
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);		
 						return 1;
 					}
 					case 1: // Via E-Banking

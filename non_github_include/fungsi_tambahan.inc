@@ -158,11 +158,11 @@ dialogMsgUangTdkCukup(playerid){
  */
 
 
-// getModelByIdItem(id_item){
-//     new nama_variabel[50];
-//     format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
-//     return GetSVarInt(nama_variabel);
-// }
+getModelByIdItem(id_item){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "iIt_%d", id_item);
+    return GetSVarInt(nama_variabel);
+}
 
 getKapasitasByIdItem(id_item){
     new nama_variabel[50];
@@ -176,11 +176,11 @@ getRarityByIdItem(id_item){
     return GetSVarInt(nama_variabel);
 }
 
-// getKeteranganByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
-//     new nama_variabel[50];
-//     format(nama_variabel, sizeof(nama_variabel), "kIt_%d", id_item);
-//     GetSVarString(nama_variabel, destinasi, len);
-// }
+getKeteranganByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "kIt_%d", id_item);
+    GetSVarString(nama_variabel, destinasi, len);
+}
 
 getNamaByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     new nama_variabel[50];
@@ -188,11 +188,11 @@ getNamaByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     GetSVarString(nama_variabel, destinasi, len);
 }
 
-// getFungsiByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
-//     new nama_variabel[50];
-//     format(nama_variabel, sizeof(nama_variabel), "fIt_%d", id_item);
-//     GetSVarString(nama_variabel, destinasi, len);
-// }
+getFungsiByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "fIt_%d", id_item);
+    GetSVarString(nama_variabel, destinasi, len);
+}
 
 /**
     End function manipulasi item menggunakan SVar
@@ -861,6 +861,9 @@ SyncMarkerMaskToPlayer(playerid){
  */
 #define LoopingItem(%0) \
     for(new %0=1;%0<=MAX_SERVER_ITEM;%0++)
+
+#define LoopingItemDefStart(%0,%1) \
+    for(new %0=%1;%0<=MAX_SERVER_ITEM;%0++)
 
 #define bersihkanVariabelItemPlayer(%0) \
     LoopingItem(i) PlayerItem[%0][i][jumlahItem] = 0, PlayerItem[%0][i][kunciItem] = 0

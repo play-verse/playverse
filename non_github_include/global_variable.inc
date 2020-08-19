@@ -120,6 +120,11 @@ enum PLAYER_ITEM_INFO {
 };
 new PlayerItem[MAX_PLAYERS][MAX_SERVER_ITEM + 1][PLAYER_ITEM_INFO];
 
+/**
+	Menyimpan ID unik saat pemilihan DIALOG (Dialog yang menggunakan konsep PAGINATION)
+ */
+new TempPlayerDialog[MAX_PLAYERS][BANYAK_DATA_PER_PAGE];
+
 enum pInfoAct {
     timerNambang,
     bool:sedangNambang
