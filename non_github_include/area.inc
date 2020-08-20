@@ -40,5 +40,15 @@ loadAllArea(){
 
     // Pakai area karena pickup gak muncul
     AREA_keluarRumahSakit[0] = CreateDynamicSphere(159.4088, 1772.5681, 10000.0225, 1.5, 1, 1);
-    CreateDynamic3DTextLabel("Rumah Sakit Los Santos\n"GREEN"Pintu Keluar", COLOR_WHITE, 159.4088, 1772.5681, 10000.0225, 3.0, .testlos = 1, .worldid = 1, .interiorid = 1, .streamdistance = 5.0);
+    CreateDynamic3DTextLabel("Rumah Sakit Los Santos\n"GREEN"Pintu Keluar", COLOR_WHITE, 159.4088, 1772.5681, 10000.0225, 5.0, .testlos = 1, .worldid = 1, .interiorid = 1, .streamdistance = 5.0);
+
+    // Area untuk OnDuty/OffDuty Polisi
+    AREA_onDutyPolisi = CreateDynamicSphere(257.0883, 77.1912, 1003.6406, 1.5);
+    CreateDynamic3DTextLabel("Bekerja sebagai Polisi\n\
+        "WHITE"Tekan "GREEN"N"WHITE" untuk mulai/selesai.", COLOR_LIGHT_BLUE, 257.0883, 77.1912, 1003.6406, 5.0, .testlos = 1);
+
+    // Area untuk OnDuty/OffDuty Medic
+    AREA_onDutyMedic = CreateDynamicSphere(175.8122, 1753.5443, 10003.3818, 1.5);
+    CreateDynamic3DTextLabel("Bekerja sebagai Medic\n\
+        "WHITE"Tekan "GREEN"N"WHITE" untuk mulai/selesai.", COLOR_PINK, 175.8122, 1753.5443, 10003.3818, 5.0, .testlos = 1);
 }

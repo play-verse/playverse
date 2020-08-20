@@ -15,14 +15,14 @@
 #define GetNamaRarity(%0)           ITEM_RARITY[%0 - 1][namaRarity]
 #define GetColorRarity(%0)          ITEM_RARITY[%0 - 1][colorRarity]
 
+#define IsPlayerPria(%0)         (PlayerInfo[%0][jenisKelamin] == 0)
+#define IsPlayerWanita(%0)         (PlayerInfo[%0][jenisKelamin] == 1)
+
 /**
  *  Health & Armour function
  */
-#define SetPlayerHealth(%0,%1)             SetHealth(%0,%1)
-#define SetPlayerArmour(%0,%1)             SetArmour(%0,%1)
-
-#define GetPlayerHealth(%0)                 GetHealth(%0)
-#define GetPlayerArmour(%0)                 GetArmour(%0)
+#define GetPlayerHealth                 GetHealth
+#define GetPlayerArmour                 GetArmour
 
 /**
     Bantuan Item
@@ -36,7 +36,10 @@
  */
 #define GetSlotItemTerpakai(%0,%1) (getKapasitasByIdItem(%0) * %1)
 
-sama(const kata1[], const kata2[]) return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
+// IMPORTANT: Gunakan fungsi "sama" dari pada menggunakan "strcmp" langsung
+// strcmp jika membandingkan dengan string kosong maka dianggap tidak ada perbedaan
+sama(const kata1[], const kata2[])
+    return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
 
 // Hanya untuk tampilan saja
 SetPlayerMoney(playerid, jumlah){
@@ -248,15 +251,15 @@ setStatusMakanPemain(playerid, Float:jumlah){
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][0], COLOR_YELLOW);
     
     SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][0], PlayerInfo[playerid][statusMakan]);
-
-    if(PlayerInfo[playerid][statusMakan] <= 0) {
-        SetPlayerHealth(playerid, 0.0);
-        PlayerInfo[playerid][statusMakan] = 0.0;
+    if(PlayerInfo[playerid][statusMakan] <= 0.0) {
+        SetHealth(playerid, 0.0);
     }
-    else if(PlayerInfo[playerid][statusMakan] <= 10.0)
-        SetPlayerDrunkLevel(playerid, 1000);
-    else
+    else if(PlayerInfo[playerid][statusMakan] <= 10.0){
+        SetPlayerDrunkLevel(playerid, 3500);
+    }
+    else{
         SetPlayerDrunkLevel(playerid, 0);
+    }
 }
 
 Float:getStatusMinumPemain(playerid){
@@ -936,3 +939,21 @@ GetSlotInventoryPlayer(playerid){
 */
 #define ResetItemPlayer(%0,%1) \
     PlayerItem[%0][%1][kunciItem] = 0, PlayerItem[%0][%1][kunciItem] = 0
+
+
+/**
+    Faction Related Function
+ */
+#define IsPlayerMedic(%0)           (PlayerInfo[%0][levelMedic] > 0)
+#define IsPlayerPolice(%0)          (PlayerInfo[%0][levelPolice] > 0)
+
+#define IsPlayerOnDutyMedic(%0)         (IsPlayerMedic(%0) && PlayerInfo[%0][onDutyMedic])
+#define IsPlayerOnDutyPolice(%0)        (IsPlayerPolice(%0) && PlayerInfo[%0][onDutyPolice])
+
+#define SetPlayerDutyMedic(%0,%1)     PlayerInfo[%0][onDutyMedic] = %1
+#define SetPlayerDutyPolice(%0,%1)     PlayerInfo[%0][onDutyPolice] = %1
+
+#define GetPlayerMedicLevel(%0)     PlayerInfo[%0][levelMedic]
+#define GetPlayerPoliceLevel(%0)     PlayerInfo[%0][levelPolice]
+
+#define IsPlayerIsNotInAnyDuty(%0)      (!IsPlayerOnDutyMedic(%0) && !IsPlayerOnDutyPolice(%0))

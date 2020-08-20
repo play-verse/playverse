@@ -217,6 +217,10 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][lamaBermain] = 0;
 	PlayerInfo[playerid][waktuSaatLogin] = 0;
 
+	PlayerInfo[playerid][skinDuty] = 0;
+	SetPlayerDutyMedic(playerid, 0);
+	SetPlayerDutyPolice(playerid, 0);
+
 	PlayerInfo[playerid][last_x] = 0;
 	PlayerInfo[playerid][last_y] = 0;
 	PlayerInfo[playerid][last_z] = 0;
@@ -403,7 +407,7 @@ publicFor: spawnPemain(playerid)
 		SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 		
 		if(PlayerInfo[playerid][lastHp] > 0) {
-			SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
+			SetHealth(playerid, PlayerInfo[playerid][lastHp]);
 			if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 		}
 
@@ -428,7 +432,7 @@ publicFor: spawnPemain(playerid)
 			SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 
 			if(PlayerInfo[playerid][lastHp] > 0) {
-				SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
+				SetHealth(playerid, PlayerInfo[playerid][lastHp]);
 				if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 			}
 			
@@ -2922,7 +2926,9 @@ LoadItemPlayer(playerid){
 				cache_get_value_name_int(idx, "jumlah", jumlah);
 				cache_get_value_name_int(idx, "kunci", kunci);
 
+				#if defined DEBUG_MODE_FOR_PLAYER
 				printf("loaded item for player %d (%d, %d)", playerid, id_item, jumlah);
+				#endif
 
 				SetJumlahItemPlayer(playerid, id_item, jumlah);
 				SetKunciItemPlayer(playerid, id_item, kunci);
@@ -3024,7 +3030,7 @@ LoadVehiclePlayer(playerid){
 					IDVehToPVeh[idveh] = idpv;
 					Iter_Add(IDVehToPVehIterator, idveh);
 
-					#if defined DEBUG_SERVER_LOAD
+					#if defined DEBUG_MODE_FOR_PLAYER
 					printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) load.",PlayerInfo[playerid][pPlayerName], PVeh[idpv][pVehID], idveh);
 					#endif
 
@@ -3112,7 +3118,7 @@ UnloadVehiclePlayer(playerid){
 			if(hancurkan == 0) continue;
 
 			new cur = i;
-			#if defined DEBUG_SERVER_LOAD
+			#if defined DEBUG_MODE_FOR_PLAYER
 			printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) unloaded.", temp_nama, PVeh[id][pVehID], i);
 			#endif
 			if(IsValidVehicle(PVeh[i][pVehicle]) && Iter_Contains(IDVehToPVehIterator, PVeh[i][pVehicle]))

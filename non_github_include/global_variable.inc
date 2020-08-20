@@ -99,6 +99,8 @@ enum pInfo
 	onDutyPolice,
 	onDutyMedic,
 
+	skinDuty,
+
 	// menyimpan ID item (mask/helm) yang sedang digunakan
 	// 0 jika tidak memakai apapun
 	isOnMask, 
@@ -1093,7 +1095,10 @@ new Iterator:TreeIterator<MAX_TREES>,
 
 new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
 	AREA_pomBensin[sizeof(POSISI_POM_BENSIN)],
-	AREA_keluarRumahSakit[1]; // Rumah Sakit pakai AREA karena pickup tidak bisa muncul di mappingannya
+	AREA_keluarRumahSakit[1], // Rumah Sakit pakai AREA karena pickup tidak bisa muncul di mappingannya
+	AREA_onDutyPolisi, // Area On dan Off polisi
+	AREA_onDutyMedic // Area On dan Off medic
+;
 
 enum    E_ATM
 {
@@ -1221,28 +1226,33 @@ new mancingTimer[MAX_PLAYERS],
 #define ID_FACTION_MEDIC 2
 #define ID_FACTION_PEMERINTAH 3
 
+#define MEDIC_MAX_LEVEL 2
+#define POLICE_MAX_LEVEL 4
+
 /*
 	Jika tidak ada skin Female dan Male seperti Intel 
 		> (berarti tidak perlu pakai skin dari faction) - Langsung On duty tanpa ganti skin
  */
 enum InfoLevelFaction {
-	namaJabatan[50]
+	namaJabatan[50],
+	banyakSkinMale,
+	banyakSkinFemale
 }
 
 // Medic
 // NOTE : Level sesuai dengan urutan array
-new const MEDIC_LEVEL[][InfoLevelFaction] = {
-	"Perawat",
-	"Dokter"
+new const MEDIC_LEVEL[MEDIC_MAX_LEVEL][InfoLevelFaction] = {
+	{"Perawat", 3, 1},
+	{"Dokter", 1, 0}
 };
 
-new const MEDIC_SKIN_MALE[][] = {
+new const MEDIC_SKIN_MALE[MEDIC_MAX_LEVEL][] = {
 	{274, 275, 276},
 	{70}
 };
 
-new const MEDIC_SKIN_FEMALE[][] = {
-	{308,
+new const MEDIC_SKIN_FEMALE[MEDIC_MAX_LEVEL][] = {
+	{308},
 	{}
 };
 
@@ -1251,23 +1261,26 @@ new const MEDIC_SKIN_FEMALE[][] = {
 #define GetMaleSkinMedicByLevel(%0)			MEDIC_SKIN_MALE[%0 - 1]
 #define GetFemaleSkinMedicByLevel(%0)		MEDIC_SKIN_FEMALE[%0 - 1]
 
+#define GetBanyakSkinMaleMedicByLevel(%0)			MEDIC_LEVEL[%0-1][banyakSkinMale]
+#define GetBanyakSkinFemaleMedicByLevel(%0)		MEDIC_LEVEL[%0-1][banyakSkinFemale]
+
 // Police
 // NOTE : Level sesuai dengan urutan array
-new const POLICE_LEVEL[][InfoLevelFaction] = {
-	"Polisi",
-	"FBI",
-	"S.W.A.T", 
-	"CIA" // CIA bisa pakai skin orang biasa
+new const POLICE_LEVEL[POLICE_MAX_LEVEL][InfoLevelFaction] = {
+	{"Polisi", 9, 3},
+	{"FBI", 1, 0},
+	{"S.W.A.T", 1, 0}, 
+	{"CIA", 5, 0} // CIA bisa pakai skin orang biasa
 };
 
-new const POLICE_SKIN_MALE[][] = {
+new const POLICE_SKIN_MALE[POLICE_MAX_LEVEL][] = {
 	{280, 281, 282, 283, 284, 310, 311, 300, 301},
 	{286},
 	{285},
 	{165, 166, 163, 164}
 };
 
-new const POLICE_SKIN_FEMALE[][] = {
+new const POLICE_SKIN_FEMALE[POLICE_MAX_LEVEL][] = {
 	{306, 307, 309},
 	{},
 	{},
@@ -1275,10 +1288,15 @@ new const POLICE_SKIN_FEMALE[][] = {
 };
 
 // Get Nama Level Medic menggunakan Macro
-#define GetNamaLevelPolice(%0)				POLICE_LEVEL[%0 - 1][namaJabatan]
+#define GetNamaLevelPolice(%0)				POLICE_LEVEL[%0-1][namaJabatan]
 #define GetMaleSkinPoliceByLevel(%0)		POLICE_SKIN_MALE[%0 - 1]
 #define GetFemaleSkinPoliceByLevel(%0)		POLICE_SKIN_FEMALE[%0 - 1]
 
+#define GetBanyakSkinMalePoliceByLevel(%0)		POLICE_LEVEL[%0-1][banyakSkinMale]
+#define GetBanyakSkinFemalePoliceByLevel(%0)		POLICE_LEVEL[%0-1][banyakSkinFemale]
+
+#define COLOR_POLISI 		COLOR_LIGHT_BLUE
+#define COLOR_MEDIC 		COLOR_PINK
 /**
 	End Faction
  */

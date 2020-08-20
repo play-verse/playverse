@@ -220,7 +220,7 @@ CMD:ephone(playerid, const params[]){
 }
 
 CMD:killme(playerid, params[]){
-    SetPlayerHealth(playerid, 0.0);
+    SetHealth(playerid, 0.0);
     return 1;
 }
 

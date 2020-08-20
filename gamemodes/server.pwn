@@ -2460,25 +2460,18 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new harga = jumlah * BARANG_MARKET[index_barang][hargaBarang];
 				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi.", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
 
-				inline responseQuery(){
-					new total_item;
-					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + jumlah) > PlayerInfo[playerid][limitItem]){						
-						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", jumlah, total_item, PlayerInfo[playerid][limitItem]);
+				if(CekJikaInventoryPlayerMuat(playerid, BARANG_MARKET[index_barang][idItemMarket], jumlah)){
+					tambahItemPlayer(playerid, BARANG_MARKET[index_barang][idItemMarket], jumlah);
+					givePlayerUang(playerid, -harga);
 
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
-					}else{
-						tambahItemPlayer(playerid, BARANG_MARKET[index_barang][idItemMarket], jumlah);
-						givePlayerUang(playerid, -harga);
+					format(pDialog[playerid], sizePDialog, "Anda berhasil membeli "YELLOW"%s"WHITE".\nSebanyak "YELLOW"%d"WHITE" dengan harga "GREEN"%d", BARANG_MARKET[index_barang][namaBarang], jumlah, harga);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli barang", pDialog[playerid], "Ok", "");
 
-						format(pDialog[playerid], sizePDialog, "Anda berhasil membeli "YELLOW"%s"WHITE".\nSebanyak "YELLOW"%d"WHITE" dengan harga "GREEN"%d", BARANG_MARKET[index_barang][namaBarang], jumlah, harga);
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli barang", pDialog[playerid], "Ok", "");
-
-						DeletePVar(playerid, "bBarang_index");
-						DeletePVar(playerid, "bBarang_jumlah");
-					}
+					DeletePVar(playerid, "bBarang_index");
+					DeletePVar(playerid, "bBarang_jumlah");
+				}else{
+					dialogInventoryItemTidakMuat(playerid, jumlah, GetSlotInventoryPlayer(playerid), BARANG_MARKET[index_barang][idItemMarket]);
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
 			}
 			else{
 				DeletePVar(playerid, "bBarang_index");
@@ -6136,6 +6129,86 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_ON_DUTY_POLICE_PILIH_SKIN:
+		{
+			if(response){
+				PlayerInfo[playerid][skinDuty] = strval(inputtext);
+				format(pDialog[playerid], sizePDialog, \
+					WHITE"Anda akan menjadi bekerja sebagai anggota kepolisian dengan pangkat "YELLOW"%s\n\
+					"WHITE"Anda akan diberi akses untuk melakukan hal-hal yang dapat dilakukan oleh anggota kepolisian sesuai dengan pangkat anda.\n"GREY"Jika anda membutukan guide tentang menjadi anggota polisi yang baik, anda dapat membaca pada artikel yang tersedia.\n\n"YELLOW"Apakah anda ingin mulai bekerja?", GetNamaLevelPolice(GetPlayerPoliceLevel(playerid)));
+				return ShowPlayerDialog(playerid, DIALOG_ON_DUTY_POLICE_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Mulai bekerja:", pDialog[playerid], "Mulai", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_ON_DUTY_POLICE_KONFIRMASI:
+		{
+			if(response){
+				if(PlayerInfo[playerid][skinDuty] > 0){
+					ClearAnimations(playerid);
+					ubahSkinPemain(playerid, PlayerInfo[playerid][skinDuty]);
+				}
+
+				SetPlayerDutyPolice(playerid, 1);
+				SetPlayerColor(playerid, COLOR_POLISI);
+				SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Anda sekarang bekerja sebagai polisi. Selamat bekerja!");
+			}
+			return 1;
+		}
+		case DIALOG_OFF_DUTY_POLICE:
+		{
+			if(response){
+				if(PlayerInfo[playerid][skinID] != GetPlayerSkin(playerid)){
+					ClearAnimations(playerid);
+					ubahSkinPemain(playerid, PlayerInfo[playerid][skinID]);
+					PlayerInfo[playerid][skinDuty] = 0;
+				}
+
+				SetPlayerDutyPolice(playerid, 0);
+				SetPlayerColor(playerid, COLOR_WHITE);
+				SendClientMessage(playerid, COLOR_ORANGE, TAG_POLICE" "WHITE"Anda telah mengakiri shift anda sebagai polisi.");
+			}
+			return 1;
+		}
+		case DIALOG_ON_DUTY_MEDIC_PILIH_SKIN:
+		{
+			if(response){
+				PlayerInfo[playerid][skinDuty] = strval(inputtext);
+				format(pDialog[playerid], sizePDialog, \
+					WHITE"Anda akan menjadi bekerja sebagai anggota medis dengan pangkat "YELLOW"%s\n\
+					"WHITE"Anda akan diberi akses untuk melakukan hal-hal yang dapat dilakukan oleh anggota medis sesuai dengan pangkat anda.\n"GREY"Jika anda membutukan guide tentang menjadi anggota medis yang benar, anda dapat membaca pada artikel yang tersedia.\n\n"YELLOW"Apakah anda ingin mulai bekerja?", GetNamaLevelMedic(GetPlayerMedicLevel(playerid)));
+				return ShowPlayerDialog(playerid, DIALOG_ON_DUTY_MEDIC_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Mulai bekerja:", pDialog[playerid], "Mulai", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_ON_DUTY_MEDIC_KONFIRMASI:
+		{
+			if(response){
+				if(PlayerInfo[playerid][skinDuty] > 0){
+					ClearAnimations(playerid);
+					ubahSkinPemain(playerid, PlayerInfo[playerid][skinDuty]);
+				}
+
+				SetPlayerDutyMedic(playerid, 1);
+				SetPlayerColor(playerid, COLOR_MEDIC);
+				SendClientMessage(playerid, COLOR_MEDIC, TAG_MEDIC" "WHITE"Anda sekarang bekerja sebagai medis. Selamat bekerja!");
+			}
+			return 1;
+		}
+		case DIALOG_OFF_DUTY_MEDIC:
+		{
+			if(response){
+				if(PlayerInfo[playerid][skinID] != GetPlayerSkin(playerid)){
+					ClearAnimations(playerid);
+					ubahSkinPemain(playerid, PlayerInfo[playerid][skinID]);
+					PlayerInfo[playerid][skinDuty] = 0;
+				}
+
+				SetPlayerDutyMedic(playerid, 0);
+				SetPlayerColor(playerid, COLOR_WHITE);
+				SendClientMessage(playerid, COLOR_ORANGE, TAG_MEDIC" "WHITE"Anda telah mengakiri shift anda sebagai medis.");
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -6282,6 +6355,134 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 					showDialogPilihBensin(playerid);
 				}
 				return 1;
+			}else if(GetPVarInt(playerid, "last_area") == AREA_onDutyPolisi){
+				if(IsPlayerPolice(playerid)){
+					if(IsPlayerOnDutyPolice(playerid))
+					{
+						// Tampilkan Dialog konfirmasi akan OffDuty
+						ShowPlayerDialog(playerid, \
+							DIALOG_OFF_DUTY_POLICE, \
+							DIALOG_STYLE_MSGBOX, \
+							"Selesai bekerja.", \
+							WHITE"Apakah anda yakin ingin selesai bekerja sebagai polisi pada shift kali ini?\n", "Pilih", "Batal");
+					}else if(!IsPlayerIsNotInAnyDuty(playerid)){
+						// Tampilkan Dialog konfirmasi akan OnDuty
+						new temp_judul[50],
+							string_skin_polisi[100] = "",
+							len = 0;
+
+						PlayerInfo[playerid][skinDuty] = 0;
+
+						if(IsPlayerPria(playerid)){
+							// Ambil Skill Pria
+							len = GetBanyakSkinMalePoliceByLevel(GetPlayerPoliceLevel(playerid));
+							for (new i = 0; i < len; i++) {
+								strcatEx(string_skin_polisi, sizeof(string_skin_polisi), "%i\n", GetMaleSkinPoliceByLevel(GetPlayerPoliceLevel(playerid))[i]);
+							}
+
+							if(len == 0){ // Jika tidak memiliki skin juga maka langsung ke dialog konfirmasi saja
+								format(pDialog[playerid], sizePDialog, \
+									WHITE"Anda akan menjadi bekerja sebagai anggota kepolisian dengan pangkat "YELLOW"%s\n\
+									"WHITE"Anda akan diberi akses untuk melakukan hal-hal yang dapat dilakukan oleh anggota kepolisian sesuai dengan pangkat anda.\n"GREY"Jika anda membutukan guide tentang menjadi anggota polisi yang baik, anda dapat membaca pada artikel yang tersedia.\n\n"YELLOW"Apakah anda ingin mulai bekerja?", GetNamaLevelPolice(GetPlayerPoliceLevel(playerid)));
+								return ShowPlayerDialog(playerid, DIALOG_ON_DUTY_POLICE_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Mulai bekerja:", pDialog[playerid], "Mulai", "Batal");
+							}
+						}else{ // Jika Player Perempuan
+							len = GetBanyakSkinFemalePoliceByLevel(GetPlayerPoliceLevel(playerid));
+							for (new i = 0; i < len; i++) {
+								strcatEx(string_skin_polisi, sizeof(string_skin_polisi), "%i\n", GetFemaleSkinPoliceByLevel(GetPlayerPoliceLevel(playerid))[i]);
+							}
+
+							if(len == 0){
+								// Ambil Skill Pria
+								len = GetBanyakSkinMalePoliceByLevel(GetPlayerPoliceLevel(playerid));
+								for (new i = 0; i < len; i++) {
+									strcatEx(string_skin_polisi, sizeof(string_skin_polisi), "%i\n", GetMaleSkinPoliceByLevel(GetPlayerPoliceLevel(playerid))[i]);
+								}
+
+								if(len == 0){ // Jika tidak memiliki skin juga maka langsung ke dialog konfirmasi saja
+									format(pDialog[playerid], sizePDialog, \
+										WHITE"Anda akan menjadi bekerja sebagai anggota kepolisian dengan pangkat "YELLOW"%s\n\
+										"WHITE"Anda akan diberi akses untuk melakukan hal-hal yang dapat dilakukan oleh anggota kepolisian sesuai dengan pangkat anda.\n"GREY"Jika anda membutukan guide tentang menjadi anggota polisi yang baik, anda dapat membaca pada artikel yang tersedia.\n\n"YELLOW"Apakah anda ingin mulai bekerja?", GetNamaLevelPolice(GetPlayerPoliceLevel(playerid)));
+									return ShowPlayerDialog(playerid, DIALOG_ON_DUTY_POLICE_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Mulai bekerja:", pDialog[playerid], "Mulai", "Batal");
+								}
+							}
+						}
+
+						format(temp_judul, sizeof(temp_judul), YELLOW"Pilih skin %s yang ingin digunakan:", GetNamaLevelPolice(GetPlayerPoliceLevel(playerid)));
+
+						ShowPlayerDialog(playerid, 
+							DIALOG_ON_DUTY_POLICE_PILIH_SKIN, 
+							DIALOG_STYLE_PREVIEW_MODEL,
+							temp_judul, string_skin_polisi, "Pilih", "Batal");
+					}else
+						server_message(playerid, "Anda sedang menjalan tugas lain sekarang.");
+				}else
+					server_message(playerid, "Anda bukan pegawai kantor polisi ini.");
+				return 1;
+			}else if(GetPVarInt(playerid, "last_area") == AREA_onDutyMedic){
+				if(IsPlayerMedic(playerid)){
+					if(IsPlayerOnDutyMedic(playerid))
+					{
+						// Tampilkan Dialog konfirmasi akan OffDuty
+						ShowPlayerDialog(playerid, \
+							DIALOG_OFF_DUTY_MEDIC, \
+							DIALOG_STYLE_MSGBOX, \
+							"Selesai bekerja.", \
+							WHITE"Apakah anda yakin ingin selesai bekerja sebagai medis pada shift kali ini?\n", "Pilih", "Batal");
+					}else if(!IsPlayerIsNotInAnyDuty(playerid)){ // Cek Jika dia tidak dalam duty polisi ataupun yang lain
+						// Tampilkan Dialog konfirmasi akan OnDuty
+						new temp_judul[50],
+							string_skin_medis[100] = "",
+							len = 0;
+
+						PlayerInfo[playerid][skinDuty] = 0;
+
+						if(IsPlayerPria(playerid)){
+							// Ambil Skill Pria
+							len = GetBanyakSkinMaleMedicByLevel(GetPlayerMedicLevel(playerid));
+							for (new i = 0; i < len; i++) {
+								strcatEx(string_skin_medis, sizeof(string_skin_medis), "%i\n", GetMaleSkinMedicByLevel(GetPlayerMedicLevel(playerid))[i]);
+							}
+
+							if(len == 0){ // Jika tidak memiliki skin juga maka langsung ke dialog konfirmasi saja
+								format(pDialog[playerid], sizePDialog, \
+									WHITE"Anda akan menjadi bekerja sebagai anggota medis dengan pangkat "YELLOW"%s\n\
+									"WHITE"Anda akan diberi akses untuk melakukan hal-hal yang dapat dilakukan oleh anggota medis sesuai dengan pangkat anda.\n"GREY"Jika anda membutukan guide tentang menjadi anggota medis yang benar, anda dapat membaca pada artikel yang tersedia.\n\n"YELLOW"Apakah anda ingin mulai bekerja?", GetNamaLevelMedic(GetPlayerMedicLevel(playerid)));
+								return ShowPlayerDialog(playerid, DIALOG_ON_DUTY_MEDIC_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Mulai bekerja:", pDialog[playerid], "Mulai", "Batal");
+							}
+						}else{ // Jika Player Perempuan
+							len = GetBanyakSkinFemaleMedicByLevel(GetPlayerMedicLevel(playerid));
+							for (new i = 0; i < len; i++) {
+								strcatEx(string_skin_medis, sizeof(string_skin_medis), "%i\n", GetFemaleSkinMedicByLevel(GetPlayerMedicLevel(playerid))[i]);
+							}
+
+							if(len == 0){
+								// Ambil Skill Pria
+								len = GetBanyakSkinMaleMedicByLevel(GetPlayerMedicLevel(playerid));
+								for (new i = 0; i < len; i++) {
+									strcatEx(string_skin_medis, sizeof(string_skin_medis), "%i\n", GetMaleSkinMedicByLevel(GetPlayerMedicLevel(playerid))[i]);
+								}
+
+								if(len == 0){ // Jika tidak memiliki skin juga maka langsung ke dialog konfirmasi saja
+									format(pDialog[playerid], sizePDialog, \
+										WHITE"Anda akan menjadi bekerja sebagai anggota medis dengan pangkat "YELLOW"%s\n\
+										"WHITE"Anda akan diberi akses untuk melakukan hal-hal yang dapat dilakukan oleh anggota medis sesuai dengan pangkat anda.\n"GREY"Jika anda membutukan guide tentang menjadi anggota medis yang benar, anda dapat membaca pada artikel yang tersedia.\n\n"YELLOW"Apakah anda ingin mulai bekerja?", GetNamaLevelMedic(GetPlayerMedicLevel(playerid)));
+									return ShowPlayerDialog(playerid, DIALOG_ON_DUTY_MEDIC_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Mulai bekerja:", pDialog[playerid], "Mulai", "Batal");
+								}
+							}
+						}
+
+						format(temp_judul, sizeof(temp_judul), YELLOW"Pilih skin %s yang ingin digunakan:", GetNamaLevelMedic(GetPlayerMedicLevel(playerid)));
+
+						ShowPlayerDialog(playerid, 
+							DIALOG_ON_DUTY_MEDIC_PILIH_SKIN, 
+							DIALOG_STYLE_PREVIEW_MODEL,
+							temp_judul, string_skin_medis, "Pilih", "Batal");				
+					}else
+						server_message(playerid, "Anda sedang menjalan tugas lain sekarang.");
+				}else
+					server_message(playerid, "Anda bukan pegawai rumah sakit ini.");
+				return 1;
 			}
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO)){
@@ -6406,6 +6607,9 @@ public OnPlayerDeath(playerid, killerid, reason)
 
 	PlayerInfo[playerid][inHouse] = 0;
 	PlayerInfo[playerid][sudahSpawn] = false;
+
+	SetPlayerDutyMedic(playerid, 0);
+	SetPlayerDutyPolice(playerid, 0);
 
 	/*
 	 * Hilangkan Mask jika sedang terpakai
