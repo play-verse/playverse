@@ -383,6 +383,11 @@ publicFor: spawnPemain(playerid)
 		PlayerInfo[playerid][last_stats_makan] = 0;
 		PlayerInfo[playerid][last_stats_minum] = 0;
 	}
+
+	/*
+	 * Synching Marker
+	 */
+	SyncMarkerMaskToPlayer(playerid); // Sync juga
 	
 	/*
 	 * Jika menggunakan mask maka hide name tag
@@ -841,6 +846,7 @@ publicFor: pakaiHelm(playerid, itemid){
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = %d WHERE id = %d", itemid, PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 	AttachHelmetOrMask(playerid, itemid);
+	HidePlayerMarker(playerid);
 	tambahItemPlayer(playerid, itemid, -1);
 	return 1;
 }

@@ -84,11 +84,6 @@ public OnPlayerConnect(playerid)
 	TextDrawShowForPlayer(playerid, TD_JamTanggal[0]);
 	TextDrawShowForPlayer(playerid, TD_JamTanggal[1]);
 
-	/*
-	 * Synching Marker
-	 */
-	SyncMarkerMaskToPlayer(playerid); // Sync juga
-
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
 	PlayerInfo[playerid][pPlayerName] = nama;
@@ -1596,7 +1591,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				sendPesan(playerid, COLOR_ORANGE, "[SHARELOCK] "WHITE"Berhasil mengirimkan request ke pada "GREEN"%s"WHITE".", PlayerInfo[target_id][pPlayerName]);
 				sendPesan(playerid, COLOR_WHITE, "Anda akan dapat informasi jika "GREEN"%s "WHITE"menyetujui sharelock anda.", PlayerInfo[target_id][pPlayerName]);
 
-				format(pDialog[playerid], sizePDialog, GREEN"%s "WHITE"ingin membagikan lokasinya kepada anda. Apakah anda ingin menerimanya?\n"YELLOW"Menerima sharelock dari orang lain akan menghilangkan marker merah anda yang sedang aktif, marker merah tersebut akan digantikan dengan marker merah yang baru\nyang mengarah kepada lokasi "GREEN"%s "YELLOW"sekarang berada.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pPlayerName]);
+				format(pDialog[playerid], sizePDialog, GREEN"%s "WHITE"ingin membagikan lokasinya kepada anda. Apakah anda ingin menerimanya?\n"YELLOW"Menerima sharelock dari orang lain akan menghilangkan marker merah anda yang sedang aktif,\nmarker merah tersebut akan digantikan dengan marker merah yang baru\nyang mengarah kepada lokasi "GREEN"%s "YELLOW"sekarang berada.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pPlayerName]);
 				ShowPlayerDialog(target_id, DIALOG_KONFIRMASI_TERIMA_SHARELOCK, DIALOG_STYLE_MSGBOX, "Konfirmasi Sharelock", pDialog[playerid], GREEN"Terima", RED"Tidak");
 
 				SetPVarInt(target_id, "sharelock_pemilik", playerid);
@@ -7777,6 +7772,12 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 		1 - Callback will not be called in other filterscripts.
 		0 - Allows this callback to be called in other filterscripts. 
 	*/
+	return 1;
+}
+
+public OnPlayerStreamIn(playerid, forplayerid){
+	if(PlayerInfo[playerid][isOnMask])
+		ShowPlayerNameTagForPlayer(playerid, forplayerid, 0);
 	return 1;
 }
 
