@@ -3899,6 +3899,27 @@ publicFor: delayNombak(playerid){
 	return 1;
 }
 
+publicFor: TerminateInteraksi(actorid){
+	ClearDynamicActorAnimations(actorid);
+    if(actorid == ACT_resepsionisPemerintah){
+		UpdateDynamic3DTextLabelText(ACT_resepsionisPemerintah_Text, COLOR_WHITE, "");
+		if(ACT_resepsionisPemerintah_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_resepsionisPemerintah_User, "interaksi_actor", -1);
+			ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID;
+		}
+		ACT_resepsionisPemerintah_Res = 0;
+		ACT_resepsionisPemerintah_Timer = -1;
+	}
+	return 1;
+}
+
+TerminateInteraksi_Alt(actorid){
+    if(actorid == ACT_resepsionisPemerintah && ACT_resepsionisPemerintah_Timer != -1)
+		DeletePreciseTimer(ACT_resepsionisPemerintah_Timer);
+	
+	TerminateInteraksi(actorid);
+}
+
 /*
  *	Dieksekusi setiap detik
  *  

@@ -41,6 +41,11 @@
 sama(const kata1[], const kata2[])
     return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
 
+// Sama tapi versi "ignore case sensitive" 
+// contoh : hAlO = halo
+sama_ic(const kata1[], const kata2[])
+    return (!strcmp(kata1, kata2, true) && !isnull(kata1) && !isnull(kata2));
+
 // Hanya untuk tampilan saja
 SetPlayerMoney(playerid, jumlah){
     ResetPlayerMoney(playerid);
@@ -957,3 +962,30 @@ GetSlotInventoryPlayer(playerid){
 #define GetPlayerPoliceLevel(%0)     PlayerInfo[%0][levelPolice]
 
 #define IsPlayerIsNotInAnyDuty(%0)      (!IsPlayerOnDutyMedic(%0) && !IsPlayerOnDutyPolice(%0))
+
+/**
+    Actor Function
+ */
+ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_RESEPSIONIS){    
+    ActorTalking(actorid);
+    
+    if(actorid == ACT_resepsionisPemerintah){
+        if(ACT_resepsionisPemerintah_Timer != -1)
+            DeletePreciseTimer(ACT_resepsionisPemerintah_Timer);
+        // 15 detik batas interaksi
+        ACT_resepsionisPemerintah_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_resepsionisPemerintah_Text, COLOR_WHITE, text);
+    }
+}
+
+ActorResetAndProses(actorid, playerid){
+    if(actorid == ACT_resepsionisPemerintah){
+        SetPVarInt(playerid, "interaksi_actor", -1);
+        ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID;
+        ACT_resepsionisPemerintah_Res = 0;
+
+        format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+        // 5 Detik
+        ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid], 5);
+    }
+}

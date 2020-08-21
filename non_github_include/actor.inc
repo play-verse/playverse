@@ -16,7 +16,9 @@ loadAllActor(){
     ACT_penjualDealer = CreateDynamicActor(17, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], ACT_penjualDealer_Pos[3], .worldid = 0, .interiorid = 0);
 
     // Actor di pusat pemerintahan
-    CreateDynamicActor(76, -500.8233, 296.5014, 2001.0950, 170.3979, .worldid = 1, .interiorid = 1);
+    ACT_resepsionisPemerintah = CreateDynamicActor(76, ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], ACT_resepsionisPemerintah_Pos[3], .worldid = 1, .interiorid = 1);
+    // Bubble Chat Actor
+    ACT_resepsionisPemerintah_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2] + 1.25, 10.0, .testlos = 1);
 
     // Actor di toko gadget
     CreateDynamic3DTextLabel("Penjual Gadget\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_WHITE, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2] + 1.0, 10.0, .testlos = 1);
@@ -25,6 +27,15 @@ loadAllActor(){
 
 re_loadAllActor(){
     if(ACT__reload == 1){
+        // Hapus actor
+        if(IsValidDynamicActor(ACT_skillMekanik)) DestroyDynamicActor(ACT_skillMekanik);
+        if(IsValidDynamicActor(ACT_penjualDealer)) DestroyDynamicActor(ACT_penjualDealer);
+        if(IsValidDynamicActor(ACT_peralatanPancing)) DestroyDynamicActor(ACT_peralatanPancing);
+        if(IsValidDynamicActor(ACT_tokoBibit)) DestroyDynamicActor(ACT_tokoBibit);
+        if(IsValidDynamicActor(ACT_tokoNarko)) DestroyDynamicActor(ACT_tokoNarko);
+        if(IsValidDynamicActor(ACT_tokoGadget)) DestroyDynamicActor(ACT_tokoGadget);
+        if(IsValidDynamicActor(ACT_resepsionisPemerintah)) DestroyDynamicActor(ACT_resepsionisPemerintah);
+
         ACT__reload = 0;
         // Actor di toko peraltan pancing
         ACT_peralatanPancing = CreateDynamicActor(65, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2], ACT_peralatanPancing_Pos[3], .worldid = 0, .interiorid = 0);
@@ -42,7 +53,7 @@ re_loadAllActor(){
         ACT_penjualDealer = CreateDynamicActor(17, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], ACT_penjualDealer_Pos[3], .worldid = 0, .interiorid = 0);
 
         // Actor di pusat pemerintahan
-        // CreateDynamicActor(76, -500.8233, 296.5014, 2001.0950, 170.3979, .worldid = 1, .interiorid = 1);
+        ACT_resepsionisPemerintah = CreateDynamicActor(76, ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], ACT_resepsionisPemerintah_Pos[3], .worldid = 1, .interiorid = 1);
 
         // Actor di toko gadget
         ACT_tokoGadget = CreateDynamicActor(141, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], ACT_tokoGadget_Pos[3], .worldid = 1, .interiorid = 1);

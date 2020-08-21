@@ -3035,7 +3035,6 @@ interiorCityHall(){
     CreateDynamicObject(1722, -508.92999, 340.77802, 2001.58301,   0.00000, 0.00000, 0.00000);
     CreateDynamicObject(1715, -503.51401, 351.14401, 2001.58301,   0.00000, 0.00000, 0.00000);
     CreateDynamicObject(1714, -501.34601, 351.18701, 2001.58301,   0.00000, 0.00000, 0.00000);
-    CreateDynamicObject(1722, -501.29199, 296.92801, 2000.09399,   0.00000, 0.00000, 189.99699);
     CreateDynamicObject(2008, -505.82101, 325.09698, 2003.58704,   0.00000, 0.00000, 179.99400);
     CreateDynamicObject(2207, -502.12799, 295.18799, 2000.08606,   0.00000, 0.00000, 0.00000);
     CreateDynamicObject(1239, -501.19000, 295.06201, 2000.47705,   0.00000, 0.00000, 0.00000);
@@ -3215,6 +3214,9 @@ interiorCityHall(){
     CreateDynamicObject(1726, -497.91599, 328.83401, 2003.59204,   0.00000, 0.00000, 270.00000);
     CreateDynamicObject(1726, -497.91000, 319.33401, 2003.59204,   0.00000, 0.00000, 270.00000);
     CreateDynamicObject(1500, -501.95380, 285.72791, 2000.11646,   0.00000, 0.00000, 0.00000);
+
+    // Material text
+    SetDynamicObjectMaterialText(CreateDynamicObject(19805, -485.74661, 294.65811, 2001.81689,   0.00000, 0.00000, -90.00000), 0, "{000000}Baca peraturan dan cara berbicara\nkepada resepsionis disini.", OBJECT_MATERIAL_SIZE_256x128, "Arial", 18, 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
 }
 
 removeEksteriorCityHall(playerid){

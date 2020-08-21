@@ -476,7 +476,6 @@ new CP_tempatFoto,
     CP_spotBarangMarket[sizeof(POSISI_BELI_BARANG_MARKET)],
     CP_spotGantiSkin,
     CP_spotBeliSkin[3],
-    CP_resepsionisCityHall,
     CP_tellerBankLS[2],
     CP_Tambang[sizeof(POSISI_NAMBANG)],
     CP_beliMakanCepatSaji,
@@ -507,18 +506,40 @@ new PU_tempatFoto_in[2],
 /**
 	ACTOR VARIABEL
  */
-new ACT__reload,
+new 
+	ACT__reload,
+
+	// ID Actor
 	ACT_skillMekanik,
 	ACT_penjualDealer, // Actor tempat player menjual mobil
 	ACT_peralatanPancing,
 	ACT_tokoBibit,
 	ACT_tokoNarko,
 	ACT_tokoGadget,
+	ACT_resepsionisPemerintah,
+
+	// Posisi
 	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
 	Float:ACT_penjualDealer_Pos[4] = {1012.9276, -1733.4741, 13.4834, 90.0930},
 	Float:ACT_peralatanPancing_Pos[4] = {1021.7353, -1892.2639, 12.7341, 273.1771},
 	Float:ACT_tokoBibit_Pos[4] = {1494.2061, -1659.1025, 13.2922, 358.1933},
-	Float:ACT_tokoGadget_Pos[4] = {446.3421, 1238.8604, 1081.9045, 89.6002};
+	Float:ACT_tokoGadget_Pos[4] = {446.3421, 1238.8604, 1081.9045, 89.6002},
+	Float:ACT_resepsionisPemerintah_Pos[4] = {-501.2156, 296.5012, 2001.0950, 182.1136},
+
+	// 3D Text (Chat Bubble)
+	Text3D:ACT_resepsionisPemerintah_Text,
+
+	// Binding User
+	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
+
+	// Response User
+	ACT_resepsionisPemerintah_Res = 0,
+
+	// Timer (Lama Response)
+	ACT_resepsionisPemerintah_Timer = -1,
+
+	ACT_resepsionisPemerintah_Area
+;
 
 /**
     Area
@@ -1097,7 +1118,8 @@ new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
 	AREA_pomBensin[sizeof(POSISI_POM_BENSIN)],
 	AREA_keluarRumahSakit[1], // Rumah Sakit pakai AREA karena pickup tidak bisa muncul di mappingannya
 	AREA_onDutyPolisi, // Area On dan Off polisi
-	AREA_onDutyMedic // Area On dan Off medic
+	AREA_onDutyMedic, // Area On dan Off medic
+	AREA_GuidePemerintah
 ;
 
 enum    E_ATM

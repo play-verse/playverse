@@ -2562,13 +2562,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_RESPSIONIS_PEMERINTAH:
+		case DIALOG_RESEPSIONIS_PEMERINTAH:
 		{
 			if(response){
 				switch(listitem){
 					case 0:
 					{
-						showDialogRespsionisKTP(playerid);
+						showDialogResepsionisKTP(playerid);
 						return 1;
 					}
 					case 1:
@@ -2628,11 +2628,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Masa diperpanjang", pDialog[playerid], "Ok", "");
 				}
 				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT DATE_FORMAT(masa_aktif_nomor, \"%%W, %%d-%%M-%%Y %%H:%%i:%%S\") AS expired, masa_aktif_nomor FROM `user` WHERE id = %d", PlayerInfo[playerid][pID]);
-			}else
-				showDialogResepsionis(playerid);
+			}
 			return 1;
 		}
-		case DIALOG_RESPSIONIS_PILIH_KTP:
+		case DIALOG_RESEPSIONIS_PILIH_KTP:
 		{
 			if(response){
 				switch(listitem){
@@ -2649,7 +2648,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						getSudahBuatKTP(playerid, "cekSudahBisaAmbilKTP", false);						
 					}
 				}
-			}else
+			}
+			else
 				showDialogResepsionis(playerid);
 			return 1;
 		}
@@ -3438,7 +3438,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 2: // Buat Papan
 					{
-						return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN, DIALOG_STYLE_INPUT, "Input tulisan", "Silahkan Input text yang ingin anda tulis di papan.", "Ok", "Kembali");
+						return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN_MODEL, DIALOG_STYLE_INPUT, "Input ID Object Papan", "Input ID object papan (gunakan \"19805\" jika ingin papan biasa)\nJika ingin melihat model lain buka dev.prineside.com lalu masukan keyword \"board\"\nPastikan untuk menginputkan id yang benar.", "Ok", "Kembali");
 					}
 					case 3: // Edit Posisi Papan
 					{
@@ -3474,6 +3474,18 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				showDialogAdminPapan(playerid);
 			return 1;
 		}
+		case DIALOG_ADMIN_PAPAN_BUAT_PAPAN_MODEL:
+		{
+			if(response){
+				new modelid;
+				if(sscanf(inputtext, "i", modelid))	return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN_MODEL, DIALOG_STYLE_INPUT, "Input ID Object Papan", "ID Object tidak valid.\nInput ID object papan (gunakan \"19805\" jika ingin papan biasa)\nJika ingin melihat model lain buka dev.prineside.com lalu masukan keyword \"board\"\nPastikan untuk menginputkan id yang benar.", "Ok", "Kembali");
+				SetPVarInt(playerid, "a_model_papan", modelid);
+				
+				ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN, DIALOG_STYLE_INPUT, "Input tulisan", "Silahkan Input text yang ingin anda tulis di papan.", "Ok", "Kembali");
+			}else
+				showDialogAdminPapan(playerid);
+			return 1;
+		}
 		case DIALOG_ADMIN_PAPAN_BUAT_PAPAN:
 		{
 			if(response){
@@ -3483,7 +3495,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				new i = jumlahBoard;
 				GetPlayerPos(playerid, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ]);
-				BoardInfo[i][bModel] = MODEL_PAPAN;
+				BoardInfo[i][bModel] = GetPVarInt(playerid, "a_model_papan");
 				BoardInfo[i][bCX] = BoardInfo[i][bCX] + 2;
 				BoardInfo[i][bCY] = BoardInfo[i][bCY] + 2;
 				BoardInfo[i][bCRX] = 0;
@@ -3503,8 +3515,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				SaveBoard(BoardInfo[i][bModel], BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ], BoardInfo[i][bCRX], BoardInfo[i][bCRY], BoardInfo[i][bCRZ], BoardInfo[i][bText], BoardInfo[i][bFontSiz]);
 				jumlahBoard++;
-			}else
-				showDialogAdminPapan(playerid);
+			}else{
+				return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN_MODEL, DIALOG_STYLE_MSGBOX, "Input ID Object Papan", "Input ID object papan (gunakan \"19805\" jika ingin papan biasa)\nJika ingin melihat model lain buka dev.prineside.com lalu masukan keyword \"board\"\nPastikan untuk menginputkan id yang benar.", "Ok", "Kembali");
+			}
 			return 1;
 		}
 		case DIALOG_ADMIN_PAPAN_EDIT_ID:
@@ -6115,13 +6128,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0: // Respawn Actor
 					{
 						ACT__reload = 1;
-						// Hapus actor
-						if(IsValidDynamicActor(ACT_skillMekanik)) DestroyDynamicActor(ACT_skillMekanik);
-						if(IsValidDynamicActor(ACT_penjualDealer)) DestroyDynamicActor(ACT_penjualDealer);
-						if(IsValidDynamicActor(ACT_peralatanPancing)) DestroyDynamicActor(ACT_peralatanPancing);
-						if(IsValidDynamicActor(ACT_tokoBibit)) DestroyDynamicActor(ACT_tokoBibit);
-						if(IsValidDynamicActor(ACT_tokoNarko)) DestroyDynamicActor(ACT_tokoNarko);
-						if(IsValidDynamicActor(ACT_tokoGadget)) DestroyDynamicActor(ACT_tokoGadget);
 						// Reload actor
 						re_loadAllActor();
 					}
@@ -6332,10 +6338,11 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO) && IsPlayerInAnyDynamicArea(playerid)){
 		if(GetPVarType(playerid, "last_area")){
-			if(AREA_beliPerabot[0] <= GetPVarInt(playerid, "last_area") && GetPVarInt(playerid, "last_area") <= AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT) - 1]){
+			new areaid = GetPVarInt(playerid, "last_area");
+			if(AREA_beliPerabot[0] <= areaid && areaid <= AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT) - 1]){
 				return showDialogBeliPerabot(playerid);
 			}
-			else if(AREA_pomBensin[0] <= GetPVarInt(playerid, "last_area") && GetPVarInt(playerid, "last_area") <= AREA_pomBensin[sizeof(POSISI_POM_BENSIN) - 1]){
+			else if(AREA_pomBensin[0] <= areaid && areaid <= AREA_pomBensin[sizeof(POSISI_POM_BENSIN) - 1]){
 				// Run stuff
 				new Float:pos[3], Float:vpos[3], vehid = INVALID_VEHICLE_ID;
 				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
@@ -6355,7 +6362,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 					showDialogPilihBensin(playerid);
 				}
 				return 1;
-			}else if(GetPVarInt(playerid, "last_area") == AREA_onDutyPolisi){
+			}else if(areaid == AREA_onDutyPolisi){
 				if(IsPlayerPolice(playerid)){
 					if(IsPlayerOnDutyPolice(playerid))
 					{
@@ -6419,7 +6426,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				}else
 					server_message(playerid, "Anda bukan pegawai kantor polisi ini.");
 				return 1;
-			}else if(GetPVarInt(playerid, "last_area") == AREA_onDutyMedic){
+			}else if(areaid == AREA_onDutyMedic){
 				if(IsPlayerMedic(playerid)){
 					if(IsPlayerOnDutyMedic(playerid))
 					{
@@ -6482,6 +6489,9 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 						server_message(playerid, "Anda sedang menjalan tugas lain sekarang.");
 				}else
 					server_message(playerid, "Anda bukan pegawai rumah sakit ini.");
+				return 1;
+			}else if(areaid == AREA_GuidePemerintah){
+				showDialogGuideKantorPemerintah(playerid);
 				return 1;
 			}
 		}
@@ -6983,7 +6993,68 @@ public OnPlayerText(playerid, text[]){
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
+
 	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation]) PlayerTalking(playerid);
+
+	/**
+		Filter Actor
+	 */
+	if(IsPlayerInAnyDynamicArea(playerid)){
+		// GetPVarType untuk cek apakah ada atau tidak
+		if(GetPVarType(playerid, "last_area")){
+			new areaid = GetPVarInt(playerid, "last_area");
+			if(areaid == ACT_resepsionisPemerintah_Area){ // Cek Jika berada pada area actor
+				if(ACT_resepsionisPemerintah_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut
+					if(sama_ic(text, "halo "NAMA_ACTOR_PEMERINTAH)){
+						ACT_resepsionisPemerintah_User = playerid;
+						ACT_resepsionisPemerintah_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_resepsionisPemerintah);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nApa yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid]);
+					}
+				}else if(ACT_resepsionisPemerintah_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_resepsionisPemerintah_Res == 0){
+						if(sama_ic("saya ingin buat ktp", text)){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid,DIALOG_RESEPSIONIS_PILIH_KTP, 1, 0, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_resepsionisPemerintah, playerid);
+						}
+						else if(sama_ic("saya ingin ambil ktp yang sudah selesai", text)){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid,DIALOG_RESEPSIONIS_PILIH_KTP, 1, 1, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_resepsionisPemerintah, playerid);
+						}
+						else if(sama_ic("saya ingin buat nomor hp", text)){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid,DIALOG_RESEPSIONIS_PEMERINTAH, 1, 1, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_resepsionisPemerintah, playerid);
+						}
+						else if(sama_ic("saya ingin perpanjang masa aktif nomor hp", text)){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid,DIALOG_RESEPSIONIS_PEMERINTAH, 1, 2, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_resepsionisPemerintah, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID;
+							ACT_resepsionisPemerintah_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid], 5);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	
 	// Wiki Samp - OnPlayerText
 	// Return 1 - Mengirimkan pesan default
 	// Return 0 - Mengirimkan pesan yang sudah dicustom saja, tanpa menjalankan perintah default pesan
@@ -7128,9 +7199,6 @@ public OnPlayerEnterDynamicCP(playerid, checkpointid){
 		return 1;
 	}else if(checkpointid == CP_spotBeliSkin[0] || checkpointid == CP_spotBeliSkin[1] || checkpointid == CP_spotBeliSkin[2]){
 		ShowPlayerDialog(playerid, DIALOG_TANYA_INGIN_BELI_SKIN, DIALOG_STYLE_MSGBOX, WHITE"Ingin beli skin?", "Apakah anda ingin membeli "YELLOW"skin normal "WHITE"dengan harga "GREEN"2500 "WHITE"per skin?", "Beli", "Batal");
-		return 1;
-	}else if(checkpointid == CP_resepsionisCityHall){
-		showDialogResepsionis(playerid);
 		return 1;
 	}else if(checkpointid == CP_tellerBankLS[0] || checkpointid == CP_tellerBankLS[1]){
 		showDialogTellerBank(playerid);
@@ -7683,6 +7751,15 @@ public OnPlayerEnterDynamicArea(playerid, areaid){
 
 public OnPlayerLeaveDynamicArea(playerid, areaid){
 	DeletePVar(playerid, "last_area");
+    if(GetPVarType(playerid, "interaksi_actor")){
+		new actorid	= GetPVarInt(playerid, "interaksi_actor");
+		if(actorid == ACT_resepsionisPemerintah){
+			ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID;
+			ACT_resepsionisPemerintah_Res = 0;
+			TerminateInteraksi_Alt(ACT_resepsionisPemerintah);
+		}
+		SetPVarInt(playerid, "interaksi_actor", -1);
+	}
 	return 1;
 }
 

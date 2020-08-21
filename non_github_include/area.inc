@@ -15,6 +15,12 @@ loadAllArea(){
     CreateDynamic3DTextLabel("Silahkan tekan "GREEN"Y "WHITE"untuk membayar toll.\n"YELLOW"Harga sekali lewat "GREEN"$2", COLOR_WHITE,1755.4846, 551.4901, 25.6337, 20.0);
     areaToll_LSLV[1] = CreateDynamicCircle(1755.4846, 551.4901, 5.0);
 
+    // Hint pada Kantor Pemerintah
+    CreateDynamic3DTextLabel(\
+        "Guide interaksi kantor pemerintah dan peraturan.\n\
+        "WHITE"Silahkan tekan "GREEN"N "WHITE"untuk membaca guide.\n", COLOR_YELLOW, -486.3125, 294.6436, 2001.0859, 20.0);
+    AREA_GuidePemerintah = CreateDynamicSphere(-486.3125, 294.6436, 2001.0859, 3.0);
+
     // Perabot
     foreach(new i : Range(0, sizeof(POSISI_BELI_PERABOT))){
         AREA_beliPerabot[i] = CreateDynamicSphere(POSISI_BELI_PERABOT[i][POSISI_X], POSISI_BELI_PERABOT[i][POSISI_Y], POSISI_BELI_PERABOT[i][POSISI_Z], 1.5, POSISI_BELI_PERABOT[i][POSISI_VW], POSISI_BELI_PERABOT[i][POSISI_INT]);
@@ -51,4 +57,11 @@ loadAllArea(){
     AREA_onDutyMedic = CreateDynamicSphere(175.8122, 1753.5443, 10003.3818, 1.5);
     CreateDynamic3DTextLabel("Bekerja sebagai Medic\n\
         "WHITE"Tekan "GREEN"N"WHITE" untuk mulai/selesai.", COLOR_PINK, 175.8122, 1753.5443, 10003.3818, 5.0, .testlos = 1);
+
+    /**
+        Actor Area 
+
+        IMPORTANT: Jangan sampai areanya saling ngena atau dempet
+     */
+    ACT_resepsionisPemerintah_Area = CreateDynamicSphere(ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], 3.0);
 }
