@@ -389,18 +389,6 @@ publicFor: spawnPemain(playerid)
 	 */
 	SyncMarkerMaskToPlayer(playerid); // Sync juga
 	
-	/*
-	 * Jika menggunakan mask maka hide name tag
-	 */
-	if(PlayerInfo[playerid][isOnMask] && IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
-		HidePlayerMarker(playerid);
-		AttachHelmetOrMask(playerid, PlayerInfo[playerid][isOnMask]);
-	}
-	else{
-		PlayerInfo[playerid][isOnMask] = 0;
-		ShowPlayerMarker(playerid);
-	}
-
 	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
 		
@@ -467,6 +455,18 @@ publicFor: spawnPemain(playerid)
 			SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 		}
 	}
+	/*
+	 * Jika menggunakan mask maka hide name tag
+	 */
+	if(PlayerInfo[playerid][isOnMask] && IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
+		HidePlayerMarker(playerid);
+		AttachHelmetOrMask(playerid, PlayerInfo[playerid][isOnMask]);
+	}
+	else{
+		PlayerInfo[playerid][isOnMask] = 0;
+		ShowPlayerMarker(playerid);
+	}
+
 	// Sinkronkan uang pemain
 	getUangPlayer(playerid);
 	return 1;

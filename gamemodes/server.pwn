@@ -1061,7 +1061,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						format(PlayerInfo[playerid][nomorHP], 12, "%s", nomor_hp);
 
-						format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil mendaftarkan "GREEN"%s "WHITE"sebagai nomor HP anda.\nSekarang anda dapat menggunakan nomor HP anda sebagai sarana komunikasi dan sebagainya.\nPastikan untuk tidak menyalahgunakannya.", nomor_hp);
+						format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil mendaftarkan "GREEN"%s "WHITE"sebagai nomor HP anda.\nSekarang anda dapat menggunakan nomor HP anda sebagai sarana komunikasi dan sebagainya.\nPastikan untuk tidak menyalahgunakannya.\n\n"YELLOW"Nomor HP hanya dapat digunakan selama masa aktif masih ada,\nanda dapat perpanjang masa aktif nomor hp di kantor pemerintah.\n\nMasa aktif nomor HP anda saat ini adalah %d hari.", nomor_hp, MASA_AKTIF_SETIAP_PERPANJANG_NOMOR);
 
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil mendaftarkan nomor HP", pDialog[playerid], "Ok", "");
 					}else{
