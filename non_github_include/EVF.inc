@@ -2907,7 +2907,22 @@ stock EVF::CreateVehicle(modelid,Float:x,Float:y,Float:z,Float:angle,color1,colo
 	
 	ToggleUnoccupiedVehicleDamage(vehicleid,unoccupied_damage);
 	ToggleVehicleSticky(vehicleid,0);
-	ToggleVehicleFuel(vehicleid,1);
+
+	// Jangan Aktifkan Fuel untuk kendaraan selain darat
+	switch(modelid){
+		// Air Vehicles
+		case 417, 425, 447, 460, 469, 476, 487, 488, 497, 511, 512, 513, 519,
+			520, 548, 553, 563, 577, 592, 593:
+			ToggleVehicleFuel(vehicleid, 0);
+		// Water Vehicles
+		case 430, 446, 452, 453, 454, 472, 473, 484, 493, 595:
+			ToggleVehicleFuel(vehicleid, 0);
+		// Sepeda 
+		case 481, 509, 510:
+			ToggleVehicleFuel(vehicleid, 0);
+		default:
+			ToggleVehicleFuel(vehicleid,1);
+	}
 	
 	SetVehiclePropertyValue(vehicleid,e_VEHICLE_COLOR_1,color1);
 	SetVehiclePropertyValue(vehicleid,e_VEHICLE_COLOR_2,color2);

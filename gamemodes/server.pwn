@@ -6346,7 +6346,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				foreach(new vid : Vehicle){
 					if(!IsValidVehicle(vid)) continue;
 					GetVehiclePos(vid, vpos[0], vpos[1], vpos[2]);
-					if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 2.0)){
+					if(IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0)){
 						vehid = vid;
 						break;
 					}
