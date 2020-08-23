@@ -586,6 +586,17 @@ new Iterator:pizza_Veh<MAX_VEHICLES>,
 	Float:pizza_Y[MAX_PLAYERS],
 	Float:pizza_Z[MAX_PLAYERS];
 
+/* Ojol */
+new ojol_Job[MAX_PLAYERS],
+    ojol_Id[MAX_VEHICLES] = {-1},
+    ojol_Veh[MAX_PLAYERS] = {-1},
+    ojol_Passenger[MAX_PLAYERS] = {-1},
+	Float:ojol_startX[MAX_PLAYERS],
+	Float:ojol_startY[MAX_PLAYERS],
+	Float:ojol_startZ[MAX_PLAYERS],
+	Float:ojol_endX[MAX_PLAYERS],
+	Float:ojol_endY[MAX_PLAYERS],
+	Float:ojol_endZ[MAX_PLAYERS];
 
 /* SIM Kendaraan */
 new Iterator:vehicleSIM<MAX_VEHICLES>,
