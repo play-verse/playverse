@@ -2706,7 +2706,7 @@ EVF::Public:: EVF::OnVehicleBombExplode(playerid,vehicleid){
 	#endif
 	SetVehicleToRespawn(vehicleid);
 	if(GetPlayerVehicleID(playerid) == vehicleid){
-		SetPlayerHealth(playerid,0.0);
+		CallRemoteFunction("SetHealth", "if", playerid, 0.0);
 		GameTextForPlayer(playerid,"~r~Bombed !",3500,3);
 	}
 	SetVehiclePropertyValue(vehicleid,e_VEHICLE_BOMB_TIMER,-1);

@@ -86,6 +86,10 @@ publicFor: isRegistered(playerid)
 		cache_get_value_name_float(0, "last_stats_makan", PlayerInfo[playerid][last_stats_makan]);
 		cache_get_value_name_float(0, "last_stats_minum", PlayerInfo[playerid][last_stats_minum]);
 
+		cache_get_value_name_int(0, "in_die", PlayerInfo[playerid][inDie]);
+
+		// IMPORTANT: Pastikan untuk LoadPlayerSkill dan sebagainya setelah load semua cache di atas
+		// agar tidak terjadi hal yang tidak diinginkan (lebih dari satu cache active secara bersamaan)
 		loadPlayerSkill(playerid);
 
 		// Pindahkan player
@@ -163,6 +167,17 @@ publicFor: filterLoginPemain(playerid){
 
 	ShowPlayerDialog(playerid, DIALOG_LOGIN, DIALOG_STYLE_PASSWORD,WHITE"Login", pDialog[playerid], "Login","Keluar");	
 	return 1;
+}
+
+// Untuk mati saat sekarat
+onPlayerDeath_Alt(playerid){
+	if(PlayerInfo[playerid][timerPemain] != -1) {
+		DeletePreciseTimer(PlayerInfo[playerid][timerPemain]);
+		PlayerInfo[playerid][timerPemain] = -1;
+	}
+	
+	PlayerInfo[playerid][onSelectedTextdraw] = false;
+	resetPlayerToDo(playerid);
 }
 
 // Hanya digunakan saat Disconnect dan Connect
@@ -248,15 +263,20 @@ resetPlayerVariable(playerid, dari_callback){
 
 	PlayerInfo[playerid][loginAttempt] = 0;
 
+	PlayerInfo[playerid][inDie] = 0;
+
 	// Timer Pemain
-	// Reset ID timer jadi -1 terlebih dahulu
-	if(dari_callback == 1) PlayerInfo[playerid][timerPemain] = -1;
-	else{
+	// Delete Timer yang tidak -1
+	if(dari_callback == 2) {
 		if(PlayerInfo[playerid][timerPemain] != -1){
 			DeletePreciseTimer(PlayerInfo[playerid][timerPemain]);
-			PlayerInfo[playerid][timerPemain] = -1;
+		}
+		if(PlayerInfo[playerid][timerDie] != -1){
+			DeletePreciseTimer(PlayerInfo[playerid][timerDie]);
 		}
 	}
+	PlayerInfo[playerid][timerPemain] = -1;
+	PlayerInfo[playerid][timerDie] = -1;
 
 	PlayerInfo[playerid][hungryStackedTime] = 0;
 	PlayerInfo[playerid][thirstyStackedTime] = 0;
@@ -361,7 +381,10 @@ dialogEmail(playerid){
 	ShowPlayerDialog(playerid, DIALOG_INPUT_EMAIL, DIALOG_STYLE_INPUT, "Input Email anda", WHITE"Masukan email anda, kami hanya mensupport email "RED"@gmail.com\n:", "Simpan", "Keluar");
 }
 
-publicFor: spawnPemain(playerid)
+// Daftar dari callback
+// Default - 0 (OnPlayerSpawn, dsb saat login)
+// Death - 1 (Jika setelah dying)
+spawnPemain(playerid, dari_callback = 0)
 {
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	PlayerInfo[playerid][sudahSpawn] = true;
@@ -370,8 +393,10 @@ publicFor: spawnPemain(playerid)
 	// Tampilkan hanya jika settingan hidup
 	if(PlayerInfo[playerid][tampilHUDStats]) tampilkanHUDStats(playerid);
 
-	if(PlayerInfo[playerid][timerPemain] == -1)
-		PlayerInfo[playerid][timerPemain] = SetPreciseTimer("pemainUpdate", INTERVAL_WAKTU_UPDATE_PEMAIN * 1000, true, "i", playerid);
+	// Reset Timer
+	if(PlayerInfo[playerid][timerPemain] != -1)
+		DeletePreciseTimer(PlayerInfo[playerid][timerPemain]);
+	PlayerInfo[playerid][timerPemain] = SetPreciseTimer("pemainUpdate", INTERVAL_WAKTU_UPDATE_PEMAIN * 1000, true, "i", playerid);
 
 	if(PlayerInfo[playerid][last_stats_makan] == 0 && PlayerInfo[playerid][last_stats_minum] == 0){
 		setStatusMakanPemain(playerid, 80);
@@ -383,6 +408,10 @@ publicFor: spawnPemain(playerid)
 		PlayerInfo[playerid][last_stats_makan] = 0;
 		PlayerInfo[playerid][last_stats_minum] = 0;
 	}
+
+	// Set Jadi 100.0 dlu
+	SetArmour(playerid, 0.0);
+	SetHealth(playerid, 100.0);
 
 	/*
 	 * Synching Marker
@@ -401,7 +430,7 @@ publicFor: spawnPemain(playerid)
 		
 		if(PlayerInfo[playerid][lastHp] > 0) {
 			SetHealth(playerid, PlayerInfo[playerid][lastHp]);
-			if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+			if(PlayerInfo[playerid][lastArmour] > 0) SetArmour(playerid, PlayerInfo[playerid][lastArmour]);
 		}
 
 		PlayerInfo[playerid][lastHp] = 0;
@@ -414,7 +443,7 @@ publicFor: spawnPemain(playerid)
 		PlayerInfo[playerid][last_vw] = 0;
 		PlayerInfo[playerid][last_int] = 0;
 	}else{
-		if(house_Id != 0){
+		if(house_Id != 0 && dari_callback == 0){
 			SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z], 0, 0, 0, 0, 0, 0, 0);
 				
 			SpawnPlayer(playerid);
@@ -426,7 +455,7 @@ publicFor: spawnPemain(playerid)
 
 			if(PlayerInfo[playerid][lastHp] > 0) {
 				SetHealth(playerid, PlayerInfo[playerid][lastHp]);
-				if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+				if(PlayerInfo[playerid][lastArmour] > 0) SetArmour(playerid, PlayerInfo[playerid][lastArmour]);
 			}
 			
 			PlayerInfo[playerid][lastHp] = 0;
@@ -444,15 +473,27 @@ publicFor: spawnPemain(playerid)
 				return 1;
 			}
 
-			new random_spawn = random(sizeof(SPAWN_POINT));
-			SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
-			
-			SpawnPlayer(playerid);
+			if(dari_callback == 0){
+				new random_spawn = random(sizeof(SPAWN_POINT));
+				SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+				
+				SpawnPlayer(playerid);
 
-			pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
+				pindahkanPemain(playerid, SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], SPAWN_POINT[random_spawn][SPAWN_POINT_INTERIOR], SPAWN_POINT[random_spawn][SPAWN_POINT_VW], true);
 
-			TogglePlayerControllable(playerid, 0);
-			SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
+				TogglePlayerControllable(playerid, 0);
+				SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
+			}else{
+				new random_spawn = random(sizeof(POSISI_SPAWN_SETELAH_MATI));
+				SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_X], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_Y], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_Z],POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+				
+				SpawnPlayer(playerid);
+
+				pindahkanPemain(playerid, POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_X], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_Y], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_Z], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_A], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_INTERIOR], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_VW], true);
+
+				TogglePlayerControllable(playerid, 0);
+				SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
+			}
 		}
 	}
 	/*
@@ -475,6 +516,21 @@ publicFor: spawnPemain(playerid)
 publicFor: GantiSkinSaatSpawn(playerid){
 	TogglePlayerControllable(playerid, 1);
 	ubahSkinPemain(playerid, PlayerInfo[playerid][skinID]);
+	// Cek jika player skarat
+	if(PlayerInfo[playerid][inDie]){
+		ClearAnimations(playerid);
+		SetPreciseTimer("animasiSekarat", 1000, false, "i", playerid);
+	}
+}
+
+publicFor: animasiSekarat(playerid){
+	ClearAnimations(playerid);
+	SetHealth(playerid, 1.0);
+	PlayerDied(playerid);
+	onPlayerDeath_Alt(playerid);
+	if(PlayerInfo[playerid][timerDie] != -1)
+		DeletePreciseTimer(PlayerInfo[playerid][timerDie]);
+	PlayerInfo[playerid][timerDie] = SetPreciseTimer("DecreaseDieCount", 1000, true, "i", playerid);
 }
 
 publicFor: updatePlayerCurrentPhone(playerid, iditem){
@@ -987,7 +1043,7 @@ pakaiNarko(playerid, const nama_item[], id_item, persen){
 		SetPlayerDrunkLevel (playerid, 5000);
 		puyengSecs[playerid] = 30;
 		puyengTimer[playerid] = SetPreciseTimer("waktuPuyeng", 1000, true, "i", playerid);
-		SetPlayerArmour(playerid, tambahArmour);
+		SetArmour(playerid, tambahArmour);
 		PlayerInfo[playerid][lastArmour] = tambahArmour;
 		tambahItemPlayer(playerid, id_item, -1);
 		format(pDialog[playerid], sizePDialog, WHITE"Penggunaan 1 item "YELLOW"%s"WHITE", anda mendapat tambahan Armour sebesar "YELLOW"%d%%"WHITE".", nama_item, persen);
@@ -2316,8 +2372,8 @@ updateOnPlayerDisconnect(playerid){
 		last_spawn_info_vw = GetPlayerVirtualWorld(playerid);
 		last_spawn_info_int = GetPlayerInterior(playerid);
 
-		last_hp = GetPlayerHealth(playerid);
-		last_armour = GetPlayerArmour(playerid);
+		last_hp = GetHealth(playerid);
+		last_armour = GetArmour(playerid);
 
 		temp_stats_makan = getStatusMakanPemain(playerid);
 		temp_stats_minum = getStatusMinumPemain(playerid);
@@ -2329,7 +2385,7 @@ updateOnPlayerDisconnect(playerid){
 
 	new lama_bermain = getTotalLamaBermain(playerid);
 
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', playtime = '%d', in_house = '%d' WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][pID]);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', playtime = '%d', in_house = '%d', in_die = %d WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][inDie], PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }
@@ -3924,6 +3980,24 @@ TerminateInteraksi_Alt(actorid){
 		DeletePreciseTimer(ACT_resepsionisPemerintah_Timer);
 	
 	TerminateInteraksi(actorid);
+}
+
+publicFor: DecreaseDieCount(playerid){
+	if(PlayerInfo[playerid][inDie] > 0) {
+		PlayerInfo[playerid][inDie]--;
+
+		new str_temp[50];
+		format(str_temp, sizeof(str_temp), "~w~Anda sedang sekarat~n~~y~Sisa waktu anda ~r~%d ~y~detik lagi", PlayerInfo[playerid][inDie]);
+		GameTextForPlayer(playerid, str_temp, 1000, 3);
+	}
+	else{
+		PlayerInfo[playerid][inDie] = 0;
+		DeletePreciseTimer(PlayerInfo[playerid][timerDie]);
+		PlayerInfo[playerid][timerDie] = -1;
+		PlayerInfo[playerid][sudahSpawn] = false;
+		spawnPemain(playerid, 1);
+	}
+	return 1;
 }
 
 /*
