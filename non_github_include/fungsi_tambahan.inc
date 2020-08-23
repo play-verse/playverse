@@ -41,6 +41,11 @@
 sama(const kata1[], const kata2[])
     return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
 
+// Sama tapi versi "ignore case sensitive" 
+// contoh : hAlO = halo
+sama_ic(const kata1[], const kata2[])
+    return (!strcmp(kata1, kata2, true) && !isnull(kata1) && !isnull(kata2));
+
 // Hanya untuk tampilan saja
 SetPlayerMoney(playerid, jumlah){
     ResetPlayerMoney(playerid);
@@ -295,6 +300,10 @@ setStatusMinumPemain(playerid, Float:jumlah){
 //     // PlayerTextDrawSetString(playerid, RadarUang[playerid][1], "0");
 // }
 ubahSkinPemain(playerid, skinid){
+    // Attach ulang mask/helm
+    // Didalam fungsi ini telah terdapat pengecekan jika attachedobject telah terpakai maka remove
+    AttachHelmetOrMask(playerid, PlayerInfo[playerid][isOnMask]);
+    
     // Hide dlu untuk dapat efeknya
     PlayerTextDrawHide(playerid, HUD_Stats[playerid][0]);
     PlayerTextDrawSetPreviewModel(playerid, HUD_Stats[playerid][0], skinid);
@@ -747,18 +756,42 @@ IsMaskOrHelmet(itemid){
 #define AttachHelmetFixed(%0,%1,%2,%3,%4,%5,%6) \
     SetPlayerAttachedObject(%0, MASK_ATTACH_INDEX, 18645, 2, (%1), (%2), (%3), (%4), (%5), (%6))
 
-#define AttachMaskToPlayer(%0)       \
-    SetPlayerAttachedObject(%0, MASK_ATTACH_INDEX, 19037, 2, 10, 4.7, 0.0, 90, 90, 0)
+#define AttachMaskFixed(%0,%1,%2,%3,%4,%5,%6) \
+    SetPlayerAttachedObject(%0, MASK_ATTACH_INDEX, 19037, 2, (%1), (%2), (%3), (%4), (%5), (%6))
+
+// %0, MASK_ATTACH_INDEX, 19037, 2, 0.107999, 0.019999, -0.004000, -16.100000, 90.100051, 102.900100
+// %0, MASK_ATTACH_INDEX, 19163, 2, 0.082000, 0.02499, 0.001000, 0.00000, 84.599906, 178.200057
+
+AttachMaskToPlayer(playerid){
+    if(IsPlayerAttachedObjectSlotUsed(playerid, MASK_ATTACH_INDEX))
+        RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX);
+
+    switch(GetPlayerSkin(playerid)){
+        case 0:
+            AttachMaskFixed(playerid, 0.107999, 0.019999, -0.004000, -16.100000, 90.100051, 102.900100);
+        case 28:
+            AttachMaskFixed(playerid, 0.107998, 0.042998, -0.007000, -16.10000, 90.100051, 103.400070);
+        default:
+            AttachMaskFixed(playerid, 0.107998, 0.042998, -0.007000, -16.10000, 90.100051, 103.400070);
+    }
+    return 1;
+}
+
 #define AttachHelmetToPlayer(%0)     \
     SetPlayerAttachedObject(%0, MASK_ATTACH_INDEX, 18645, 2, 0.101, -0.0, 0.0, 5.50, 84.60, 83.7)
 
 AttachHelmetOrMask(playerid, itemid){
+    if(IsPlayerAttachedObjectSlotUsed(playerid, MASK_ATTACH_INDEX))
+        RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX);
+
     if(!IsMaskOrHelmet(itemid)) return 1;
+
     switch(itemid){
         case ID_ITEM_HELM:
             AttachHelmetToPlayerFixed(playerid);
-        case ID_ITEM_MASK:
+        case ID_ITEM_MASK:{
             AttachMaskToPlayer(playerid);
+        }
         default:
             return 1;
     }
@@ -767,6 +800,9 @@ AttachHelmetOrMask(playerid, itemid){
 
 AttachHelmetToPlayerFixed(playerid)
 {
+    if(IsPlayerAttachedObjectSlotUsed(playerid, MASK_ATTACH_INDEX))
+        RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX);
+
     switch(GetPlayerSkin(playerid))
     {
         case 0, 65, 74, 149, 208, 273:  
@@ -957,3 +993,30 @@ GetSlotInventoryPlayer(playerid){
 #define GetPlayerPoliceLevel(%0)     PlayerInfo[%0][levelPolice]
 
 #define IsPlayerIsNotInAnyDuty(%0)      (!IsPlayerOnDutyMedic(%0) && !IsPlayerOnDutyPolice(%0))
+
+/**
+    Actor Function
+ */
+ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_RESEPSIONIS){    
+    ActorTalking(actorid);
+    
+    if(actorid == ACT_resepsionisPemerintah){
+        if(ACT_resepsionisPemerintah_Timer != -1)
+            DeletePreciseTimer(ACT_resepsionisPemerintah_Timer);
+        // 15 detik batas interaksi
+        ACT_resepsionisPemerintah_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_resepsionisPemerintah_Text, COLOR_WHITE, text);
+    }
+}
+
+ActorResetAndProses(actorid, playerid){
+    if(actorid == ACT_resepsionisPemerintah){
+        SetPVarInt(playerid, "interaksi_actor", -1);
+        ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID;
+        ACT_resepsionisPemerintah_Res = 0;
+
+        format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+        // 5 Detik
+        ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid], 5);
+    }
+}

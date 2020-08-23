@@ -542,7 +542,7 @@ CMD:pecatmedic(playerid, params[]){
     if(PlayerInfo[target_id][levelMedic] == 0)
         return error_command(playerid, "Pemain bukan medic.");
 
-    mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM user_faction id_user = %d AND id_faction = %d", PlayerInfo[target_id][pID], ID_FACTION_MEDIC);    
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM user_faction WHERE id_user = %d AND id_faction = %d", PlayerInfo[target_id][pID], ID_FACTION_MEDIC);    
     mysql_tquery(koneksi, pQuery[playerid]);
 
     PlayerInfo[target_id][levelMedic] = 0;
@@ -611,7 +611,7 @@ CMD:pecatpolisi(playerid, params[]){
     if(PlayerInfo[target_id][levelPolice] == 0)
         return error_command(playerid, "Pemain bukan polisi.");
 
-    mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM user_faction id_user = %d AND id_faction = %d", PlayerInfo[target_id][pID], ID_FACTION_POLISI);    
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM user_faction WHERE id_user = %d AND id_faction = %d", PlayerInfo[target_id][pID], ID_FACTION_POLISI);    
     mysql_tquery(koneksi, pQuery[playerid]);
 
     PlayerInfo[target_id][levelPolice] = 0;
@@ -643,6 +643,8 @@ CMD:lepashelm(playerid, params[]){
 
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
+
+    SendClientMessage(playerid, COLOR_PINK, "* Berhasil melepas helm");
     return 1;
 }
 
@@ -663,6 +665,8 @@ CMD:lepastopeng(playerid, params[]){
 
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
+
+    SendClientMessage(playerid, COLOR_PINK, "* Berhasil melepas topeng");
     return 1;
 }
 /**

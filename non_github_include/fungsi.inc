@@ -383,19 +383,12 @@ publicFor: spawnPemain(playerid)
 		PlayerInfo[playerid][last_stats_makan] = 0;
 		PlayerInfo[playerid][last_stats_minum] = 0;
 	}
-	
-	/*
-	 * Jika menggunakan mask maka hide name tag
-	 */
-	if(PlayerInfo[playerid][isOnMask] && IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
-		HidePlayerMarker(playerid);
-		AttachHelmetOrMask(playerid, PlayerInfo[playerid][isOnMask]);
-	}
-	else{
-		PlayerInfo[playerid][isOnMask] = 0;
-		ShowPlayerMarker(playerid);
-	}
 
+	/*
+	 * Synching Marker
+	 */
+	SyncMarkerMaskToPlayer(playerid); // Sync juga
+	
 	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
 		
@@ -462,6 +455,18 @@ publicFor: spawnPemain(playerid)
 			SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 		}
 	}
+	/*
+	 * Jika menggunakan mask maka hide name tag
+	 */
+	if(PlayerInfo[playerid][isOnMask] && IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
+		HidePlayerMarker(playerid);
+		AttachHelmetOrMask(playerid, PlayerInfo[playerid][isOnMask]);
+	}
+	else{
+		PlayerInfo[playerid][isOnMask] = 0;
+		ShowPlayerMarker(playerid);
+	}
+
 	// Sinkronkan uang pemain
 	getUangPlayer(playerid);
 	return 1;
@@ -841,6 +846,7 @@ publicFor: pakaiHelm(playerid, itemid){
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = %d WHERE id = %d", itemid, PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 	AttachHelmetOrMask(playerid, itemid);
+	HidePlayerMarker(playerid);
 	tambahItemPlayer(playerid, itemid, -1);
 	return 1;
 }
@@ -3897,6 +3903,27 @@ publicFor: delayNombak(playerid){
 		}
 	}
 	return 1;
+}
+
+publicFor: TerminateInteraksi(actorid){
+	ClearDynamicActorAnimations(actorid);
+    if(actorid == ACT_resepsionisPemerintah){
+		UpdateDynamic3DTextLabelText(ACT_resepsionisPemerintah_Text, COLOR_WHITE, "");
+		if(ACT_resepsionisPemerintah_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_resepsionisPemerintah_User, "interaksi_actor", -1);
+			ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID;
+		}
+		ACT_resepsionisPemerintah_Res = 0;
+		ACT_resepsionisPemerintah_Timer = -1;
+	}
+	return 1;
+}
+
+TerminateInteraksi_Alt(actorid){
+    if(actorid == ACT_resepsionisPemerintah && ACT_resepsionisPemerintah_Timer != -1)
+		DeletePreciseTimer(ACT_resepsionisPemerintah_Timer);
+	
+	TerminateInteraksi(actorid);
 }
 
 /*

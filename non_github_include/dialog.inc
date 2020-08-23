@@ -1,6 +1,6 @@
 // City Hall Dialog
 showDialogResepsionis(playerid){
-    return ShowPlayerDialog(playerid, DIALOG_RESPSIONIS_PEMERINTAH, DIALOG_STYLE_LIST, "Pilihan tindakan pengurusan data", "KTP\nPembuatan Nomor HP\nPerpanjang Masa Aktif Nomor HP", "Pilih", "Batal");
+    return ShowPlayerDialog(playerid, DIALOG_RESEPSIONIS_PEMERINTAH, DIALOG_STYLE_LIST, "Pilihan tindakan pengurusan data", "KTP\nPembuatan Nomor HP\nPerpanjang Masa Aktif Nomor HP", "Pilih", "Batal");
 }
 
 showDialogListItem(playerid){
@@ -52,8 +52,8 @@ showDialogListFurniturePemain(playerid){
     mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryFurniturePlayer", "i", playerid);
 }
 
-showDialogRespsionisKTP(playerid){
-    return ShowPlayerDialog(playerid, DIALOG_RESPSIONIS_PILIH_KTP, DIALOG_STYLE_LIST, "Pilihan tindakan KTP", "Buat KTP\nAmbil KTP yang sudah selesai", "Pilih", "Kembali");
+showDialogResepsionisKTP(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_RESEPSIONIS_PILIH_KTP, DIALOG_STYLE_LIST, "Pilihan tindakan KTP", "Buat KTP\nAmbil KTP yang sudah selesai", "Pilih", "Kembali");
 }
 
 showDialogTellerBank(playerid){
@@ -317,4 +317,26 @@ showDialogPilihBensin(playerid){
         "Pilih", 
         "Batal"
     );
+}
+
+showDialogGuideKantorPemerintah(playerid){
+    static str_guide[1500];
+    if(str_guide[0] == '\0'){
+        strcat(str_guide, YELLOW"Guide interaksi dengan resepsionis.\n\n");
+        strcat(str_guide, WHITE"Anda perlu mengetahui nama resepsionis, nama resepsionis sekarang adalah "GREEN""NAMA_ACTOR_PEMERINTAH"\n");
+        strcat(str_guide, WHITE"Untuk berbicara/mengawali percakapan dengan resepsionis anda dapat menggunakan "GREEN"Halo "NAMA_ACTOR_PEMERINTAH"\n");
+        strcat(str_guide, WHITE"Perlu diketahui bahwa resepsionis hanya dapat merespon satu persatu orang.\n");
+        strcat(str_guide, "Resepsionis tidak akan merespon jika ada orang lain yang sedang berinteraksi dengannya\n");
+        strcat(str_guide, "Resepsionis juga tidak akan menjawab jika anda tidak berada didekatnya.\n");
+        strcat(str_guide, YELLOW"Perlu diketahui bahwa saat berbicara dengannya anda tidak boleh menjauh dari resepsionis.\n");
+        strcatEx(str_guide, 2000, "Anda hanya diberi waktu "RED"%d detik "YELLOW"untuk menjawab\n\n", LAMA_BATAS_RESPON_RESEPSIONIS);
+        strcat(str_guide, WHITE"Beberapa hal yang dapat diurus disini melalui resepsionis\nPastikan anda mengawali percakapan seperti yang dijelaskan diatas.\n");
+        strcat(str_guide, "1. Katakan "YELLOW"saya ingin buat ktp"WHITE" untuk membuat ktp.\n");
+        strcat(str_guide, "2. Katakan "YELLOW"saya ingin ambil ktp yang sudah selesai"WHITE" untuk mengambil ktp yang telah anda urus sebelumnya.\n");
+        strcat(str_guide, "3. Katakan "YELLOW"saya ingin buat nomor hp"WHITE" untuk membuat nomor hp baru jika anda belum punya.\n");
+        strcat(str_guide, "4. Katakan "YELLOW"saya ingin perpanjang masa aktif nomor hp"WHITE" untuk memperpanjang masa aktif nomor yang ada.\n");
+        strcat(str_guide, "\nJika anda menjawab tidak seperti keempat hal diatas,\nmaka resepsionis tidak akan mengerti maksud anda dan akan memberhentikan percakapan.\n\n");
+        strcat(str_guide, YELLOW"Jika masih tidak mengerti dengan hal diatas silahkan tanyakan di forum. Terimakasih telah membaca.\n");
+    }
+    ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Guide Interaksi Resepsionis", str_guide, "Ok", "");
 }
