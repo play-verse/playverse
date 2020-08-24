@@ -8,6 +8,8 @@
 #define PlayerFillingFuelOnLoop(%0)     ApplyAnimation(%0, "CASINO", "SLOT_WAIT", 4.1, 1, 1, 1, 0, 0, 1)
 #define PlayerAtmAnimation(%0)          ApplyAnimation(%0, "SHOP", "SHP_SERVE_LOOP", 4.1, 0, 1, 1, 0, 2000, 1)
 
+#define PlayerDied(%0)                  ApplyAnimation(%0, "PED", "KO_SHOT_STOM", 4.1, 0, 1, 1, 1, 0, 1)
+
 #define IsPlayerOnTrade(%0)         (PlayerInfo[%0][onTradeWith] != INVALID_PLAYER_ID)
 
 #define ClearChat(%0)               for(new _i=0;_i!=10;++_i) SendClientMessage(%0, -1, "")
@@ -17,12 +19,6 @@
 
 #define IsPlayerPria(%0)         (PlayerInfo[%0][jenisKelamin] == 0)
 #define IsPlayerWanita(%0)         (PlayerInfo[%0][jenisKelamin] == 1)
-
-/**
- *  Health & Armour function
- */
-#define GetPlayerHealth                 GetHealth
-#define GetPlayerArmour                 GetArmour
 
 /**
     Bantuan Item
@@ -40,11 +36,6 @@
 // strcmp jika membandingkan dengan string kosong maka dianggap tidak ada perbedaan
 sama(const kata1[], const kata2[])
     return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
-
-// Sama tapi versi "ignore case sensitive" 
-// contoh : hAlO = halo
-sama_ic(const kata1[], const kata2[])
-    return (!strcmp(kata1, kata2, true) && !isnull(kata1) && !isnull(kata2));
 
 // Hanya untuk tampilan saja
 SetPlayerMoney(playerid, jumlah){
@@ -727,7 +718,7 @@ stock bool:IsValidDate(dStr[]) {
 #define GetHealth(%0)                     PlayerInfo[%0][currentHP]
 #define GetArmour(%0)                     PlayerInfo[%0][currentArmour]
 
-SetHealth(playerid, Float:health){
+publicFor: SetHealth(playerid, Float:health){
     PlayerInfo[playerid][currentHP] = health;
     return SetPlayerHealth(playerid, health);
 }
@@ -1019,4 +1010,15 @@ ActorResetAndProses(actorid, playerid){
         // 5 Detik
         ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid], 5);
     }
+}
+
+// Cheatsheet : https://regexr.com/
+/**
+    Untuk mengecek apakah string text, memiliki pattern yang sesuai
+ */
+cekPattern(const text[], const pattern[]){
+    new Regex:r = Regex_New(pattern, REGEX_ICASE);
+    new ret = Regex_Check(text, r, MATCH_ANY);
+    Regex_Delete(r);
+    return ret;
 }

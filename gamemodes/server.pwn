@@ -25,6 +25,8 @@
 #include <colandreas>
 #include <geolite>
 
+#include <Pawn.Regex>
+
 // Timpa SetTimer dengan PreciseTimer
 #define SetTimerEx				SetPreciseTimer
 #define SetTimer				SetPreciseTimer
@@ -6393,7 +6395,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 							DIALOG_STYLE_MSGBOX, \
 							"Selesai bekerja.", \
 							WHITE"Apakah anda yakin ingin selesai bekerja sebagai polisi pada shift kali ini?\n", "Pilih", "Batal");
-					}else if(!IsPlayerIsNotInAnyDuty(playerid)){
+					}else if(IsPlayerIsNotInAnyDuty(playerid)){
 						// Tampilkan Dialog konfirmasi akan OnDuty
 						new temp_judul[50],
 							string_skin_polisi[100] = "",
@@ -6457,7 +6459,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 							DIALOG_STYLE_MSGBOX, \
 							"Selesai bekerja.", \
 							WHITE"Apakah anda yakin ingin selesai bekerja sebagai medis pada shift kali ini?\n", "Pilih", "Batal");
-					}else if(!IsPlayerIsNotInAnyDuty(playerid)){ // Cek Jika dia tidak dalam duty polisi ataupun yang lain
+					}else if(IsPlayerIsNotInAnyDuty(playerid)){ // Cek Jika dia tidak dalam duty polisi ataupun yang lain
 						// Tampilkan Dialog konfirmasi akan OnDuty
 						new temp_judul[50],
 							string_skin_medis[100] = "",
@@ -6636,7 +6638,7 @@ public OnPlayerDeath(playerid, killerid, reason)
 		printf("OnPlayerDeath terpanggil (%d - %s)", playerid, PlayerInfo[playerid][pPlayerName]);
 	#endif
 
-	PlayerInfo[playerid][inHouse] = 0;
+	// PlayerInfo[playerid][inHouse] = 0;
 	PlayerInfo[playerid][sudahSpawn] = false;
 
 	SetPlayerDutyMedic(playerid, 0);
@@ -6649,18 +6651,17 @@ public OnPlayerDeath(playerid, killerid, reason)
 		PlayerInfo[playerid][isOnMask] = 0;
 		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
 		mysql_tquery(koneksi, pQuery[playerid]);
+
+		if(IsPlayerAttachedObjectSlotUsed(playerid, MASK_ATTACH_INDEX))
+			RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX);
 	}
 
-	if(PlayerInfo[playerid][timerPemain] != -1) {
-		DeletePreciseTimer(PlayerInfo[playerid][timerPemain]);
-		PlayerInfo[playerid][timerPemain] = -1;
-	}
+	PlayerInfo[playerid][inDie] = LAMA_MENUNGGU_SAAT_SEKARAT;
+	GetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
+	GetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
+	onPlayerDeath_Alt(playerid);
 
 	hideHUDStats(playerid);
-	
-	PlayerInfo[playerid][onSelectedTextdraw] = false;
-
-	resetPlayerToDo(playerid);
 
 	new random_spawn = random(sizeof(SPAWN_POINT));
 	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
@@ -6671,7 +6672,7 @@ public OnPlayerDeath(playerid, killerid, reason)
 			new Float:darah;
 			GetVehicleHealth(vehicleid, darah);
 
-			if(!IsVehicleFlipped(vehicleid) && darah > 300)
+			if(darah > 300.0)
 			{
 				new idpv = IDVehToPVeh[vehicleid];
 				GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
@@ -7025,8 +7026,8 @@ public OnPlayerText(playerid, text[]){
 		if(GetPVarType(playerid, "last_area")){
 			new areaid = GetPVarInt(playerid, "last_area");
 			if(areaid == ACT_resepsionisPemerintah_Area){ // Cek Jika berada pada area actor
-				if(ACT_resepsionisPemerintah_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut
-					if(sama_ic(text, "halo "NAMA_ACTOR_PEMERINTAH)){
+				if(ACT_resepsionisPemerintah_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_PEMERINTAH".*")){
 						ACT_resepsionisPemerintah_User = playerid;
 						ACT_resepsionisPemerintah_Res = 0;
 
@@ -7037,25 +7038,25 @@ public OnPlayerText(playerid, text[]){
 				}else if(ACT_resepsionisPemerintah_User == playerid){
 					// Check apakah ini response yang pertama
 					if(ACT_resepsionisPemerintah_Res == 0){
-						if(sama_ic("saya ingin buat ktp", text)){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membuat|buat|bikin|membikin)\\sktp.*")){
 							CallLocalFunction("OnDialogResponse", "iiiis", playerid,DIALOG_RESEPSIONIS_PILIH_KTP, 1, 0, "a");
 
 							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
 							ActorResetAndProses(ACT_resepsionisPemerintah, playerid);
 						}
-						else if(sama_ic("saya ingin ambil ktp yang sudah selesai", text)){
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(ambil|mengambil)\\sktp.*")){
 							CallLocalFunction("OnDialogResponse", "iiiis", playerid,DIALOG_RESEPSIONIS_PILIH_KTP, 1, 1, "a");
 
 							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
 							ActorResetAndProses(ACT_resepsionisPemerintah, playerid);
 						}
-						else if(sama_ic("saya ingin buat nomor hp", text)){
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membuat|buat|bikin|membikin)\\snomor\\shp.*")){
 							CallLocalFunction("OnDialogResponse", "iiiis", playerid,DIALOG_RESEPSIONIS_PEMERINTAH, 1, 1, "a");
 
 							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
 							ActorResetAndProses(ACT_resepsionisPemerintah, playerid);
 						}
-						else if(sama_ic("saya ingin perpanjang masa aktif nomor hp", text)){
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(memperpanjang|perpanjang|menambah|nambah|tambah)\\smasa\\saktif\\snomor.*")){
 							CallLocalFunction("OnDialogResponse", "iiiis", playerid,DIALOG_RESEPSIONIS_PEMERINTAH, 1, 2, "a");
 
 							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
@@ -7789,8 +7790,24 @@ public OnPlayerLeaveDynamicArea(playerid, areaid){
  */
 public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 {
-	if(GetArmour(playerid) > 0.0) SetArmour(playerid, ((GetArmour(playerid) - amount <= 0.0) ? 0.0 : GetArmour(playerid) - amount));
-	else SetHealth(playerid, ((GetHealth(playerid) - amount <= 0.0) ? 0.0 : GetHealth(playerid) - amount));
+	if(GetArmour(playerid) > 0.0) {
+		if(GetArmour(playerid) < amount){
+			SetArmour(playerid, 0.0);
+			// Jika armour tidak cukup maka kurang kan juga 
+			CallLocalFunction("OnPlayerTakeDamage","iifii", playerid, issuerid, amount - GetArmour(playerid), weaponid, bodypart);
+		}else
+			SetArmour(playerid, GetArmour(playerid) - amount);
+	}
+	else {
+		if(PlayerInfo[playerid][inDie]){
+			SetHealth(playerid, 1.0);
+		}else{
+			if(GetHealth(playerid) - amount <= 1.0){
+				SetHealth(playerid, 0.0);
+			}else
+				SetHealth(playerid, GetHealth(playerid) - amount);
+		}
+	}
 
 	/*
 		Returning : @source wiki.sa-mp.com

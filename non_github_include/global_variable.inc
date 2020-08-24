@@ -58,6 +58,9 @@ enum pInfo
     Float:statusMakan,
     Float:statusMinum,
 
+	// Menyimpan timer count down sebelum dia di spawn di rumah sakit
+	inDie, // Jika sedang sekarat bilangan positif - untuk sekarat, 0 - untuk false
+
     preloadAnim, // Preload anim
 	inHouse,
 
@@ -109,6 +112,7 @@ enum pInfo
 	thirstyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 
 	timerPemain,
+	timerDie, // countdown saat died
 	loginAttempt
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
@@ -259,6 +263,13 @@ new const POSISI_SPAWN_REPARASI_MOBIL[][SPAWN_POINT_INFO] = {
     {988.1448,-1686.0592,14.3905,272.0553, 0, 0},
     {988.1206,-1691.5792,14.3923,269.6691, 0, 0},
     {988.2432,-1697.1013,14.2885,272.8525, 0, 0}
+};
+
+new const POSISI_SPAWN_SETELAH_MATI[][SPAWN_POINT_INFO] = {
+    {173.3954, 1761.8878, 10000.0225, 173.3254, 1, 1},
+    {173.0196, 1755.2919, 10000.0225, 178.3621, 1, 1},
+    {164.1930, 1755.6797, 10000.0225, 173.9520, 1, 1},
+    {163.3318, 1761.8503, 10000.0225, 179.5920, 1, 1}
 };
 
 enum COORD_OBJ {

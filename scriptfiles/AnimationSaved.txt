@@ -6,3 +6,4 @@ ApplyAnimation(playerid, "SHOP", "SHP_SERVE_LOOP", 4.1, false, false, false, fal
 ApplyAnimation(playerid, "CASINO", "CARDS_RAISE", 4.1, false, false, false, false, 0, false); // isi bensin
 ApplyAnimation(playerid, "SPRAYCAN", "SPRAYCAN_FULL", 4.1, false, false, false, false, 0, false); // spray can full
 ApplyAnimation(playerid, "CASINO", "SLOT_WAIT", 4.1, false, false, false, false, 0, false); // isi bensin 2
+ApplyAnimation(playerid, "PED", "KO_SHOT_STOM", 4.1, false, false, false, true, 0, true); // save
