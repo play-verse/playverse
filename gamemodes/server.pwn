@@ -7001,7 +7001,7 @@ public OnPlayerText(playerid, text[]){
 			new areaid = GetPVarInt(playerid, "last_area");
 			if(areaid == ACT_resepsionisPemerintah_Area){ // Cek Jika berada pada area actor
 				if(ACT_resepsionisPemerintah_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
-					if(cekPattern(text, "^(Halo|Hello|Hey|Hai|Hallo)[\\s\\S]"NAMA_ACTOR_PEMERINTAH".*")){
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_PEMERINTAH".*")){
 						ACT_resepsionisPemerintah_User = playerid;
 						ACT_resepsionisPemerintah_Res = 0;
 
