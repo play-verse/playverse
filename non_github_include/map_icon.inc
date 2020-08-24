@@ -41,6 +41,9 @@ loadAllMapIcon(){
     // Police LS Icon
     CreateDynamicMapIcon(1555.4991, -1675.5791, 16.1953, 30, 1, 0, 0, -1, 100.0);
 
+    // Praktik SIM LS Icon
+    CreateDynamicMapIcon(1384.8374, -1654.8419, 13.5393, 55, 1, 0, 0, -1, 100.0);
+
     // Toko Bibit Icon
     CreateDynamicMapIcon(1494.2545, -1657.3724, 12.8556, 38, 1, 0, 0, -1, 100.0);
 

@@ -363,11 +363,13 @@ CMD:lumberjack(playerid, const params[]){
 }
 
 CMD:trashmaster(playerid, const params[]){
+    if(trashM_Job[playerid] != 1) return error_command(playerid, "Anda bukan pengangkut sampah dan tidak dapat menggunakan perintah ini.");
     ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_CMD, DIALOG_STYLE_LIST, WHITE"Trashmaster System :", "Angkut Sampah\nCek Muatan Sampah", "Pilih", "Batal");
     return 1;
 }
 
 CMD:pizzaboy(playerid, const params[]){
+    if(pizza_Job[playerid] != 1) return error_command(playerid, "Anda bukan pengantar pizza dan tidak dapat menggunakan perintah ini.");
     ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_CMD, DIALOG_STYLE_LIST, WHITE"Pizzaboy System :", "Restok Pizza\nAmbil Pizza\nCek Muatan Pizza", "Pilih", "Batal");
     return 1;
 }

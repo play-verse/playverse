@@ -2578,6 +2578,13 @@ publicFor: tutupToll(tollid){
 	}
 }
 
+publicFor: tutupPalang(palangid){
+	if(palangid == 0){
+		MoveDynamicObject(pizza_Palang, 2106.10010, -1823.50000, 13.00000, 0.0001, 0.07700, 88.00100, 268.75101);
+		pizza_PalangUsed = 0;
+	}
+}
+
 unloadAllHouse(){
 	for(new i = 0; i < MAX_HOUSES; i++){
 		if(housePickup[i] != -1){
@@ -3397,7 +3404,7 @@ publicFor: OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Flo
 			GameTextForPlayer(playerid, "~y~Kesehatan Kendaraan~n~~r~Poin -1", 1000, 3);
 		}
 	}
-	return true;
+	return 1;
 }
 
 publicFor: SpeedoUpdate(playerid, vehid)
@@ -3411,9 +3418,15 @@ publicFor: SpeedoUpdate(playerid, vehid)
 	// BUG :  (Remove this if you solved it)
 	// Jika fungsi telah tereksekusi pada player lain yang menaiki kendaraan yang sama
 	// Maka player lain yang menaiki kendaraan yang sama, tidak akan terpanggil callback OnPlayerVehicle Change
-	if(vehhealth != oldVehicleHealth[vehid]){
-		OnPlayerVehicleHealthChange(playerid, vehid, vehhealth, oldVehicleHealth[vehid]);
-		oldVehicleHealth[vehid] = vehhealth;
+	if(vehicleIdSIM[playerid] == vehid && testSim[playerid] == 1){
+		if(vehhealth != oldVehicleHealth[vehid]){
+			OnPlayerVehicleHealthChange(playerid, vehid, vehhealth, oldVehicleHealth[vehid]);
+			oldVehicleHealth[vehid] = vehhealth;
+		}
+		if(vehspeed >= 80){
+			poinSim[playerid]--;
+			GameTextForPlayer(playerid, "~y~Kecepatan Kendaraan~n~~r~Poin -1", 1000, 3);
+		}
 	}
 
 	// Update Health
@@ -3425,13 +3438,6 @@ publicFor: SpeedoUpdate(playerid, vehid)
 	// Update speedo
 	format(txtspeed, 5, "%d", vehspeed);
     PlayerTextDrawSetString(playerid, SpeedoTD_VehInfo[playerid][1], txtspeed);
-
-    if(testSim[playerid] == 1){
-		if(vehspeed >= 80){
-			poinSim[playerid]--;
-			GameTextForPlayer(playerid, "~y~Kecepatan Kendaraan~n~~r~Poin -1", 1000, 3);
-		}
-	}
     return 1;
 }
 

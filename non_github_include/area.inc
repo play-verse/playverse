@@ -15,6 +15,10 @@ loadAllArea(){
     CreateDynamic3DTextLabel("Silahkan tekan "GREEN"Y "WHITE"untuk membayar toll.\n"YELLOW"Harga sekali lewat "GREEN"$2", COLOR_WHITE,1755.4846, 551.4901, 25.6337, 20.0);
     areaToll_LSLV[1] = CreateDynamicCircle(1755.4846, 551.4901, 5.0);
 
+    // Parkiran Pizzaboy LS
+    CreateDynamic3DTextLabel("Silahkan tekan "GREEN"Y "WHITE"untuk membuka palang.", COLOR_WHITE, 2106.0315, -1827.5062, 12.5454, 20.0);
+    pizza_PalangArea = CreateDynamicCircle(2106.0315, -1827.5062, 5.0);
+
     // Hint pada Kantor Pemerintah
     CreateDynamic3DTextLabel(\
         "Guide interaksi kantor pemerintah dan peraturan.\n\

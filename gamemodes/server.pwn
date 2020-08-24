@@ -2363,6 +2363,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								error_command(playerid, "Mohon maaf sampah tidak tersedia untuk di ambil, silahkan kembali.");
 								TogglePlayerAllDynamicCPs(playerid, 1);
 								SetPlayerCheckpoint(playerid, 1644.5551,-1537.3542,13.5697, 3.0);
+								PlayerInfo[playerid][activeMarker] = true;
 								return 1;
 							}
 							trashM_House[playerid] = houseClosest;
@@ -2370,6 +2371,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							trashM_Y[playerid] = houseInfo[houseClosest][icon_y];
 							trashM_Z[playerid] = houseInfo[houseClosest][icon_z];
 							SetPlayerCheckpoint(playerid, trashM_X[playerid], trashM_Y[playerid], trashM_Z[playerid], 3.0);
+							PlayerInfo[playerid][activeMarker] = true;
 						}
 					}
 				}else if(sama("pizza_rumah", infoRumah)){
@@ -2392,12 +2394,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(pizza_HouseDrop[playerid] == DROP_PIZZA_LIMIT){
 								TogglePlayerAllDynamicCPs(playerid, 1);
 								SetPlayerCheckpoint(playerid, 2092.4819,-1829.4832,13.5568, 3.0);
+								PlayerInfo[playerid][activeMarker] = true;
+								return 1;
 							}
 							new houseClosest = GetClosestHouse(playerid, 10, 10000, 1);
 							if(houseClosest == -1){
 								error_command(playerid, "Mohon maaf saat ini pembeli tidak tersedia, silahkan kembali.");
 								TogglePlayerAllDynamicCPs(playerid, 1);
 								SetPlayerCheckpoint(playerid, 2092.4819,-1829.4832,13.5568, 3.0);
+								PlayerInfo[playerid][activeMarker] = true;
 								return 1;
 							}
 							pizza_House[playerid] = houseClosest;
@@ -2405,6 +2410,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							pizza_Y[playerid] = houseInfo[houseClosest][icon_y];
 							pizza_Z[playerid] = houseInfo[houseClosest][icon_z];
 							SetPlayerCheckpoint(playerid, pizza_X[playerid], pizza_Y[playerid], pizza_Z[playerid], 3.0);
+							PlayerInfo[playerid][activeMarker] = true;
 						}
 					}
 				}
@@ -3383,13 +3389,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}else{
 						new tipeSIM = GetPVarInt(playerid, "tipe_sim");
 						GameTextForPlayer(playerid, "~g~Ujian Teori Selesai", 2000, 3);
-						format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan melanjutkan untuk Ujian Praktik SIM."WHITE"\nTempat Ujian Praktik SIM berada di sebelah Kantor Polisi Los Santos (Parkiran).\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
+						format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan melanjutkan untuk Ujian Praktik SIM."WHITE"\nTempat Ujian Praktik SIM berada di seberang Kantor Polisi Los Santos.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Ujian Teori SIM", pDialog[playerid], "Ok", "");
 						poinSim[playerid] = 0;
 						DeletePVar(playerid, "sim_soal");
 						DeletePVar(playerid, "tipe_sim");
 						SetPlayerVirtualWorld(playerid, 1);
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,tipe_sim,status_teori) VALUES('%d','%d',1)", PlayerInfo[playerid][pID],tipeSIM);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,tanggal_buat,tanggal_ambil,tipe_sim,status_teori) VALUES('%d','0000-00-00 00:00:00','0000-00-00 00:00:00','%d',1)", PlayerInfo[playerid][pID],tipeSIM);
 						mysql_tquery(koneksi, pQuery[playerid]);
 						return 1;
 					}
@@ -5863,8 +5869,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				trashM_Used[vehid] = 1;
 				TogglePlayerAllDynamicCPs(playerid, 0);
 				SetPlayerCheckpoint(playerid, trashM_X[playerid], trashM_Y[playerid], trashM_Z[playerid], 3.0);
+				PlayerInfo[playerid][activeMarker] = true;
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Trashmaster"YELLOW"!");
 				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit, jika belum selesai anda akan gagal.", TIME_TRASHMASTER);
+				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Gunakan perintah "GREEN"/trashmaster"WHITE" untuk melakukan aktivitas pekerjaan.");
 				todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_TRASHMASTER*60000, false, "i", playerid);
 			}else{
 				RemovePlayerFromVehicle(playerid);
@@ -5878,7 +5886,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
 						// Angkut Sampah
-						if(trashM_Job[playerid] != 1) return error_command(playerid, "Anda bukan pengangkut sampah dan tidak dapat melakukan ini.");
 						new vid = GetNearestVehicleToPlayer(playerid);
 						if(GetVehicleModel(vid) != 408) return error_command(playerid, "Anda tidak berada disekitar truk sampah.");
 						new Float: x, Float: y, Float: z;
@@ -5894,6 +5901,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(trashM_VehCap[vid] == VEH_TRASH_LIMIT){
 							TogglePlayerAllDynamicCPs(playerid, 1);
 							SetPlayerCheckpoint(playerid, 1644.5551,-1537.3542,13.5697, 3.0);
+							PlayerInfo[playerid][activeMarker] = true;
 						}
 					}
 					case 1:
@@ -5934,8 +5942,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				pizza_Id[playerid] = vehid;
 				TogglePlayerAllDynamicCPs(playerid, 0);
 				SetPlayerCheckpoint(playerid, pizza_X[playerid], pizza_Y[playerid], pizza_Z[playerid], 3.0);
+				PlayerInfo[playerid][activeMarker] = true;
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Pizzaboy"YELLOW"!");
 				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit, jika belum selesai anda akan gagal.", TIME_PIZZABOY);
+				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Gunakan perintah "GREEN"/pizzaboy"WHITE" untuk melakukan aktivitas pekerjaan.");
 				todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_PIZZABOY*60000, false, "i", playerid);
 			}else{
 				RemovePlayerFromVehicle(playerid);
@@ -5949,7 +5959,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
 						// Restok Pizza
-						if(pizza_Job[playerid] != 1) return error_command(playerid, "Anda bukan pengantar pizza dan tidak dapat melakukan ini.");
 						new vid = GetNearestVehicleToPlayer(playerid);
 						if(GetVehicleModel(vid) != 448) return error_command(playerid, "Anda tidak berada disekitar kendaraan pengantar pizza.");
 						if(!IsPlayerInRangeOfPoint(playerid, 3.0, 2105.01367, -1809.01233, 12.96600)) return error_command(playerid, "Anda tidak berada di sekitar tempat restok pizza.");
@@ -5963,11 +5972,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						ApplyAnimation(playerid,"CARRY","crry_prtial", 4.1, 0, 0, 0, 0, 0);
 						SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda berhasil merestok kembali pizza, silahkan antar pesanan.");
 						SetPlayerCheckpoint(playerid, pizza_X[playerid], pizza_Y[playerid], pizza_Z[playerid], 3.0);
+						PlayerInfo[playerid][activeMarker] = true;
 					}
 					case 1:
 					{
 						// Ambil Pizza
-						if(pizza_Job[playerid] != 1) return error_command(playerid, "Anda bukan pengantar pizza dan tidak dapat melakukan ini.");
 						new vid = GetNearestVehicleToPlayer(playerid);
 						if(GetVehicleModel(vid) != 448) return error_command(playerid, "Anda tidak berada disekitar kendaraan pengantar pizza.");
 						new Float: x, Float: y, Float: z;
@@ -5975,6 +5984,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Anda tidak berada tepat dibelakang kendaraan pengantar pizza.");
 						if(pizza_VehCap[vid] == 0){
 							SetPlayerCheckpoint(playerid, 2105.01367, -1809.01233, 12.96600, 3.0);
+							PlayerInfo[playerid][activeMarker] = true;
 							error_command(playerid, "Maaf stok pizza sudah habis, silahkan restok kembali.");
 							return 1;
 						}
@@ -6215,6 +6225,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
     return 0;
 }
 
+public OnPlayerClickMap(playerid, Float:fX, Float:fY, Float:fZ)
+{
+ 	// Ojol - klik map marker
+	if(ojol_AppShow[playerid] == 1){
+		DeletePreciseTimer(ojol_AppTimer[playerid]);
+		ojol_AppShow[playerid] = 0;
+		ojol_AppTimer[playerid] = -1;
+	}
+}
+
 public OnPlayerClickTextDraw(playerid, Text:clickedid){
 	if(clickedid == Text:INVALID_TEXT_DRAW){
 		hideTextDrawMyInfo(playerid);
@@ -6330,6 +6350,12 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			MoveDynamicObject(palangToll_LSLV[1], 1753.44653, 558.05688, 25.4069, 0.0001, 0.00000, 0.00000, -198.00000);
 			isTollUsed_LSLV[1] = 1;
 			SetPreciseTimer("tutupToll", 3000, 0, "i", 4);
+		}else if(IsPlayerInDynamicArea(playerid, pizza_PalangArea) && !pizza_PalangUsed){
+			// Masuk ke parkiran Pizzaboy LS
+			GameTextForPlayer(playerid, "~w~Silahkan ~g~lewat", 1500, 3);
+			MoveDynamicObject(pizza_Palang, 2106.10010, -1823.50000, 13.00000, 0.0001, 0.07700, 18.00100, 268.75101);
+			pizza_PalangUsed = 1;
+			SetPreciseTimer("tutupPalang", 3000, 0, "i", 0);
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO) && IsPlayerInAnyDynamicArea(playerid)){
 		if(GetPVarType(playerid, "last_area")){
@@ -6822,9 +6848,9 @@ public OnGameModeInit()
 
 	// Pizzaboy Vehicle
 	CreateDynamic3DTextLabel("Tempat Restok Pizza\n"GREEN"Pengantar Pizza (Pizzaboy)", COLOR_WHITE, 2105.00439, -1808.99744, 13.66980, 20.0);
-    pizza_Veh[0] = CreateVehicle(448, 2104.6836, -1823.5933, 13.1553, 0.0000, -1, -1, 60);
-	pizza_Veh[1] = CreateVehicle(448, 2102.8638, -1823.5295, 13.1555, 0.0000, -1, -1, 60);
-	pizza_Veh[2] = CreateVehicle(448, 2101.0359, -1823.5573, 13.1555, 0.0000, -1, -1, 60);
+    pizza_Veh[0] = CreateVehicle(448, 2125.2305, -1819.5576, 13.1988, 0.0000, -1, -1, 60);
+	pizza_Veh[1] = CreateVehicle(448, 2125.2546, -1817.6587, 13.1990, 0.0000, -1, -1, 60);
+	pizza_Veh[2] = CreateVehicle(448, 2125.2192, -1815.8719, 13.1992, 0.0000, -1, -1, 60);
 	Iter_Add(pizza_Veh, pizza_Veh[0]);
 	Iter_Add(pizza_Veh, pizza_Veh[1]);
 	Iter_Add(pizza_Veh, pizza_Veh[2]);
@@ -7451,17 +7477,17 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_simLS39)){
 			if(poinSim[playerid] <= 80){
 				todoFinish[playerid] = 1;
-				resetPlayerToDo(playerid);
 				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan mencoba kembali ketika anda sudah siap.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid]);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal Praktik SIM", pDialog[playerid], "Ok", "");
+				resetPlayerToDo(playerid);
 			}else{
 				todoFinish[playerid] = 1;
-				resetPlayerToDo(playerid);
 				prosesPembuatanSIM(playerid, LAMA_PEMBUATAN_SIM);
 				GameTextForPlayer(playerid, "~g~Praktik SIM Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, WHITE"Anda mendapatkan poin sebesar "GREEN"%d"WHITE".\nSilahkan tunggu sekitar %d jam real-time."WHITE"\nAnda dapat mengecek dan mengambilnya di tempat Registrasi sebelumnya, setelah sudah %d jam berlalu.\n\nTerimakasih, Salam hangat "ORANGE"Kantor Polisi Lost Santos", poinSim[playerid], LAMA_PEMBUATAN_SIM, LAMA_PEMBUATAN_SIM);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil Praktik SIM", pDialog[playerid], "Ok", "");
+				resetPlayerToDo(playerid);
 			}
 		}
 	}
