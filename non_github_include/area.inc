@@ -68,4 +68,47 @@ loadAllArea(){
         IMPORTANT: Jangan sampai areanya saling ngena atau dempet
      */
     ACT_resepsionisPemerintah_Area = CreateDynamicSphere(ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], 3.0);
+    
+    /* Dari Checkpoint */
+    // Tempat foto
+    AREA_tempatFoto = buatSPDanLabel(-201.7664,-25.4403,1002.2734, "Silahkan cetak foto\n"GREEN"Disini!", 1.0);
+    
+    // Spot beli skin di toko baju
+    AREA_spotBeliSkin[0] = buatSPDanLabel(152.3235,-83.6493,1001.8047, "Skin normal\n"GREEN"Beli skin disini!", 1.0);
+    AREA_spotBeliSkin[1] = buatSPDanLabel(167.2928,-89.5232,1001.8047, "Skin normal\n"GREEN"Beli skin disini!", 1.0);
+    AREA_spotBeliSkin[2] = buatSPDanLabel(175.2670,-83.3361,1001.8047, "Skin normal\n"GREEN"Beli skin disini!", 1.0);
+
+    // Spot ganti skin
+    AREA_spotGantiSkin = buatSPDanLabel(181.0340,-91.6368,1002.0234, "Ganti skin\n"YELLOW"Refresh skin anda disini.", 1.0);
+
+    // Teller Bank LS
+    AREA_tellerBankLS[0] = buatSPDanLabel(1421.4474,-988.9171,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
+    AREA_tellerBankLS[1] = buatSPDanLabel(1417.4258,-988.8285,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
+
+    // Beli Makanan
+    AREA_beliMakanCepatSaji = buatSPDanLabel(369.9234,-6.0165,1001.8589, GREEN"Beli Makan disini!", 1.0, -1, 9);
+
+    // AREA Beli Barang Market - Spot pembelian di dalam market
+    foreach(new i : Range(0, sizeof(POSISI_BELI_BARANG_MARKET))){
+      AREA_spotBarangMarket[i] = buatSPDanLabel(POSISI_BELI_BARANG_MARKET[i][POSISI_X], POSISI_BELI_BARANG_MARKET[i][POSISI_Y], POSISI_BELI_BARANG_MARKET[i][POSISI_Z], ORANGE"Barang-barang\n"WHITE"Beli disini!", 1.0, POSISI_BELI_BARANG_MARKET[i][POSISI_VW], POSISI_BELI_BARANG_MARKET[i][POSISI_INT]);
+    }
+    if(AREA_spotBarangMarket[0] + sizeof(POSISI_BELI_BARANG_MARKET) - 1 != AREA_spotBarangMarket[sizeof(POSISI_BELI_BARANG_MARKET) - 1]){
+        printf("[ERROR] #05 Area Beli Barang Market tidak memiliki ID yang simetris.");
+        SendRconCommand("exit");
+    }
+
+    // AREA Tambang
+    foreach(new i : Range(0, sizeof(POSISI_NAMBANG))){
+      AREA_Tambang[i] = buatSPDanLabel(POSISI_NAMBANG[i][POSISI_X], POSISI_NAMBANG[i][POSISI_Y], POSISI_NAMBANG[i][POSISI_Z], GREEN"Tambang tersedia", 1.5, POSISI_NAMBANG[i][POSISI_VW], POSISI_NAMBANG[i][POSISI_INT]);
+    }
+    if(AREA_Tambang[0] + sizeof(POSISI_NAMBANG) - 1 != AREA_Tambang[sizeof(POSISI_NAMBANG) - 1]){
+        printf("[ERROR] #05 Area tambang tidak memiliki ID yang simetris.");
+        SendRconCommand("exit");
+    }
+
+     // Buat SIM
+    AREA_simRegis[0] = buatSPDanLabel(253.9280,69.7131,1003.6406, "Polisi Metro Los Santos\nPelayanan SIM\n"GREEN"Registrasi", 1.0);
+    AREA_simPraktik[0] = buatSPDanLabel(1384.8374,-1654.8419,13.5393, "Polisi Metro Los Santos\nPelayanan SIM\n"GREEN"Praktik", 1.0);
+
+    AREA_pusatProperti[0] = buatSPDanLabel(1087.9688,-1529.9100,22.7421, "Pusat Properti cabang LS Mall\n"GREEN"Hubungi disini.", 1.0);
 }

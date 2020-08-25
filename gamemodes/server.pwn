@@ -2365,7 +2365,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								error_command(playerid, "Mohon maaf sampah tidak tersedia untuk di ambil, silahkan kembali.");
 								TogglePlayerAllDynamicCPs(playerid, 1);
 								SetPlayerCheckpoint(playerid, 1644.5551,-1537.3542,13.5697, 3.0);
-								PlayerInfo[playerid][activeMarker] = true;
 								return 1;
 							}
 							trashM_House[playerid] = houseClosest;
@@ -2404,7 +2403,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								error_command(playerid, "Mohon maaf saat ini pembeli tidak tersedia, silahkan kembali.");
 								TogglePlayerAllDynamicCPs(playerid, 1);
 								SetPlayerCheckpoint(playerid, 2092.4819,-1829.4832,13.5568, 3.0);
-								PlayerInfo[playerid][activeMarker] = true;
 								return 1;
 							}
 							pizza_House[playerid] = houseClosest;
@@ -5888,7 +5886,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
 						// Angkut Sampah
+						if(trashM_BagCap[playerid] == 0) return error_command(playerid, "Anda tidak membawa sampah, silahkan ambil sampah terlebih dahulu.");
 						new vid = GetNearestVehicleToPlayer(playerid);
+						if(trashM_Used[vid] != 1) return error_command(playerid, "Maaf kendaraan yang anda tuju sedang tidak beroperasi.");
 						if(GetVehicleModel(vid) != 408) return error_command(playerid, "Anda tidak berada disekitar truk sampah.");
 						new Float: x, Float: y, Float: z;
 						GetVehicleBoot(vid, x, y, z);
@@ -6832,34 +6832,34 @@ public OnGameModeInit()
     printf("Total vehicles from files: %d",total_vehicles_from_files);
 
     // Sweeper Vehicle
-    vehicleSweeper[0] = CreateVehicle(574, 708.4822, -1193.1827, 15.0324, 0.0000, -1, -1, 60);
-	vehicleSweeper[1] = CreateVehicle(574, 706.6257, -1196.5216, 14.9840, 0.0000, -1, -1, 60);
-	vehicleSweeper[2] = CreateVehicle(574, 704.5869, -1199.6705, 14.9557, 0.0000, -1, -1, 60);
+    vehicleSweeper[0] = CreateVehicle(574, 708.4822, -1193.1827, 15.0324, 0.0000, -1, -1, TIME_SWEEPER*60000);
+	vehicleSweeper[1] = CreateVehicle(574, 706.6257, -1196.5216, 14.9840, 0.0000, -1, -1, TIME_SWEEPER*60000);
+	vehicleSweeper[2] = CreateVehicle(574, 704.5869, -1199.6705, 14.9557, 0.0000, -1, -1, TIME_SWEEPER*60000);
 	Iter_Add(vehicleSweeper, vehicleSweeper[0]);
 	Iter_Add(vehicleSweeper, vehicleSweeper[1]);
 	Iter_Add(vehicleSweeper, vehicleSweeper[2]);
 
 	// Trashmaster Vehicle
-    trashM_Veh[0] = CreateVehicle(408, 1617.6511, -1554.3311, 13.4784, 0.0000, -1, -1, 60);
-	trashM_Veh[1] = CreateVehicle(408, 1607.9219, -1554.7930, 13.4762, 0.0000, -1, -1, 60);
-	trashM_Veh[2] = CreateVehicle(408, 1597.0359, -1554.9255, 13.4827, 0.0000, -1, -1, 60);
+    trashM_Veh[0] = CreateVehicle(408, 1617.6511, -1554.3311, 13.4784, 0.0000, -1, -1, TIME_TRASHMASTER*60000);
+	trashM_Veh[1] = CreateVehicle(408, 1607.9219, -1554.7930, 13.4762, 0.0000, -1, -1, TIME_TRASHMASTER*60000);
+	trashM_Veh[2] = CreateVehicle(408, 1597.0359, -1554.9255, 13.4827, 0.0000, -1, -1, TIME_TRASHMASTER*60000);
 	Iter_Add(trashM_Veh, trashM_Veh[0]);
 	Iter_Add(trashM_Veh, trashM_Veh[1]);
 	Iter_Add(trashM_Veh, trashM_Veh[2]);
 
 	// Pizzaboy Vehicle
 	CreateDynamic3DTextLabel("Tempat Restok Pizza\n"GREEN"Pengantar Pizza (Pizzaboy)", COLOR_WHITE, 2105.00439, -1808.99744, 13.66980, 20.0);
-    pizza_Veh[0] = CreateVehicle(448, 2125.2305, -1819.5576, 13.1988, 0.0000, -1, -1, 60);
-	pizza_Veh[1] = CreateVehicle(448, 2125.2546, -1817.6587, 13.1990, 0.0000, -1, -1, 60);
-	pizza_Veh[2] = CreateVehicle(448, 2125.2192, -1815.8719, 13.1992, 0.0000, -1, -1, 60);
+    pizza_Veh[0] = CreateVehicle(448, 2125.2305, -1819.5576, 13.1988, 0.0000, -1, -1, TIME_PIZZABOY*60000);
+	pizza_Veh[1] = CreateVehicle(448, 2125.2546, -1817.6587, 13.1990, 0.0000, -1, -1, TIME_PIZZABOY*60000);
+	pizza_Veh[2] = CreateVehicle(448, 2125.2192, -1815.8719, 13.1992, 0.0000, -1, -1, TIME_PIZZABOY*60000);
 	Iter_Add(pizza_Veh, pizza_Veh[0]);
 	Iter_Add(pizza_Veh, pizza_Veh[1]);
 	Iter_Add(pizza_Veh, pizza_Veh[2]);
 
 	// SIM Vehicle
-	vehicleSIM[0] = CreateVehicle(410, 1362.7140, -1651.1733, 13.1261, 270.3739, -1, -1, 60);
-	vehicleSIM[1] = CreateVehicle(414, 1362.9814, -1643.2692, 13.1263, 269.2806, -1, -1, 60);
-	vehicleSIM[2] = CreateVehicle(462, 1362.8998, -1635.5781, 13.1262, 269.8343, -1, -1, 60);
+	vehicleSIM[0] = CreateVehicle(410, 1362.7140, -1651.1733, 13.1261, 270.3739, -1, -1, TIME_SIMPRAKTIK*60000);
+	vehicleSIM[1] = CreateVehicle(414, 1362.9814, -1643.2692, 13.1263, 269.2806, -1, -1, TIME_SIMPRAKTIK*60000);
+	vehicleSIM[2] = CreateVehicle(462, 1362.8998, -1635.5781, 13.1262, 269.8343, -1, -1, TIME_SIMPRAKTIK*60000);
 	Iter_Add(vehicleSIM, vehicleSIM[0]);
 	Iter_Add(vehicleSIM, vehicleSIM[1]);
 	Iter_Add(vehicleSIM, vehicleSIM[2]);
@@ -6926,10 +6926,10 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(testSim[playerid] == 1 && vehicleIdSIM[playerid] != vehid){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
-				RemovePlayerFromVehicle(playerid);
+				RemovePlayerFromVehicleEx(playerid);
 			}else if(testSim[playerid] == 0){
 				error_command(playerid, "Tidak dapat menumpangi kendaraan untuk Ujian Praktik SIM.");
-				RemovePlayerFromVehicle(playerid);
+				RemovePlayerFromVehicleEx(playerid);
 			}
 		}else if(Iter_Contains(vehicleSweeper, vehid)){
 			if(sweeperJob[playerid] == 0 && usedSweeper[vehid] != 1){
@@ -7197,50 +7197,10 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 }
 
 public OnPlayerEnterDynamicCP(playerid, checkpointid){
-	if(checkpointid == CP_tempatFoto){
-		new jam, menit, detik;
-		gettime(jam, menit, detik);
-		if(GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2 && !(jam >= 20 || jam <= 5)) return SendClientMessage(playerid, COLOR_RED, "Maaf Tempat foto "nama_B" saat ini tutup! Silahkan kembali antara jam 20.00 hingga 05.59.");
-
-		new harga = (GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
-
-		format(pDialog[playerid], sizePDialog, WHITE"Berapa banyak foto yang ingin anda cetak?\n"YELLOW"Harga 1 foto adalah "GREEN"%d", harga);
-
-		ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", pDialog[playerid], "Cetak", "Batal");
-		return 1;
-	}else if(checkpointid >= CP_spotBarangMarket[0] && checkpointid <= CP_spotBarangMarket[sizeof(CP_spotBarangMarket) - 1]){
-		showDialogBeliBarang(playerid);
-		return 1;
-	}else if(checkpointid >= CP_spawnReparasi[0] && checkpointid <= CP_spawnReparasi[sizeof(CP_spawnReparasi) - 1]){
+	if(checkpointid >= CP_spawnReparasi[0] && checkpointid <= CP_spawnReparasi[sizeof(CP_spawnReparasi) - 1]){
 		if(!IsPlayerInAnyVehicle(playerid)){
 			showDialogAmbilMobilReparasi(playerid);
 		}
-		return 1;
-	}else if(checkpointid == CP_spotGantiSkin){
-		ShowPlayerDialog(playerid, DIALOG_REFRESH_SKIN, DIALOG_STYLE_MSGBOX, "Refresh skin anda", "Apakah anda yakin ingin mensinkronisasikan kembali skin anda?\n\n"YELLOW"** Skin yang akan direfresh adalah skin yang sudah anda use pada inventory anda.\nJika anda belum memilih skin yang ingin anda gunakan, anda dapat membuka inventory\nLalu pilih skin yang ingin anda gunakan.", "Ganti", "Batal");
-		return 1;
-	}else if(checkpointid == CP_spotBeliSkin[0] || checkpointid == CP_spotBeliSkin[1] || checkpointid == CP_spotBeliSkin[2]){
-		ShowPlayerDialog(playerid, DIALOG_TANYA_INGIN_BELI_SKIN, DIALOG_STYLE_MSGBOX, WHITE"Ingin beli skin?", "Apakah anda ingin membeli "YELLOW"skin normal "WHITE"dengan harga "GREEN"2500 "WHITE"per skin?", "Beli", "Batal");
-		return 1;
-	}else if(checkpointid == CP_tellerBankLS[0] || checkpointid == CP_tellerBankLS[1]){
-		showDialogTellerBank(playerid);
-		return 1;
-	// ID nya harus simetris (berurut dengan setiap |x2 - x1| = 1)
-	}else if(checkpointid >= CP_Tambang[0] && checkpointid <= CP_Tambang[sizeof(CP_Tambang) - 1]) {
-		if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Anda harus berjalan kaki untuk dapat menambang!");
-		if(PlayerInfo[playerid][sisaPalu] <= 0) return error_command(playerid, "Anda kehabisan kesempatan menambang, gunakan item Palu Tambang untuk menambah kesempatan anda.");
-		ShowPlayerDialog(playerid, DIALOG_TANYA_TAMBANG, DIALOG_STYLE_MSGBOX, "Ingin menambang", "Apakah anda ingin menambang?\n"YELLOW"Note : Anda membutuhkan cangkul untuk menambang.", "Ya", "Tidak");
-	}else if(checkpointid == CP_beliMakanCepatSaji){
-		showDialogTempatMakan(playerid);
-		return 1;
-	}else if(checkpointid == CP_simRegis[0]){
-		showDialogSimRegis(playerid);
-		return 1;
-	}else if(checkpointid == CP_simPraktik[0]){
-		showDialogSimPraktik(playerid);
-		return 1;
-	}else if(checkpointid == CP_pusatProperti[0]){
-		ShowPlayerDialog(playerid, DIALOG_MENU_PUSAT_PROPERTI, DIALOG_STYLE_LIST, "Apa yang ingin anda tanya :", "Lihat semua rumah yang terjual", "Ok", "Batal");
 		return 1;
 	}
 	return 1;
@@ -7563,26 +7523,30 @@ public OnPlayerEnterCheckpoint(playerid){
 	}
 	if(Iter_Contains(trashM_Veh, vehid) && trashM_Job[playerid] == 1 && trashM_Id[playerid] == vehid){
 		if(IsPlayerInRangeOfPoint(playerid, 3.0, 1644.5551, -1537.3542, 13.5697)){
-			new jumlah_trash = trashM_VehCap[trashM_Id[playerid]],
-			gaji = jumlah_trash*GAJI_TRASHMASTER;
-			todoFinish[playerid] = 1;
-			resetPlayerToDo(playerid);
-			addGajiPemain(playerid, gaji, "Truk Sampah (Trashmaster)");
-			GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
-			format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
-			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+			if(IsPlayerInVehicle(playerid, trashM_Id[playerid])){
+				new jumlah_trash = trashM_VehCap[trashM_Id[playerid]],
+				gaji = jumlah_trash*GAJI_TRASHMASTER;
+				todoFinish[playerid] = 1;
+				resetPlayerToDo(playerid);
+				addGajiPemain(playerid, gaji, "Truk Sampah (Trashmaster)");
+				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
+				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+			}
 		}
 	}
 	if(Iter_Contains(pizza_Veh, vehid) && pizza_Job[playerid] == 1 && pizza_Id[playerid] == vehid){
 		if(IsPlayerInRangeOfPoint(playerid, 3.0, 2092.4819,-1829.4832,13.5568)){
-			new jumlah_pizza = pizza_HouseDrop[playerid],
-			gaji = jumlah_pizza*GAJI_PIZZABOY;
-			todoFinish[playerid] = 1;
-			resetPlayerToDo(playerid);
-			addGajiPemain(playerid, gaji, "Pengantar Pizza (Pizzaboy)");
-			GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
-			format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
-			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+			if(IsPlayerInVehicle(playerid, pizza_Id[playerid])){
+				new jumlah_pizza = pizza_HouseDrop[playerid],
+				gaji = jumlah_pizza*GAJI_PIZZABOY;
+				todoFinish[playerid] = 1;
+				resetPlayerToDo(playerid);
+				addGajiPemain(playerid, gaji, "Pengantar Pizza (Pizzaboy)");
+				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
+				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+			}
 		}
 	}
 	return 1;
@@ -7766,6 +7730,46 @@ public OnPlayerEnterDynamicArea(playerid, areaid){
 	SetPVarInt(playerid, "last_area", areaid);
 	if(areaid == AREA_keluarRumahSakit[0]){
 		pindahkanPemain(playerid, 1177.5511, -1323.2318, 14.0763, 272.1194, 0, 0, false);
+		return 1;
+	}else if(areaid == AREA_tempatFoto){
+		new jam, menit, detik;
+		gettime(jam, menit, detik);
+		if(GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2 && !(jam >= 20 || jam <= 5)) return SendClientMessage(playerid, COLOR_RED, "Maaf Tempat foto "nama_B" saat ini tutup! Silahkan kembali antara jam 20.00 hingga 05.59.");
+
+		new harga = (GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
+
+		format(pDialog[playerid], sizePDialog, WHITE"Berapa banyak foto yang ingin anda cetak?\n"YELLOW"Harga 1 foto adalah "GREEN"%d", harga);
+
+		ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", pDialog[playerid], "Cetak", "Batal");
+		return 1;
+	}else if(areaid >= AREA_spotBarangMarket[0] && areaid <= AREA_spotBarangMarket[sizeof(AREA_spotBarangMarket) - 1]){
+		showDialogBeliBarang(playerid);
+		return 1;
+	}else if(areaid == AREA_spotGantiSkin){
+		ShowPlayerDialog(playerid, DIALOG_REFRESH_SKIN, DIALOG_STYLE_MSGBOX, "Refresh skin anda", "Apakah anda yakin ingin mensinkronisasikan kembali skin anda?\n\n"YELLOW"** Skin yang akan direfresh adalah skin yang sudah anda use pada inventory anda.\nJika anda belum memilih skin yang ingin anda gunakan, anda dapat membuka inventory\nLalu pilih skin yang ingin anda gunakan.", "Ganti", "Batal");
+		return 1;
+	}else if(areaid == AREA_spotBeliSkin[0] || areaid == AREA_spotBeliSkin[1] || areaid == AREA_spotBeliSkin[2]){
+		ShowPlayerDialog(playerid, DIALOG_TANYA_INGIN_BELI_SKIN, DIALOG_STYLE_MSGBOX, WHITE"Ingin beli skin?", "Apakah anda ingin membeli "YELLOW"skin normal "WHITE"dengan harga "GREEN"2500 "WHITE"per skin?", "Beli", "Batal");
+		return 1;
+	}else if(areaid == AREA_tellerBankLS[0] || areaid == AREA_tellerBankLS[1]){
+		showDialogTellerBank(playerid);
+		return 1;
+	// ID nya harus simetris (berurut dengan setiap |x2 - x1| = 1)
+	}else if(areaid >= AREA_Tambang[0] && areaid <= AREA_Tambang[sizeof(AREA_Tambang) - 1]) {
+		if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Anda harus berjalan kaki untuk dapat menambang!");
+		if(PlayerInfo[playerid][sisaPalu] <= 0) return error_command(playerid, "Anda kehabisan kesempatan menambang, gunakan item Palu Tambang untuk menambah kesempatan anda.");
+		ShowPlayerDialog(playerid, DIALOG_TANYA_TAMBANG, DIALOG_STYLE_MSGBOX, "Ingin menambang", "Apakah anda ingin menambang?\n"YELLOW"Note : Anda membutuhkan cangkul untuk menambang.", "Ya", "Tidak");
+	}else if(areaid == AREA_beliMakanCepatSaji){
+		showDialogTempatMakan(playerid);
+		return 1;
+	}else if(areaid == AREA_simRegis[0]){
+		showDialogSimRegis(playerid);
+		return 1;
+	}else if(areaid == AREA_simPraktik[0]){
+		showDialogSimPraktik(playerid);
+		return 1;
+	}else if(areaid == AREA_pusatProperti[0]){
+		ShowPlayerDialog(playerid, DIALOG_MENU_PUSAT_PROPERTI, DIALOG_STYLE_LIST, "Apa yang ingin anda tanya :", "Lihat semua rumah yang terjual", "Ok", "Batal");
 		return 1;
 	}
 	return 1;

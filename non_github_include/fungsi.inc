@@ -2858,10 +2858,14 @@ publicFor: resetPlayerToDo(playerid){
         DeletePreciseTimer(PerbaikiTimer[playerid]);
         PerbaikiTimer[playerid] = -1;
     }
+	if(removedVeh[playerid] == 1){
+		removedVeh[playerid] = 0;
+		TogglePlayerControllable(playerid, true);
+		DeletePreciseTimer(removedTimer[playerid]);
+	}
 
 	PlayerInfo[playerid][hungryStackedTime] = 0;
 	PlayerInfo[playerid][thirstyStackedTime] = 0;
-
 	return 1;
 }
 
@@ -2880,7 +2884,7 @@ mulaiPraktikSIM(playerid){
 					limitVehSIM[v] = 1;
 					SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
 					SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
-					todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", 600000, false, "i", playerid);
+					todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_SIMPRAKTIK*60000, false, "i", playerid);
 					return 1;
 				}else{
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Kendaraan Limit", WHITE"Maaf kendaraan untuk pengujian pembuatan SIM sedang digunakan, mohon untuk tunggu beberapa menit.", "Ok", "");
