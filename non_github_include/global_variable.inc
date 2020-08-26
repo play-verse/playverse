@@ -482,18 +482,19 @@ new ITEM_RARITY[MAX_RARITY_ITEM][INFO_RARITY];
 
 /**
     CHECKPOINT VARIABEL
- */
+
 new CP_tempatFoto,
     CP_spotBarangMarket[sizeof(POSISI_BELI_BARANG_MARKET)],
     CP_spotGantiSkin,
     CP_spotBeliSkin[3],
     CP_tellerBankLS[2],
     CP_Tambang[sizeof(POSISI_NAMBANG)],
-    CP_beliMakanCepatSaji,
-    CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)],
-    CP_simRegis[1],
+    CP_beliMakanCepatSaji,*/
+new CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)];
+/*  CP_simRegis[1],
     CP_simPraktik[1],
     CP_pusatProperti[1];
+*/
 
 /**
     PICKUP VARIABEL
@@ -585,7 +586,9 @@ new palangToll[2],
 */
 new	todoFinish[MAX_PLAYERS],
 	todoTimer[MAX_PLAYERS],
-	todoTimeout[MAX_PLAYERS];
+	todoTimeout[MAX_PLAYERS],
+	removedVeh[MAX_PLAYERS],
+	removedTimer[MAX_PLAYERS];
 
 /* Sweeper */
 new Iterator:vehicleSweeper<MAX_VEHICLES>,
@@ -619,10 +622,26 @@ new Iterator:pizza_Veh<MAX_VEHICLES>,
 	pizza_HouseTake[MAX_PLAYERS][MAX_HOUSES],
 	pizza_Carry[MAX_PLAYERS],
 	pizza_VehCap[MAX_VEHICLES],
+	pizza_Palang,
+	pizza_PalangArea,
+	pizza_PalangUsed,
 	Float:pizza_X[MAX_PLAYERS],
 	Float:pizza_Y[MAX_PLAYERS],
 	Float:pizza_Z[MAX_PLAYERS];
 
+/* Ojol */
+new ojol_Job[MAX_PLAYERS],
+    ojol_Id[MAX_VEHICLES] = {-1},
+    ojol_Veh[MAX_PLAYERS] = {-1},
+    ojol_Passenger[MAX_PLAYERS] = {-1},
+	ojol_AppShow[MAX_PLAYERS],
+	ojol_AppTimer[MAX_PLAYERS],
+	Float:ojol_startX[MAX_PLAYERS],
+	Float:ojol_startY[MAX_PLAYERS],
+	Float:ojol_startZ[MAX_PLAYERS],
+	Float:ojol_endX[MAX_PLAYERS],
+	Float:ojol_endY[MAX_PLAYERS],
+	Float:ojol_endZ[MAX_PLAYERS];
 
 /* SIM Kendaraan */
 new Iterator:vehicleSIM<MAX_VEHICLES>,
@@ -1135,10 +1154,19 @@ new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
 	AREA_keluarRumahSakit[1], // Rumah Sakit pakai AREA karena pickup tidak bisa muncul di mappingannya
 	AREA_onDutyPolisi, // Area On dan Off polisi
 	AREA_onDutyMedic, // Area On dan Off medic
-	AREA_GuidePemerintah
-;
+	AREA_GuidePemerintah,
+	AREA_tempatFoto,
+    AREA_spotBarangMarket[sizeof(POSISI_BELI_BARANG_MARKET)],
+    AREA_spotGantiSkin,
+    AREA_spotBeliSkin[3],
+    AREA_tellerBankLS[2],
+    AREA_Tambang[sizeof(POSISI_NAMBANG)],
+    AREA_beliMakanCepatSaji,
+    AREA_simRegis[1],
+    AREA_simPraktik[1],
+    AREA_pusatProperti[1];
 
-enum    E_ATM
+enum E_ATM
 {
 	// saved
 	Float: atmX,

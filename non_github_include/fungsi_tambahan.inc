@@ -132,6 +132,11 @@ buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, i
     return CreateDynamicCP(x, y, z, ukuran, vw, interiorid, -1, 5.0);
 }
 
+buatSPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, interiorid = -1){
+    CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
+    return CreateDynamicSphere(x, y, z, ukuran, vw, interiorid);
+}
+
 pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:preload_dynamic_map = false){
     SetPlayerFacingAngle(playerid, a);
     if(preload_dynamic_map){
@@ -1038,4 +1043,12 @@ cekPattern(const text[], const pattern[]){
     new ret = Regex_Check(text, r, MATCH_ANY);
     Regex_Delete(r);
     return ret;
+}
+
+RemovePlayerFromVehicleEx(playerid){
+    removedVeh[playerid] = 1;
+    TogglePlayerControllable(playerid, false);
+    RemovePlayerFromVehicle(playerid);
+    removedTimer[playerid] = SetPreciseTimer("resetPlayerToDo", 1000, false, "i", playerid);
+    return 1;
 }
