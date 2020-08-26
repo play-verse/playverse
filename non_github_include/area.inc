@@ -64,4 +64,5 @@ loadAllArea(){
         IMPORTANT: Jangan sampai areanya saling ngena atau dempet
      */
     ACT_resepsionisPemerintah_Area = CreateDynamicSphere(ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], 3.0);
+    ACT_skillMekanik_Area = CreateDynamicSphere(ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2], 3.0);
 }

@@ -229,9 +229,7 @@ givePlayerUang(playerid, jumlah, bool:simpanDb = true){
     // PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
 }
 
-Float:getStatusMakanPemain(playerid){
-    return PlayerInfo[playerid][statusMakan];
-}
+#define getStatusMakanPemain(%0)        PlayerInfo[%0][statusMakan]
 
 setStatusMakanPemain(playerid, Float:jumlah){
     if(jumlah < 0.0) 
@@ -258,9 +256,7 @@ setStatusMakanPemain(playerid, Float:jumlah){
     }
 }
 
-Float:getStatusMinumPemain(playerid){
-    return PlayerInfo[playerid][statusMinum];
-}
+#define getStatusMinumPemain(%0)        PlayerInfo[%0][statusMinum]
 
 setStatusMinumPemain(playerid, Float:jumlah){
     if(jumlah < 0.0) 
@@ -997,18 +993,39 @@ ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_R
         // 15 detik batas interaksi
         ACT_resepsionisPemerintah_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
         UpdateDynamic3DTextLabelText(ACT_resepsionisPemerintah_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_skillMekanik){
+        if(ACT_skillMekanik_Timer != -1)
+            DeletePreciseTimer(ACT_skillMekanik_Timer);
+        // 15 detik batas interaksi
+        ACT_skillMekanik_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_skillMekanik_Text, COLOR_WHITE, text);
     }
 }
 
-ActorResetAndProses(actorid, playerid){
+ActorResetAndProses(actorid, playerid, const text[] = ""){
+    SetPVarInt(playerid, "interaksi_actor", -1);
+
     if(actorid == ACT_resepsionisPemerintah){
-        SetPVarInt(playerid, "interaksi_actor", -1);
         ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID;
         ACT_resepsionisPemerintah_Res = 0;
 
-        format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
         // 5 Detik
-        ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid], 5);
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_resepsionisPemerintah, text, 5);
+    }
+    else if(actorid == ACT_skillMekanik){
+        ACT_skillMekanik_User = INVALID_PLAYER_ID;
+        ACT_skillMekanik_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_skillMekanik, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_skillMekanik, text, 5);
     }
 }
 

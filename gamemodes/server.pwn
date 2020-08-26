@@ -6255,7 +6255,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 {
 	if(PRESSED(KEY_JUMP) && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT){
 		new Float:pos[3];
-		if(getStatusMinumPemain(playerid) < 5){
+		if(getStatusMinumPemain(playerid) < 5 && !PlayerInfo[playerid][inDie]){
 			GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
 			SetPlayerPos(playerid, pos[0], pos[1], pos[2]);
 			ClearAnimations(playerid);
@@ -6990,7 +6990,7 @@ public OnPlayerText(playerid, text[]){
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
 
-	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation]) PlayerTalking(playerid);
+	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation] && !PlayerInfo[playerid][inDie]) PlayerTalking(playerid);
 
 	/**
 		Filter Actor
@@ -7006,7 +7006,7 @@ public OnPlayerText(playerid, text[]){
 						ACT_resepsionisPemerintah_Res = 0;
 
 						SetPVarInt(playerid, "interaksi_actor", ACT_resepsionisPemerintah);
-						format(pDialog[playerid], sizePDialog, "Halo %s!\nApa yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid]);
 					}
 				}else if(ACT_resepsionisPemerintah_User == playerid){
@@ -7045,6 +7045,75 @@ public OnPlayerText(playerid, text[]){
 							ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid], 5);
 						}
 					}
+				}
+			}
+			else if(areaid == ACT_skillMekanik_Area){ // Cek Jika berada pada area actor
+				if(ACT_skillMekanik_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_SKILL_MEKANIK".*")){
+						ACT_skillMekanik_User = playerid;
+						ACT_skillMekanik_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_skillMekanik);
+						format(pDialog[playerid], sizePDialog, "Hey %s!\nApa yang kamu perlukan disini?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_skillMekanik, pDialog[playerid]);
+					}
+				}else if(ACT_skillMekanik_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_skillMekanik_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(mengambil|ambil|mengaktifkan|aktifkan)\\sskill\\smekanik.*")){
+							if(PlayerInfo[playerid][activeMekanik]){
+								format(pDialog[playerid], sizePDialog, "%s kamu telah mengaktifkan skill mekanik\nKamu hanya dapat mengaktifkan saat belum diaktifkan saja.", PlayerInfo[playerid][pPlayerName]);
+								ActorResetAndProses(ACT_skillMekanik, playerid, pDialog[playerid]);
+							}else{
+								static nama_item_ult[50];
+								if(nama_item_ult[0] == '\0')
+									getNamaByIdItem(ID_ULTIMATE_PART, nama_item_ult);
+								format(pDialog[playerid], sizePDialog, "Oke %s\nKamu akan membutuhkan %s sebanyak %dx\nApakah kamu memilikinya?", PlayerInfo[playerid][pPlayerName], 
+								nama_item_ult,
+								BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK);
+								ACT_skillMekanik_Res++;
+								ActorResponse(ACT_skillMekanik, pDialog[playerid]);
+							}
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_skillMekanik_User = INVALID_PLAYER_ID;
+							ACT_skillMekanik_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "%s, saya tidak mengerti\napa yang anda bilang.\n", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_skillMekanik, pDialog[playerid], 5);
+						}
+					}
+					else if(ACT_skillMekanik_Res == 1){
+						if(cekPattern(text, "(iya|ya|punya).*")){
+							if(GetJumlahItemPlayer(playerid, ID_ULTIMATE_PART) >= BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK){
+								format(pDialog[playerid], sizePDialog, "%s kamu berhasil mengaktifkan skill mekanik\nSilahkan latih skill kamu\nsehingga dapat melakukan lebih banyak kemampuan.", PlayerInfo[playerid][pPlayerName]);
+								tambahItemPlayer(playerid, ID_ULTIMATE_PART, -BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK);
+
+								PlayerInfo[playerid][activeMekanik] = 1;
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
+									INSERT INTO user_skill(id_skill, id_user, exp, is_active)\
+									VALUES(%d, %d, 0, 1)\
+								", ID_SKILL_MEKANIK, PlayerInfo[playerid][pID]);
+								mysql_tquery(koneksi, pQuery[playerid]);
+							}else{
+								static nama_item_ult[50];
+								if(nama_item_ult[0] == '\0')
+									getNamaByIdItem(ID_ULTIMATE_PART, nama_item_ult);
+								format(pDialog[playerid], sizePDialog, "Maaf %s.\nKamu tidak memiliki cukup %s\nSilahkan datang kembali lagi nanti.", PlayerInfo[playerid][pPlayerName], nama_item_ult);
+							}
+							ActorResetAndProses(ACT_skillMekanik, playerid, pDialog[playerid]);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_skillMekanik_User = INVALID_PLAYER_ID;
+							ACT_skillMekanik_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "%s, saya tidak mengerti\napa yang anda bilang.\n", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_skillMekanik, pDialog[playerid], 5);
+						}
+					}
+
 				}
 			}
 		}

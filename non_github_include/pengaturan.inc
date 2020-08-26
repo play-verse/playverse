@@ -15,7 +15,7 @@
 							7. Harus menaati peraturan roleplay yang berlaku.\n\
 							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
 
-#define MAX_SERVER_ITEM 50 // Diatur sesuai dengan banyak data didatabase 
+#define MAX_SERVER_ITEM 51 // Diatur sesuai dengan banyak data didatabase 
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -82,7 +82,7 @@
  // Dalam satuan detik
 #define LAMA_BATAS_RESPON_RESEPSIONIS 15
 
-#define LAMA_MENUNGGU_SAAT_SEKARAT 30
+#define LAMA_MENUNGGU_SAAT_SEKARAT 90
 
 #define PERSEN_HARGA_JUAL_DARI_HARGA_BELI_KENDARAAN 60
 
@@ -121,6 +121,8 @@
 #define PANCINGAN_ATTACH_INDEX 2
 
 #define MASK_ATTACH_INDEX 3 // Helmet dan Mask Gak Boleh di satuin
+
+#define BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK 1
 
 /**
 	Skill Definition
@@ -520,9 +522,10 @@
 /*
  * Constant untuk ID item yang diperlukan
  */
-#define ID_ITEM_HELM   49
-#define ID_ITEM_MASK   50
-#define ID_PAS_FOTO 	5
+#define ID_ITEM_HELM   		49
+#define ID_ITEM_MASK   		50
+#define ID_PAS_FOTO 		5
+#define ID_ULTIMATE_PART    51
 /*
  * End Defining Constant for ID item
  */
@@ -530,4 +533,5 @@
 /**
 	Nama-nama Actor
  */
-#define NAMA_ACTOR_PEMERINTAH	"ayu"
+#define NAMA_ACTOR_PEMERINTAH		"ayu"
+#define NAMA_ACTOR_SKILL_MEKANIK	"joe"

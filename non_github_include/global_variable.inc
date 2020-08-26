@@ -539,17 +539,22 @@ new
 
 	// 3D Text (Chat Bubble)
 	Text3D:ACT_resepsionisPemerintah_Text,
+	Text3D:ACT_skillMekanik_Text,
 
 	// Binding User
 	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
+	ACT_skillMekanik_User = INVALID_PLAYER_ID,
 
 	// Response User
 	ACT_resepsionisPemerintah_Res = 0,
+	ACT_skillMekanik_Res = 0,
 
 	// Timer (Lama Response)
 	ACT_resepsionisPemerintah_Timer = -1,
+	ACT_skillMekanik_Timer = -1,
 
-	ACT_resepsionisPemerintah_Area
+	ACT_resepsionisPemerintah_Area,
+	ACT_skillMekanik_Area
 ;
 
 /**

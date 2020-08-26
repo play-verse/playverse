@@ -3971,6 +3971,14 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_resepsionisPemerintah_Res = 0;
 		ACT_resepsionisPemerintah_Timer = -1;
+	}else if(actorid == ACT_skillMekanik){
+		UpdateDynamic3DTextLabelText(ACT_skillMekanik_Text, COLOR_WHITE, "");
+		if(ACT_skillMekanik_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_skillMekanik_User, "interaksi_actor", -1);
+			ACT_skillMekanik_User = INVALID_PLAYER_ID;
+		}
+		ACT_skillMekanik_Res = 0;
+		ACT_skillMekanik_Timer = -1;
 	}
 	return 1;
 }
@@ -3978,7 +3986,8 @@ publicFor: TerminateInteraksi(actorid){
 TerminateInteraksi_Alt(actorid){
     if(actorid == ACT_resepsionisPemerintah && ACT_resepsionisPemerintah_Timer != -1)
 		DeletePreciseTimer(ACT_resepsionisPemerintah_Timer);
-	
+	else if(actorid == ACT_skillMekanik && ACT_skillMekanik_Timer != -1)
+		DeletePreciseTimer(ACT_skillMekanik_Timer);
 	TerminateInteraksi(actorid);
 }
 
