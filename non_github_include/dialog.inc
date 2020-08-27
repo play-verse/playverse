@@ -370,7 +370,7 @@ showDialogGuideAhliMekanik(playerid){
         strcat(str_guide, WHITE"Beberapa hal yang dapat di interaksikan disini melalui ahli mekanik\nPastikan anda mengawali percakapan seperti yang dijelaskan diatas.\n");
         strcat(str_guide, "1. Katakan "YELLOW"saya ingin mengaktifkan skill mekanik"WHITE" untuk mengaktifkan skill mekanik.\n");
         strcat(str_guide, "2. Katakan "YELLOW"saya ingin membeli alat mekanik"WHITE" untuk membeli alat-alat mekanik.\n");
-        strcat(str_guide, "\nJika anda menjawab tidak seperti keempat hal diatas,\nmaka ahli mekanik tidak akan mengerti maksud anda dan akan memberhentikan percakapan.\n\n");
+        strcat(str_guide, "\nJika anda menjawab tidak seperti hal diatas,\nmaka ahli mekanik tidak akan mengerti maksud anda dan akan memberhentikan percakapan.\n\n");
         strcat(str_guide, YELLOW"Jika masih tidak mengerti dengan hal diatas silahkan tanyakan di forum. Terimakasih telah membaca.\n");
     }
     ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Guide Interaksi Ahli mekanik", str_guide, "Ok", "");
