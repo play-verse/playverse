@@ -340,3 +340,51 @@ showDialogGuideKantorPemerintah(playerid){
     }
     ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Guide Interaksi Resepsionis", str_guide, "Ok", "");
 }
+
+showDialogGuideText(playerid){
+    new str_guide[1500], str_judul[64], tipe_actor[16], nama_penjual[16], lama_respon_actor;
+    if(str_guide[0] == '\0'){
+        if(GetPVarType(playerid, "last_area")){
+			new areaid = GetPVarInt(playerid, "last_area");
+            if(areaid == AREA_Guide_peralatanPancing){
+                lama_respon_actor = LAMA_BATAS_RESPON_PENJUAL;
+                format(tipe_actor, sizeof(tipe_actor), "Penjual");
+                format(nama_penjual, sizeof(nama_penjual), "%s", NAMA_ACTOR_PENJUAL_PANCING);
+            }else if(areaid == AREA_Guide_tokoBibit){
+                lama_respon_actor = LAMA_BATAS_RESPON_PENJUAL;
+                format(tipe_actor, sizeof(tipe_actor), "Penjual");
+                format(nama_penjual, sizeof(nama_penjual), "%s", NAMA_ACTOR_PENJUAL_BIBIT);
+            }else if(areaid == AREA_Guide_tokoGadget){
+                lama_respon_actor = LAMA_BATAS_RESPON_PENJUAL;
+                format(tipe_actor, sizeof(tipe_actor), "Penjual");
+                format(nama_penjual, sizeof(nama_penjual), "%s", NAMA_ACTOR_PENJUAL_GADGET);
+            }else if(areaid == AREA_Guide_penjualDealer){
+                lama_respon_actor = LAMA_BATAS_RESPON_PENJUAL;
+                format(tipe_actor, sizeof(tipe_actor), "Dealer");
+                format(nama_penjual, sizeof(nama_penjual), "%s", NAMA_ACTOR_PENJUAL_DEALER);
+            }
+            format(str_judul, sizeof(str_judul), GREEN"Guide Interaksi %s", tipe_actor);
+            strcatEx(str_guide, 2000, YELLOW"Guide interaksi dengan %s.\n\n", tipe_actor);
+            strcatEx(str_guide, 2000, WHITE "Anda perlu mengetahui nama %s, nama %s sekarang adalah "GREEN"%s\n", tipe_actor, tipe_actor, nama_penjual);
+            strcatEx(str_guide, 2000, WHITE"Untuk berbicara/mengawali percakapan dengan %s anda dapat menggunakan "GREEN"Halo %s\n", tipe_actor, nama_penjual);
+            strcatEx(str_guide, 2000, WHITE"Perlu diketahui bahwa %s hanya dapat merespon satu persatu orang.\n", tipe_actor);
+            strcatEx(str_guide, 2000, "%s tidak akan merespon jika ada orang lain yang sedang berinteraksi dengannya\n", tipe_actor);
+            strcatEx(str_guide, 2000, "%s juga tidak akan menjawab jika anda tidak berada didekatnya.\n", tipe_actor);
+            strcatEx(str_guide, 2000, YELLOW"Perlu diketahui bahwa saat berbicara dengannya anda tidak boleh menjauh dari %s.\n", tipe_actor);
+            strcatEx(str_guide, 2000, "Anda hanya diberi waktu "RED"%d detik "YELLOW"untuk menjawab\n\n", lama_respon_actor);
+            strcatEx(str_guide, 2000, WHITE"Beberapa hal yang dapat diurus disini melalui %s\nPastikan anda mengawali percakapan seperti yang dijelaskan diatas.\n", tipe_actor);
+            if(areaid == AREA_Guide_peralatanPancing){
+                strcat(str_guide, "1. Katakan "YELLOW"saya ingin beli peralatan pancing"WHITE" untuk membeli peralatan pancing.\n");
+            }else if(areaid == AREA_Guide_tokoBibit){
+                strcat(str_guide, "1. Katakan "YELLOW"saya ingin beli bibit"WHITE" untuk membeli bibit tumbuhan.\n");
+            }else if(areaid == AREA_Guide_tokoGadget){
+                strcat(str_guide, "1. Katakan "YELLOW"saya ingin beli phone"WHITE" untuk membeli phone.\n");
+            }else if(areaid == AREA_Guide_penjualDealer){
+                strcat(str_guide, "1. Katakan "YELLOW"saya ingin jual mobil"WHITE" untuk menjual mobil.\n");
+            }
+            strcatEx(str_guide, 2000, "\nJika anda menjawab tidak seperti keempat hal diatas,\nmaka %s tidak akan mengerti maksud anda dan akan memberhentikan percakapan.\n\n", tipe_actor);
+            strcat(str_guide, YELLOW"Jika masih tidak mengerti dengan hal diatas silahkan tanyakan di forum. Terimakasih telah membaca.\n");
+        }
+    }
+    ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, str_judul, str_guide, "Ok", "");
+}

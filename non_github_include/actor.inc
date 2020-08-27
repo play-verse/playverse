@@ -1,11 +1,13 @@
 loadAllActor(){
-    // Actor di toko peraltan pancing
-    CreateDynamic3DTextLabel("Penjual Peralatan Pancing\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_WHITE, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2] + 1.0, 10.0, .testlos = 1);
+    // Actor di toko peralatan pancing
     ACT_peralatanPancing = CreateDynamicActor(65, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2], ACT_peralatanPancing_Pos[3], .worldid = 0, .interiorid = 0);
+    // Bubble Chat Actor
+    ACT_peralatanPancing_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2] + 1.25, 10.0, .testlos = 1);
 
     // Actor di toko bibit
-    CreateDynamic3DTextLabel("Penjual Bibit\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_WHITE, ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2] + 1.0, 10.0, .testlos = 1);
     ACT_tokoBibit = CreateDynamicActor(130, ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2], ACT_tokoBibit_Pos[3], .worldid = 0, .interiorid = 0);
+    // Bubble Chat Actor
+    ACT_tokoBibit_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2] + 1.25, 10.0, .testlos = 1);
 
     // Actor di bengkel (ahli mekanik)
     ACT_skillMekanik = CreateDynamicActor(50, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2], ACT_skillMekanik_Pos[3], .worldid = 0, .interiorid = 0);
@@ -13,8 +15,9 @@ loadAllActor(){
     ACT_skillMekanik_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2] + 1.25, 10.0, .testlos = 1);
 
     // Actor di dealer
-    CreateDynamic3DTextLabel("Manager Dealer\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_LIGHT_BLUE, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2] + 1.0, 10.0, .testlos = 1);
     ACT_penjualDealer = CreateDynamicActor(17, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], ACT_penjualDealer_Pos[3], .worldid = 0, .interiorid = 0);
+    // Bubble Chat Actor
+    ACT_penjualDealer_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2] + 1.25, 10.0, .testlos = 1);
 
     // Actor di pusat pemerintahan
     ACT_resepsionisPemerintah = CreateDynamicActor(76, ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], ACT_resepsionisPemerintah_Pos[3], .worldid = 1, .interiorid = 1);
@@ -22,8 +25,9 @@ loadAllActor(){
     ACT_resepsionisPemerintah_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2] + 1.25, 10.0, .testlos = 1);
 
     // Actor di toko gadget
-    CreateDynamic3DTextLabel("Penjual Gadget\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_WHITE, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2] + 1.0, 10.0, .testlos = 1);
     ACT_tokoGadget = CreateDynamicActor(141, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], ACT_tokoGadget_Pos[3], .worldid = 1, .interiorid = 1);
+    // Bubble Chat Actor
+    ACT_tokoGadget_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2] + 1.25, 10.0, .testlos = 1);
 }
 
 re_loadAllActor(){

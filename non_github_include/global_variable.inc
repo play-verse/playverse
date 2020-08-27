@@ -541,21 +541,41 @@ new
 	// 3D Text (Chat Bubble)
 	Text3D:ACT_resepsionisPemerintah_Text,
 	Text3D:ACT_skillMekanik_Text,
+	Text3D:ACT_peralatanPancing_Text,
+	Text3D:ACT_tokoBibit_Text,
+	Text3D:ACT_tokoGadget_Text,
+	Text3D:ACT_penjualDealer_Text,
 
 	// Binding User
 	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
 	ACT_skillMekanik_User = INVALID_PLAYER_ID,
+	ACT_peralatanPancing_User = INVALID_PLAYER_ID,
+	ACT_tokoBibit_User = INVALID_PLAYER_ID,
+	ACT_tokoGadget_User = INVALID_PLAYER_ID,
+	ACT_penjualDealer_User = INVALID_PLAYER_ID,
 
 	// Response User
 	ACT_resepsionisPemerintah_Res = 0,
 	ACT_skillMekanik_Res = 0,
+	ACT_peralatanPancing_Res = 0,
+	ACT_tokoBibit_Res = 0,
+	ACT_tokoGadget_Res = 0,
+	ACT_penjualDealer_Res = 0,
 
 	// Timer (Lama Response)
 	ACT_resepsionisPemerintah_Timer = -1,
 	ACT_skillMekanik_Timer = -1,
+	ACT_peralatanPancing_Timer = -1,
+	ACT_tokoBibit_Timer = -1,
+	ACT_tokoGadget_Timer = -1,
+	ACT_penjualDealer_Timer = -1,
 
 	ACT_resepsionisPemerintah_Area,
-	ACT_skillMekanik_Area
+	ACT_skillMekanik_Area,
+	ACT_peralatanPancing_Area,
+	ACT_tokoBibit_Area,
+	ACT_tokoGadget_Area,
+	ACT_penjualDealer_Area
 ;
 
 /**
@@ -1155,6 +1175,10 @@ new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
 	AREA_onDutyPolisi, // Area On dan Off polisi
 	AREA_onDutyMedic, // Area On dan Off medic
 	AREA_GuidePemerintah,
+	AREA_Guide_peralatanPancing,
+	AREA_Guide_tokoBibit,
+	AREA_Guide_tokoGadget,
+	AREA_Guide_penjualDealer,
 	AREA_tempatFoto,
     AREA_spotBarangMarket[sizeof(POSISI_BELI_BARANG_MARKET)],
     AREA_spotGantiSkin,

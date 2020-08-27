@@ -6516,6 +6516,18 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			}else if(areaid == AREA_GuidePemerintah){
 				showDialogGuideKantorPemerintah(playerid);
 				return 1;
+			}else if(areaid == AREA_Guide_peralatanPancing){
+				showDialogGuideText(playerid);
+				return 1;
+			}else if(areaid == AREA_Guide_tokoBibit){
+				showDialogGuideText(playerid);
+				return 1;
+			}else if(areaid == AREA_Guide_tokoGadget){
+				showDialogGuideText(playerid);
+				return 1;
+			}else if(areaid == AREA_Guide_penjualDealer){
+				showDialogGuideText(playerid);
+				return 1;
 			}
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO)){
@@ -7140,6 +7152,126 @@ public OnPlayerText(playerid, text[]){
 						}
 					}
 
+				}
+			}
+			else if(areaid == ACT_peralatanPancing_Area){ // Cek Jika berada pada area actor
+				if(ACT_peralatanPancing_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_PENJUAL_PANCING".*")){
+						ACT_peralatanPancing_User = playerid;
+						ACT_peralatanPancing_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_peralatanPancing);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_peralatanPancing, pDialog[playerid]);
+					}
+				}else if(ACT_peralatanPancing_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_peralatanPancing_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(beli|membeli)\\s(alat|peralatan)\\s(pancing|pancingan|mancing).*")){
+							showDialogBeliAlatPancing(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_peralatanPancing, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_peralatanPancing_User = INVALID_PLAYER_ID;
+							ACT_peralatanPancing_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_peralatanPancing, pDialog[playerid], 5);
+						}
+					}
+				}
+			}
+			else if(areaid == ACT_tokoBibit_Area){ // Cek Jika berada pada area actor
+				if(ACT_tokoBibit_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_PENJUAL_BIBIT".*")){
+						ACT_tokoBibit_User = playerid;
+						ACT_tokoBibit_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_tokoBibit);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_tokoBibit, pDialog[playerid]);
+					}
+				}else if(ACT_tokoBibit_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_tokoBibit_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(beli|membeli)\\s(bibit|benih).*")){
+							showDialogBeliBibit(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tokoBibit, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_tokoBibit_User = INVALID_PLAYER_ID;
+							ACT_tokoBibit_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_tokoBibit, pDialog[playerid], 5);
+						}
+					}
+				}
+			}
+			else if(areaid == ACT_tokoGadget_Area){ // Cek Jika berada pada area actor
+				if(ACT_tokoGadget_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_PENJUAL_GADGET".*")){
+						ACT_tokoGadget_User = playerid;
+						ACT_tokoGadget_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_tokoGadget);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_tokoGadget, pDialog[playerid]);
+					}
+				}else if(ACT_tokoGadget_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_tokoGadget_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(beli|membeli)\\s(hp|phone).*")){
+							showDialogBeliPhone(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tokoGadget, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_tokoGadget_User = INVALID_PLAYER_ID;
+							ACT_tokoGadget_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_tokoGadget, pDialog[playerid], 5);
+						}
+					}
+				}
+			}
+			else if(areaid == ACT_penjualDealer_Area){ // Cek Jika berada pada area actor
+				if(ACT_penjualDealer_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_PENJUAL_DEALER".*")){
+						ACT_penjualDealer_User = playerid;
+						ACT_penjualDealer_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_penjualDealer);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_penjualDealer, pDialog[playerid]);
+					}
+				}else if(ACT_penjualDealer_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_penjualDealer_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(jual|menjual)\\s(mobil|kendaraan).*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_TALK_TO_DEALER_MANAGER_LIST, 1, 0, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_penjualDealer, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_penjualDealer_User = INVALID_PLAYER_ID;
+							ACT_penjualDealer_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_penjualDealer, pDialog[playerid], 5);
+						}
+					}
 				}
 			}
 		}

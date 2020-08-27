@@ -33,6 +33,7 @@
 //Interior Tambang
 //Mall Los Santos
 //Toko Phone
+//Papan Text Guide
 
 #define MALL_OBJECT_DRAW_DIST   30.0 // Even with a streamer, keep the draw distance on the objects inside the shops low.
 
@@ -68,6 +69,7 @@ loadAllMapingan(){
     interiorTambang();
     mallLosSantos();
     tokoGadget();
+    papanTextGuide();
 }
 
 removeBangunanUntukMapping(playerid){
@@ -3166,9 +3168,6 @@ interiorCityHall(){
     CreateDynamicObject(1726, -497.91599, 328.83401, 2003.59204,   0.00000, 0.00000, 270.00000);
     CreateDynamicObject(1726, -497.91000, 319.33401, 2003.59204,   0.00000, 0.00000, 270.00000);
     CreateDynamicObject(1500, -501.95380, 285.72791, 2000.11646,   0.00000, 0.00000, 0.00000);
-
-    // Material text
-    SetDynamicObjectMaterialText(CreateDynamicObject(19805, -485.74661, 294.65811, 2001.81689,   0.00000, 0.00000, -90.00000), 0, "{000000}Baca peraturan dan cara berbicara\nkepada resepsionis disini.", OBJECT_MATERIAL_SIZE_256x128, "Arial", 18, 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
 }
 
 removeEksteriorCityHall(playerid){
@@ -6370,4 +6369,17 @@ tokoGadget(){
     CreateDynamicObject(18865, 445.14355, 1244.58350, 1082.49146,   62.00000, 0.00000, 8.32340);
     CreateDynamicObject(18865, 445.50995, 1244.60693, 1082.49146,   62.00000, 0.00000, 8.32340);
     CreateDynamicObject(18865, 445.95355, 1244.58557, 1082.49146,   62.00000, 0.00000, 8.32340);
+}
+
+papanTextGuide(){
+    // pusat pemerintahan LS
+    SetDynamicObjectMaterialText(CreateDynamicObject(19805, -485.74661, 294.65811, 2001.81689,   0.00000, 0.00000, -90.00000), 0, "{000000}Baca peraturan dan cara berbicara\nkepada resepsionis disini.", OBJECT_MATERIAL_SIZE_256x128, "Arial", 18, 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
+    // toko peralatan pancing LS
+    SetDynamicObjectMaterialText(CreateDynamicObject(19805, 1011.20959, -1890.36145, 13.99560,   0.00000, 0.00000, -267.53983), 0, "{000000}Baca peraturan dan cara berbicara\nkepada penjual disini.", OBJECT_MATERIAL_SIZE_256x128, "Arial", 18, 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
+    // toko bibit LS
+    SetDynamicObjectMaterialText(CreateDynamicObject(19805, 1481.21765, -1654.20557, 14.85380,   0.00000, 0.00000, -180.42000), 0, "{000000}Baca peraturan dan cara berbicara\nkepada penjual disini.", OBJECT_MATERIAL_SIZE_256x128, "Arial", 18, 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
+    // toko gadget LS
+    SetDynamicObjectMaterialText(CreateDynamicObject(19805, 450.34671, 1238.88550, 1082.67981,   0.00000, 0.00000, 179.76019), 0, "{000000}Baca peraturan dan cara berbicara\nkepada penjual disini.", OBJECT_MATERIAL_SIZE_256x128, "Arial", 18, 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
+    // penjual dealer
+    SetDynamicObjectMaterialText(CreateDynamicObject(19805, 1005.63898, -1734.35449, 14.45340,   0.00000, 0.00000, 90.24000), 0, "{000000}Baca peraturan dan cara berbicara\nkepada dealer disini.", OBJECT_MATERIAL_SIZE_256x128, "Arial", 18, 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
 }

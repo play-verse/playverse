@@ -3989,6 +3989,38 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_skillMekanik_Res = 0;
 		ACT_skillMekanik_Timer = -1;
+	}else if(actorid == ACT_peralatanPancing){
+		UpdateDynamic3DTextLabelText(ACT_peralatanPancing_Text, COLOR_WHITE, "");
+		if(ACT_peralatanPancing_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_peralatanPancing_User, "interaksi_actor", -1);
+			ACT_peralatanPancing_User = INVALID_PLAYER_ID;
+		}
+		ACT_peralatanPancing_Res = 0;
+		ACT_peralatanPancing_Timer = -1;
+	}else if(actorid == ACT_tokoBibit){
+		UpdateDynamic3DTextLabelText(ACT_tokoBibit_Text, COLOR_WHITE, "");
+		if(ACT_tokoBibit_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_tokoBibit_User, "interaksi_actor", -1);
+			ACT_tokoBibit_User = INVALID_PLAYER_ID;
+		}
+		ACT_tokoBibit_Res = 0;
+		ACT_tokoBibit_Timer = -1;
+	}else if(actorid == ACT_tokoGadget){
+		UpdateDynamic3DTextLabelText(ACT_tokoGadget_Text, COLOR_WHITE, "");
+		if(ACT_tokoGadget_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_tokoGadget_User, "interaksi_actor", -1);
+			ACT_tokoGadget_User = INVALID_PLAYER_ID;
+		}
+		ACT_tokoGadget_Res = 0;
+		ACT_tokoGadget_Timer = -1;
+	}else if(actorid == ACT_penjualDealer){
+		UpdateDynamic3DTextLabelText(ACT_penjualDealer_Text, COLOR_WHITE, "");
+		if(ACT_penjualDealer_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_penjualDealer_User, "interaksi_actor", -1);
+			ACT_penjualDealer_User = INVALID_PLAYER_ID;
+		}
+		ACT_penjualDealer_Res = 0;
+		ACT_penjualDealer_Timer = -1;
 	}
 	return 1;
 }
@@ -3998,6 +4030,14 @@ TerminateInteraksi_Alt(actorid){
 		DeletePreciseTimer(ACT_resepsionisPemerintah_Timer);
 	else if(actorid == ACT_skillMekanik && ACT_skillMekanik_Timer != -1)
 		DeletePreciseTimer(ACT_skillMekanik_Timer);
+	else if(actorid == ACT_peralatanPancing && ACT_peralatanPancing_Timer != -1)
+		DeletePreciseTimer(ACT_peralatanPancing_Timer);
+	else if(actorid == ACT_tokoBibit && ACT_tokoBibit_Timer != -1)
+		DeletePreciseTimer(ACT_tokoBibit_Timer);
+	else if(actorid == ACT_tokoGadget && ACT_tokoGadget_Timer != -1)
+		DeletePreciseTimer(ACT_tokoGadget_Timer);
+	else if(actorid == ACT_penjualDealer && ACT_penjualDealer_Timer != -1)
+		DeletePreciseTimer(ACT_penjualDealer_Timer);
 	TerminateInteraksi(actorid);
 }
 

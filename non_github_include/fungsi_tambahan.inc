@@ -1004,6 +1004,30 @@ ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_R
         // 15 detik batas interaksi
         ACT_skillMekanik_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
         UpdateDynamic3DTextLabelText(ACT_skillMekanik_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_peralatanPancing){
+        if(ACT_peralatanPancing_Timer != -1)
+            DeletePreciseTimer(ACT_peralatanPancing_Timer);
+        // 15 detik batas interaksi
+        ACT_peralatanPancing_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_peralatanPancing_Text, COLOR_WHITE, text);
+    }    else if(actorid == ACT_tokoBibit){
+        if(ACT_tokoBibit_Timer != -1)
+            DeletePreciseTimer(ACT_tokoBibit_Timer);
+        // 15 detik batas interaksi
+        ACT_tokoBibit_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_tokoBibit_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_tokoGadget){
+        if(ACT_tokoGadget_Timer != -1)
+            DeletePreciseTimer(ACT_tokoGadget_Timer);
+        // 15 detik batas interaksi
+        ACT_tokoGadget_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_tokoGadget_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_penjualDealer){
+        if(ACT_penjualDealer_Timer != -1)
+            DeletePreciseTimer(ACT_penjualDealer_Timer);
+        // 15 detik batas interaksi
+        ACT_penjualDealer_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_penjualDealer_Text, COLOR_WHITE, text);
     }
 }
 
@@ -1031,6 +1055,50 @@ ActorResetAndProses(actorid, playerid, const text[] = ""){
             ActorResponse(ACT_skillMekanik, pDialog[playerid], 5);
         }else
             ActorResponse(ACT_skillMekanik, text, 5);
+    }
+    else if(actorid == ACT_peralatanPancing){
+        ACT_peralatanPancing_User = INVALID_PLAYER_ID;
+        ACT_peralatanPancing_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_peralatanPancing, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_peralatanPancing, text, 5);
+    }
+    else if(actorid == ACT_tokoBibit){
+        ACT_tokoBibit_User = INVALID_PLAYER_ID;
+        ACT_tokoBibit_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_tokoBibit, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_tokoBibit, text, 5);
+    }
+    else if(actorid == ACT_tokoGadget){
+        ACT_tokoGadget_User = INVALID_PLAYER_ID;
+        ACT_tokoGadget_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_tokoGadget, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_tokoGadget, text, 5);
+    }
+    else if(actorid == ACT_penjualDealer){
+        ACT_penjualDealer_User = INVALID_PLAYER_ID;
+        ACT_penjualDealer_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_penjualDealer, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_penjualDealer, text, 5);
     }
 }
 
