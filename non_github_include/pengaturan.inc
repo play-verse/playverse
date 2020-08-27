@@ -81,6 +81,7 @@
 
  // Dalam satuan detik
 #define LAMA_BATAS_RESPON_RESEPSIONIS 15
+#define LAMA_BATAS_RESPON_PENJUAL 15
 
 #define LAMA_MENUNGGU_SAAT_SEKARAT 300
 
@@ -539,3 +540,7 @@
  */
 #define NAMA_ACTOR_PEMERINTAH		"ayu"
 #define NAMA_ACTOR_SKILL_MEKANIK	"joe"
+#define NAMA_ACTOR_PENJUAL_PANCING 	"yuli"
+#define NAMA_ACTOR_PENJUAL_BIBIT 	"yuni"
+#define NAMA_ACTOR_PENJUAL_GADGET	"berta"
+#define NAMA_ACTOR_PENJUAL_DEALER	"erik"

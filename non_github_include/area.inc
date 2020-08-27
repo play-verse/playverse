@@ -30,6 +30,30 @@ loadAllArea(){
         "Guide interaksi ahli mekanik dan peraturan.\n\
         "WHITE"Silahkan tekan "GREEN"N "WHITE"untuk membaca guide.\n", COLOR_YELLOW, 1001.9518, -1677.3264, 14.5905, 20.0);
     AREA_GuideAhliMekanik = CreateDynamicSphere(1001.9518, -1677.3264, 14.5905, 3.0);
+    
+    // Hint pada Toko Peralatan Pancing
+    CreateDynamic3DTextLabel(\
+        "Guide interaksi toko peralatan pancing dan peraturan.\n\
+        "WHITE"Silahkan tekan "GREEN"N "WHITE"untuk membaca guide.\n", COLOR_YELLOW, 1012.23407, -1890.52246, 11.46645, 20.0);
+    AREA_Guide_peralatanPancing = CreateDynamicSphere(1012.23407, -1890.52246, 11.46645, 3.0);
+
+    // Hint pada Toko Bibit
+    CreateDynamic3DTextLabel(\
+        "Guide interaksi toko bibit dan peraturan.\n\
+        "WHITE"Silahkan tekan "GREEN"N "WHITE"untuk membaca guide.\n", COLOR_YELLOW, 1481.11499, -1653.10498, 12.28867, 20.0);
+    AREA_Guide_tokoBibit = CreateDynamicSphere(1481.11499, -1653.10498, 12.28867, 3.0);
+
+    // Hint pada Toko Gadget
+    CreateDynamic3DTextLabel(\
+        "Guide interaksi toko gadget dan peraturan.\n\
+        "WHITE"Silahkan tekan "GREEN"N "WHITE"untuk membaca guide.\n", COLOR_YELLOW, 450.28244, 1239.11902, 1080.90466, 20.0);
+    AREA_Guide_tokoGadget = CreateDynamicSphere(450.28244, 1239.11902, 1080.90466, 3.0);
+
+    // Hint pada Penjual Dealer
+    CreateDynamic3DTextLabel(\
+        "Guide interaksi dealer dan peraturan.\n\
+        "WHITE"Silahkan tekan "GREEN"N "WHITE"untuk membaca guide.\n", COLOR_YELLOW, 1006.83545, -1734.53845, 12.48383, 20.0);
+    AREA_Guide_penjualDealer = CreateDynamicSphere(1006.83545, -1734.53845, 12.48383, 3.0);
 
     // Perabot
     foreach(new i : Range(0, sizeof(POSISI_BELI_PERABOT))){
@@ -75,7 +99,11 @@ loadAllArea(){
      */
     ACT_resepsionisPemerintah_Area = CreateDynamicSphere(ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], 3.0);
     ACT_skillMekanik_Area = CreateDynamicSphere(ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2], 3.0);
-    
+    ACT_peralatanPancing_Area = CreateDynamicSphere(ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2], 3.0);
+    ACT_tokoBibit_Area = CreateDynamicSphere(ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2], 3.0);
+    ACT_tokoGadget_Area = CreateDynamicSphere(ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], 3.0);
+    ACT_penjualDealer_Area = CreateDynamicSphere(ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], 3.0);
+
     /* Dari Checkpoint */
     // Tempat foto
     AREA_tempatFoto = buatSPDanLabel(-201.7664,-25.4403,1002.2734, "Silahkan cetak foto\n"GREEN"Disini!", 1.0);
