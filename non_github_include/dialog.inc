@@ -382,7 +382,7 @@ showDialogGuideText(playerid){
             }else if(areaid == AREA_Guide_penjualDealer){
                 strcat(str_guide, "1. Katakan "YELLOW"saya ingin jual mobil"WHITE" untuk menjual mobil.\n");
             }
-            strcatEx(str_guide, 2000, "\nJika anda menjawab tidak seperti keempat hal diatas,\nmaka %s tidak akan mengerti maksud anda dan akan memberhentikan percakapan.\n\n", tipe_actor);
+            strcatEx(str_guide, 2000, "\nJika anda menjawab tidak seperti hal diatas,\nmaka %s tidak akan mengerti maksud anda dan akan memberhentikan percakapan.\n\n", tipe_actor);
             strcat(str_guide, YELLOW"Jika masih tidak mengerti dengan hal diatas silahkan tanyakan di forum. Terimakasih telah membaca.\n");
         }
     }
