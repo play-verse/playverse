@@ -365,7 +365,9 @@ new const POSISI_POM_BENSIN[][COORD_OBJ] = {
 	{653.3097, -570.2745, 16.3359, 0, 0},
 	{657.7396, -560.0369, 16.3359, 0, 0},
 	{1382.6866, 457.3860, 19.9587, 0, 0},
-	{1383.8420, 460.3765, 20.0818, 0, 0}
+	{1383.8420, 460.3765, 20.0818, 0, 0},
+	{1020.2277, -1672.6490, 14.3501, 0, 0},
+	{1016.2536, -1672.9060, 14.4898, 0, 0}
 };
 
 /**
@@ -408,6 +410,7 @@ enum INFO_MENU_MAKANAN {
     $1 Food = 2.5% 
 
 	IMPORTANT: Definisikan Semua Makanan & Minuman Disini
+		KARENA ENERGI AMBIL DARI SINI
 */
 new const MENU_MAKANAN[][INFO_MENU_MAKANAN] = {
 // Makanan
@@ -425,6 +428,20 @@ new const MENU_MAKANAN[][INFO_MENU_MAKANAN] = {
     {21, 7, 35.0}, // Kopi Dingin
     {22, 6, 30.0} // Minuman Soda
 };
+
+enum INFO_MENU_ALAT {
+    idItemAlat,
+    hargaAlat
+};
+
+new const MENU_ALAT_MEKANIK[][INFO_MENU_ALAT] = {
+    {27, 100}, // Alat perbaikan kendaraan
+    {28, 1000}, // Cat kendaraan
+    {29, 2500}, // Sparepart Kendaraan
+    {30, 7500}, // Paint job
+    {51, 10000} // Ultimate Parts
+};
+
 
 enum INFO_MENU_BIBIT {
     idItemBibit,
@@ -489,9 +506,9 @@ new CP_tempatFoto,
     CP_spotBeliSkin[3],
     CP_tellerBankLS[2],
     CP_Tambang[sizeof(POSISI_NAMBANG)],
-    CP_beliMakanCepatSaji,*/
-new CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)];
-/*  CP_simRegis[1],
+    CP_beliMakanCepatSaji,
+	CP_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)],
+	CP_simRegis[1],
     CP_simPraktik[1],
     CP_pusatProperti[1];
 */
@@ -1155,6 +1172,7 @@ new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
 	AREA_onDutyPolisi, // Area On dan Off polisi
 	AREA_onDutyMedic, // Area On dan Off medic
 	AREA_GuidePemerintah,
+	AREA_GuideAhliMekanik,
 	AREA_tempatFoto,
     AREA_spotBarangMarket[sizeof(POSISI_BELI_BARANG_MARKET)],
     AREA_spotGantiSkin,
@@ -1164,7 +1182,8 @@ new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
     AREA_beliMakanCepatSaji,
     AREA_simRegis[1],
     AREA_simPraktik[1],
-    AREA_pusatProperti[1];
+    AREA_pusatProperti[1],
+	AREA_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)];
 
 enum E_ATM
 {

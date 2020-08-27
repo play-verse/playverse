@@ -3844,12 +3844,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new idpv = strval(inputtext);
 				if(Iter_Contains(PVehIterator, idpv)){
 					if(PVeh[idpv][pVehPemilik] == PlayerInfo[playerid][pID]){
-						if(IsValidDynamicCP(GetPlayerVisibleDynamicCP(playerid)) && CP_spawnReparasi[0] <= GetPlayerVisibleDynamicCP(playerid) && CP_spawnReparasi[sizeof(CP_spawnReparasi) - 1] >= GetPlayerVisibleDynamicCP(playerid)){
+						if(IsPlayerInAnyDynamicArea(playerid) && GetPVarInt(playerid, "last_area") >= AREA_spawnReparasi[0] && GetPVarInt(playerid, "last_area") <= AREA_spawnReparasi[sizeof(AREA_spawnReparasi) - 1]){
 							PVeh[idpv][pVehIsReparasi] = STATUS_KENDARAAN_TIDAK_RUSAK;
 							updatePVehReparasi(PVeh[idpv][pVehID], STATUS_KENDARAAN_TIDAK_RUSAK);
 
-							new id_cp = GetPlayerVisibleDynamicCP(playerid) - CP_spawnReparasi[0];
-							new idveh = CreateVehicle(PVeh[idpv][pVehModel], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_X], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_Y], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_Z], POSISI_SPAWN_REPARASI_MOBIL[id_cp][SPAWN_POINT_A], PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1], -1);
+							new id_area = GetPVarInt(playerid, "last_area") - AREA_spawnReparasi[0];
+							new idveh = CreateVehicle(PVeh[idpv][pVehModel], POSISI_SPAWN_REPARASI_MOBIL[id_area][SPAWN_POINT_X], POSISI_SPAWN_REPARASI_MOBIL[id_area][SPAWN_POINT_Y], POSISI_SPAWN_REPARASI_MOBIL[id_area][SPAWN_POINT_Z], POSISI_SPAWN_REPARASI_MOBIL[id_area][SPAWN_POINT_A], PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1], -1);
 
 							PVeh[idpv][pVehicle] = idveh;
 							IDVehToPVeh[idveh] = idpv;
@@ -3874,7 +3874,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 							UpdatePosisiDarahVehiclePlayer(idveh);
 						}else{
-							server_message(playerid, "Anda harus berada dekat salah satu lingkaran merah pengambilan reparasi.");
+							server_message(playerid, "Anda harus berada pada tempat spawn reparasi.");
 						}
 					}
 				}
@@ -6222,6 +6222,51 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_BELI_ALAT_MEKANIK:
+		{
+			if(response){
+				SetPVarInt(playerid, "bAlat_index", listitem);
+				ShowPlayerDialog(playerid, DIALOG_JUMLAH_BELI_ALAT_MEKANIK, DIALOG_STYLE_INPUT, "Jumlah dibeli", WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_JUMLAH_BELI_ALAT_MEKANIK:
+		{
+			if(response){
+				new banyak_barang;
+				if(sscanf(inputtext, "i", banyak_barang)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_BELI_ALAT_MEKANIK, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Jumlah tidak valid\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+
+				if(banyak_barang < 1 || banyak_barang > 1000) return ShowPlayerDialog(playerid, 				
+				DIALOG_JUMLAH_BELI_ALAT_MEKANIK, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Jumlah harus berkisar antara 1 hingga 1000.\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+
+				new idx = GetPVarInt(playerid, "bAlat_index");
+
+				if(!CekJikaInventoryPlayerMuat(playerid, MENU_ALAT_MEKANIK[idx][idItemAlat], banyak_barang)){
+					return ShowPlayerDialog(playerid, 				
+				DIALOG_JUMLAH_BELI_ALAT_MEKANIK, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Inventory anda tidak muat untuk menampung item sebanyak itu.\nCek inventory terlebih dahulu.\n\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+				}
+
+				new nama_alat[50];
+				getNamaByIdItem(MENU_ALAT_MEKANIK[idx][idItemAlat], nama_alat);
+				
+				SetPVarInt(playerid, "bAlat_jumlah", banyak_barang);
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan membeli "YELLOW"%s "WHITE"sebanyak "YELLOW"%d \n"WHITE"dengan total harga "GREEN"%d"WHITE".\nApakah anda yakin?", nama_alat, banyak_barang, MENU_ALAT_MEKANIK[idx][hargaAlat] * banyak_barang);
+				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_ALAT_MEKANIK, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", pDialog[playerid], "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_ALAT_MEKANIK:
+		{
+			if(response){
+				new keterangan[50];
+				new idx = GetPVarInt(playerid, "bAlat_index"),
+					nama_alat[50];
+				getNamaByIdItem(MENU_ALAT_MEKANIK[idx][idItemAlat], nama_alat);
+				format(keterangan, 50, "beli %s sebanyak %dx", nama_alat, GetPVarInt(playerid, "bAlat_jumlah"));
+				dialogMetodeBayar(playerid, MENU_ALAT_MEKANIK[idx][hargaAlat] * GetPVarInt(playerid, "bAlat_jumlah"), "selesaiBayarAlatMekanik", keterangan);
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -6515,6 +6560,14 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				return 1;
 			}else if(areaid == AREA_GuidePemerintah){
 				showDialogGuideKantorPemerintah(playerid);
+				return 1;
+			}else if(areaid == AREA_GuideAhliMekanik){
+				showDialogGuideAhliMekanik(playerid);
+				return 1;
+			}else if(areaid >= AREA_spawnReparasi[0] && areaid <= AREA_spawnReparasi[sizeof(AREA_spawnReparasi) - 1]){
+				if(!IsPlayerInAnyVehicle(playerid)){
+					showDialogAmbilMobilReparasi(playerid);
+				}
 				return 1;
 			}
 		}
@@ -7035,6 +7088,10 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid]);
 					}
+					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PEMERINTAH, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_resepsionisPemerintah, playerid, pDialog[playerid]);
+					}
 				}else if(ACT_resepsionisPemerintah_User == playerid){
 					// Check apakah ini response yang pertama
 					if(ACT_resepsionisPemerintah_Res == 0){
@@ -7083,6 +7140,10 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Hey %s!\nApa yang kamu perlukan disini?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_skillMekanik, pDialog[playerid]);
 					}
+					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+						format(pDialog[playerid], sizePDialog, "Hey %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_SKILL_MEKANIK, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("bro")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_skillMekanik, playerid, pDialog[playerid]);
+					}
 				}else if(ACT_skillMekanik_User == playerid){
 					// Check apakah ini response yang pertama
 					if(ACT_skillMekanik_Res == 0){
@@ -7097,10 +7158,16 @@ public OnPlayerText(playerid, text[]){
 								format(pDialog[playerid], sizePDialog, "Oke %s\nKamu akan membutuhkan %s sebanyak %dx\nApakah kamu memilikinya?", PlayerInfo[playerid][pPlayerName], 
 								nama_item_ult,
 								BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK);
-								ACT_skillMekanik_Res++;
+								ACT_skillMekanik_Res = 1;
 								ActorResponse(ACT_skillMekanik, pDialog[playerid]);
 							}
 						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\salat\\smekanik.*")){
+							showDialogBeliAlat(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_skillMekanik, playerid);
+						}						
 						else{
 							SetPVarInt(playerid, "interaksi_actor", -1);
 							ACT_skillMekanik_User = INVALID_PLAYER_ID;
@@ -7110,18 +7177,18 @@ public OnPlayerText(playerid, text[]){
 							ActorResponse(ACT_skillMekanik, pDialog[playerid], 5);
 						}
 					}
-					else if(ACT_skillMekanik_Res == 1){
+					else if(ACT_skillMekanik_Res == 1){ // Saya ingin mengaktifkan skill mekanik
 						if(cekPattern(text, "(iya|ya|punya).*")){
 							if(GetJumlahItemPlayer(playerid, ID_ULTIMATE_PART) >= BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK){
 								format(pDialog[playerid], sizePDialog, "%s kamu berhasil mengaktifkan skill mekanik\nSilahkan latih skill kamu\nsehingga dapat melakukan lebih banyak kemampuan.", PlayerInfo[playerid][pPlayerName]);
 								tambahItemPlayer(playerid, ID_ULTIMATE_PART, -BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK);
 
-								PlayerInfo[playerid][activeMekanik] = 1;
 								mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
 									INSERT INTO user_skill(id_skill, id_user, exp, is_active)\
-									VALUES(%d, %d, 0, 1)\
+									VALUES(%d, %d, 0, 1) ON DUPLICATE KEY UPDATE is_active = 1\
 								", ID_SKILL_MEKANIK, PlayerInfo[playerid][pID]);
 								mysql_tquery(koneksi, pQuery[playerid]);
+								PlayerInfo[playerid][activeMekanik] = 1;
 							}else{
 								static nama_item_ult[50];
 								if(nama_item_ult[0] == '\0')
@@ -7266,12 +7333,6 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 }
 
 public OnPlayerEnterDynamicCP(playerid, checkpointid){
-	if(checkpointid >= CP_spawnReparasi[0] && checkpointid <= CP_spawnReparasi[sizeof(CP_spawnReparasi) - 1]){
-		if(!IsPlayerInAnyVehicle(playerid)){
-			showDialogAmbilMobilReparasi(playerid);
-		}
-		return 1;
-	}
 	return 1;
 }
 

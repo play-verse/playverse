@@ -224,6 +224,19 @@ showDialogTempatMakan(playerid){
     return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_MAKAN, DIALOG_STYLE_TABLIST_HEADERS, "Menu hidangan.", str_daftar_makanan, "Pilih", "Batal");
 }
 
+showDialogBeliAlat(playerid){
+    static str_beli[sizeof(MENU_ALAT_MEKANIK) * 50];
+    if(str_beli[0] == '\0'){
+        new nama_item[50];
+        strcat(str_beli, "Nama\tHarga\n");
+        for (new i = 0; i < sizeof(MENU_ALAT_MEKANIK); i++){
+            getNamaByIdItem(MENU_ALAT_MEKANIK[i][idItemAlat], nama_item);
+            strcatEx(str_beli, sizeof(str_beli), WHITE"%s\t"GREEN"$%d\n", nama_item, MENU_ALAT_MEKANIK[i][hargaAlat]);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_BELI_ALAT_MEKANIK, DIALOG_STYLE_TABLIST_HEADERS, "Silahkan pilih alat yang ingin dibeli", str_beli, "Beli", "Batal");
+}
+
 showDialogBeliPhone(playerid){
     static str_daftar_phone[sizeof(MENU_PHONE) * 100 + 100], subString[100];
     if(str_daftar_phone[0] == EOS){
@@ -323,7 +336,8 @@ showDialogGuideKantorPemerintah(playerid){
     static str_guide[1500];
     if(str_guide[0] == '\0'){
         strcat(str_guide, YELLOW"Guide interaksi dengan resepsionis.\n\n");
-        strcat(str_guide, WHITE"Anda perlu mengetahui nama resepsionis, nama resepsionis sekarang adalah "GREEN""NAMA_ACTOR_PEMERINTAH"\n");
+        strcat(str_guide, WHITE"Anda perlu mengetahui nama resepsionis, nama resepsionis sekarang adalah "GREEN""NAMA_ACTOR_PEMERINTAH"\n\n");
+        strcat(str_guide, WHITE"Jika anda lupa nama resepsionis silahkan tanya dengan "YELLOW"siapa nama kamu?\n\n");
         strcat(str_guide, WHITE"Untuk berbicara/mengawali percakapan dengan resepsionis anda dapat menggunakan "GREEN"Halo "NAMA_ACTOR_PEMERINTAH"\n");
         strcat(str_guide, WHITE"Perlu diketahui bahwa resepsionis hanya dapat merespon satu persatu orang.\n");
         strcat(str_guide, "Resepsionis tidak akan merespon jika ada orang lain yang sedang berinteraksi dengannya\n");
@@ -339,4 +353,25 @@ showDialogGuideKantorPemerintah(playerid){
         strcat(str_guide, YELLOW"Jika masih tidak mengerti dengan hal diatas silahkan tanyakan di forum. Terimakasih telah membaca.\n");
     }
     ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Guide Interaksi Resepsionis", str_guide, "Ok", "");
+}
+
+showDialogGuideAhliMekanik(playerid){
+    static str_guide[1500];
+    if(str_guide[0] == '\0'){
+        strcat(str_guide, YELLOW"Guide interaksi dengan ahli mekanik.\n\n");
+        strcat(str_guide, WHITE"Anda perlu mengetahui nama ahli mekanik, nama ahli mekanik sekarang adalah "GREEN""NAMA_ACTOR_SKILL_MEKANIK"\n\n");
+        strcat(str_guide, WHITE"Jika anda lupa nama ahli mekanik silahkan tanya dengan "YELLOW"siapa nama kamu?\n\n");
+        strcat(str_guide, WHITE"Untuk berbicara/mengawali percakapan dengan ahli mekanik anda dapat menggunakan "GREEN"Halo "NAMA_ACTOR_SKILL_MEKANIK"\n");
+        strcat(str_guide, WHITE"Perlu diketahui bahwa ahli mekanik hanya dapat merespon satu persatu orang.\n");
+        strcat(str_guide, "Ahli mekanik tidak akan merespon jika ada orang lain yang sedang berinteraksi dengannya\n");
+        strcat(str_guide, "Ahli mekanik juga tidak akan menjawab jika anda tidak berada didekatnya.\n");
+        strcat(str_guide, YELLOW"Perlu diketahui bahwa saat berbicara dengannya anda tidak boleh menjauh dari ahli mekanik.\n");
+        strcatEx(str_guide, 2000, "Anda hanya diberi waktu "RED"%d detik "YELLOW"untuk menjawab\n\n", LAMA_BATAS_RESPON_RESEPSIONIS);
+        strcat(str_guide, WHITE"Beberapa hal yang dapat di interaksikan disini melalui ahli mekanik\nPastikan anda mengawali percakapan seperti yang dijelaskan diatas.\n");
+        strcat(str_guide, "1. Katakan "YELLOW"saya ingin mengaktifkan skill mekanik"WHITE" untuk mengaktifkan skill mekanik.\n");
+        strcat(str_guide, "2. Katakan "YELLOW"saya ingin membeli alat mekanik"WHITE" untuk membeli alat-alat mekanik.\n");
+        strcat(str_guide, "\nJika anda menjawab tidak seperti keempat hal diatas,\nmaka ahli mekanik tidak akan mengerti maksud anda dan akan memberhentikan percakapan.\n\n");
+        strcat(str_guide, YELLOW"Jika masih tidak mengerti dengan hal diatas silahkan tanyakan di forum. Terimakasih telah membaca.\n");
+    }
+    ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Guide Interaksi Ahli mekanik", str_guide, "Ok", "");
 }

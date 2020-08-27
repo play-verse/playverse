@@ -1100,6 +1100,17 @@ publicFor: selesaiBayarKerusakanKendaraan(playerid){
 	return 1;
 }
 
+publicFor: selesaiBayarAlatMekanik(playerid){
+	new idx = GetPVarInt(playerid, "bAlat_index"),
+		nama_alat[50];
+	getNamaByIdItem(MENU_ALAT_MEKANIK[idx][idItemAlat], nama_alat);
+	tambahItemPlayer(playerid, MENU_ALAT_MEKANIK[idx][idItemAlat], GetPVarInt(playerid, "bAlat_jumlah"));
+
+	format(pDialog[playerid], sizePDialog, WHITE"Anda telah berhasil membeli "GREEN"%s"WHITE" sebanyak %dx.\nDengan harga "GREEN"$%d\n"YELLOW"Silahkan cek inventory kamu.", nama_alat, GetPVarInt(playerid, "bAlat_jumlah"), MENU_ALAT_MEKANIK[idx][hargaAlat] * GetPVarInt(playerid, "bAlat_jumlah"));
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli alat mekanik", pDialog[playerid], "Ok", "");
+	return 1;
+}
+
 publicFor: selesaiBeliPerabot(playerid) {
 	tambahFurniturePlayer(playerid, PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][IDPerabotDijual], GetPVarInt(playerid, "jumlah_terpilih"));
 

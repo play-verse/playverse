@@ -25,6 +25,12 @@ loadAllArea(){
         "WHITE"Silahkan tekan "GREEN"N "WHITE"untuk membaca guide.\n", COLOR_YELLOW, -486.3125, 294.6436, 2001.0859, 20.0);
     AREA_GuidePemerintah = CreateDynamicSphere(-486.3125, 294.6436, 2001.0859, 3.0);
 
+    // Hint pada Ahli Mekanik
+    CreateDynamic3DTextLabel(\
+        "Guide interaksi ahli mekanik dan peraturan.\n\
+        "WHITE"Silahkan tekan "GREEN"N "WHITE"untuk membaca guide.\n", COLOR_YELLOW, 1001.9518, -1677.3264, 14.5905, 20.0);
+    AREA_GuideAhliMekanik = CreateDynamicSphere(1001.9518, -1677.3264, 14.5905, 3.0);
+
     // Perabot
     foreach(new i : Range(0, sizeof(POSISI_BELI_PERABOT))){
         AREA_beliPerabot[i] = CreateDynamicSphere(POSISI_BELI_PERABOT[i][POSISI_X], POSISI_BELI_PERABOT[i][POSISI_Y], POSISI_BELI_PERABOT[i][POSISI_Z], 1.5, POSISI_BELI_PERABOT[i][POSISI_VW], POSISI_BELI_PERABOT[i][POSISI_INT]);
@@ -112,4 +118,15 @@ loadAllArea(){
     AREA_simPraktik[0] = buatSPDanLabel(1384.8374,-1654.8419,13.5393, "Polisi Metro Los Santos\nPelayanan SIM\n"GREEN"Praktik", 1.0);
 
     AREA_pusatProperti[0] = buatSPDanLabel(1087.9688,-1529.9100,22.7421, "Pusat Properti cabang LS Mall\n"GREEN"Hubungi disini.", 1.0);
+
+    /**
+        SPAWN REPARASI
+    */
+    foreach(new i : Range(0, sizeof(POSISI_SPAWN_REPARASI_MOBIL))){
+        AREA_spawnReparasi[i] = buatSPDanLabel(POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_X], POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_Y], POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_Z], YELLOW"Ambil kendaraan yang telah di reparasi disini.\n"WHITE"Tekan "GREEN"N "WHITE"untuk mengambil.", 3.0, POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_VW], POSISI_SPAWN_REPARASI_MOBIL[i][SPAWN_POINT_INTERIOR], .testlos = 1);
+    }
+    if(AREA_spawnReparasi[0] + sizeof(POSISI_SPAWN_REPARASI_MOBIL) - 1 != AREA_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL) - 1]){
+        printf("[ERROR] #05 Area Spawn Reparasi tidak memiliki ID yang simetris.");
+        SendRconCommand("exit");
+    }
 }

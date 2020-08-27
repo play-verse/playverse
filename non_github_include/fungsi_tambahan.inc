@@ -127,13 +127,13 @@ buatPickupDanLabel(modelid, Float:x, Float:y, Float:z, const text[]){
     return CreateDynamicPickup(modelid, 1, x, y, z);
 }
 
-buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, interiorid = -1){
-    CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
-    return CreateDynamicCP(x, y, z, ukuran, vw, interiorid, -1, 5.0);
-}
+// buatCPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, interiorid = -1){
+//     CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
+//     return CreateDynamicCP(x, y, z, ukuran, vw, interiorid, -1, 5.0);
+// }
 
-buatSPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, interiorid = -1){
-    CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20);
+buatSPDanLabel(Float:x, Float:y, Float:z, const text[], Float:ukuran, vw = -1, interiorid = -1, testlos = 1){
+    CreateDynamic3DTextLabel(text, COLOR_WHITE, x, y, z, 20, .testlos = testlos);
     return CreateDynamicSphere(x, y, z, ukuran, vw, interiorid);
 }
 
