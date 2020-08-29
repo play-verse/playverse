@@ -52,9 +52,6 @@ enum pInfo
     Float:lastHp,
     Float:lastArmour,
 
-	Float:currentHP,
-	Float:currentArmour,
-
     Float:statusMakan,
     Float:statusMinum,
 

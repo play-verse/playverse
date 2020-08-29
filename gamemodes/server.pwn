@@ -14,6 +14,8 @@
 #include <streamer>
 #include <a_mysql>
 
+#include <weapon-config> // Custom Damage
+
 #define YSI_NO_HEAP_MALLOC
 #define YSI_NO_VERSION_CHECK
 #include <YSI_Data\y_iterate>
@@ -6727,11 +6729,11 @@ public OnPlayerDeath(playerid, killerid, reason)
 			RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX);
 	}
 
-	PlayerInfo[playerid][inDie] = LAMA_MENUNGGU_SAAT_SEKARAT;
-	GetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
-	GetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
-	PlayerInfo[playerid][last_int] = GetPlayerInterior(playerid); 
-	PlayerInfo[playerid][last_vw] = GetPlayerVirtualWorld(playerid);
+	PlayerInfo[playerid][inDie] = 1; // Supaya langsung teleport ke rumah sakit
+	// GetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
+	// GetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
+	// PlayerInfo[playerid][last_int] = GetPlayerInterior(playerid); 
+	// PlayerInfo[playerid][last_vw] = GetPlayerVirtualWorld(playerid);
 	onPlayerDeath_Alt(playerid);
 
 	hideHUDStats(playerid);
@@ -6883,6 +6885,11 @@ public OnGameModeInit()
 	DisableInteriorEnterExits();
 	
 	BlockGarages(.text="DITUTUP");
+
+	// weapon-config
+    SetVehiclePassengerDamage(true);
+    SetDisableSyncBugs(true);	
+	SetCbugAllowed(false);
 
 	worldTimer = SetPreciseTimer("updateWorldTime", 1000, true);
 
@@ -8063,33 +8070,15 @@ public OnPlayerLeaveDynamicArea(playerid, areaid){
 /*
  * IMPORTANT : issuerid perlu dicek apakah INVALID_PLAYER_ID
  */
-public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
-{
-	if(GetArmour(playerid) > 0.0) {
-		if(GetArmour(playerid) < amount){
-			SetArmour(playerid, 0.0);
-			// Jika armour tidak cukup maka kurang kan juga 
-			CallLocalFunction("OnPlayerTakeDamage","iifii", playerid, issuerid, amount - GetArmour(playerid), weaponid, bodypart);
-		}else
-			SetArmour(playerid, GetArmour(playerid) - amount);
+public OnPlayerDamage(&playerid, &Float:amount, &issuerid, &weapon, &bodypart){
+	static Float:depth[2];
+	new Float:health;
+	GetPlayerHealth(playerid, health);
+	if(!PlayerInfo[playerid][inDie] && health - amount <= 1.0 && !CA_IsPlayerInWater(playerid, depth[0], depth[1])){
+		PlayerInfo[playerid][inDie] = LAMA_MENUNGGU_SAAT_SEKARAT;
+		animasiSekarat(playerid);
+		return 0;
 	}
-	else {
-		if(PlayerInfo[playerid][inDie]){
-			SetHealth(playerid, 1.0);
-		}else{
-			if(GetHealth(playerid) - amount <= 1.0){
-				SetHealth(playerid, 0.0);
-			}else
-				SetHealth(playerid, GetHealth(playerid) - amount);
-		}
-	}
-
-	/*
-		Returning : @source wiki.sa-mp.com
-
-		1 - Callback will not be called in other filterscripts.
-		0 - Allows this callback to be called in other filterscripts. 
-	*/
 	return 1;
 }
 

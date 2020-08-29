@@ -418,10 +418,6 @@ spawnPemain(playerid, dari_callback = 0)
 		PlayerInfo[playerid][last_stats_minum] = 0;
 	}
 
-	// Set Jadi 100.0 dlu
-	SetArmour(playerid, 0.0);
-	SetHealth(playerid, 100.0);
-
 	/*
 	 * Synching Marker
 	 */
@@ -438,8 +434,8 @@ spawnPemain(playerid, dari_callback = 0)
 		SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 		
 		if(PlayerInfo[playerid][lastHp] > 0) {
-			SetHealth(playerid, PlayerInfo[playerid][lastHp]);
-			if(PlayerInfo[playerid][lastArmour] > 0) SetArmour(playerid, PlayerInfo[playerid][lastArmour]);
+			SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
+			if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 		}
 
 		PlayerInfo[playerid][lastHp] = 0;
@@ -463,8 +459,8 @@ spawnPemain(playerid, dari_callback = 0)
 			SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 
 			if(PlayerInfo[playerid][lastHp] > 0) {
-				SetHealth(playerid, PlayerInfo[playerid][lastHp]);
-				if(PlayerInfo[playerid][lastArmour] > 0) SetArmour(playerid, PlayerInfo[playerid][lastArmour]);
+				SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
+				if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 			}
 			
 			PlayerInfo[playerid][lastHp] = 0;
@@ -542,7 +538,7 @@ publicFor: GantiSkinSaatSpawn(playerid){
 
 publicFor: animasiSekarat(playerid){
 	ClearAnimations(playerid);
-	SetHealth(playerid, 1.0);
+	// SetPlayerHealth(playerid, 1.0);
 	PlayerDied(playerid);
 	onPlayerDeath_Alt(playerid);
 	if(PlayerInfo[playerid][timerDie] != -1)
@@ -1071,7 +1067,7 @@ pakaiNarko(playerid, const nama_item[], id_item, persen){
 		SetPlayerDrunkLevel (playerid, 5000);
 		puyengSecs[playerid] = 30;
 		puyengTimer[playerid] = SetPreciseTimer("waktuPuyeng", 1000, true, "i", playerid);
-		SetArmour(playerid, tambahArmour);
+		SetPlayerArmour(playerid, tambahArmour);
 		PlayerInfo[playerid][lastArmour] = tambahArmour;
 		tambahItemPlayer(playerid, id_item, -1);
 		format(pDialog[playerid], sizePDialog, WHITE"Penggunaan 1 item "YELLOW"%s"WHITE", anda mendapat tambahan Armour sebesar "YELLOW"%d%%"WHITE".", nama_item, persen);
@@ -2411,8 +2407,8 @@ updateOnPlayerDisconnect(playerid){
 		last_spawn_info_vw = GetPlayerVirtualWorld(playerid);
 		last_spawn_info_int = GetPlayerInterior(playerid);
 
-		last_hp = GetHealth(playerid);
-		last_armour = GetArmour(playerid);
+		GetPlayerHealth(playerid, last_hp);
+		GetPlayerArmour(playerid, last_armour);
 
 		temp_stats_makan = getStatusMakanPemain(playerid);
 		temp_stats_minum = getStatusMinumPemain(playerid);
@@ -4080,12 +4076,13 @@ TerminateInteraksi_Alt(actorid){
 	TerminateInteraksi(actorid);
 }
 
-publicFor: DecreaseDieCount(playerid){
+publicFor: DecreaseDieCount(playerid, dari){
 	if(PlayerInfo[playerid][inDie] > 0) {
 		PlayerInfo[playerid][inDie]--;
 
-		new str_temp[50];
-		format(str_temp, sizeof(str_temp), "~w~Anda sedang sekarat~n~~y~Sisa waktu anda ~r~%d ~y~detik lagi", PlayerInfo[playerid][inDie]);
+		new str_temp[70];
+		format(str_temp, sizeof(str_temp), "~w~Anda sedang sekarat~n~\
+			~y~Sisa waktu anda ~r~%d ~y~detik lagi", PlayerInfo[playerid][inDie]);
 		GameTextForPlayer(playerid, str_temp, 1000, 3);
 	}
 	else{

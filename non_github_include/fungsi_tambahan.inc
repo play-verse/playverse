@@ -250,8 +250,9 @@ setStatusMakanPemain(playerid, Float:jumlah){
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][0], COLOR_YELLOW);
     
     SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][0], PlayerInfo[playerid][statusMakan]);
-    if(PlayerInfo[playerid][statusMakan] <= 0.0) {
-        SetHealth(playerid, 0.0);
+    if(PlayerInfo[playerid][statusMakan] <= 0.0 && !PlayerInfo[playerid][inDie]) {
+        // Buat player sekarat
+        DamagePlayer(playerid, GetPlayerHealth(playerid));
     }
     else if(PlayerInfo[playerid][statusMakan] <= 10.0){
         SetPlayerDrunkLevel(playerid, 3500);
@@ -714,19 +715,6 @@ stock bool:IsValidDate(dStr[]) {
         return false;
 
     return true;
-}
-
-#define GetHealth(%0)                     PlayerInfo[%0][currentHP]
-#define GetArmour(%0)                     PlayerInfo[%0][currentArmour]
-
-publicFor: SetHealth(playerid, Float:health){
-    PlayerInfo[playerid][currentHP] = health;
-    return SetPlayerHealth(playerid, health);
-}
-
-SetArmour(playerid, Float:armour){
-    PlayerInfo[playerid][currentArmour] = armour;
-    return SetPlayerArmour(playerid, armour);
 }
 
 stock IsABike(vehicleid)
