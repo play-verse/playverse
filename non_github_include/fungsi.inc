@@ -2340,6 +2340,58 @@ publicFor: pakaiMakanan(playerid, itemid){
 	return 1;
 }
 
+publicFor: pakaiPilMerah(playerid, itemid){
+	tambahItemPlayer(playerid, itemid, -1);
+	ApplyAnimation(playerid, "BAR", "dnk_stndM_loop", 4.1, 0, 1, 1, 0, 0, 1);
+	switch(itemid){
+		case 56: // 20 persen
+		{
+			if(GetPlayerHealth(playerid) + 20.0 >= 100.0)
+				SetPlayerHealth(playerid, 100.0);
+			else
+				SetPlayerHealth(playerid, GetPlayerHealth(playerid) + 20.0);
+		}
+		case 57: // 50 persen
+		{
+			if(GetPlayerHealth(playerid) + 50.0 >= 100.0)
+				SetPlayerHealth(playerid, 100.0);
+			else
+				SetPlayerHealth(playerid, GetPlayerHealth(playerid) + 50.0);
+		}
+		case 58: // 100 persen
+		{
+			SetPlayerHealth(playerid, 100.0);
+		}
+	}
+	return 1;
+}
+
+publicFor: pakaiPilPutih(playerid, itemid){
+	tambahItemPlayer(playerid, itemid, -1);
+	ApplyAnimation(playerid, "BAR", "dnk_stndM_loop", 4.1, 0, 1, 1, 0, 0, 1);
+	switch(itemid){
+		case 56: // 20 persen
+		{
+			if(GetPlayerArmour(playerid) + 20.0 >= 100.0)
+				SetPlayerArmour(playerid, 100.0);
+			else
+				SetPlayerArmour(playerid, GetPlayerArmour(playerid) + 20.0);
+		}
+		case 57: // 50 persen
+		{
+			if(GetPlayerArmour(playerid) + 50.0 >= 100.0)
+				SetPlayerArmour(playerid, 100.0);
+			else
+				SetPlayerArmour(playerid, GetPlayerArmour(playerid) + 50.0);
+		}
+		case 58: // 100 persen
+		{
+			SetPlayerArmour(playerid, 100.0);
+		}
+	}
+	return 1;
+}
+
 publicFor: pakaiBensin(playerid, itemid){
 	if(IsPlayerInAnyVehicle(playerid))
 		return SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Tidak dapat mengisi bensin didalam kendaraan.");
