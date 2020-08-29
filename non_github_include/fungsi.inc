@@ -1793,6 +1793,35 @@ publicFor: progressPaintjobKendaraan(playerid, vehicleid, paintjobid){
 	return 1;
 }
 
+publicFor: progressBuatObatHerbal(playerid){
+	new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / BUAT_OBAT_TIME;
+	if(value >= MAX_PROGRESS_BAR){
+		// Kurangkan bahan terpakai
+		tambahItemPlayer(playerid, ID_BUBUK_HERBAL, -1); // 30 adalah item paintjob kendaraan
+		tambahItemPlayer(playerid, ID_GANJOS, -2); // 30 adalah item paintjob kendaraan
+
+		tambahItemPlayer(playerid, ID_OBAT_HERBAL, 1); // 30 adalah item paintjob kendaraan
+
+		reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
+
+		/**
+			Tambah exp				
+		*/
+		new exp_didapat = 0;
+		if(PlayerInfo[playerid][expMedic] < MEDIC_LEVEL_SKILL_DUA) // Jika level exp player adalah lvl 1
+			exp_didapat = EXP_SUKSES_CURR_SKILL;
+		else // Jika level exp player > 1
+			exp_didapat = EXP_SUKSES_DOWN_SKILL;
+
+		tambahExpSkillPlayer(playerid, ID_SKILL_MEDIC, exp_didapat);
+		sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"buat obat herbal", exp_didapat);
+		sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill medic anda saat ini adalah %d.", PlayerInfo[playerid][expMedic]);
+	}else{
+		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+	}
+	return 1;
+}
+
 publicFor: progressModifKendaraan(playerid, vehicleid, componentid){
 	if(IsValidVehicle(vehicleid)){
 		new Float:vpos[3], Float:pos[3];
@@ -1845,6 +1874,47 @@ publicFor: progressModifKendaraan(playerid, vehicleid, componentid){
 		}
     }else{
 		SendClientMessage(playerid, COLOR_RED, TAG_MEKANIK" "WHITE"Gagal modif kendaraan, disebabkan oleh kendaraan tidak ada.");
+		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+	}
+	return 1;
+}
+
+publicFor: progressRevive(playerid){
+	new target_id = GetPVarInt(playerid, "target_revive");
+
+	if(IsPlayerConnected(target_id)){
+		new Float:pos[3];
+		GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+
+		if(IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+			new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / REVIVE_TIME;
+			if(value >= MAX_PROGRESS_BAR){
+				DeletePVar(playerid, "target_revive");
+
+				tambahItemPlayer(playerid, ID_OBAT_HERBAL, -1);
+				reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
+
+				/**
+					Tambah exp				
+				*/
+				new exp_didapat = 0;
+				if(PlayerInfo[playerid][expMedic] < MEDIC_LEVEL_SKILL_TIGA) // Jika level exp player adalah lvl 1
+					exp_didapat = EXP_SUKSES_CURR_SKILL;
+				else // Jika level exp player > 1
+					exp_didapat = EXP_SUKSES_DOWN_SKILL;
+
+				tambahExpSkillPlayer(playerid, ID_SKILL_MEDIC, exp_didapat);
+				sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"revive orang sekarat", exp_didapat);
+				sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill medic anda saat ini adalah %d.", PlayerInfo[playerid][expMedic]);
+			}else{
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Gagal menyelamatkan, player target berpindah posisi.");
+			reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
+		}
+    }else{
+		SendClientMessage(playerid, COLOR_RED, TAG_MEDIC" "WHITE"Gagal menyelamatkan, player target tidak ada.");
 		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 	}
 	return 1;
@@ -1948,7 +2018,7 @@ publicFor: konfirmasiBuatAlatPerbaikan(playerid, ada){
 		ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_ALAT_PERBAIKAN, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan", pDialog[playerid], "Konfirmasi", "Batal");
 		return 1;
 	}else
-		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", "Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item alat perbaikan.\n\n"YELLOW"Anda membutuhkan 1 Perunggu dan 3 Perak.", "Ok", "");
+		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item alat perbaikan.\n\n"YELLOW"Anda membutuhkan 1 Perunggu dan 3 Perak.", "Ok", "");
 }
 
 

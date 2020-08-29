@@ -15,7 +15,7 @@
 							7. Harus menaati peraturan roleplay yang berlaku.\n\
 							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
 
-#define MAX_SERVER_ITEM 51 // Diatur sesuai dengan banyak data didatabase 
+#define MAX_SERVER_ITEM 61 // Diatur sesuai dengan banyak data didatabase 
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -145,6 +145,12 @@
 #define LEVEL_SKILL_LIMA 5000
 #define LEVEL_SKILL_ENAM 7500
 
+#define MEDIC_LEVEL_SKILL_DUA 250
+#define MEDIC_LEVEL_SKILL_TIGA 500
+#define MEDIC_LEVEL_SKILL_EMPAT 1000
+#define MEDIC_LEVEL_SKILL_LIMA 3000
+#define MEDIC_LEVEL_SKILL_ENAM 5000
+
 #define EXP_GAGAL_CURR_SKILL 2 		// Digunakan untuk memberikan exp walaupun gagal
 #define EXP_SUKSES_CURR_SKILL 5   	// Exp yang diberikan saat sukses
 #define EXP_GAGAL_DOWN_SKILL 1		// Digunakan untuk memberikan exp walaupun gagal
@@ -157,6 +163,8 @@
 #define MODIF_KENDARAAN_TIME 15
 #define PAINTJOB_KENDARAAN_TIME 20
 #define ISI_BENSIN_TIME 10
+#define BUAT_OBAT_TIME 10
+#define REVIVE_TIME 15
 
 #define MAX_PROGRESS_BAR 100.0 // Lamanya memperbaiki kendaraan
 /*
@@ -377,6 +385,9 @@
 #define DIALOG_BELI_ALAT_MEKANIK 211
 #define DIALOG_JUMLAH_BELI_ALAT_MEKANIK 212
 #define DIALOG_KONFIRMASI_ALAT_MEKANIK 213
+#define DIALOG_PILIH_SKILL_MEDIC 214
+#define DIALOG_KONFIRMASI_BUAT_OBAT 215
+#define DIALOG_KONFIRMASI_REVIVE 216
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DI DALAM INTERIOR
@@ -531,6 +542,9 @@
 #define ID_ITEM_MASK   		50
 #define ID_PAS_FOTO 		5
 #define ID_ULTIMATE_PART    51
+#define ID_GANJOS    		34
+#define ID_BUBUK_HERBAL    	52
+#define ID_OBAT_HERBAL    	53
 /*
  * End Defining Constant for ID item
  */

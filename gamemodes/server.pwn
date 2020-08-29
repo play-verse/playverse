@@ -114,6 +114,8 @@ public OnPlayerDisconnect(playerid, reason){
 		SpeedoTimer[playerid] = -1;
 	}
 
+	reset_PerbaikiKendaraan(playerid);
+
 	if(PlayerInfo[playerid][sudahLogin]) {
 		updateOnPlayerDisconnect(playerid);
 
@@ -4730,10 +4732,94 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 1: // Medic
 					{
-						if(!PlayerInfo[playerid][activeMedic]) return server_message(playerid, "Maaf skill medic anda tidak aktif.");
+						if(!PlayerInfo[playerid][activeMedic] && !IsPlayerOnDutyMedic(playerid)) return server_message(playerid, "Maaf skill medic anda tidak aktif.");
+
+						format(pDialog[playerid], sizePDialog, "Buat obat herbal (untuk menyelamatkan yang sekarat)");
+
+						if(GetExpMedicPlayer(playerid) >= MEDIC_LEVEL_SKILL_DUA || IsPlayerOnDutyMedic(playerid))
+							strcat(pDialog[playerid], "\nRevive orang yang sekarat");
+						
+						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_MEDIC, DIALOG_STYLE_LIST, "Skill medis : ", pDialog[playerid], "Pilih", "Batal");
 						return 1;
 					}
 				}
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_SKILL_MEDIC:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Buat obat
+					{
+						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_OBAT, DIALOG_STYLE_MSGBOX, "Konfirmasi buat obat", WHITE"Untuk dapat membuat obat (penyelamat sekarat)\nAnda akan membutuhkan "YELLOW"2 ganja dan 1 bubuk herbal\n"WHITE"Apakah anda memilikinya?", "Ok", "Batal");
+					}
+					case 1: // Revive
+					{
+						new Float:pos[3],
+							target_id = INVALID_PLAYER_ID;
+						GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+						foreach(new i : Player){
+							if(IsPlayerInRangeOfPoint(i, 2.0, pos[0], pos[1], pos[2]) && PlayerInfo[i][inDie] && playerid != i){
+								target_id = i;
+								break; // Break gak work di foreach?
+							}
+						}
+						if(target_id == INVALID_PLAYER_ID){
+							return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Orang sekarat tidak ada", YELLOW"Tidak ada orang yang sedang sekarat disekitar anda.", "Ok", "");
+						}
+						SetPVarInt(playerid, "target_revive", target_id);
+						format(pDialog[playerid], sizePDialog, WHITE"Anda akan merevive %s\nUntuk revive orang yang sekarat\nAnda akan membutuhkan "YELLOW"1 obat herbal revive\n"WHITE"Apakah anda memilikinya?", PlayerInfo[target_id][pPlayerName]);
+						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_REVIVE, DIALOG_STYLE_MSGBOX, "Konfirmasi revive", pDialog[playerid], "Ok", "Batal");
+					}
+				}
+			}else
+				cmd_skill(playerid, "");
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_REVIVE:
+		{
+			if(response){
+				if(GetJumlahItemPlayer(playerid, ID_OBAT_HERBAL) < 1){
+					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat merevive.\n\n"YELLOW"Anda membutuhkan setidaknya 1 obat herbal revive.", "Ok", "");
+				}
+
+				// Pinjam timer perbaiki
+				if(PerbaikiTimer[playerid] != -1)
+					DeletePreciseTimer(PerbaikiTimer[playerid]);
+				PerbaikiTimer[playerid] = SetPreciseTimer("progressRevive", 1000, true, "i", playerid);
+
+				// Pinjam progress bar dari potong pohon
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+				ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+				TogglePlayerControllable(playerid, 0);
+				GameTextForPlayer(playerid, "~w~Sedang ~y~menyelamatkan...", 3000, 3);
+				PlayerReviving(playerid);
+				PlayerInfo[playerid][isOnAnimation] = true;	
+				PlayerInfo[playerid][isBusy] = true;
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BUAT_OBAT:
+		{
+			if(response){
+				// Cek jumlah item
+				if(GetJumlahItemPlayer(playerid, ID_GANJOS) < 2 || GetJumlahItemPlayer(playerid, ID_BUBUK_HERBAL) < 1){
+					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat obat.\n\n"YELLOW"Anda membutuhkan 2 ganja dan 1 bubuk herbal.", "Ok", "");
+				}
+				// Pinjam timer perbaiki
+				if(PerbaikiTimer[playerid] != -1)
+					DeletePreciseTimer(PerbaikiTimer[playerid]);
+				PerbaikiTimer[playerid] = SetPreciseTimer("progressBuatObatHerbal", 1000, true, "i", playerid);
+
+				// Pinjam progress bar dari potong pohon
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+				ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+				TogglePlayerControllable(playerid, 0);
+				GameTextForPlayer(playerid, "~w~Sedang ~y~membuat...", 3000, 3);
+				PlayerCraftingMedicine(playerid);
+				PlayerInfo[playerid][isOnAnimation] = true;	
+				PlayerInfo[playerid][isBusy] = true;
 			}
 			return 1;
 		}
@@ -6167,6 +6253,33 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					ubahSkinPemain(playerid, PlayerInfo[playerid][skinDuty]);
 				}
 
+				switch(GetPlayerPoliceLevel(playerid)){
+					case 1:
+					{
+						GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+						GivePlayerWeapon(playerid, WEAPON_COLT45, 50);
+					}
+					case 2:
+					{
+						GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+						GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
+					}
+					case 3:
+					{
+						GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+						GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
+						GivePlayerWeapon(playerid, WEAPON_MP5, 100);
+						GivePlayerWeapon(playerid, WEAPON_M4, 150);
+					}
+					case 4:
+					{
+						GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+						GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
+						GivePlayerWeapon(playerid, WEAPON_MP5, 100);
+						GivePlayerWeapon(playerid, WEAPON_M4, 150);
+					}
+				}
+
 				SetPlayerDutyPolice(playerid, 1);
 				SetPlayerColor(playerid, COLOR_POLISI);
 				SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Anda sekarang bekerja sebagai polisi. Selamat bekerja!");
@@ -6183,6 +6296,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 
 				SetPlayerDutyPolice(playerid, 0);
+				ResetPlayerWeapons(playerid);
 				SetPlayerColor(playerid, COLOR_WHITE);
 				SendClientMessage(playerid, COLOR_ORANGE, TAG_POLICE" "WHITE"Anda telah mengakiri shift anda sebagai polisi.");
 			}
@@ -6336,18 +6450,24 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER && PRESSED(KEY_SUBMISSION)){
 		new vehid = GetPlayerVehicleID(playerid);
-		if(Iter_Contains(PVehIterator, IDVehToPVeh[vehid])){
+		if(Iter_Contains(IDVehToPVehIterator, vehid)){
 			new idpv = IDVehToPVeh[vehid];
 			if(PVeh[idpv][pVehPemilik] != PlayerInfo[playerid][pID] && !( Iter_Contains(PVehKeys[playerid], idpv) && PVehKeysTime[playerid][idpv] > gettime() )){
 				server_message(playerid, "Anda tidak memiliki kunci kendaraan ini.");
 				return 1;
 			}
+			
+			// Mesin tidak bisa dihidupkan, hanya berefek pada kendaraan berpemilik
+			new Float:vehhealth;
+			GetVehicleHealth(vehid, vehhealth);
+			if(vehhealth <= 260.0)
+				return SendClientMessage(playerid, COLOR_RED, "Kendaraan: "WHITE"Darah kendaraan habis dan rusak total.");
 		}
-
-		new Float:vehhealth;
-		GetVehicleHealth(vehid, vehhealth);
-		if(vehhealth <= 260.0)
-			return SendClientMessage(playerid, COLOR_RED, "Kendaraan: "WHITE"Darah kendaraan habis dan rusak total.");
+		else if(vehid == ambulance_Veh[0] || vehid == ambulance_Veh[1]){
+			printf("%d", (IsPlayerOnDutyMedic(playerid) ? 1 : 0));
+			if(!IsPlayerOnDutyMedic(playerid))
+				return SendClientMessage(playerid, COLOR_RED, TAG_MEDIC" "WHITE"Anda tidak sedang bertugas sebagai medis.");
+		}
 
 		if(GetVehicleFuel(vehid) <= 0) 
 			return SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Kendaraan kehabisan bensin.");
@@ -6679,6 +6799,8 @@ public OnPlayerSpawn(playerid)
 		PreloadAnimLib(playerid,"VENDING");
 		PreloadAnimLib(playerid,"CHAINSAW");
 		PreloadAnimLib(playerid,"SPRAYCAN");
+		PreloadAnimLib(playerid,"MEDIC");
+		PreloadAnimLib(playerid,"CAR_CHAT");
 		PreloadAnimLib(playerid,"CASINO");
 		PlayerInfo[playerid][preloadAnim] = 1;
 	}
@@ -6713,6 +6835,7 @@ public OnPlayerDeath(playerid, killerid, reason)
 
 	SetPlayerDutyMedic(playerid, 0);
 	SetPlayerDutyPolice(playerid, 0);
+	ResetPlayerWeapons(playerid);
 
 	/*
 	 * Hilangkan Mask jika sedang terpakai
@@ -6927,6 +7050,13 @@ public OnGameModeInit()
 	Iter_Add(trashM_Veh, trashM_Veh[0]);
 	Iter_Add(trashM_Veh, trashM_Veh[1]);
 	Iter_Add(trashM_Veh, trashM_Veh[2]);
+
+	// Ambulance Rumah sakit
+	ambulance_Veh[0] = AddStaticVehicleEx(416, 1177.6633, -1308.5510, 14.0078, 268.5052, 1, 3, -1, 1);
+	ambulance_Veh[1] = AddStaticVehicleEx(416, 1179.5927, -1338.8085, 13.9587, 271.2625, 1, 3, -1, 1);
+	ToggleVehicleFuel(ambulance_Veh[0], 0);
+	ToggleVehicleFuel(ambulance_Veh[1], 0);
+	printf("ambul %d %d", ambulance_Veh[0], ambulance_Veh[1]);
 
 	// Pizzaboy Vehicle
 	CreateDynamic3DTextLabel("Tempat Restok Pizza\n"GREEN"Pengantar Pizza (Pizzaboy)", COLOR_WHITE, 2105.00439, -1808.99744, 13.66980, 20.0);
@@ -7738,6 +7868,10 @@ public OnVehicleSpawn(vehicleid){
 		LoadModifVehiclePlayer(vehicleid);
 	else
 		SetVehicleFuel(vehicleid, MAX_VEHICLE_FUEL); // Set MAX_VEHICLE_FUEL
+	if(vehicleid == ambulance_Veh[0] || vehicleid == ambulance_Veh[1]){
+		SetVehicleParams(vehicleid, VEHICLE_TYPE_ENGINE, 0);
+		SetVehicleParams(vehicleid, VEHICLE_TYPE_LIGHTS, 0);
+	}
 	return 1;
 }
 
@@ -7750,8 +7884,8 @@ public OnVehicleVelocityChange(vehicleid,Float:newx,Float:newy,Float:newz,Float:
 }
 
 public OnVehicleHealthChange(vehicleid,Float:newhealth,Float:oldhealth){
-	if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
-		if(newhealth <= 260.0){
+	if(newhealth <= 260.0){
+		if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
 			if(IsVehicleFlipped(vehicleid)) {
 				new Float:ang;
 				GetVehicleZAngle(vehicleid, ang);

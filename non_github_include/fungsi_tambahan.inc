@@ -7,8 +7,9 @@
 #define PlayerTakesAnimation(%0)        ApplyAnimation(%0, "CASINO", "SLOT_PLYR", 4.1, 0, 1, 1, 0, 2000, 1)
 #define PlayerFillingFuelOnLoop(%0)     ApplyAnimation(%0, "CASINO", "SLOT_WAIT", 4.1, 1, 1, 1, 0, 0, 1)
 #define PlayerAtmAnimation(%0)          ApplyAnimation(%0, "SHOP", "SHP_SERVE_LOOP", 4.1, 0, 1, 1, 0, 2000, 1)
-
+#define PlayerReviving(%0)              ApplyAnimation(%0, "MEDIC", "CPR", 4.1, 1, 1, 1, 1, 0, 1)
 #define PlayerDied(%0)                  ApplyAnimation(%0, "PED", "KO_SHOT_STOM", 4.1, 0, 1, 1, 1, 0, 1)
+#define PlayerCraftingMedicine(%0)      ApplyAnimation(%0, "CAR_CHAT", "CAR_SC4_FR", 4.1, 1, 1, 1, 1, 0, 1)
 
 #define IsPlayerOnTrade(%0)         (PlayerInfo[%0][onTradeWith] != INVALID_PLAYER_ID)
 
@@ -1108,3 +1109,6 @@ RemovePlayerFromVehicleEx(playerid){
     removedTimer[playerid] = SetPreciseTimer("resetPlayerToDo", 1000, false, "i", playerid);
     return 1;
 }
+
+#define GetExpMedicPlayer(%0)               PlayerInfo[%0][expMedic]
+#define GetExpMekanikPlayer(%0)             PlayerInfo[%0][expMekanik]

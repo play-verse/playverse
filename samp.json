@@ -9,7 +9,7 @@
 	"plugins": [
 		"zeex/samp-plugin-crashdetect:v4.19.4",
 		"pBlueG/SA-MP-MySQL:R41-4",
-		"oscar-broman/SKY#1056c0a5e43cdd8ba661a672ca61269c8bf8e694",
+		"oscar-broman/SKY:2.3.0",
 		"bmisiak/samp-precise-timers:v2.0.2",
 		"BigETI/pawn-memory:2.0.1",
 		"maddinat0r/sscanf:v2.8.3",

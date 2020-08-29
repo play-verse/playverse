@@ -676,6 +676,8 @@ new ojol_Job[MAX_PLAYERS],
 	Float:ojol_endY[MAX_PLAYERS],
 	Float:ojol_endZ[MAX_PLAYERS];
 
+new ambulance_Veh[2];
+
 /* SIM Kendaraan */
 new Iterator:vehicleSIM<MAX_VEHICLES>,
     testSim[MAX_PLAYERS],
