@@ -2370,21 +2370,21 @@ publicFor: pakaiPilPutih(playerid, itemid){
 	tambahItemPlayer(playerid, itemid, -1);
 	ApplyAnimation(playerid, "BAR", "dnk_stndM_loop", 4.1, 0, 1, 1, 0, 0, 1);
 	switch(itemid){
-		case 56: // 20 persen
+		case 59: // 20 persen
 		{
 			if(GetPlayerArmour(playerid) + 20.0 >= 100.0)
 				SetPlayerArmour(playerid, 100.0);
 			else
 				SetPlayerArmour(playerid, GetPlayerArmour(playerid) + 20.0);
 		}
-		case 57: // 50 persen
+		case 60: // 50 persen
 		{
 			if(GetPlayerArmour(playerid) + 50.0 >= 100.0)
 				SetPlayerArmour(playerid, 100.0);
 			else
 				SetPlayerArmour(playerid, GetPlayerArmour(playerid) + 50.0);
 		}
-		case 58: // 100 persen
+		case 61: // 100 persen
 		{
 			SetPlayerArmour(playerid, 100.0);
 		}
