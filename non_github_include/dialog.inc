@@ -151,12 +151,16 @@ showDialogEPhone(playerid){
 }
 
 showDialogBeliBarang(playerid){
-	new subString[100];
+	new subString[100], 
+        id_model,
+        nama_item[50];
     static string[sizeof(BARANG_MARKET) * 100];
 
     if(string[0] == EOS){
 		for(new i = 0; i < sizeof(BARANG_MARKET); i++){
-			format(subString, sizeof(subString), "%i\t%s~n~~g~$%d\n", BARANG_MARKET[i][idModelBarang], BARANG_MARKET[i][namaBarang], BARANG_MARKET[i][hargaBarang]);
+            id_model = getModelByIdItem(BARANG_MARKET[i][idItemMarket]);
+            getNamaByIdItem(BARANG_MARKET[i][idItemMarket], nama_item);
+			format(subString, sizeof(subString), "%i\t%s~n~~g~$%d\n", id_model, nama_item, BARANG_MARKET[i][hargaBarang]);
             strcat(string, subString);
 		}
 	}

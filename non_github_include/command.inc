@@ -639,6 +639,10 @@ CMD:lepashelm(playerid, params[]){
     }
     tambahItemPlayer(playerid, PlayerInfo[playerid][isOnMask], 1);
     
+    if(PlayerInfo[playerid][tidak_dikenali] != 0)
+        Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+    PlayerInfo[playerid][tidak_dikenali] = 0;
+
     PlayerInfo[playerid][isOnMask] = 0;
     RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX); // Lepas Object
     ShowPlayerMarker(playerid);
@@ -660,6 +664,10 @@ CMD:lepastopeng(playerid, params[]){
         return server_message(playerid, "Anda tidak sedang menggunakan topeng.");
     }
     tambahItemPlayer(playerid, PlayerInfo[playerid][isOnMask], 1);
+
+    if(PlayerInfo[playerid][tidak_dikenali] != 0)
+        Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+    PlayerInfo[playerid][tidak_dikenali] = 0;
 
     PlayerInfo[playerid][isOnMask] = 0;
     RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX); // Lepas Object

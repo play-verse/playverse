@@ -81,6 +81,7 @@ enum pInfo
     // Tambang
     sisaPalu,
     bool:activeMarker,
+	tidak_dikenali,
 
     // Settings
     bool:tampilHUDStats,
@@ -375,18 +376,16 @@ new const POSISI_POM_BENSIN[][COORD_OBJ] = {
  */
 enum INFO_BARANG_MARKET {
 	idItemMarket,
-    idModelBarang,
-    namaBarang[100],
     hargaBarang
 }
 
 new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
-    {6, 2059, "Materai", 5}, // Materai
-    {8, 19631, "Palu Tambang", 10}, // Palu Tambang
-    {26, 341, "Gergaji Mesin", 10}, // Gergaji Mesin
-	{44, 1650, "Bensin 20 Liter", 8},
-	{45, 1650, "Bensin 50 Liter", 15},
-	{46, 1650, "Bensin 100 Liter", 23}
+    {6, 5}, // Materai
+    {8, 10}, // Palu Tambang
+    {26, 10}, // Gergaji Mesin
+	{44, 8}, // Bensin 20 Liter
+	{45, 15}, // Bensin 50 Liter
+	{46, 23} // Bensin 100 Liter
 };
 
 enum INFO_JUAL_PERABOT {
@@ -1409,3 +1408,5 @@ new const POLICE_SKIN_FEMALE[POLICE_MAX_LEVEL][] = {
 /**
 	End Faction
  */
+
+new Iterator:TidakDikenali<MAX_PLAYERS + 1>;

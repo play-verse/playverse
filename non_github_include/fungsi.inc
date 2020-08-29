@@ -175,6 +175,10 @@ onPlayerDeath_Alt(playerid){
 		DeletePreciseTimer(PlayerInfo[playerid][timerPemain]);
 		PlayerInfo[playerid][timerPemain] = -1;
 	}
+	if(PlayerInfo[playerid][timerDie] != -1){
+		DeletePreciseTimer(PlayerInfo[playerid][timerDie]);
+		PlayerInfo[playerid][timerDie] = -1;
+	}
 	
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
 	resetPlayerToDo(playerid);
@@ -198,6 +202,10 @@ resetPlayerVariable(playerid, dari_callback){
     PlayerInfo[playerid][uang] = 0;
     PlayerInfo[playerid][jenisKelamin] = -1;
     PlayerInfo[playerid][sHouse] = 0;
+
+	if(PlayerInfo[playerid][tidak_dikenali] != 0)
+		Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+	PlayerInfo[playerid][tidak_dikenali] = 0;
 
 	EditingATMID[playerid] = -1;
 
@@ -233,6 +241,7 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][waktuSaatLogin] = 0;
 
 	PlayerInfo[playerid][skinDuty] = 0;
+	SetPlayerColor(playerid, COLOR_WHITE);
 	SetPlayerDutyMedic(playerid, 0);
 	SetPlayerDutyPolice(playerid, 0);
 
@@ -416,7 +425,7 @@ spawnPemain(playerid, dari_callback = 0)
 	/*
 	 * Synching Marker
 	 */
-	SyncMarkerMaskToPlayer(playerid); // Sync juga
+	// SyncMarkerMaskToPlayer(playerid); // Sync juga
 	
 	if(!(PlayerInfo[playerid][last_x] == 0 && PlayerInfo[playerid][last_y] == 0 && PlayerInfo[playerid][last_z] == 0 && PlayerInfo[playerid][last_a] == 0) && PlayerInfo[playerid][sudahLogin]){
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z], PlayerInfo[playerid][last_a], 0, 0, 0, 0, 0, 0);
@@ -500,10 +509,18 @@ spawnPemain(playerid, dari_callback = 0)
 	 * Jika menggunakan mask maka hide name tag
 	 */
 	if(PlayerInfo[playerid][isOnMask] && IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
+		if(PlayerInfo[playerid][tidak_dikenali] != 0)
+			Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+		PlayerInfo[playerid][tidak_dikenali] = Iter_Free(TidakDikenali);
+
 		HidePlayerMarker(playerid);
 		AttachHelmetOrMask(playerid, PlayerInfo[playerid][isOnMask]);
 	}
 	else{
+		if(PlayerInfo[playerid][tidak_dikenali] != 0)
+			Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+		PlayerInfo[playerid][tidak_dikenali] = 0;
+
 		PlayerInfo[playerid][isOnMask] = 0;
 		ShowPlayerMarker(playerid);
 	}
@@ -892,12 +909,23 @@ publicFor: pakaiHelm(playerid, itemid){
 		return server_message(playerid, "Anda telah menggunakan masker/helm silahkan lepas terlebih dahulu.");
 
 	if(!IsMaskOrHelmet(itemid)) { // Jika ID item lain
+		if(PlayerInfo[playerid][tidak_dikenali] != 0)
+			Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+		PlayerInfo[playerid][tidak_dikenali] = 0;
+
 		PlayerInfo[playerid][isOnMask] = 0;
 		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
 		mysql_tquery(koneksi, pQuery[playerid]);
 		return 1;
 	}
 
+	if(PlayerInfo[playerid][tidak_dikenali] != 0)
+		Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+	PlayerInfo[playerid][tidak_dikenali] = Iter_Free(TidakDikenali);
+
+	if(PlayerInfo[playerid][tidak_dikenali] == -1)
+		printf("[ERROR] Iter_Free pada tidak_dikenali return -1, pada playerid %d.", playerid);
+	
 	PlayerInfo[playerid][isOnMask] = itemid;
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = %d WHERE id = %d", itemid, PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);

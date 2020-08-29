@@ -2442,10 +2442,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				if(banyak_barang < 1 || banyak_barang > 1000) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_BARANG_MARKET, DIALOG_STYLE_INPUT, "Jumlah barang yang ingin dibeli", RED"Inputan anda tidak valid.\nMinimal pembelian 1 dan maksimal pembelian 999.\n"WHITE"Silahkan input jumlah barang yang ingin dibeli.", "Beli", "Batal");
 
-				new index_barang = GetPVarInt(playerid, "bBarang_index");
+				new index_barang = GetPVarInt(playerid, "bBarang_index"),
+					nama_item[50];
+				getNamaByIdItem(BARANG_MARKET[index_barang][idItemMarket], nama_item);
 				SetPVarInt(playerid, "bBarang_jumlah", banyak_barang);
 				
-				format(pDialog[playerid], sizePDialog, "Anda akan membeli barang "YELLOW"%s "WHITE"sebanyak "YELLOW"%d "WHITE"dengan total harga "GREEN"%d"WHITE".\nApakah anda yakin?", BARANG_MARKET[index_barang][namaBarang], banyak_barang, BARANG_MARKET[index_barang][hargaBarang] * banyak_barang);
+				format(pDialog[playerid], sizePDialog, "Anda akan membeli barang "YELLOW"%s "WHITE"sebanyak "YELLOW"%d "WHITE"dengan total harga "GREEN"%d"WHITE".\nApakah anda yakin?", nama_item, banyak_barang, BARANG_MARKET[index_barang][hargaBarang] * banyak_barang);
 				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BARANG_MARKET, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", pDialog[playerid], "Beli", "Batal");
 			}
 			else{
@@ -2458,14 +2460,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new index_barang = GetPVarInt(playerid, "bBarang_index");
 				new jumlah = GetPVarInt(playerid, "bBarang_jumlah"); 
-				new harga = jumlah * BARANG_MARKET[index_barang][hargaBarang];
+				new harga = jumlah * BARANG_MARKET[index_barang][hargaBarang],
+					nama_item[50];
+				getNamaByIdItem(BARANG_MARKET[index_barang][idItemMarket], nama_item);
 				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi.", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
 
 				if(CekJikaInventoryPlayerMuat(playerid, BARANG_MARKET[index_barang][idItemMarket], jumlah)){
 					tambahItemPlayer(playerid, BARANG_MARKET[index_barang][idItemMarket], jumlah);
 					givePlayerUang(playerid, -harga);
 
-					format(pDialog[playerid], sizePDialog, "Anda berhasil membeli "YELLOW"%s"WHITE".\nSebanyak "YELLOW"%d"WHITE" dengan harga "GREEN"%d", BARANG_MARKET[index_barang][namaBarang], jumlah, harga);
+					format(pDialog[playerid], sizePDialog, "Anda berhasil membeli "YELLOW"%s"WHITE".\nSebanyak "YELLOW"%d"WHITE" dengan harga "GREEN"%d", nama_item, jumlah, harga);
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli barang", pDialog[playerid], "Ok", "");
 
 					DeletePVar(playerid, "bBarang_index");
@@ -6713,6 +6717,9 @@ public OnPlayerDeath(playerid, killerid, reason)
 	 */
 	if(PlayerInfo[playerid][isOnMask]){
 		PlayerInfo[playerid][isOnMask] = 0;
+		if(PlayerInfo[playerid][tidak_dikenali] != 0)
+			Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+		PlayerInfo[playerid][tidak_dikenali] = 0;
 		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
 		mysql_tquery(koneksi, pQuery[playerid]);
 
@@ -6723,6 +6730,8 @@ public OnPlayerDeath(playerid, killerid, reason)
 	PlayerInfo[playerid][inDie] = LAMA_MENUNGGU_SAAT_SEKARAT;
 	GetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
 	GetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
+	PlayerInfo[playerid][last_int] = GetPlayerInterior(playerid); 
+	PlayerInfo[playerid][last_vw] = GetPlayerVirtualWorld(playerid);
 	onPlayerDeath_Alt(playerid);
 
 	hideHUDStats(playerid);
@@ -6789,6 +6798,7 @@ public OnGameModeInit()
 	// Initializing iterator
 	Iter_Init(PVehKeys);
 	Iter_Add(ATMs, 0);
+	Iter_Add(TidakDikenali, 0);
 
 	koneksi = mysql_connect_file();
 	errno = mysql_errno(koneksi);
@@ -7072,7 +7082,7 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 
 public OnPlayerText(playerid, text[]){
 	if(PlayerInfo[playerid][isOnMask])
-		format(msg,sizeof(msg), "Tidak dikenali: %s",  text);
+		format(msg,sizeof(msg), "Tidak dikenali#%d: %s", PlayerInfo[playerid][tidak_dikenali], text);
 	else
 		format(msg,sizeof(msg), "%s: %s", PlayerInfo[playerid][pPlayerName], text);
 

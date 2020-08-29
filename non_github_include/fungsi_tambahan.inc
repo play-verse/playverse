@@ -873,16 +873,16 @@ ShowPlayerMarker(playerid){
  * Digunakan untuk menghide player lain yang menggunakan mask 
  * dari playerid yang menjadi parameter
  */
-SyncMarkerMaskToPlayer(playerid){
-    foreach(new i : Player){
-        if(i != playerid) {
-            if(PlayerInfo[i][isOnMask])
-                ShowPlayerNameTagForPlayer(playerid, i, 0);
-            else
-                ShowPlayerNameTagForPlayer(playerid, i, 1);
-        }
-    }
-}
+// SyncMarkerMaskToPlayer(playerid){
+//     foreach(new i : Player){
+//         if(i != playerid) {
+//             if(PlayerInfo[i][isOnMask])
+//                 ShowPlayerNameTagForPlayer(playerid, i, 0);
+//             else
+//                 ShowPlayerNameTagForPlayer(playerid, i, 1);
+//         }
+//     }
+// }
 
 /**
     Manipulasi Array Item
