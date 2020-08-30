@@ -3310,12 +3310,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						inline responseQuery(){
 							if(cache_num_rows()){
-								showDialogPesan(playerid, RED"Anda Belum Ujian Praktik", WHITE"Maaf anda belum melakukan Ujian Praktik SIM, anda belum dapat mengambil SIM!\nSilahkan melakukan Ujian Praktik SIM terlebih dahulu, tempat Ujian Praktik SIM berada di sebelah Kantor Polisi Los Santos (Parkiran).");
-							}else{
 								getSudahBuatSIM(playerid, "cekSudahBisaAmbilSIM", false);
+							}else{
+								showDialogPesan(playerid, RED"Anda Belum Ujian Praktik", WHITE"Maaf anda belum melakukan Ujian Praktik SIM, anda belum dapat mengambil SIM!\nSilahkan melakukan Ujian Praktik SIM terlebih dahulu, tempat Ujian Praktik SIM berada di sebelah Kantor Polisi Los Santos (Parkiran).");
 							}
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT tanggal_buat FROM `pengambilan_sim` WHERE `id_user` = '%d' AND tanggal_buat = '0000-00-00 00:00:00'", PlayerInfo[playerid][pID]);
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT tanggal_buat FROM `pengambilan_sim` WHERE `id_user` = '%d' AND tanggal_buat != NULL", PlayerInfo[playerid][pID]);
 					}
 				}
 			}
@@ -3401,7 +3401,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						DeletePVar(playerid, "sim_soal");
 						DeletePVar(playerid, "tipe_sim");
 						SetPlayerVirtualWorld(playerid, 1);
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,tanggal_buat,tanggal_ambil,tipe_sim,status_teori) VALUES('%d','0000-00-00 00:00:00','0000-00-00 00:00:00','%d',1)", PlayerInfo[playerid][pID],tipeSIM);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,tipe_sim,status_teori) VALUES('%d','%d',1)", PlayerInfo[playerid][pID],tipeSIM);
 						mysql_tquery(koneksi, pQuery[playerid]);
 						return 1;
 					}
@@ -7353,6 +7353,36 @@ public OnPlayerText(playerid, text[]){
 
 							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
 							ActorResponse(ACT_penjualDealer, pDialog[playerid], 5);
+						}
+					}
+				}
+			}
+			else if(areaid == ACT_tokoNarko_Area){ // Cek Jika berada pada area actor
+				if(ACT_tokoNarko_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_PENJUAL_NARKO".*")){
+						ACT_tokoNarko_User = playerid;
+						ACT_tokoNarko_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_tokoNarko);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_tokoNarko, pDialog[playerid]);
+					}
+				}else if(ACT_tokoNarko_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_tokoNarko_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(beli|membeli)\\s(bibit|benih)\\silegal.*")){
+							showDialogBeliBibitNarko(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tokoNarko, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_tokoNarko_User = INVALID_PLAYER_ID;
+							ACT_tokoNarko_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_tokoNarko, pDialog[playerid], 5);
 						}
 					}
 				}

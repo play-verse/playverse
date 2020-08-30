@@ -544,3 +544,4 @@
 #define NAMA_ACTOR_PENJUAL_BIBIT 	"yuni"
 #define NAMA_ACTOR_PENJUAL_GADGET	"berta"
 #define NAMA_ACTOR_PENJUAL_DEALER	"erik"
+#define NAMA_ACTOR_PENJUAL_NARKO	"puyeng"

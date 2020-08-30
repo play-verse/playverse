@@ -17,7 +17,7 @@
 		"bmisiak/samp-precise-timers:v2.0.2",
 		"IllidanS4/PawnPlus#4038e8e0ae4d3a6dcd376f91466527cbee8065b7",
 		"urShadow/Pawn.Regex:1.1.3",
-		"oscar-broman/SKY#1056c0a5e43cdd8ba661a672ca61269c8bf8e694",
+		"oscar-broman/SKY:2.3.0",
 		"oscar-broman/samp-weapon-config#feaa44b7998297884d486586246f57a91040a9e3"
 	],
 	"builds": [
