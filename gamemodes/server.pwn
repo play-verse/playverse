@@ -2820,8 +2820,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 				else
 					showDialogKesalahanSistem(playerid, "invalid vehicle id saat memilih kendaraan rusak");
-			}else
-				showDialogTellerBank(playerid);
+			}
+			// else
+			// 	showDialogTellerBank(playerid);
 			return 1;
 		}
 		case DIALOG_DAFTAR_REKENING_INPUT_NOMOR:
@@ -2836,9 +2837,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) AS hasil FROM `user` WHERE rekening = '%e'", inputtext);
 				mysql_tquery(koneksi, pQuery[playerid], "isRekeningAda", "i", playerid);
-			}else{
-				showDialogTellerBank(playerid);
 			}
+			// else{
+			// 	showDialogTellerBank(playerid);
+			// }
 			return 1;
 		}
 		case DIALOG_DAFTAR_REKENING_KONFIRMASI:
@@ -2870,8 +2872,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 				format(pDialog[playerid], sizePDialog, WHITE"Anda akan menyimpan uang sebesar "GREEN"$%d "WHITE"pada tabungan anda.\nApakah anda yakin?\n\n"YELLOW"Pada saat uang disimpan anda dapat melihat nominalnya pada tabungan anda atau pada website.", nominal);
 				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_DEPOSIT, DIALOG_STYLE_MSGBOX, YELLOW"Konfirmasi penyimpanan", pDialog[playerid], "Simpan", "Batal");
-			}else
-				showDialogTellerBank(playerid);
+			}
+			// else
+			// 	showDialogTellerBank(playerid);
 			return 1;
 		}
 		case DIALOG_KONFIRMASI_DEPOSIT:
@@ -3105,8 +3108,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						return 1;
 					}
 				}
-			}else
-				ShowPlayerDialog(playerid, DIALOG_MENU_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan gaji :", WHITE"Ambil Gaji\nLihat Gaji", "Pilih", "Kembali");
+			}
+			// else
+			// 	ShowPlayerDialog(playerid, DIALOG_MENU_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan gaji :", WHITE"Ambil Gaji\nLihat Gaji", "Pilih", "Kembali");
 			return 1;
 		}
 		case DIALOG_LIHAT_GAJI:
@@ -6388,6 +6392,79 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_LIST_TAGIHAN:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					
+					if(GetPVarInt(playerid, "jenis_tagihan"))
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' AND jenis = %d ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "jenis_tagihan"), BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+					else
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+
+					mysql_tquery(koneksi, pQuery[playerid], "showTagihanPemain", "i", playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+							
+						if(GetPVarInt(playerid, "jenis_tagihan"))
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' AND jenis = %d ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "jenis_tagihan"), BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+						else
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+
+						mysql_tquery(koneksi, pQuery[playerid], "showTagihanPemain", "i", playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						
+
+						if(GetPVarInt(playerid, "jenis_tagihan"))
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' AND jenis = %d ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "jenis_tagihan"), BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+						else
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+
+						mysql_tquery(koneksi, pQuery[playerid], "showTagihanPemain", "i", playerid);
+					}
+					return 1;
+				}
+				// Pilihan
+				new nominal,
+					temp_id,
+					temp_keterangan[50],
+					temp_tanggal[50];
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(listitem, "id_tagihan", temp_id);
+				cache_get_value_name_int(listitem, "nominal", nominal);
+				cache_get_value_name(listitem, "tanggal", temp_tanggal);
+				cache_get_value_name(listitem, "keterangan", temp_keterangan);
+				cache_delete(PlayerInfo[playerid][tempCache]);
+				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+				SetPVarInt(playerid, "bill_nominal", nominal);
+				SetPVarInt(playerid, "bill_id_tagihan", temp_id); // Bisa kah 
+				SetPVarString(playerid, "bill_keterangan", temp_keterangan);
+
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan membayar tagihan.\nDengan spesifikasi berikut:\n\n");
+				strcatEx(pDialog[playerid], sizePDialog, WHITE"Nominal\t\t: "GREEN"$%d\n", nominal);
+				strcatEx(pDialog[playerid], sizePDialog, WHITE"Tanggal\t\t: "YELLOW"%s\n", temp_tanggal);
+				strcatEx(pDialog[playerid], sizePDialog, WHITE"Keterangan\t\t: %s\n\n", temp_keterangan);
+				strcatEx(pDialog[playerid], sizePDialog, "Apakah anda yakin ingin membayar?");
+				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_TAGIHAN, DIALOG_STYLE_MSGBOX, "Konfirmasi Bayar Tagihan", pDialog[playerid], "Bayar", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BAYAR_TAGIHAN:
+		{
+			if(response){
+				new keterangan[50];
+				GetPVarString(playerid, "bill_keterangan", keterangan, 50);
+				DeletePVar(playerid, "bill_keterangan");
+				format(pDialog[playerid], sizePDialog, "bayar tagihan %s", keterangan);
+				dialogMetodeBayar(playerid, GetPVarInt(playerid, "bill_nominal"), "selesaiBayarTagihan", pDialog[playerid]);
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -7495,6 +7572,132 @@ public OnPlayerText(playerid, text[]){
 					}
 				}
 			}
+			else if(areaid == ACT_tellerBankLS_1_Area){ // Cek Jika berada pada area actor
+				if(ACT_tellerBankLS_1_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_TELLER_BANK_1".*")){
+						ACT_tellerBankLS_1_User = playerid;
+						ACT_tellerBankLS_1_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_tellerBankLS_1);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_tellerBankLS_1, pDialog[playerid]);
+					}
+				}else if(ACT_tellerBankLS_1_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_tellerBankLS_1_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membuat|buat|bikin|membikin)\\s(atm|rekening|rekening atm).*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_TELLER_BANK, 1, 0, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_1, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\sdeposit\\s(atm|rekening|rekening atm|tabungan|uang).*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_TELLER_BANK, 1, 1, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_1, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(mengambil|ambil)\\sgaji.*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_MENU_GAJI, 1, 0, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_1, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(melihat|lihat)\\sgaji.*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_MENU_GAJI, 1, 1, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_1, playerid);
+						}				
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membayar|bayar)\\s(reparasi|perbaikan|perbaiki)\\skendaraan.*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_TELLER_BANK, 1, 3, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_1, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membayar|bayar)\\stagihan.*")){
+							SetPVarInt(playerid, "halaman", 0);
+
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+							mysql_tquery(koneksi, pQuery[playerid], "showTagihanPemain", "i", playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_1, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_tellerBankLS_1_User = INVALID_PLAYER_ID;
+							ACT_tellerBankLS_1_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_tellerBankLS_1, pDialog[playerid], 5);
+						}
+					}
+				}
+			}
+			else if(areaid == ACT_tellerBankLS_2_Area){ // Cek Jika berada pada area actor
+				if(ACT_tellerBankLS_2_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_TELLER_BANK_2".*")){
+						ACT_tellerBankLS_2_User = playerid;
+						ACT_tellerBankLS_2_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_tellerBankLS_2);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_tellerBankLS_2, pDialog[playerid]);
+					}
+				}else if(ACT_tellerBankLS_2_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_tellerBankLS_2_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membuat|buat|bikin|membikin)\\s(atm|rekening|rekening atm).*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_TELLER_BANK, 1, 0, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_2, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\sdeposit\\s(atm|rekening|rekening atm|tabungan|uang).*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_TELLER_BANK, 1, 1, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_2, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(mengambil|ambil)\\sgaji.*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_MENU_GAJI, 1, 0, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_2, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(melihat|lihat)\\sgaji.*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_MENU_GAJI, 1, 1, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_2, playerid);
+						}				
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membayar|bayar)\\s(reparasi|perbaikan|perbaiki)\\skendaraan.*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_TELLER_BANK, 1, 3, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_2, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membayar|bayar)\\stagihan.*")){
+							SetPVarInt(playerid, "halaman", 0);
+
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+							mysql_tquery(koneksi, pQuery[playerid], "showTagihanPemain", "i", playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_tellerBankLS_2, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_tellerBankLS_2_User = INVALID_PLAYER_ID;
+							ACT_tellerBankLS_2_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_tellerBankLS_2, pDialog[playerid], 5);
+						}
+					}
+				}
+			}					
 		}
 	}
 
@@ -8173,9 +8376,9 @@ public OnPlayerEnterDynamicArea(playerid, areaid){
 	}else if(areaid == AREA_spotBeliSkin[0] || areaid == AREA_spotBeliSkin[1] || areaid == AREA_spotBeliSkin[2]){
 		ShowPlayerDialog(playerid, DIALOG_TANYA_INGIN_BELI_SKIN, DIALOG_STYLE_MSGBOX, WHITE"Ingin beli skin?", "Apakah anda ingin membeli "YELLOW"skin normal "WHITE"dengan harga "GREEN"2500 "WHITE"per skin?", "Beli", "Batal");
 		return 1;
-	}else if(areaid == AREA_tellerBankLS[0] || areaid == AREA_tellerBankLS[1]){
-		showDialogTellerBank(playerid);
-		return 1;
+	// }else if(areaid == AREA_tellerBankLS[0] || areaid == AREA_tellerBankLS[1]){
+	// 	showDialogTellerBank(playerid);
+	// 	return 1;
 	// ID nya harus simetris (berurut dengan setiap |x2 - x1| = 1)
 	}else if(areaid >= AREA_Tambang[0] && areaid <= AREA_Tambang[sizeof(AREA_Tambang) - 1]) {
 		if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Anda harus berjalan kaki untuk dapat menambang!");
@@ -8200,13 +8403,7 @@ public OnPlayerEnterDynamicArea(playerid, areaid){
 public OnPlayerLeaveDynamicArea(playerid, areaid){
 	DeletePVar(playerid, "last_area");
     if(GetPVarType(playerid, "interaksi_actor")){
-		new actorid	= GetPVarInt(playerid, "interaksi_actor");
-		if(actorid == ACT_resepsionisPemerintah){
-			ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID;
-			ACT_resepsionisPemerintah_Res = 0;
-			TerminateInteraksi_Alt(ACT_resepsionisPemerintah);
-		}
-		SetPVarInt(playerid, "interaksi_actor", -1);
+		TerminateInteraksi_Alt(GetPVarInt(playerid, "interaksi_actor"));
 	}
 	return 1;
 }

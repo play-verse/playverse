@@ -104,6 +104,12 @@ loadAllArea(){
     ACT_tokoGadget_Area = CreateDynamicSphere(ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], 3.0);
     ACT_penjualDealer_Area = CreateDynamicSphere(ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], 3.0);
 
+
+    
+    // Khusus untuk teller bank LS y coordinat di + 2.0 supaya agak majuan dikit AREA nya
+    ACT_tellerBankLS_1_Area = CreateDynamicSphere(ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1] + 2.0, ACT_tellerBankLS_1_Pos[2], 3.0);
+    ACT_tellerBankLS_2_Area = CreateDynamicSphere(ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1] + 2.0, ACT_tellerBankLS_2_Pos[2], 3.0);
+
     /* Dari Checkpoint */
     // Tempat foto
     AREA_tempatFoto = buatSPDanLabel(-201.7664,-25.4403,1002.2734, "Silahkan cetak foto\n"GREEN"Disini!", 1.0);
@@ -117,8 +123,8 @@ loadAllArea(){
     AREA_spotGantiSkin = buatSPDanLabel(181.0340,-91.6368,1002.0234, "Ganti skin\n"YELLOW"Refresh skin anda disini.", 1.0);
 
     // Teller Bank LS
-    AREA_tellerBankLS[0] = buatSPDanLabel(1421.4474,-988.9171,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
-    AREA_tellerBankLS[1] = buatSPDanLabel(1417.4258,-988.8285,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
+    // AREA_tellerBankLS[0] = buatSPDanLabel(1421.4474,-988.9171,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
+    // AREA_tellerBankLS[1] = buatSPDanLabel(1417.4258,-988.8285,-55.2764, "Teller Bank Los Santos\n"GREEN"Pengurusan Administrasi disini.", 1.0, 1, 1);
 
     // Beli Makanan
     AREA_beliMakanCepatSaji = buatSPDanLabel(369.9234,-6.0165,1001.8589, GREEN"Beli Makan disini!", 1.0, -1, 9);

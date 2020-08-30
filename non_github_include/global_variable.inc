@@ -543,6 +543,8 @@ new
 	ACT_tokoNarko,
 	ACT_tokoGadget,
 	ACT_resepsionisPemerintah,
+	ACT_tellerBankLS_1,
+	ACT_tellerBankLS_2,
 
 	// Posisi
 	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
@@ -551,6 +553,8 @@ new
 	Float:ACT_tokoBibit_Pos[4] = {1494.2061, -1659.1025, 13.2922, 358.1933},
 	Float:ACT_tokoGadget_Pos[4] = {446.3421, 1238.8604, 1081.9045, 89.6002},
 	Float:ACT_resepsionisPemerintah_Pos[4] = {-501.2156, 296.5012, 2001.0950, 182.1136},
+	Float:ACT_tellerBankLS_1_Pos[4] = {1417.4010, -990.2611, -55.2764, 358.6096},
+	Float:ACT_tellerBankLS_2_Pos[4] = {1421.3867, -990.4861, -55.2764, 357.0429},
 
 	// 3D Text (Chat Bubble)
 	Text3D:ACT_resepsionisPemerintah_Text,
@@ -559,6 +563,8 @@ new
 	Text3D:ACT_tokoBibit_Text,
 	Text3D:ACT_tokoGadget_Text,
 	Text3D:ACT_penjualDealer_Text,
+	Text3D:ACT_tellerBankLS_1_Text,
+	Text3D:ACT_tellerBankLS_2_Text,
 
 	// Binding User
 	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
@@ -567,6 +573,8 @@ new
 	ACT_tokoBibit_User = INVALID_PLAYER_ID,
 	ACT_tokoGadget_User = INVALID_PLAYER_ID,
 	ACT_penjualDealer_User = INVALID_PLAYER_ID,
+	ACT_tellerBankLS_1_User = INVALID_PLAYER_ID,
+	ACT_tellerBankLS_2_User = INVALID_PLAYER_ID,
 
 	// Response User
 	ACT_resepsionisPemerintah_Res = 0,
@@ -575,6 +583,8 @@ new
 	ACT_tokoBibit_Res = 0,
 	ACT_tokoGadget_Res = 0,
 	ACT_penjualDealer_Res = 0,
+	ACT_tellerBankLS_1_Res = 0,
+	ACT_tellerBankLS_2_Res = 0,
 
 	// Timer (Lama Response)
 	ACT_resepsionisPemerintah_Timer = -1,
@@ -583,13 +593,18 @@ new
 	ACT_tokoBibit_Timer = -1,
 	ACT_tokoGadget_Timer = -1,
 	ACT_penjualDealer_Timer = -1,
+	ACT_tellerBankLS_1_Timer = -1,
+	ACT_tellerBankLS_2_Timer = -1,
 
+	// Area Actor
 	ACT_resepsionisPemerintah_Area,
 	ACT_skillMekanik_Area,
 	ACT_peralatanPancing_Area,
 	ACT_tokoBibit_Area,
 	ACT_tokoGadget_Area,
-	ACT_penjualDealer_Area
+	ACT_penjualDealer_Area,
+	ACT_tellerBankLS_1_Area,
+	ACT_tellerBankLS_2_Area
 ;
 
 /**
@@ -1203,7 +1218,7 @@ new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
     AREA_spotBarangMarket[sizeof(POSISI_BELI_BARANG_MARKET)],
     AREA_spotGantiSkin,
     AREA_spotBeliSkin[3],
-    AREA_tellerBankLS[2],
+    // AREA_tellerBankLS[2],
     AREA_Tambang[sizeof(POSISI_NAMBANG)],
     AREA_beliMakanCepatSaji,
     AREA_simRegis[1],

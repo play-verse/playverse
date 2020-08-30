@@ -24,6 +24,15 @@ loadAllActor(){
     // Bubble Chat Actor
     ACT_resepsionisPemerintah_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2] + 1.25, 10.0, .testlos = 1);
 
+    // Actor di Bank LS
+    ACT_tellerBankLS_1 = CreateDynamicActor(141, ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1], ACT_tellerBankLS_1_Pos[2], ACT_tellerBankLS_1_Pos[3], .worldid = 1, .interiorid = 1);
+    // Bubble Chat Actor
+    ACT_tellerBankLS_1_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1], ACT_tellerBankLS_1_Pos[2] + 1.25, 10.0, .testlos = 1);
+
+    ACT_tellerBankLS_2 = CreateDynamicActor(141, ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1], ACT_tellerBankLS_2_Pos[2], ACT_tellerBankLS_2_Pos[3], .worldid = 1, .interiorid = 1);
+    // Bubble Chat Actor
+    ACT_tellerBankLS_2_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1], ACT_tellerBankLS_2_Pos[2] + 1.25, 10.0, .testlos = 1);
+
     // Actor di toko gadget
     ACT_tokoGadget = CreateDynamicActor(141, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], ACT_tokoGadget_Pos[3], .worldid = 1, .interiorid = 1);
     // Bubble Chat Actor

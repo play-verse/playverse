@@ -1022,6 +1022,18 @@ ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_R
         // 15 detik batas interaksi
         ACT_penjualDealer_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
         UpdateDynamic3DTextLabelText(ACT_penjualDealer_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_tellerBankLS_1){
+        if(ACT_tellerBankLS_1_Timer != -1)
+            DeletePreciseTimer(ACT_tellerBankLS_1_Timer);
+        // 15 detik batas interaksi
+        ACT_tellerBankLS_1_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_tellerBankLS_1_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_tellerBankLS_2){
+        if(ACT_tellerBankLS_2_Timer != -1)
+            DeletePreciseTimer(ACT_tellerBankLS_2_Timer);
+        // 15 detik batas interaksi
+        ACT_tellerBankLS_2_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_tellerBankLS_2_Text, COLOR_WHITE, text);
     }
 }
 
@@ -1093,6 +1105,26 @@ ActorResetAndProses(actorid, playerid, const text[] = ""){
             ActorResponse(ACT_penjualDealer, pDialog[playerid], 5);
         }else
             ActorResponse(ACT_penjualDealer, text, 5);
+    }else if(actorid == ACT_tellerBankLS_1){
+        ACT_tellerBankLS_1_User = INVALID_PLAYER_ID;
+        ACT_tellerBankLS_1_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_tellerBankLS_1, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_tellerBankLS_1, text, 5);
+    }else if(actorid == ACT_tellerBankLS_2){
+        ACT_tellerBankLS_2_User = INVALID_PLAYER_ID;
+        ACT_tellerBankLS_2_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_tellerBankLS_2, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_tellerBankLS_2, text, 5);
     }
 }
 

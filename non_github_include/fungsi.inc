@@ -1135,6 +1135,21 @@ publicFor: selesaiBayarKerusakanKendaraan(playerid){
 	return 1;
 }
 
+publicFor: selesaiBayarTagihan(playerid){
+	new id_tagihan = GetPVarInt(playerid, "bill_id_tagihan");
+	DeletePVar(playerid, "bill_id_tagihan");
+	DeletePVar(playerid, "bill_nominal");
+
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE tagihan SET status = 1 WHERE id_tagihan = %d", id_tagihan);
+	mysql_tquery(koneksi, pQuery[playerid]);
+
+	format(pDialog[playerid], sizePDialog, WHITE"Anda telah membayar tagihan.\n\
+		"YELLOW"Tagihan akan otomatis terhapus dari list anda.\n\
+		"WHITE"Terimakasih telah patuh dengan membayar tagihan secara benar.");
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membayar tagihan", pDialog[playerid], "Ok", "");
+	return 1;
+}
+
 publicFor: selesaiBayarAlatMekanik(playerid){
 	new idx = GetPVarInt(playerid, "bAlat_index"),
 		nama_alat[50];
@@ -2213,6 +2228,47 @@ publicFor: showHistoryGajiPemain(playerid){
 			
 			mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT nominal, tanggal, keterangan FROM `gaji` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
 			mysql_tquery(koneksi, pQuery[playerid], "showHistoryGajiPemain", "i", playerid);
+		}
+	}
+	return 1;
+}
+
+publicFor: showTagihanPemain(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		new tmp_tanggal[50], 
+			tmp_nominal, 
+			temp_dialog[150], 
+			tmp_keterangan[50];
+		format(pDialog[playerid], sizePDialog, WHITE"Tanggal\t"GREEN"Nominal\t"WHITE"Keterangan\n");
+		foreach(new i : Range(0, rows)){
+			cache_get_value_name(i, "tanggal", tmp_tanggal);
+			cache_get_value_name(i, "keterangan", tmp_keterangan);
+			cache_get_value_name_int(i, "nominal", tmp_nominal);
+
+			format(temp_dialog, 149, "%s\t%i\t%s\n", tmp_tanggal, tmp_nominal, tmp_keterangan);
+			strcat(pDialog[playerid], temp_dialog);
+		}
+		strcat(pDialog[playerid], ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+		// Save cache
+		// IMPORTANT - PASTIKAN UNTUK SELALU MENGHAPUS SEBELUM MENYIMPAN CACHE YANG BARU
+		if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+		PlayerInfo[playerid][tempCache] = cache_save();
+
+		format(temp_dialog, 150, WHITE"Daftar Tagihan "GREEN"(page : %d)", GetPVarInt(playerid, "halaman") + 1);
+		ShowPlayerDialog(playerid, DIALOG_LIST_TAGIHAN, DIALOG_STYLE_TABLIST_HEADERS, temp_dialog, pDialog[playerid], "Bayar", "Tutup");
+	}else{
+		if(GetPVarInt(playerid, "halaman") < 1)
+			showDialogPesan(playerid, RED"Tagihan kosong", WHITE"Saat ini tagihan anda tidak ada.\nTerimakasih karena telah membayar dengan teratur.");
+		else{ // Kembalikan ke halaman sebelumnya
+			SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+			if(GetPVarInt(playerid, "jenis_tagihan"))
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' AND jenis = %d ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], GetPVarInt(playerid, "jenis_tagihan"), BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+			else
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+			mysql_tquery(koneksi, pQuery[playerid], "showTagihanPemain", "i", playerid);
 		}
 	}
 	return 1;
@@ -4244,6 +4300,22 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_penjualDealer_Res = 0;
 		ACT_penjualDealer_Timer = -1;
+	}else if(actorid == ACT_tellerBankLS_1){
+		UpdateDynamic3DTextLabelText(ACT_tellerBankLS_1_Text, COLOR_WHITE, "");
+		if(ACT_tellerBankLS_1_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_tellerBankLS_1_User, "interaksi_actor", -1);
+			ACT_tellerBankLS_1_User = INVALID_PLAYER_ID;
+		}
+		ACT_tellerBankLS_1_Res = 0;
+		ACT_tellerBankLS_1_Timer = -1;
+	}else if(actorid == ACT_tellerBankLS_2){
+		UpdateDynamic3DTextLabelText(ACT_tellerBankLS_2_Text, COLOR_WHITE, "");
+		if(ACT_tellerBankLS_2_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_tellerBankLS_2_User, "interaksi_actor", -1);
+			ACT_tellerBankLS_2_User = INVALID_PLAYER_ID;
+		}
+		ACT_tellerBankLS_2_Res = 0;
+		ACT_tellerBankLS_2_Timer = -1;
 	}
 	return 1;
 }
@@ -4261,6 +4333,10 @@ TerminateInteraksi_Alt(actorid){
 		DeletePreciseTimer(ACT_tokoGadget_Timer);
 	else if(actorid == ACT_penjualDealer && ACT_penjualDealer_Timer != -1)
 		DeletePreciseTimer(ACT_penjualDealer_Timer);
+	else if(actorid == ACT_tellerBankLS_1 && ACT_tellerBankLS_1_Timer != -1)
+		DeletePreciseTimer(ACT_tellerBankLS_1_Timer);
+	else if(actorid == ACT_tellerBankLS_2 && ACT_tellerBankLS_2_Timer != -1)
+		DeletePreciseTimer(ACT_tellerBankLS_2_Timer);
 	TerminateInteraksi(actorid);
 }
 

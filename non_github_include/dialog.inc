@@ -56,9 +56,9 @@ showDialogResepsionisKTP(playerid){
     return ShowPlayerDialog(playerid, DIALOG_RESEPSIONIS_PILIH_KTP, DIALOG_STYLE_LIST, "Pilihan tindakan KTP", "Buat KTP\nAmbil KTP yang sudah selesai", "Pilih", "Kembali");
 }
 
-showDialogTellerBank(playerid){
-    return ShowPlayerDialog(playerid, DIALOG_TELLER_BANK, DIALOG_STYLE_LIST, "Pilihan pengurusan administrasi Bank", "Buat Rekening ATM\nDeposit ke Tabungan\nGaji\nBayar Biaya Perbaiki Kendaraan Rusak", "Pilih", "Tutup");
-}
+// showDialogTellerBank(playerid){
+//     return ShowPlayerDialog(playerid, DIALOG_TELLER_BANK, DIALOG_STYLE_LIST, "Pilihan pengurusan administrasi Bank", "Buat Rekening ATM\nDeposit ke Tabungan\nGaji\nBayar Biaya Perbaiki Kendaraan Rusak", "Pilih", "Tutup");
+// }
 
 showDialogPesan(playerid, const judul_pesan[], const isi_pesan[]){
 	return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, judul_pesan, isi_pesan, "Ok", "");
