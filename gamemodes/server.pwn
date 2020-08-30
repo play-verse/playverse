@@ -4393,8 +4393,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(tid != -1){
 								if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
 									if(IsPlayerInDynamicCP(playerid, DTree[tid][treeCP])){
-										new vehid = GetPlayerVehicleID(playerid);
-										if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda berada di dalam kendaraan.");
+										if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memotong dalam keadaan sekarang.");
 										SetPlayerLookAt(playerid, DTree[tid][treeX], DTree[tid][treeY]);
 										Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[tid][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
 										CuttingTimer[playerid] = SetPreciseTimer("CutTree", 1000, true, "i", playerid);
@@ -4444,8 +4443,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 4:
 					{
 						// Muatan Pohon
+						if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
+
 						new vehid = GetPlayerVehicleID(playerid);
-						if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
 						if(!IsMobilPickup(vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan pick up.");
 						format(pDialog[playerid], sizePDialog, WHITE"Kendaraan anda memiliki muatan pohon sebanyak "GREEN"%d"WHITE" buah.", vehDTree[vehid][treeAngkut]);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Muatan Pohon", pDialog[playerid], "Ok", "");
@@ -5026,8 +5026,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
 						// Panen Tanaman
-						new randomNo, randomDrop = 0, plant_Id = GetClosestPlant(playerid), vehid = GetPlayerVehicleID(playerid);
-						if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Tidak dapat memanen tanaman di dalam kendaraan.");
+						new randomNo, randomDrop = 0, plant_Id = GetClosestPlant(playerid);
+						if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memanen tanaman dalam keadaan sekarang.");
 						if(plant_Id == -1) return error_command(playerid, "Anda tidak berada disekitar tanaman.");
 						if(!DFarm[plant_Id][plantHarvest]) return error_command(playerid, "Tanaman belum siap untuk dipanen, silahkan tunggu beberapa saat.");
 						ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 1, 1, 0, 0, 1);
@@ -5629,14 +5629,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", 1, total_item, PlayerInfo[playerid][limitItem]);
 								return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
 							}else{
-								new Float: x, Float: y, Float: z, Float: a, Float: tmp, obj,
-								vehid = GetPlayerVehicleID(playerid);
+								new Float: x, Float: y, Float: z, Float: a, Float: tmp, obj;
 								GetPlayerPos(playerid, x, y, z);
 								GetPlayerFacingAngle(playerid, a);
 								obj = CA_RayCastLine(x, y, z, x+(3.0*floatsin(-a, degrees)), y+(3.0*floatsin(-a, degrees)), z-3.0, tmp, tmp, tmp);
 								if(PlayerInfo[playerid][sisaJoran] <= 0) return error_command(playerid, "Anda tidak memiliki joran pancing.");
 								if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada diluar Interior atau Virtual World 0!");
-								if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Tidak dapat memancing di dalam kendaraan.");
+								if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memancing dalam keadaan sekarang.");
 								if(obj != 20000) return error_command(playerid, "Anda harus berada di pinggir perairan untuk dapat memancing.");
 								tambahItemPlayer(playerid, 43, -1);
 								TogglePlayerControllable(playerid , 0);
@@ -6001,8 +6000,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1:
 					{
 						// Muatan Sampah
+						if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
+
 						new vid = GetPlayerVehicleID(playerid);
-						if(!IsPlayerInVehicle(playerid, vid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
 						if(GetVehicleModel(vid) != 408) return error_command(playerid, "Anda tidak berada di dalam kendaraan truk sampah.");
 						format(pDialog[playerid], sizePDialog, WHITE"Kendaraan anda memiliki muatan sampah sebanyak "GREEN"%d"WHITE" buah.", trashM_VehCap[vid]);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Muatan Sampah", pDialog[playerid], "Ok", "");
@@ -6094,8 +6094,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 2:
 					{
 						// Muatan Pizza
+						if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
+
 						new vid = GetPlayerVehicleID(playerid);
-						if(!IsPlayerInVehicle(playerid, vid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
 						if(GetVehicleModel(vid) != 448) return error_command(playerid, "Anda tidak berada di dalam kendaraan pengantar pizza.");
 						format(pDialog[playerid], sizePDialog, WHITE"Kendaraan anda memiliki muatan pizza sebanyak "GREEN"%d"WHITE" buah.", pizza_VehCap[vid]);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Muatan Pizza", pDialog[playerid], "Ok", "");
@@ -6464,7 +6465,6 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				return SendClientMessage(playerid, COLOR_RED, "Kendaraan: "WHITE"Darah kendaraan habis dan rusak total.");
 		}
 		else if(vehid == ambulance_Veh[0] || vehid == ambulance_Veh[1]){
-			printf("%d", (IsPlayerOnDutyMedic(playerid) ? 1 : 0));
 			if(!IsPlayerOnDutyMedic(playerid))
 				return SendClientMessage(playerid, COLOR_RED, TAG_MEDIC" "WHITE"Anda tidak sedang bertugas sebagai medis.");
 		}
@@ -7054,9 +7054,15 @@ public OnGameModeInit()
 	// Ambulance Rumah sakit
 	ambulance_Veh[0] = AddStaticVehicleEx(416, 1177.6633, -1308.5510, 14.0078, 268.5052, 1, 3, -1, 1);
 	ambulance_Veh[1] = AddStaticVehicleEx(416, 1179.5927, -1338.8085, 13.9587, 271.2625, 1, 3, -1, 1);
+
+	SetVehicleParams(ambulance_Veh[0], VEHICLE_TYPE_ENGINE, 0);
+	SetVehicleParams(ambulance_Veh[0], VEHICLE_TYPE_LIGHTS, 0);
+
+	SetVehicleParams(ambulance_Veh[1], VEHICLE_TYPE_ENGINE, 0);
+	SetVehicleParams(ambulance_Veh[1], VEHICLE_TYPE_LIGHTS, 0);
+
 	ToggleVehicleFuel(ambulance_Veh[0], 0);
 	ToggleVehicleFuel(ambulance_Veh[1], 0);
-	printf("ambul %d %d", ambulance_Veh[0], ambulance_Veh[1]);
 
 	// Pizzaboy Vehicle
 	CreateDynamic3DTextLabel("Tempat Restok Pizza\n"GREEN"Pengantar Pizza (Pizzaboy)", COLOR_WHITE, 2105.00439, -1808.99744, 13.66980, 20.0);
@@ -7868,10 +7874,6 @@ public OnVehicleSpawn(vehicleid){
 		LoadModifVehiclePlayer(vehicleid);
 	else
 		SetVehicleFuel(vehicleid, MAX_VEHICLE_FUEL); // Set MAX_VEHICLE_FUEL
-	if(vehicleid == ambulance_Veh[0] || vehicleid == ambulance_Veh[1]){
-		SetVehicleParams(vehicleid, VEHICLE_TYPE_ENGINE, 0);
-		SetVehicleParams(vehicleid, VEHICLE_TYPE_LIGHTS, 0);
-	}
 	return 1;
 }
 
@@ -7969,6 +7971,12 @@ public OnPlayerCommandReceived(playerid, cmdtext[]){
 		error_command(playerid, "Anda harus login terlebih dahulu untuk dapat menggunakan command!");
 		error_command(playerid, "Anda telah dikick dari server karena menggunakan command sebelum login.");
 		KickEx(playerid);
+		return 0;
+	}
+	if(PlayerInfo[playerid][inDie] && !sama(cmdtext, "/panggilmedis") && !sama(cmdtext, "/bunuhdiri")){
+		error_command(playerid, "Anda sedang sekarat tidak dapat menggunakan command ini.");
+		SendClientMessage(playerid, COLOR_ORANGE, TAG_NOTE" "WHITE"Gunakan /panggilmedis untuk memanggil medis.");
+		SendClientMessage(playerid, COLOR_ORANGE, TAG_NOTE" "WHITE"Atau gunakan /bunuhdiri untuk langsung spawn dirumah sakit.");
 		return 0;
 	}
 	return 1;

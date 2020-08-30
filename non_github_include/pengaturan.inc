@@ -523,13 +523,19 @@
 #define TAG_POLICE				"Polisi:"
 #define TAG_MEDIC				"Medis:"
 #define TAG_REVIVE				"Revive:"
+#define TAG_RUMAH_SAKIT			"Rumah Sakit:"
 
 /*
 	Job Define
 */
+
+/** Bonus atau Gaji */
 #define GAJI_SWEEPER			30
 #define GAJI_TRASHMASTER		5
 #define GAJI_PIZZABOY			4
+
+#define BONUS_MENGHANCURKAN_GANJA 	(floatround(float(MENU_BIBIT_NARKO[0][hargaBibit]) * 0.75))
+/** End bonus dan gaji */
 
 #define TIME_SIMPRAKTIK			10
 #define TIME_SWEEPER			15
@@ -559,3 +565,13 @@
 #define NAMA_ACTOR_PENJUAL_BIBIT 	"yuni"
 #define NAMA_ACTOR_PENJUAL_GADGET	"berta"
 #define NAMA_ACTOR_PENJUAL_DEALER	"erik"
+
+/**
+	Jenis Tagihan
+*/
+#define JENIS_TAGIHAN_UNIVERSAL			0
+#define JENIS_TAGIHAN_RUMAH_SAKIT		1
+#define JENIS_TAGIHAN_KANTOR_POLISI		2
+
+#define TAGIHAN_REVIVE					400
+#define TAGIHAN_MATI_RS					600

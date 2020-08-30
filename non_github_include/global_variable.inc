@@ -57,6 +57,7 @@ enum pInfo
 
 	// Menyimpan timer count down sebelum dia di spawn di rumah sakit
 	inDie, // Jika sedang sekarat bilangan positif - untuk sekarat, 0 - untuk false
+	inPenjara, // Jika sedang di penjara
 
     preloadAnim, // Preload anim
 	inHouse,
@@ -604,6 +605,9 @@ new palangToll[2],
     isTollUsed[2],
     palangToll_LSLV[2],
     isTollUsed_LSLV[2];
+
+// Object Pintu Penjara
+new pintuPenjara[3];
 
 /*
     Virtual World untuk ngebedain pickup
@@ -1205,7 +1209,8 @@ new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
     AREA_simRegis[1],
     AREA_simPraktik[1],
     AREA_pusatProperti[1],
-	AREA_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)];
+	AREA_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)],
+	AREA_dalamPenjara[3];
 
 enum E_ATM
 {

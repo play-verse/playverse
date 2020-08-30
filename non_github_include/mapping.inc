@@ -34,6 +34,7 @@
 //Mall Los Santos
 //Toko Phone
 //Papan Text Guide
+//Interior Pintu Penjara
 
 #define MALL_OBJECT_DRAW_DIST   30.0 // Even with a streamer, keep the draw distance on the objects inside the shops low.
 
@@ -70,6 +71,7 @@ loadAllMapingan(){
     mallLosSantos();
     tokoGadget();
     papanTextGuide();
+    interiorPintuPenjara();
 }
 
 removeBangunanUntukMapping(playerid){
@@ -88,6 +90,7 @@ removeBangunanUntukMapping(playerid){
     // removeBlockGarageAndSpray(playerid);
     removeEksteriorTambang(playerid);
     removeMallLosSantos(playerid);
+    removeInteriorPintuPenjara(playerid);
 }
 
 pelabuhanSantaMaria(){
@@ -6382,4 +6385,19 @@ papanTextGuide(){
     SetDynamicObjectMaterialText(CreateDynamicObject(19805, 450.34671, 1238.88550, 1082.67981,   0.00000, 0.00000, 179.76019), 0, "{000000}Baca peraturan dan cara berbicara\nkepada penjual disini.", OBJECT_MATERIAL_SIZE_256x128, "Arial", 18, 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
     // penjual dealer
     SetDynamicObjectMaterialText(CreateDynamicObject(19805, 1005.63898, -1734.35449, 14.45340,   0.00000, 0.00000, 90.24000), 0, "{000000}Baca peraturan dan cara berbicara\nkepada dealer disini.", OBJECT_MATERIAL_SIZE_256x128, "Arial", 18, 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
+}
+
+removeInteriorPintuPenjara(playerid){
+    RemoveBuildingForPlayer(playerid, 14843, 266.3516, 81.1953, 1001.2813, 0.25);
+}
+
+interiorPintuPenjara(){
+    CreateDynamicObject(19302, 266.31070, 76.70040, 1001.26233,   0.00000, 0.00000, 90.00000);
+    pintuPenjara[0] = CreateDynamicObject(19302, 266.31070, 78.43640, 1001.26233,   0.00000, 0.00000, 90.00000);
+
+    CreateDynamicObject(19302, 266.31070, 81.22640, 1001.26233,   0.00000, 0.00000, 90.00000);
+    pintuPenjara[1] = CreateDynamicObject(19302, 266.31070, 82.96240, 1001.26233,   0.00000, 0.00000, 90.00000);
+
+    CreateDynamicObject(19302, 266.31070, 85.75240, 1001.26233,   0.00000, 0.00000, 90.00000);
+    pintuPenjara[2] = CreateDynamicObject(19302, 266.31070, 87.48840, 1001.26233,   0.00000, 0.00000, 90.00000);
 }

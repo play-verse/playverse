@@ -702,4 +702,5 @@ HideSpeedoForPlayer(playerid){
 
 	PlayerTextDrawHide(playerid, SpeedoTD_VehInfo[playerid][0]);
 	PlayerTextDrawHide(playerid, SpeedoTD_VehInfo[playerid][1]);
+	return 1;
 }

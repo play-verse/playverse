@@ -120,7 +120,12 @@ getTotalLamaBermain(playerid){
 
 addGajiPemain(playerid, nominal, const keterangan[]){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `gaji`(id_user, nominal, tanggal, status, keterangan) VALUES('%d', '%d', NOW(), '0', '%e')", PlayerInfo[playerid][pID], nominal, keterangan);
-    mysql_tquery(koneksi, pQuery[playerid]);
+    return mysql_tquery(koneksi, pQuery[playerid]);
+}
+
+addTagihanPemain(playerid, nominal, const keterangan[], jenis = JENIS_TAGIHAN_UNIVERSAL){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `tagihan`(id_user, nominal, tanggal, keterangan, jenis) VALUES('%d', '%d', NOW(), '%e', %d)", PlayerInfo[playerid][pID], nominal, keterangan, jenis);
+    return mysql_tquery(koneksi, pQuery[playerid]);
 }
 
 buatPickupDanLabel(modelid, Float:x, Float:y, Float:z, const text[]){
@@ -1110,5 +1115,16 @@ RemovePlayerFromVehicleEx(playerid){
     return 1;
 }
 
+SendMessageToDutyPolice(warna, const pesan[]){
+    new ret = 0;
+    foreach(new i : Player){
+        if(IsPlayerOnDutyPolice(i))
+            SendClientMessage(i, warna, pesan), ret++;
+    }
+    return ret;
+}
+
 #define GetExpMedicPlayer(%0)               PlayerInfo[%0][expMedic]
 #define GetExpMekanikPlayer(%0)             PlayerInfo[%0][expMekanik]
+
+#define IsPlayerInAnyAreaPenjara(%0)        (GetPVarType(%0, "last_area") && (GetPVarInt(%0, "last_area") == AREA_dalamPenjara[0] || GetPVarInt(%0, "last_area") == AREA_dalamPenjara[1] || GetPVarInt(%0, "last_area") == AREA_dalamPenjara[2]))

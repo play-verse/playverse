@@ -87,6 +87,7 @@ publicFor: isRegistered(playerid)
 		cache_get_value_name_float(0, "last_stats_minum", PlayerInfo[playerid][last_stats_minum]);
 
 		cache_get_value_name_int(0, "in_die", PlayerInfo[playerid][inDie]);
+		cache_get_value_name_int(0, "in_penjara", PlayerInfo[playerid][inPenjara]);
 
 		// IMPORTANT: Pastikan untuk LoadPlayerSkill dan sebagainya setelah load semua cache di atas
 		// agar tidak terjadi hal yang tidak diinginkan (lebih dari satu cache active secara bersamaan)
@@ -273,6 +274,7 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][loginAttempt] = 0;
 
 	PlayerInfo[playerid][inDie] = 0;
+	PlayerInfo[playerid][inPenjara] = 0;
 
 	// Timer Pemain
 	// Delete Timer yang tidak -1
@@ -491,7 +493,13 @@ spawnPemain(playerid, dari_callback = 0)
 			}else{
 				new random_spawn = random(sizeof(POSISI_SPAWN_SETELAH_MATI));
 				SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_X], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_Y], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_Z],POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
+
+				// Kenakan tagihan
+				format(pDialog[playerid], 50, "sekarat dan dikirim langsung ke rs");
+				addTagihanPemain(playerid, TAGIHAN_MATI_RS, pDialog[playerid], JENIS_TAGIHAN_RUMAH_SAKIT);
 				
+				sendPesan(playerid, COLOR_YELLOW, TAG_RUMAH_SAKIT" "WHITE"Anda dikenakan tagihan sebesar "GREEN"$%d", TAGIHAN_MATI_RS);
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Karena telah dikirim langsung ke rs setelah sekarat dan tidak dapat pertolongan.");
 				SpawnPlayer(playerid);
 
 				pindahkanPemain(playerid, POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_X], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_Y], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_Z], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_A], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_INTERIOR], POSISI_SPAWN_SETELAH_MATI[random_spawn][SPAWN_POINT_VW], true);
@@ -1903,6 +1911,13 @@ publicFor: progressRevive(playerid){
 
 				if(IsPlayerOnDutyMedic(playerid)){
 					// Kenakan tagihan
+					format(pDialog[playerid], 50, "mendapatkan revive dari medis %s", PlayerInfo[playerid][pPlayerName]);
+					addTagihanPemain(target_id, TAGIHAN_REVIVE, pDialog[playerid], JENIS_TAGIHAN_RUMAH_SAKIT);
+
+					// Petugas medis dapat 75%
+					format(pDialog[playerid], 50, "gaji revive %s", PlayerInfo[target_id][pPlayerName]);
+					addGajiPemain(playerid, floatround(float(TAGIHAN_REVIVE) * 0.75), pDialog[playerid]);
+
 					sendPesan(target_id, COLOR_GREEN, TAG_MEDIC" "WHITE"Anda berhasil diselamatkan oleh %s petugas medis.", PlayerInfo[playerid][pPlayerName]);
 				}
 				else
@@ -2810,6 +2825,32 @@ publicFor: tutupToll(tollid){
 	}
 }
 
+publicFor: tutupPintuPenjara(objid){
+	if(objid == pintuPenjara[0]){
+		MoveDynamicObject(objid, 266.31070, 78.43640, 1001.26233, 2.5);
+	}
+	else if(objid == pintuPenjara[1]){
+		MoveDynamicObject(objid, 266.31070, 82.96240, 1001.26233, 2.5);
+	}
+	else if(objid == pintuPenjara[2]){		
+		MoveDynamicObject(objid, 266.31070, 87.48840, 1001.26233, 2.5);
+	}
+	return 1;
+}
+
+publicFor: bukaPintuPenjara(objid){
+	if(objid == pintuPenjara[0]){
+		MoveDynamicObject(objid, 266.31070, 76.70040, 1001.26233, 2.5);
+	}
+	else if(objid == pintuPenjara[1]){
+		MoveDynamicObject(objid, 266.31070, 81.22640, 1001.26233, 2.5);
+	}
+	else if(objid == pintuPenjara[2]){		
+		MoveDynamicObject(objid, 266.31070, 85.75240, 1001.26233, 2.5);
+	}
+	return 1;
+}
+
 publicFor: tutupPalang(palangid){
 	if(palangid == 0){
 		MoveDynamicObject(pizza_Palang, 2106.10010, -1823.50000, 13.00000, 0.0001, 0.07700, 88.00100, 268.75101);
@@ -3645,6 +3686,9 @@ publicFor: OnPlayerVehicleHealthChange(playerid, vehicleid, Float:newhealth, Flo
 
 publicFor: SpeedoUpdate(playerid, vehid)
 {
+	if(!IsPlayerInAnyVehicle(playerid))
+		return HideSpeedoForPlayer(playerid);
+
     new txtspeed[5],
 		vehspeed = GetVehicleSpeed(vehid),
 		Float:vehhealth;
@@ -4259,6 +4303,20 @@ publicFor: pemainUpdate(playerid){
 	if(++PlayerInfo[playerid][thirstyStackedTime] >= 60){
 		PlayerInfo[playerid][thirstyStackedTime] = 0;
 		setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - STATUS_MINUM_BERKURANG_PER_WAKTU);
+	}
+
+	if(PlayerInfo[playerid][inPenjara] > 0 && IsPlayerInAnyAreaPenjara(playerid)){
+		new str_temp[70];
+		if(PlayerInfo[playerid][inPenjara] == 1){
+			format(str_temp, 70, "~g~Masa tahanan anda selesai");
+			sendPesan(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda dapat menggunakan "YELLOW"/keluar penjara "WHITE"untuk keluar secara instant.");
+			format(pDialog[playerid], 114, TAG_POLICE" "WHITE"Tahanan %s telah menyelesaikan masa tahannya.", PlayerInfo[playerid][pPlayerName]);
+			SendMessageToDutyPolice(COLOR_POLISI, pDialog[playerid]);
+		}
+		else
+			format(str_temp, 70, "~w~Sisa masa tahanan ~r~%d ~w~detik", PlayerInfo[playerid][inPenjara]);
+		PlayerInfo[playerid][inPenjara]--;
+		GameTextForPlayer(playerid, str_temp, 1000, 3);
 	}
 	return 1;
 }

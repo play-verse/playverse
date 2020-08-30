@@ -219,7 +219,7 @@ CMD:ephone(playerid, const params[]){
     return 1;
 }
 
-CMD:killme(playerid, params[]){
+CMD:bunuhdiri(playerid, params[]){
     SetPlayerHealth(playerid, 0.0);
     return 1;
 }
@@ -549,6 +549,15 @@ CMD:pecatmedic(playerid, params[]){
 
     PlayerInfo[target_id][levelMedic] = 0;
 
+    // Off Duty kan
+    if(PlayerInfo[target_id][skinID] != GetPlayerSkin(target_id)){
+        ClearAnimations(target_id);
+        ubahSkinPemain(target_id, PlayerInfo[target_id][skinID]);
+        PlayerInfo[target_id][skinDuty] = 0;
+    }
+    SetPlayerDutyMedic(target_id, 0);
+    SetPlayerColor(target_id, COLOR_WHITE);        
+
     sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat medic %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
 
     sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari medic.");
@@ -617,6 +626,16 @@ CMD:pecatpolisi(playerid, params[]){
     mysql_tquery(koneksi, pQuery[playerid]);
 
     PlayerInfo[target_id][levelPolice] = 0;
+
+    // Off Duty kan
+    if(PlayerInfo[target_id][skinID] != GetPlayerSkin(target_id)){
+        ClearAnimations(target_id);
+        ubahSkinPemain(target_id, PlayerInfo[target_id][skinID]);
+        PlayerInfo[target_id][skinDuty] = 0;
+    }
+    SetPlayerDutyPolice(target_id, 0);
+    ResetPlayerWeapons(target_id);
+    SetPlayerColor(target_id, COLOR_WHITE);    
 
     sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat polisi %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
 
@@ -687,5 +706,139 @@ CMD:lepastopeng(playerid, params[]){
 CMD:aactor(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
     ShowPlayerDialog(playerid, DIALOG_ADMIN_ACTOR, DIALOG_STYLE_LIST, "Menu admin untuk Actor :", "Respawn Actor", "Pilih", "Batal");    
+    return 1;
+}
+
+CMD:panggilmedis(playerid, params[]){
+    return 1;
+}
+
+CMD:tutup(playerid, params[]){
+    new text[50];
+    if(sscanf(params, "s[50]", text)) 
+        return error_syntax(playerid, "/tutup [objek]");
+
+    if(sama(text, "pintupenjara") && IsPlayerOnDutyPolice(playerid)){
+        if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 78.43640, 1001.26233)){
+            tutupPintuPenjara(pintuPenjara[0]);
+        }else if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 82.96240, 1001.26233)){
+            tutupPintuPenjara(pintuPenjara[1]);
+        }else if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 87.48840, 1001.26233)){
+            tutupPintuPenjara(pintuPenjara[2]);
+        }
+    }else
+        return 0;
+    return 1;
+}
+
+CMD:buka(playerid, params[]){
+    new text[50];
+    if(sscanf(params, "s[50]", text))
+        return error_syntax(playerid, "/buka [objek]");
+
+    if(sama(text, "pintupenjara") && IsPlayerOnDutyPolice(playerid)){
+        if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 78.43640, 1001.26233)){
+            bukaPintuPenjara(pintuPenjara[0]);
+        }else if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 82.96240, 1001.26233)){
+            bukaPintuPenjara(pintuPenjara[1]);
+        }else if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 87.48840, 1001.26233)){
+            bukaPintuPenjara(pintuPenjara[2]);
+        }
+    }else
+        return error_command(playerid, "Aksi tidak ditemukan.");
+    return 1;
+}
+
+CMD:penjarakan(playerid, params[]){
+    if(!IsPlayerOnDutyPolice(playerid))
+        return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak memiliki otoritas.");
+
+    new target_id,
+        lama_penjara,
+        alasan[50],
+        Float:pos[3];
+    if(sscanf(params, "uis[50]", target_id, lama_penjara, alasan))
+        return error_syntax(playerid, "/penjarakan [id target] [lama detik] [alasan]");
+    
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Pemain yang dimaksud tidak ada.");
+    if(lama_penjara < 1 || lama_penjara > 3600)
+        return error_command(playerid, "Minimal waktu penjara adalah 1 detik dan maksimal 3600 detik (1 jam).");
+
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+        return error_command(playerid, "Pemain yang di maksud tidak berada didekat anda.");
+    
+    PlayerInfo[target_id][inPenjara] = lama_penjara;
+    sendPesan(target_id, COLOR_POLISI, TAG_POLICE" "WHITE"Anda ditetapkan sebagai tahanan oleh %s.", PlayerInfo[playerid][pPlayerName]);
+    sendPesan(target_id, COLOR_POLISI, TAG_POLICE" "WHITE"Lama waktu penahanan "RED"%d "WHITE"detik dengan alasan %s.", lama_penjara, alasan);
+
+    sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menahan %s dengan masa tahanan %d detik.", PlayerInfo[target_id][pPlayerName], lama_penjara);
+    sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Dan alasan penahanan %s.", alasan);
+    return 1;
+}
+
+CMD:hapusmasapenjara(playerid, params[]){
+    if(!IsPlayerOnDutyPolice(playerid))
+        return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak memiliki otoritas.");
+
+    new target_id,
+        alasan[50],
+        Float:pos[3];
+    if(sscanf(params, "us[50]", target_id, alasan))
+        return error_syntax(playerid, "/hapusmasapenjara [id target] [alasan]");
+    
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Pemain yang dimaksud tidak ada.");
+
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+        return error_command(playerid, "Pemain yang di maksud tidak berada didekat anda.");
+    
+    PlayerInfo[target_id][inPenjara] = 0;
+    sendPesan(target_id, COLOR_POLISI, TAG_POLICE" "WHITE"Masa penjara anda telah dihilangkan oleh %s.", PlayerInfo[playerid][pPlayerName]);
+    sendPesan(target_id, COLOR_POLISI, TAG_POLICE" "WHITE"dengan alasan %s.", alasan);
+
+    sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghapus masa penjara.", PlayerInfo[target_id][pPlayerName]);
+    sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"dengan alasan %s.", alasan);
+    return 1;
+}
+
+CMD:keluar(playerid, params[]){
+    new text[50];
+    if(sscanf(params, "s[50]", text))
+        return error_syntax(playerid, "/keluar [aksi]");
+    if(sama(text, "penjara") && IsPlayerInAnyAreaPenjara(playerid) && !PlayerInfo[playerid][inPenjara]){
+        pindahkanPemain(playerid, 256.1987, 84.2868, 1002.4453, 59.2438, 6, 1);
+        SendClientMessage(playerid, COLOR_PINK, "* berhasil keluar penjara.");
+    }else
+        return error_command(playerid, "Aksi tidak ditemukan.");
+    return 1;
+}
+
+CMD:hancurkan(playerid, params[]){
+    new text[50];
+    if(sscanf(params, "s[50]", text))
+        return error_syntax(playerid, "/hancurkan [aksi]");
+
+    if(sama(text, "ganja") && IsPlayerOnDutyPolice(playerid)){
+        // Hancurkan Ganja
+        new plant_Id = GetClosestPlant(playerid);
+        if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat menghancurkan dalam keadaan sekarang.");
+        if(plant_Id == -1) 
+            return error_command(playerid, "Anda tidak berada disekitar tanaman.");
+        if(DFarm[plant_Id][plantItemID] != ID_GANJOS)
+            return error_command(playerid, "Tanaman ini bukan, tanaman ganja.");
+
+        ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 1, 1, 0, 0, 1);
+        DestroyTime(plant_Id);
+
+        DFarm[plant_Id][plantItemID] = -1;
+        SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan tanaman ganja.");
+        sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Anda mendapatkan bonus pekerjaan sebesar "GREEN"$%d", BONUS_MENGHANCURKAN_GANJA);
+        
+        addGajiPemain(playerid, BONUS_MENGHANCURKAN_GANJA, "bonus menghancurkan ganja");
+    }else
+        return error_command(playerid, "Aksi tidak ditemukan.");
     return 1;
 }
