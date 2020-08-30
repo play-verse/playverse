@@ -420,6 +420,9 @@ spawnPemain(playerid, dari_callback = 0)
 		PlayerInfo[playerid][last_stats_minum] = 0;
 	}
 
+    if(IsPlayerAttachedObjectSlotUsed(playerid, BORGOL_ATTACH_INDEX))
+        RemovePlayerAttachedObject(playerid, BORGOL_ATTACH_INDEX);	
+
 	/*
 	 * Synching Marker
 	 */

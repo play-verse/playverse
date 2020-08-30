@@ -6446,6 +6446,8 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			SetPlayerPos(playerid, pos[0], pos[1], pos[2]);
 			ClearAnimations(playerid);
 			server_message(playerid, "Anda tidak memiliki cukup energi untuk melompat.");
+		}else if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_CUFFED){
+			ApplyAnimation(playerid, "GYMNASIUM", "gym_jog_falloff", 4.1, 0, 1, 1, 0, 0);
 		}else{
 			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - 0.5);
 		}

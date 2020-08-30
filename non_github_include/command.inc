@@ -842,3 +842,60 @@ CMD:hancurkan(playerid, params[]){
         return error_command(playerid, "Aksi tidak ditemukan.");
     return 1;
 }
+
+CMD:borgol(playerid, params[]){
+    if(!IsPlayerOnDutyPolice(playerid))
+        return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak memiliki otoritas.");
+
+    new target_id,
+        Float:pos[3];
+    if(sscanf(params, "u", target_id))
+        return error_syntax(playerid, "/borgol [id target]");
+    
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Pemain yang dimaksud tidak ada.");
+
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+        return error_command(playerid, "Pemain yang di maksud tidak berada didekat anda.");
+
+    if(GetPlayerSpecialAction(target_id) == SPECIAL_ACTION_CUFFED && IsPlayerAttachedObjectSlotUsed(target_id, BORGOL_ATTACH_INDEX))
+        return error_command(playerid, "Pemain sudah terborgol.");
+
+    sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil memborgol %s.", PlayerInfo[target_id][pPlayerName]);
+    sendPesan(target_id, COLOR_POLISI, TAG_POLICE" "WHITE"Anda telah diborgol oleh polisi %s.", PlayerInfo[playerid][pPlayerName]);
+
+    if(IsPlayerAttachedObjectSlotUsed(target_id, BORGOL_ATTACH_INDEX))
+        RemovePlayerAttachedObject(target_id, BORGOL_ATTACH_INDEX);
+    SetPlayerAttachedObject(target_id, BORGOL_ATTACH_INDEX, 19418, 6, -0.011000, 0.028000, -0.022000, -15.600012, -33.699977, -81.700035, 0.891999, 1.0, 1.168);
+    SetPlayerSpecialAction(target_id, SPECIAL_ACTION_CUFFED);
+    return 1;
+}
+
+CMD:bukaborgol(playerid, params[]){
+    if(!IsPlayerOnDutyPolice(playerid))
+        return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak memiliki otoritas.");
+
+    new target_id,
+        Float:pos[3];
+    if(sscanf(params, "u", target_id))
+        return error_syntax(playerid, "/bukaborgol [id target]");
+    
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Pemain yang dimaksud tidak ada.");
+
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+        return error_command(playerid, "Pemain yang di maksud tidak berada didekat anda.");
+
+    if(GetPlayerSpecialAction(target_id) != SPECIAL_ACTION_CUFFED && !IsPlayerAttachedObjectSlotUsed(target_id, BORGOL_ATTACH_INDEX))
+        return error_command(playerid, "Pemain tidak dalam keadaan diborgol.");
+
+    sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil membuka borgol %s.", PlayerInfo[target_id][pPlayerName]);
+    sendPesan(target_id, COLOR_POLISI, TAG_POLICE" "WHITE"Borgol anda telah dilepas oleh polisi %s.", PlayerInfo[playerid][pPlayerName]);
+
+    if(IsPlayerAttachedObjectSlotUsed(target_id, BORGOL_ATTACH_INDEX))
+        RemovePlayerAttachedObject(target_id, BORGOL_ATTACH_INDEX);
+    SetPlayerSpecialAction(target_id, SPECIAL_ACTION_NONE);
+    return 1;
+}
