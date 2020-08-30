@@ -7617,6 +7617,7 @@ public OnPlayerText(playerid, text[]){
 						}
 						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membayar|bayar)\\stagihan.*")){
 							SetPVarInt(playerid, "halaman", 0);
+							SetPVarInt(playerid, "jenis_tagihan", 0);
 
 							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
 							mysql_tquery(koneksi, pQuery[playerid], "showTagihanPemain", "i", playerid);
@@ -7680,6 +7681,7 @@ public OnPlayerText(playerid, text[]){
 						}
 						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membayar|bayar)\\stagihan.*")){
 							SetPVarInt(playerid, "halaman", 0);
+							SetPVarInt(playerid, "jenis_tagihan", 0);
 
 							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
 							mysql_tquery(koneksi, pQuery[playerid], "showTagihanPemain", "i", playerid);
