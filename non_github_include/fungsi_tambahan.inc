@@ -1034,6 +1034,12 @@ ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_R
         // 15 detik batas interaksi
         ACT_tellerBankLS_2_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
         UpdateDynamic3DTextLabelText(ACT_tellerBankLS_2_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_tokoNarko){
+        if(ACT_tokoNarko_Timer != -1)
+            DeletePreciseTimer(ACT_tokoNarko_Timer);
+        // 15 detik batas interaksi
+        ACT_tokoNarko_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_tokoNarko_Text, COLOR_WHITE, text);
     }
 }
 
@@ -1125,6 +1131,17 @@ ActorResetAndProses(actorid, playerid, const text[] = ""){
             ActorResponse(ACT_tellerBankLS_2, pDialog[playerid], 5);
         }else
             ActorResponse(ACT_tellerBankLS_2, text, 5);
+    }
+    else if(actorid == ACT_tokoNarko){
+        ACT_tokoNarko_User = INVALID_PLAYER_ID;
+        ACT_tokoNarko_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_tokoNarko, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_tokoNarko, text, 5);
     }
 }
 

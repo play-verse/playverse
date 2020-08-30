@@ -570,6 +570,7 @@
 #define NAMA_ACTOR_PENJUAL_DEALER	"erik"
 #define NAMA_ACTOR_TELLER_BANK_1	"luna"
 #define NAMA_ACTOR_TELLER_BANK_2	"yuna"
+#define NAMA_ACTOR_PENJUAL_NARKO	"puyeng"
 
 /**
 	Jenis Tagihan

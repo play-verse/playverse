@@ -565,6 +565,7 @@ new
 	Text3D:ACT_penjualDealer_Text,
 	Text3D:ACT_tellerBankLS_1_Text,
 	Text3D:ACT_tellerBankLS_2_Text,
+	Text3D:ACT_tokoNarko_Text,
 
 	// Binding User
 	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
@@ -575,6 +576,7 @@ new
 	ACT_penjualDealer_User = INVALID_PLAYER_ID,
 	ACT_tellerBankLS_1_User = INVALID_PLAYER_ID,
 	ACT_tellerBankLS_2_User = INVALID_PLAYER_ID,
+	ACT_tokoNarko_User = INVALID_PLAYER_ID,
 
 	// Response User
 	ACT_resepsionisPemerintah_Res = 0,
@@ -585,6 +587,7 @@ new
 	ACT_penjualDealer_Res = 0,
 	ACT_tellerBankLS_1_Res = 0,
 	ACT_tellerBankLS_2_Res = 0,
+	ACT_tokoNarko_Res = 0,
 
 	// Timer (Lama Response)
 	ACT_resepsionisPemerintah_Timer = -1,
@@ -595,6 +598,7 @@ new
 	ACT_penjualDealer_Timer = -1,
 	ACT_tellerBankLS_1_Timer = -1,
 	ACT_tellerBankLS_2_Timer = -1,
+	ACT_tokoNarko_Timer = -1,
 
 	// Area Actor
 	ACT_resepsionisPemerintah_Area,
@@ -604,7 +608,8 @@ new
 	ACT_tokoGadget_Area,
 	ACT_penjualDealer_Area,
 	ACT_tellerBankLS_1_Area,
-	ACT_tellerBankLS_2_Area
+	ACT_tellerBankLS_2_Area,
+	ACT_tokoNarko_Area
 ;
 
 /**
@@ -1293,7 +1298,6 @@ new const POINT_NARKO_ACTOR[][POINT_NARKO_ACTOR_INFO] = {
 
 new Iterator:PlantIterator<MAX_PLANTS>,
     DFarm[MAX_PLANTS][FarmInfo],
-	Text3D:labelTokoNarko,
 	MrPuyengRand,
 	MrPuyengStart,
 	MrPuyengEnd,

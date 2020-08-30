@@ -2576,9 +2576,9 @@ publicFor: isBisaBuatSIM(playerid, tidak_bisa){
 				if(!cache_num_rows()){
 					showDialogPesan(playerid, RED"Anda Belum Ujian Teori", WHITE"Maaf anda belum melakukan Ujian Teori SIM, anda tidak dapat melakukan Ujian Praktik SIM!\nSilahkan melakukan Ujian Teori SIM terlebih dahulu, tempat Ujian Teori SIM berada di Kantor Polisi Los Santos.");
 				}else{
-					new tgl_buat[30];
-					cache_get_value_name(0, "tanggal_buat", tgl_buat);
-					if(sama("0000-00-00 00:00:00", tgl_buat)){
+					new bool:is_null = true;
+					cache_is_value_name_null(0, "tanggal_buat", is_null);
+					if(is_null){
 						ShowPlayerDialog(playerid, DIALOG_PRAKTIK_SIM_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan praktik mengemudi kendaraan.\nSilahkan ikuti aturan dan arah jalan dengan benar sebagai berikut.\nAturan:\n"YELLOW"- Maksimal kecepatan "GREEN"80 KmpH\n"YELLOW"- Kendaraan tidak boleh menabrak apapun disekitar\n- Minimal poin "GREEN"80", "Ok", "Batal");
 					}else{
 						showDialogPesan(playerid, RED"Anda Sudah Ujian Praktik", WHITE"Maaf anda sudah melakukan Ujian Praktik SIM, anda tidak dapat melakukan kembali Ujian Praktik SIM!\nSilahkan ambil SIM di Kantor Polisi Los Santos.");
@@ -4124,19 +4124,18 @@ GetClosestPlant(playerid, Float: range = 5.0){
 publicFor: buatTokoNarko(){
 	MrPuyengRand = random(sizeof(POINT_NARKO));
 	DeletePreciseTimer(MrPuyengStart);
-	labelTokoNarko = CreateDynamic3DTextLabel("Mr. Puyeng\n"YELLOW"Ketik /bicara untuk berbicara.", COLOR_WHITE, POINT_NARKO[MrPuyengRand][NARKO_X], POINT_NARKO[MrPuyengRand][NARKO_Y], POINT_NARKO[MrPuyengRand][NARKO_Z] + 1.0, 10.0, .testlos = 1);
 	ACT_tokoNarko = CreateDynamicActor(272, POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_A], .worldid = 0, .interiorid = 0);
+    ACT_tokoNarko_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z] + 1.25, 10.0, .testlos = 1);
+	ACT_tokoNarko_Area = CreateDynamicSphere(POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z], 3.0);
 	MrPuyengEnd = SetPreciseTimer("re_TokoNarko", 300000, false); // Buat random toko
 	return 1;
 }
 
 publicFor: re_TokoNarko(){
 	DeletePreciseTimer(MrPuyengEnd);
-	if(IsValidDynamic3DTextLabel(labelTokoNarko)) DestroyDynamic3DTextLabel(labelTokoNarko);
 	if(IsValidDynamicActor(ACT_tokoNarko)) DestroyDynamicActor(ACT_tokoNarko);
 	MrPuyengRand = -1;
 	MrPuyengEnd = -1;
-	labelTokoNarko = Text3D: -1;
 	MrPuyengStart = SetPreciseTimer("buatTokoNarko", 60000, false); // Cooldown toko
 	return 1;
 }
@@ -4316,6 +4315,14 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_tellerBankLS_2_Res = 0;
 		ACT_tellerBankLS_2_Timer = -1;
+	}else if(actorid == ACT_tokoNarko){
+		UpdateDynamic3DTextLabelText(ACT_tokoNarko_Text, COLOR_WHITE, "");
+		if(ACT_tokoNarko_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_tokoNarko_User, "interaksi_actor", -1);
+			ACT_tokoNarko_User = INVALID_PLAYER_ID;
+		}
+		ACT_tokoNarko_Res = 0;
+		ACT_tokoNarko_Timer = -1;
 	}
 	return 1;
 }
@@ -4337,6 +4344,8 @@ TerminateInteraksi_Alt(actorid){
 		DeletePreciseTimer(ACT_tellerBankLS_1_Timer);
 	else if(actorid == ACT_tellerBankLS_2 && ACT_tellerBankLS_2_Timer != -1)
 		DeletePreciseTimer(ACT_tellerBankLS_2_Timer);
+	else if(actorid == ACT_tokoNarko && ACT_tokoNarko_Timer != -1)
+		DeletePreciseTimer(ACT_tokoNarko_Timer);
 	TerminateInteraksi(actorid);
 }
 
