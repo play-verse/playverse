@@ -522,6 +522,7 @@
 #define TAG_SIBUK				"Sibuk:"
 #define TAG_POLICE				"Polisi:"
 #define TAG_MEDIC				"Medis:"
+#define TAG_REVIVE				"Revive:"
 
 /*
 	Job Define

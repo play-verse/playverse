@@ -1882,7 +1882,7 @@ publicFor: progressModifKendaraan(playerid, vehicleid, componentid){
 publicFor: progressRevive(playerid){
 	new target_id = GetPVarInt(playerid, "target_revive");
 
-	if(IsPlayerConnected(target_id)){
+	if(IsPlayerConnected(target_id) && IsPlayerConnected(playerid)){
 		new Float:pos[3];
 		GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
 
@@ -1893,6 +1893,25 @@ publicFor: progressRevive(playerid){
 
 				tambahItemPlayer(playerid, ID_OBAT_HERBAL, -1);
 				reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
+
+				// Reset timer and animations on target_id
+				if(PlayerInfo[target_id][timerDie] != -1){
+					DeletePreciseTimer(PlayerInfo[target_id][timerDie]);
+					PlayerInfo[target_id][timerDie] = -1;
+				}
+				ClearAnimations(target_id, 1);
+
+				if(IsPlayerOnDutyMedic(playerid)){
+					// Kenakan tagihan
+					sendPesan(target_id, COLOR_GREEN, TAG_MEDIC" "WHITE"Anda berhasil diselamatkan oleh %s petugas medis.", PlayerInfo[playerid][pPlayerName]);
+				}
+				else
+					sendPesan(target_id, COLOR_GREEN, TAG_REVIVE" "WHITE"Anda berhasil diselamatkan oleh %s.", PlayerInfo[playerid][pPlayerName]);
+
+				// Reset Timer
+				if(PlayerInfo[target_id][timerPemain] != -1)
+					DeletePreciseTimer(PlayerInfo[target_id][timerPemain]);
+				PlayerInfo[target_id][timerPemain] = SetPreciseTimer("pemainUpdate", INTERVAL_WAKTU_UPDATE_PEMAIN * 1000, true, "i", target_id);
 
 				/**
 					Tambah exp				
