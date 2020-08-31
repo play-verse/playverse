@@ -7079,7 +7079,7 @@ public OnGameModeInit()
 	printf("[TEXTDRAW] Sukses load textdraw!");
 
 	// Setting up Game mode
-	SetGameModeText("EL v0.5");
+	SetGameModeText("VRP v0.7 Alpha");
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
 	ShowNameTags(1);
 	SetNameTagDrawDistance(40.0);
