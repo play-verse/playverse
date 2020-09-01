@@ -474,8 +474,8 @@ CMD:beriuang(playerid, params[]){
     givePlayerUang(playerid, -nominal);
     givePlayerUang(target_id, nominal);
 
-    ApplyAnimation(playerid, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1);
-    ApplyAnimation(target_id, "DEALER", "DEALER_DEAL", 4.1, 0, 1, 1, 0, 2000, 1);
+    PlayerGivesAnimation(playerid);
+    PlayerTakesAnimation(target_id); 
 
     sendPesan(target_id, COLOR_GREEN, "Uang: "WHITE"Anda telah menerima uang dari "ORANGE"%s "WHITE"sebanyak "GREEN"$%d", PlayerInfo[playerid][pPlayerName], nominal);
 

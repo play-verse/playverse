@@ -1533,8 +1533,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				tambahItemPlayer(playerid, id_item, -jumlah);
 				tambahItemPlayer(target_id, id_item, jumlah);
 
-				ApplyAnimation(playerid, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1);
-				ApplyAnimation(target_id, "DEALER", "DEALER_DEAL", 4.1, 0, 1, 1, 0, 2000, 1);
+				PlayerGivesAnimation(playerid);
+				PlayerTakesAnimation(target_id); 
 
 				sendPesan(target_id, COLOR_GREEN, "Item: "WHITE"Anda telah mendapatkan item "PINK"%s "WHITE"dari "ORANGE"%s "WHITE"sebanyak "GREEN"%dx", nama_item, PlayerInfo[playerid][pPlayerName], jumlah);
 
@@ -5794,8 +5794,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					"YELLOW"Kendaraan yang dijual akan otomatis hilang dari inventory dan server. \nKendaraan yang telah dijual tidak dapat dikembalikan lagi.\nJika terjadi kesalahan user saat menjual kendaraan diluar tanggung jawab server.");
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Anda berhasil menjual kendaraan", pDialog[playerid], "Ok", "");
 
-				ApplyDynamicActorAnimation(ACT_penjualDealer, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 0);
-				ApplyAnimation(playerid, "DEALER", "DEALER_DEAL", 4.1, 0, 1, 1, 0, 2000, 1);
+				PlayerGivesAnimation(ACT_penjualDealer);
+				PlayerTakesAnimation(playerid);
 
 				// Hancurkan vehicle
 				static const kosong_pveh[PlayerVehicleInfo];
