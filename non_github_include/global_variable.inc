@@ -83,6 +83,7 @@ enum pInfo
 
     // Settings
     bool:tampilHUDStats,
+    bool:tampilSpeedo,
 
     bool:sudahSpawn,
     bool:sudahLogin,
@@ -264,11 +265,14 @@ new const POSISI_SPAWN_REPARASI_MOBIL[][SPAWN_POINT_INFO] = {
     {988.2432,-1697.1013,14.2885,272.8525, 0, 0}
 };
 
+// 10000.0225 original z coordinat
+// 6.500 derajat yang diturunkan
+// z coords =  10000.0225 - 6.500 = 3.500 
 new const POSISI_SPAWN_SETELAH_MATI[][SPAWN_POINT_INFO] = {
-    {173.3954, 1761.8878, 10000.0225, 173.3254, 1, 1},
-    {173.0196, 1755.2919, 10000.0225, 178.3621, 1, 1},
-    {164.1930, 1755.6797, 10000.0225, 173.9520, 1, 1},
-    {163.3318, 1761.8503, 10000.0225, 179.5920, 1, 1}
+    {173.3954, 1761.8878, 3500.0225, 173.3254, 1, 1},
+    {173.0196, 1755.2919, 3500.0225, 178.3621, 1, 1},
+    {164.1930, 1755.6797, 3500.0225, 173.9520, 1, 1},
+    {163.3318, 1761.8503, 3500.0225, 179.5920, 1, 1}
 };
 
 enum COORD_OBJ {
@@ -374,7 +378,7 @@ new const POSISI_POM_BENSIN[][COORD_OBJ] = {
  */
 enum INFO_BARANG_MARKET {
 	idItemMarket,
-    hargaBarang
+    hargaItemMarket
 }
 
 new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
@@ -439,6 +443,18 @@ new const MENU_ALAT_MEKANIK[][INFO_MENU_ALAT] = {
     {51, 10000} // Ultimate Parts
 };
 
+new const MENU_BELI_ITEM_MEDIS[][INFO_BARANG_MARKET] = {
+    {52, 100}, // Bubuk Herbal
+    {53, 300}, // Obat Revive
+    {58, 250}, // Pil Darah Merah 100
+    {57, 150}, // Pil Darah Merah 50
+    {56, 75}, // Pil Darah Merah 20
+    {61, 200}, // Pil Darah Putih 100
+    {60, 125}, // Pil Darah Putih 50
+    {59, 60}, // Pil Darah Putih 20
+    {55, 125}, // Medical Kit 100
+    {54, 80} // Medical Kit 50
+};
 
 enum INFO_MENU_BIBIT {
     idItemBibit,
@@ -474,18 +490,12 @@ new const MENU_ALAT_PANCING[][INFO_MENU_ALAT_PANCING] = {
 
 };
 
-enum INFO_MENU_PHONE {
-    idItem,
-    namaItem[100],
-    hargaItem
-}
-
-new const MENU_PHONE[][INFO_MENU_PHONE] = {
+new const MENU_PHONE[][INFO_BARANG_MARKET] = {
 // Item Phone
-    {1, "ePhone 1", 150},
-    {2, "ePhone 2", 300},
-	{3, "ePhone 3", 450},
-    {4, "ePhone 4", 600}
+    {1, 150}, // Ephone 1
+    {2, 300},
+	{3, 450},
+    {4, 600}  // Ephone 4
 };
 
 enum INFO_RARITY {
@@ -545,6 +555,7 @@ new
 	ACT_resepsionisPemerintah,
 	ACT_tellerBankLS_1,
 	ACT_tellerBankLS_2,
+	ACT_rumahSakit,
 
 	// Posisi
 	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
@@ -555,6 +566,8 @@ new
 	Float:ACT_resepsionisPemerintah_Pos[4] = {-501.2156, 296.5012, 2001.0950, 182.1136},
 	Float:ACT_tellerBankLS_1_Pos[4] = {1391.5345, -30.0384, 1000.8950, 175.7600},
 	Float:ACT_tellerBankLS_2_Pos[4] = {1386.0791, -30.0127, 1000.8950, 175.5193},
+	// 
+	Float:ACT_rumahSakit_Pos[4] = {180.7404, 1777.2717, 3500.0225, 89.0838},
 
 	// 3D Text (Chat Bubble)
 	Text3D:ACT_resepsionisPemerintah_Text,
@@ -566,6 +579,7 @@ new
 	Text3D:ACT_tellerBankLS_1_Text,
 	Text3D:ACT_tellerBankLS_2_Text,
 	Text3D:ACT_tokoNarko_Text,
+	Text3D:ACT_rumahSakit_Text,
 
 	// Binding User
 	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
@@ -577,6 +591,7 @@ new
 	ACT_tellerBankLS_1_User = INVALID_PLAYER_ID,
 	ACT_tellerBankLS_2_User = INVALID_PLAYER_ID,
 	ACT_tokoNarko_User = INVALID_PLAYER_ID,
+	ACT_rumahSakit_User = INVALID_PLAYER_ID,
 
 	// Response User
 	ACT_resepsionisPemerintah_Res = 0,
@@ -588,6 +603,7 @@ new
 	ACT_tellerBankLS_1_Res = 0,
 	ACT_tellerBankLS_2_Res = 0,
 	ACT_tokoNarko_Res = 0,
+	ACT_rumahSakit_Res = 0,
 
 	// Timer (Lama Response)
 	ACT_resepsionisPemerintah_Timer = -1,
@@ -599,6 +615,7 @@ new
 	ACT_tellerBankLS_1_Timer = -1,
 	ACT_tellerBankLS_2_Timer = -1,
 	ACT_tokoNarko_Timer = -1,
+	ACT_rumahSakit_Timer = -1,
 
 	// Area Actor
 	ACT_resepsionisPemerintah_Area,
@@ -609,7 +626,8 @@ new
 	ACT_penjualDealer_Area,
 	ACT_tellerBankLS_1_Area,
 	ACT_tellerBankLS_2_Area,
-	ACT_tokoNarko_Area
+	ACT_tokoNarko_Area,
+	ACT_rumahSakit_Area
 ;
 
 /**

@@ -669,18 +669,24 @@ unloadTextDrawPemain(playerid){
 	Show Player Speedo Textdraw
 */
 ShowSpeedoForPlayer(playerid, vehicleid){
+	if(SpeedoTimer[playerid] != -1){
+        DeletePreciseTimer(SpeedoTimer[playerid]);
+        SpeedoTimer[playerid] = -1;
+	}
     SpeedoTimer[playerid] = SetPreciseTimer("SpeedoUpdate", 750, true, "ii", playerid, vehicleid);
 
-	TextDrawShowForPlayer(playerid, SpeedoTD[0]);
-	TextDrawShowForPlayer(playerid, SpeedoTD[1]);
-	TextDrawShowForPlayer(playerid, SpeedoTD[2]);
-	TextDrawShowForPlayer(playerid, SpeedoTD[3]);
+	if(PlayerInfo[playerid][tampilSpeedo]){
+		TextDrawShowForPlayer(playerid, SpeedoTD[0]);
+		TextDrawShowForPlayer(playerid, SpeedoTD[1]);
+		TextDrawShowForPlayer(playerid, SpeedoTD[2]);
+		TextDrawShowForPlayer(playerid, SpeedoTD[3]);
 
-	ShowPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][0]);
-	ShowPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][1]);
+		ShowPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][0]);
+		ShowPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][1]);
 
-	PlayerTextDrawShow(playerid, SpeedoTD_VehInfo[playerid][0]);
-	PlayerTextDrawShow(playerid, SpeedoTD_VehInfo[playerid][1]);
+		PlayerTextDrawShow(playerid, SpeedoTD_VehInfo[playerid][0]);
+		PlayerTextDrawShow(playerid, SpeedoTD_VehInfo[playerid][1]);
+	}
 }
 
 /*

@@ -30,8 +30,8 @@ CMD:bc(playerid, params[]){
 }
 
 CMD:settings(playerid, params[]){
-    pDialog[playerid][0] = EOS;
-    strcatEx(pDialog[playerid], sizePDialog, "%s HUD Status\n", ((PlayerInfo[playerid][tampilHUDStats] == true) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
+    format(pDialog[playerid], sizePDialog, "%s HUD Status\n", ((PlayerInfo[playerid][tampilHUDStats] == true) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
+    strcatEx(pDialog[playerid], sizePDialog, "%s Speedo Kendaraan\n", ((PlayerInfo[playerid][tampilSpeedo] == true) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
     ShowPlayerDialog(playerid, DIALOG_PENGATURAN, DIALOG_STYLE_LIST, "Pilihan pengaturan : ", pDialog[playerid], "Pilih", "Batal");
     return 1;
 }
@@ -899,3 +899,27 @@ CMD:bukaborgol(playerid, params[]){
     SetPlayerSpecialAction(target_id, SPECIAL_ACTION_NONE);
     return 1;
 }
+
+/**
+    Animations
+ */
+CMD:duduk(playerid, params[]){
+    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy])
+        return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
+    PlayerInfo[playerid][isOnAnimation] = true;
+    ApplyAnimation(playerid, "PED", "SEAT_DOWN", 4.1, 0, 0, 0, 1, 0, 1);
+    return 1;
+}
+
+CMD:berdiri(playerid, params[]){
+    new temp[2][15];
+    GetAnimationName(GetPlayerAnimationIndex(playerid), temp[0], 15, temp[1], 15);
+    if(!sama(temp[0], "PED") || !sama(temp[1], "SEAT_DOWN"))
+        return server_message(playerid, "Anda sedang tidak duduk.");
+    PlayerInfo[playerid][isOnAnimation] = false;
+    ApplyAnimation(playerid, "PED", "SEAT_UP", 4.1, 0, 0, 0, 0, 0, 1);
+    return 1;
+}
+/**
+    End Animations
+ */

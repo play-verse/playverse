@@ -121,7 +121,7 @@ publicFor: isRegistered(playerid)
 			return 1;
 		}
 
-		PlayerInfo[playerid][tampilHUDStats] = true;		
+		PlayerInfo[playerid][tampilHUDStats] = true;	
 
 		// Spawn player
 		SetSpawnInfo(playerid, 0, 0, 2093.7747,-1806.4586,13.5499,87.6500, 0, 0, 0, 0, 0, 0);
@@ -227,6 +227,7 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][isBusy] = false;
 
 	PlayerInfo[playerid][tampilHUDStats] = false;
+	PlayerInfo[playerid][tampilSpeedo] = true;
 
 	PlayerInfo[playerid][isOnMask] = 0;
 
@@ -1178,6 +1179,17 @@ publicFor: selesaiBayarAlatMekanik(playerid){
 	return 1;
 }
 
+publicFor: selesaiBayarItemMedis(playerid){
+	new idx = GetPVarInt(playerid, "bItem_index"),
+		nama_alat[50];
+	getNamaByIdItem(MENU_BELI_ITEM_MEDIS[idx][idItemMarket], nama_alat);
+	tambahItemPlayer(playerid, MENU_BELI_ITEM_MEDIS[idx][idItemMarket], GetPVarInt(playerid, "bItem_jumlah"));
+
+	format(pDialog[playerid], sizePDialog, WHITE"Anda telah berhasil membeli "GREEN"%s"WHITE" sebanyak %dx.\nDengan harga "GREEN"$%d\n"YELLOW"Silahkan cek inventory kamu.", nama_alat, GetPVarInt(playerid, "bItem_jumlah"), MENU_BELI_ITEM_MEDIS[idx][hargaItemMarket] * GetPVarInt(playerid, "bItem_jumlah"));
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli item medis", pDialog[playerid], "Ok", "");
+	return 1;
+}
+
 publicFor: selesaiBeliPerabot(playerid) {
 	tambahFurniturePlayer(playerid, PERABOT_DIJUAL[GetPVarInt(playerid, "index_terpilih")][IDPerabotDijual], GetPVarInt(playerid, "jumlah_terpilih"));
 
@@ -1211,9 +1223,12 @@ publicFor: selesaiBeliPancing(playerid) {
 }
 
 publicFor: selesaiBeliPhone(playerid) {
-	tambahItemPlayer(playerid, MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][idItem], GetPVarInt(playerid, "jumlah_terpilih"));
+	tambahItemPlayer(playerid, MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][idItemMarket], GetPVarInt(playerid, "jumlah_terpilih"));
 
-	format(pDialog[playerid], sizePDialog, "Anda berhasil membeli %s.\nSebanyak %d dengan harga total $%d.\nSilahkan cek inventory anda untuk melihat.", MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][namaItem], GetPVarInt(playerid, "jumlah_terpilih"), GetPVarInt(playerid, "jumlah_terpilih") * MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItem]);
+	new nama_item[50];
+	getNamaByIdItem(MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][idItemMarket], nama_item);
+
+	format(pDialog[playerid], sizePDialog, "Anda berhasil membeli %s.\nSebanyak %d dengan harga total $%d.\nSilahkan cek inventory anda untuk melihat.", nama_item, GetPVarInt(playerid, "jumlah_terpilih"), GetPVarInt(playerid, "jumlah_terpilih") * MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItemMarket]);
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli phone", pDialog[playerid], "Ok", "");
 	return 1;
 }
@@ -4349,6 +4364,14 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_tokoNarko_Res = 0;
 		ACT_tokoNarko_Timer = -1;
+	}else if(actorid == ACT_rumahSakit){
+		UpdateDynamic3DTextLabelText(ACT_rumahSakit_Text, COLOR_WHITE, "");
+		if(ACT_rumahSakit_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_rumahSakit_User, "interaksi_actor", -1);
+			ACT_rumahSakit_User = INVALID_PLAYER_ID;
+		}
+		ACT_rumahSakit_Res = 0;
+		ACT_rumahSakit_Timer = -1;
 	}
 	return 1;
 }
@@ -4372,6 +4395,8 @@ TerminateInteraksi_Alt(actorid){
 		DeletePreciseTimer(ACT_tellerBankLS_2_Timer);
 	else if(actorid == ACT_tokoNarko && ACT_tokoNarko_Timer != -1)
 		DeletePreciseTimer(ACT_tokoNarko_Timer);
+	else if(actorid == ACT_rumahSakit && ACT_rumahSakit_Timer != -1)
+		DeletePreciseTimer(ACT_rumahSakit_Timer);
 	TerminateInteraksi(actorid);
 }
 

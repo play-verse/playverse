@@ -2451,7 +2451,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				getNamaByIdItem(BARANG_MARKET[index_barang][idItemMarket], nama_item);
 				SetPVarInt(playerid, "bBarang_jumlah", banyak_barang);
 				
-				format(pDialog[playerid], sizePDialog, "Anda akan membeli barang "YELLOW"%s "WHITE"sebanyak "YELLOW"%d "WHITE"dengan total harga "GREEN"%d"WHITE".\nApakah anda yakin?", nama_item, banyak_barang, BARANG_MARKET[index_barang][hargaBarang] * banyak_barang);
+				format(pDialog[playerid], sizePDialog, "Anda akan membeli barang "YELLOW"%s "WHITE"sebanyak "YELLOW"%d "WHITE"dengan total harga "GREEN"%d"WHITE".\nApakah anda yakin?", nama_item, banyak_barang, BARANG_MARKET[index_barang][hargaItemMarket] * banyak_barang);
 				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BARANG_MARKET, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", pDialog[playerid], "Beli", "Batal");
 			}
 			else{
@@ -2464,7 +2464,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new index_barang = GetPVarInt(playerid, "bBarang_index");
 				new jumlah = GetPVarInt(playerid, "bBarang_jumlah"); 
-				new harga = jumlah * BARANG_MARKET[index_barang][hargaBarang],
+				new harga = jumlah * BARANG_MARKET[index_barang][hargaItemMarket],
 					nama_item[50];
 				getNamaByIdItem(BARANG_MARKET[index_barang][idItemMarket], nama_item);
 				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi.", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
@@ -4569,6 +4569,42 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							server_message(playerid, "Berhasil menyembunyikan HUD status");
 						}
 					}
+					case 1:
+					{
+						PlayerInfo[playerid][tampilSpeedo] = !PlayerInfo[playerid][tampilSpeedo];
+
+						if(PlayerInfo[playerid][tampilSpeedo]){
+							server_message(playerid, "Berhasil menampilkan speedo");
+
+							if(IsPlayerInAnyVehicle(playerid)){
+								TextDrawShowForPlayer(playerid, SpeedoTD[0]);
+								TextDrawShowForPlayer(playerid, SpeedoTD[1]);
+								TextDrawShowForPlayer(playerid, SpeedoTD[2]);
+								TextDrawShowForPlayer(playerid, SpeedoTD[3]);
+
+								ShowPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][0]);
+								ShowPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][1]);
+
+								PlayerTextDrawShow(playerid, SpeedoTD_VehInfo[playerid][0]);
+								PlayerTextDrawShow(playerid, SpeedoTD_VehInfo[playerid][1]);
+							}
+						}
+						else{
+							server_message(playerid, "Berhasil menyembunyikan speedo");
+							if(IsPlayerInAnyVehicle(playerid)){
+								TextDrawHideForPlayer(playerid, SpeedoTD[0]);
+								TextDrawHideForPlayer(playerid, SpeedoTD[1]);
+								TextDrawHideForPlayer(playerid, SpeedoTD[2]);
+								TextDrawHideForPlayer(playerid, SpeedoTD[3]);
+
+								HidePlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][0]);
+								HidePlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][1]);
+
+								PlayerTextDrawHide(playerid, SpeedoTD_VehInfo[playerid][0]);
+								PlayerTextDrawHide(playerid, SpeedoTD_VehInfo[playerid][1]);								
+							}
+						}
+					}
 				}
 			}
 			return 1;
@@ -6203,8 +6239,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PHONE, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PHONE, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 				SetPVarInt(playerid, "jumlah_terpilih", jumlah);
-				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItem], jumlah);
-				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItem], "selesaiBeliPhone", pDialog[playerid]);
+				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItemMarket], jumlah);
+				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItemMarket], "selesaiBeliPhone", pDialog[playerid]);
 			}else{
 				DeletePVar(playerid, "index_terpilih");
 				DeletePVar(playerid, "jumlah_terpilih");
@@ -6362,6 +6398,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_BELI_ITEM_MEDIS:
+		{
+			if(response){
+				SetPVarInt(playerid, "bItem_index", listitem);
+				ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_MEDIS_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+			}
+		}
 		case DIALOG_JUMLAH_BELI_ALAT_MEKANIK:
 		{
 			if(response){
@@ -6384,6 +6427,43 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SetPVarInt(playerid, "bAlat_jumlah", banyak_barang);
 				format(pDialog[playerid], sizePDialog, WHITE"Anda akan membeli "YELLOW"%s "WHITE"sebanyak "YELLOW"%d \n"WHITE"dengan total harga "GREEN"%d"WHITE".\nApakah anda yakin?", nama_alat, banyak_barang, MENU_ALAT_MEKANIK[idx][hargaAlat] * banyak_barang);
 				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_ALAT_MEKANIK, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", pDialog[playerid], "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_BELI_ITEM_MEDIS_JUMLAH:
+		{
+			if(response){
+				new banyak_barang;
+				if(sscanf(inputtext, "i", banyak_barang)) return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_MEDIS_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Jumlah tidak valid\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+
+				if(banyak_barang < 1 || banyak_barang > 1000) return ShowPlayerDialog(playerid, 				
+				DIALOG_BELI_ITEM_MEDIS_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Jumlah harus berkisar antara 1 hingga 1000.\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+
+				new idx = GetPVarInt(playerid, "bItem_index");
+
+				if(!CekJikaInventoryPlayerMuat(playerid, MENU_BELI_ITEM_MEDIS[idx][idItemMarket], banyak_barang)){
+					return ShowPlayerDialog(playerid, 				
+				DIALOG_BELI_ITEM_MEDIS_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Inventory anda tidak muat untuk menampung item sebanyak itu.\nCek inventory terlebih dahulu.\n\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+				}
+
+				new nama_alat[50];
+				getNamaByIdItem(MENU_BELI_ITEM_MEDIS[idx][idItemMarket], nama_alat);
+				
+				SetPVarInt(playerid, "bItem_jumlah", banyak_barang);
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan membeli "YELLOW"%s "WHITE"sebanyak "YELLOW"%d \n"WHITE"dengan total harga "GREEN"%d"WHITE".\nApakah anda yakin?", nama_alat, banyak_barang, MENU_BELI_ITEM_MEDIS[idx][hargaItemMarket] * banyak_barang);
+				ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_MEDIS_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", pDialog[playerid], "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_BELI_ITEM_MEDIS_KONFIRMASI:
+		{
+			if(response){
+				new keterangan[50];
+				new idx = GetPVarInt(playerid, "bItem_index"),
+					nama_alat[50];
+				getNamaByIdItem(MENU_BELI_ITEM_MEDIS[idx][idItemMarket], nama_alat);
+				format(keterangan, 50, "beli %s sebanyak %dx", nama_alat, GetPVarInt(playerid, "bItem_index"));
+				dialogMetodeBayar(playerid, MENU_BELI_ITEM_MEDIS[idx][hargaItemMarket] * GetPVarInt(playerid, "bItem_index"), "selesaiBayarItemMedis", keterangan);
 			}
 			return 1;
 		}
@@ -7420,7 +7500,7 @@ public OnPlayerText(playerid, text[]){
 								ActorResponse(ACT_skillMekanik, pDialog[playerid]);
 							}
 						}
-						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\salat\\smekanik.*")){
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\sitem.*")){
 							showDialogBeliAlat(playerid);
 
 							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
@@ -7726,7 +7806,7 @@ public OnPlayerText(playerid, text[]){
 						}
 						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membayar|bayar)\\stagihan.*")){
 							SetPVarInt(playerid, "halaman", 0);
-							SetPVarInt(playerid, "jenis_tagihan", 0);
+							SetPVarInt(playerid, "jenis_tagihan", JENIS_TAGIHAN_UNIVERSAL);
 
 							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
 							mysql_tquery(koneksi, pQuery[playerid], "showTagihanPemain", "i", playerid);
@@ -7744,7 +7824,51 @@ public OnPlayerText(playerid, text[]){
 						}
 					}
 				}
-			}					
+			}
+			else if(areaid == ACT_rumahSakit_Area){ // Cek Jika berada pada area actor
+				if(ACT_rumahSakit_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_RUMAH_SAKIT".*")){
+						ACT_rumahSakit_User = playerid;
+						ACT_rumahSakit_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_rumahSakit);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_rumahSakit, pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu)).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_RUMAH_SAKIT, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_rumahSakit, playerid, pDialog[playerid]);
+					}
+				}else if(ACT_rumahSakit_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_rumahSakit_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\sitem.*")){
+							showDialogBeliItemMedis(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_rumahSakit, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membayar|bayar)\\stagihan.*")){
+							SetPVarInt(playerid, "halaman", 0);
+							SetPVarInt(playerid, "jenis_tagihan", JENIS_TAGIHAN_RUMAH_SAKIT);
+
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `tagihan` WHERE id_user = '%d' AND status = '0' AND jenis = %d ORDER BY tanggal ASC LIMIT %i, %i", PlayerInfo[playerid][pID], JENIS_TAGIHAN_RUMAH_SAKIT, BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+							mysql_tquery(koneksi, pQuery[playerid], "showTagihanPemain", "i", playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_rumahSakit, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_rumahSakit_User = INVALID_PLAYER_ID;
+							ACT_rumahSakit_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_rumahSakit, pDialog[playerid], 5);
+						}
+					}
+				}
+			}								
 		}
 	}
 
@@ -7807,7 +7931,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		return 1;
 	}
 	else if(pickupid == PU_rumahSakit[0]){
-		pindahkanPemain(playerid, 160.7758, 1770.8013, 10000.0225, 269.8320, 1, 1, true);
+		pindahkanPemain(playerid, 160.7758, 1770.8013, 10000.0225 - MAPPINGAN_RUMAH_SAKIT_TURUNKAN, 269.8320, 1, 1, true);
 		return 1;
 	}
 	else if(pickupid == PU_miniMarket[0][ENTER_PICKUP]){

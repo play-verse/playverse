@@ -37,6 +37,11 @@ loadAllActor(){
     ACT_tokoGadget = CreateDynamicActor(141, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], ACT_tokoGadget_Pos[3], .worldid = 1, .interiorid = 1);
     // Bubble Chat Actor
     ACT_tokoGadget_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2] + 1.25, 10.0, .testlos = 1);
+
+    // Actor di kasir rumah sakit
+    ACT_rumahSakit = CreateDynamicActor(141, ACT_rumahSakit_Pos[0], ACT_rumahSakit_Pos[1], ACT_rumahSakit_Pos[2], ACT_rumahSakit_Pos[3], .worldid = 1, .interiorid = 1);
+    // Bubble Chat Actor
+    ACT_rumahSakit_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_rumahSakit_Pos[0], ACT_rumahSakit_Pos[1], ACT_rumahSakit_Pos[2] + 1.25, 10.0);
 }
 
 re_loadAllActor(){
@@ -49,6 +54,9 @@ re_loadAllActor(){
         if(IsValidDynamicActor(ACT_tokoNarko)) DestroyDynamicActor(ACT_tokoNarko);
         if(IsValidDynamicActor(ACT_tokoGadget)) DestroyDynamicActor(ACT_tokoGadget);
         if(IsValidDynamicActor(ACT_resepsionisPemerintah)) DestroyDynamicActor(ACT_resepsionisPemerintah);
+        if(IsValidDynamicActor(ACT_rumahSakit)) DestroyDynamicActor(ACT_rumahSakit);
+        if(IsValidDynamicActor(ACT_tellerBankLS_1)) DestroyDynamicActor(ACT_tellerBankLS_1);
+        if(IsValidDynamicActor(ACT_tellerBankLS_2)) DestroyDynamicActor(ACT_tellerBankLS_2);
 
         ACT__reload = 0;
         // Actor di toko peraltan pancing
@@ -69,7 +77,16 @@ re_loadAllActor(){
         // Actor di pusat pemerintahan
         ACT_resepsionisPemerintah = CreateDynamicActor(76, ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], ACT_resepsionisPemerintah_Pos[3], .worldid = 1, .interiorid = 1);
 
+        // Actor di bank
+        ACT_tellerBankLS_1 = CreateDynamicActor(141, ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1], ACT_tellerBankLS_1_Pos[2], ACT_tellerBankLS_1_Pos[3], .worldid = 1, .interiorid = 1);
+
+        // Actor di bank
+        ACT_tellerBankLS_2 = CreateDynamicActor(141, ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1], ACT_tellerBankLS_2_Pos[2], ACT_tellerBankLS_2_Pos[3], .worldid = 1, .interiorid = 1);
+
         // Actor di toko gadget
         ACT_tokoGadget = CreateDynamicActor(141, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], ACT_tokoGadget_Pos[3], .worldid = 1, .interiorid = 1);
+
+        // Actor di kasir rumah sakit
+        ACT_rumahSakit = CreateDynamicActor(141, ACT_rumahSakit_Pos[0], ACT_rumahSakit_Pos[1], ACT_rumahSakit_Pos[2], ACT_rumahSakit_Pos[3], .worldid = 1, .interiorid = 1);
     }
 }

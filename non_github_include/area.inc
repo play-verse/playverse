@@ -79,8 +79,8 @@ loadAllArea(){
     }
 
     // Pakai area karena pickup gak muncul
-    AREA_keluarRumahSakit[0] = CreateDynamicSphere(159.4088, 1772.5681, 10000.0225, 1.5, 1, 1);
-    CreateDynamic3DTextLabel("Rumah Sakit Los Santos\n"GREEN"Pintu Keluar", COLOR_WHITE, 159.4088, 1772.5681, 10000.0225, 5.0, .testlos = 1, .worldid = 1, .interiorid = 1, .streamdistance = 5.0);
+    AREA_keluarRumahSakit[0] = CreateDynamicSphere(159.4088, 1772.5681, 10000.0225 - MAPPINGAN_RUMAH_SAKIT_TURUNKAN, 1.5, 1, 1);
+    CreateDynamic3DTextLabel("Rumah Sakit Los Santos\n"GREEN"Pintu Keluar", COLOR_WHITE, 159.4088, 1772.5681, 10000.0225 - MAPPINGAN_RUMAH_SAKIT_TURUNKAN, 5.0, .testlos = 1, .worldid = 1, .interiorid = 1, .streamdistance = 5.0);
 
     // Area untuk OnDuty/OffDuty Polisi
     AREA_onDutyPolisi = CreateDynamicSphere(257.0883, 77.1912, 1003.6406, 1.5);
@@ -88,9 +88,9 @@ loadAllArea(){
         "WHITE"Tekan "GREEN"N"WHITE" untuk mulai/selesai.", COLOR_LIGHT_BLUE, 257.0883, 77.1912, 1003.6406, 5.0, .testlos = 1);
 
     // Area untuk OnDuty/OffDuty Medic
-    AREA_onDutyMedic = CreateDynamicSphere(175.8122, 1753.5443, 10003.3818, 1.5);
+    AREA_onDutyMedic = CreateDynamicSphere(175.8122, 1753.5443, 10003.3818 - MAPPINGAN_RUMAH_SAKIT_TURUNKAN, 1.5);
     CreateDynamic3DTextLabel("Bekerja sebagai Medic\n\
-        "WHITE"Tekan "GREEN"N"WHITE" untuk mulai/selesai.", COLOR_PINK, 175.8122, 1753.5443, 10003.3818, 5.0, .testlos = 1);
+        "WHITE"Tekan "GREEN"N"WHITE" untuk mulai/selesai.", COLOR_PINK, 175.8122, 1753.5443, 10003.3818 - MAPPINGAN_RUMAH_SAKIT_TURUNKAN, 5.0, .testlos = 1);
 
     /**
         Actor Area 
@@ -107,6 +107,8 @@ loadAllArea(){
     
     ACT_tellerBankLS_1_Area = CreateDynamicSphere(ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1], ACT_tellerBankLS_1_Pos[2], 3.0);
     ACT_tellerBankLS_2_Area = CreateDynamicSphere(ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1], ACT_tellerBankLS_2_Pos[2], 3.0);
+
+    ACT_rumahSakit_Area = CreateDynamicSphere(ACT_rumahSakit_Pos[0], ACT_rumahSakit_Pos[1], ACT_rumahSakit_Pos[2], 3.0);
 
     /* Dari Checkpoint */
     // Tempat foto

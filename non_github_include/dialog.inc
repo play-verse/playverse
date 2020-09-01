@@ -160,7 +160,7 @@ showDialogBeliBarang(playerid){
 		for(new i = 0; i < sizeof(BARANG_MARKET); i++){
             id_model = getModelByIdItem(BARANG_MARKET[i][idItemMarket]);
             getNamaByIdItem(BARANG_MARKET[i][idItemMarket], nama_item);
-			format(subString, sizeof(subString), "%i\t%s~n~~g~$%d\n", id_model, nama_item, BARANG_MARKET[i][hargaBarang]);
+			format(subString, sizeof(subString), "%i\t%s~n~~g~$%d\n", id_model, nama_item, BARANG_MARKET[i][hargaItemMarket]);
             strcat(string, subString);
 		}
 	}
@@ -241,12 +241,27 @@ showDialogBeliAlat(playerid){
     return ShowPlayerDialog(playerid, DIALOG_BELI_ALAT_MEKANIK, DIALOG_STYLE_TABLIST_HEADERS, "Silahkan pilih alat yang ingin dibeli", str_beli, "Beli", "Batal");
 }
 
+showDialogBeliItemMedis(playerid){
+    static str_beli[sizeof(MENU_BELI_ITEM_MEDIS) * 50];
+    if(str_beli[0] == '\0'){
+        new nama_item[50];
+        strcat(str_beli, "Nama\tHarga\n");
+        for (new i = 0; i < sizeof(MENU_BELI_ITEM_MEDIS); i++){
+            getNamaByIdItem(MENU_BELI_ITEM_MEDIS[i][idItemMarket], nama_item);
+            strcatEx(str_beli, sizeof(str_beli), WHITE"%s\t"GREEN"$%d\n", nama_item, MENU_BELI_ITEM_MEDIS[i][hargaItemMarket]);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_MEDIS, DIALOG_STYLE_TABLIST_HEADERS, "Silahkan pilih alat yang ingin dibeli", str_beli, "Beli", "Batal");
+}
+
 showDialogBeliPhone(playerid){
     static str_daftar_phone[sizeof(MENU_PHONE) * 100 + 100], subString[100];
     if(str_daftar_phone[0] == EOS){
+        new nama_item[50];
         strcat(str_daftar_phone, WHITE"Nama\tHarga\n");
         for(new i = 0; i < sizeof(MENU_PHONE); i++){
-            format(subString, 100, WHITE"%s\t"GREEN"$%d\n", MENU_PHONE[i][namaItem], MENU_PHONE[i][hargaItem]);
+            getNamaByIdItem(MENU_PHONE[i][idItemMarket], nama_item);
+            format(subString, 100, WHITE"%s\t"GREEN"$%d\n", nama_item, MENU_PHONE[i][hargaItemMarket]);
             strcat(str_daftar_phone, subString);
         }
     }
@@ -373,7 +388,7 @@ showDialogGuideAhliMekanik(playerid){
         strcatEx(str_guide, 2000, "Anda hanya diberi waktu "RED"%d detik "YELLOW"untuk menjawab\n\n", LAMA_BATAS_RESPON_RESEPSIONIS);
         strcat(str_guide, WHITE"Beberapa hal yang dapat di interaksikan disini melalui ahli mekanik\nPastikan anda mengawali percakapan seperti yang dijelaskan diatas.\n");
         strcat(str_guide, "1. Katakan "YELLOW"saya ingin mengaktifkan skill mekanik"WHITE" untuk mengaktifkan skill mekanik.\n");
-        strcat(str_guide, "2. Katakan "YELLOW"saya ingin membeli alat mekanik"WHITE" untuk membeli alat-alat mekanik.\n");
+        strcat(str_guide, "2. Katakan "YELLOW"saya ingin membeli item"WHITE" untuk membeli item-item yang berkaitan dengan mekanik.\n");
         strcat(str_guide, "\nJika anda menjawab tidak seperti hal diatas,\nmaka ahli mekanik tidak akan mengerti maksud anda dan akan memberhentikan percakapan.\n\n");
         strcat(str_guide, YELLOW"Jika masih tidak mengerti dengan hal diatas silahkan tanyakan di forum. Terimakasih telah membaca.\n");
     }
