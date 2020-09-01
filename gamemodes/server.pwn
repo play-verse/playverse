@@ -3141,6 +3141,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_KONFIRMASI_AMBIL_GAJI:
+		{
+			if(response){
+				ShowPlayerDialog(playerid, DIALOG_PILIHAN_AMBIL_GAJI, DIALOG_STYLE_LIST, WHITE"Pilihan ambil gaji :", WHITE"Masukin ke saldo Bank\nAmbil uang cash", "Pilih", "Batal");
+			}
+			return 1;
+		}
 		case DIALOG_PILIHAN_AMBIL_GAJI:
 		{
 			if(response){
@@ -5917,7 +5924,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 3.0);
 				GetVehiclePos(vehid, vpos[0], vpos[1], vpos[2]);
 
-				if(!IsValidVehicle(vehid) || !IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 2.0))
+				if(!IsValidVehicle(vehid) || !IsPointInRangeOfPoint(pos[0], pos[1], pos[2], vpos[0], vpos[1], vpos[2], 3.0))
 					return SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Kendaraan harus tetap berada didekat anda.");
 
 				// Pinjam timer perbaiki
@@ -7303,8 +7310,16 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 }
 
 public OnPlayerText(playerid, text[]){
-	if(PlayerInfo[playerid][isOnMask])
-		format(msg,sizeof(msg), "Tidak dikenali#%d: %s", PlayerInfo[playerid][tidak_dikenali], text);
+	if(PlayerInfo[playerid][isOnMask]){
+		switch(PlayerInfo[playerid][isOnMask]){
+			case ID_ITEM_HELM:
+				format(msg,sizeof(msg), "Helm#%d: %s", PlayerInfo[playerid][tidak_dikenali], text);
+			case ID_ITEM_MASK:
+				format(msg,sizeof(msg), "Topeng#%d: %s", PlayerInfo[playerid][tidak_dikenali], text);
+			default:
+				format(msg,sizeof(msg), "Tidak dikenali#%d: %s", PlayerInfo[playerid][tidak_dikenali], text);
+		}
+	}
 	else
 		format(msg,sizeof(msg), "%s: %s", PlayerInfo[playerid][pPlayerName], text);
 
@@ -7692,7 +7707,7 @@ public OnPlayerText(playerid, text[]){
 							ActorResetAndProses(ACT_tellerBankLS_2, playerid);
 						}
 						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(mengambil|ambil)\\sgaji.*")){
-							CallLocalFunction("OnDialogResponse", "iiiis", playerid, DIALOG_MENU_GAJI, 1, 0, "a");
+							showKonfirmasiAmbilGaji(playerid);
 
 							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
 							ActorResetAndProses(ACT_tellerBankLS_2, playerid);
@@ -7826,10 +7841,13 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		new rand_idx = random(sizeof(SPAWN_POINT_OUT_CH));
 		pindahkanPemain(playerid, SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_X],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Y],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_Z],SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_A], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_INTERIOR], SPAWN_POINT_OUT_CH[rand_idx][SPAWN_POINT_VW], true);
 		return 1;
-	}else if(pickupid == PU_bankLS[ENTER_PICKUP]){
-		pindahkanPemain(playerid, 1417.1097,-982.6887,-55.2764,180.0692, 1, 1, true);
+	}else if(pickupid == PU_bankLS[ENTER_PICKUP][0]){
+		if(random(2))
+			pindahkanPemain(playerid, 1400.1552, -36.1771, 1000.8950, 88.7250, 1, 1, true);
+		else
+			pindahkanPemain(playerid, 1399.7180, -37.6216, 1000.8950, 92.1717, 1, 1, true);
 		return 1;
-	}else if(pickupid == PU_bankLS[EXIT_PICKUP]){
+	}else if(pickupid == PU_bankLS[EXIT_PICKUP][0] || pickupid == PU_bankLS[EXIT_PICKUP][1]){
 		new rand_idx = random(sizeof(SP_OUT_BANK_LS));
 		pindahkanPemain(playerid, SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_X],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_Y],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_Z],SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_A], SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_INTERIOR], SP_OUT_BANK_LS[rand_idx][SPAWN_POINT_VW], true);
 		return 1;

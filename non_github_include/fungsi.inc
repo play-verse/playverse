@@ -520,6 +520,8 @@ spawnPemain(playerid, dari_callback = 0)
 			Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
 		PlayerInfo[playerid][tidak_dikenali] = Iter_Free(TidakDikenali);
 
+		Iter_Add(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+
 		HidePlayerMarker(playerid);
 		AttachHelmetOrMask(playerid, PlayerInfo[playerid][isOnMask]);
 	}
@@ -753,6 +755,19 @@ publicFor: hitungGaji(playerid, tipe){
 	return 1;
 }
 
+publicFor: showTotalGaji(playerid){
+	new nominal;
+	cache_get_value_name_int(0, "nominal", nominal);
+	if(nominal > 0){
+		format(pDialog[playerid], sizePDialog, WHITE"Anda akan mengambil gaji, dengan total nominal "GREEN"$%d\n", nominal);
+		strcatEx(pDialog[playerid], sizePDialog, WHITE"Apakah anda yakin ?\n\nNote: Untuk dapat melihat detail rincian gaji sebelum pengambilan,\nanda dapat melihat gaji terlebih dahulu di resepsionis.\n* Gaji yang telah diambil akan terhapus dari list gaji yang dapat dilihat.");
+		ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_AMBIL_GAJI, DIALOG_STYLE_MSGBOX, "Konfirmasi ambil gaji", pDialog[playerid], "Ambil", "Batal");
+	}else{
+		showDialogPesan(playerid, RED"Kotak gaji kosong", WHITE"Gaji anda saat ini sedang kosong!\nUntuk dapat mengambil gaji anda harus bekerja terlebih dahulu, kemudian anda dapat mengambil gaji disini!");
+	}
+	return 1;	
+}
+
 publicFor: tampilInventoryFurniturePlayer(playerid){
 	new rows, jumlah, nama_furniture[100];
 	cache_get_row_count(rows);
@@ -933,6 +948,8 @@ publicFor: pakaiHelm(playerid, itemid){
 	if(PlayerInfo[playerid][tidak_dikenali] == -1)
 		printf("[ERROR] Iter_Free pada tidak_dikenali return -1, pada playerid %d.", playerid);
 	
+	Iter_Add(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+
 	PlayerInfo[playerid][isOnMask] = itemid;
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = %d WHERE id = %d", itemid, PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
@@ -1932,15 +1949,24 @@ publicFor: progressRevive(playerid){
 					format(pDialog[playerid], 50, "mendapatkan revive dari medis %s", PlayerInfo[playerid][pPlayerName]);
 					addTagihanPemain(target_id, TAGIHAN_REVIVE, pDialog[playerid], JENIS_TAGIHAN_RUMAH_SAKIT);
 
+					sendPesan(playerid, COLOR_MEDIC, TAG_MEDIC" "WHITE"Anda mendapatkan bonus pekerjaan sebesar "GREEN"$%d"WHITE", karena telah menyelamatkan %s.", BONUS_REVIVE, PlayerInfo[target_id][pPlayerName]);
+
 					// Petugas medis dapat 75%
 					format(pDialog[playerid], 50, "gaji revive %s", PlayerInfo[target_id][pPlayerName]);
-					addGajiPemain(playerid, floatround(float(TAGIHAN_REVIVE) * 0.75), pDialog[playerid]);
+					addGajiPemain(playerid, BONUS_REVIVE, pDialog[playerid]);
 
 					sendPesan(target_id, COLOR_GREEN, TAG_MEDIC" "WHITE"Anda berhasil diselamatkan oleh %s petugas medis.", PlayerInfo[playerid][pPlayerName]);
 				}
 				else
 					sendPesan(target_id, COLOR_GREEN, TAG_REVIVE" "WHITE"Anda berhasil diselamatkan oleh %s.", PlayerInfo[playerid][pPlayerName]);
 
+				PlayerInfo[target_id][inDie] = 0;
+				if(getStatusMakanPemain(target_id) <= 1.0)
+					setStatusMakanPemain(target_id, 3.0);
+				
+				PlayerInfo[playerid][hungryStackedTime] = 0;
+				PlayerInfo[playerid][thirstyStackedTime] = 0;
+				
 				// Reset Timer
 				if(PlayerInfo[target_id][timerPemain] != -1)
 					DeletePreciseTimer(PlayerInfo[target_id][timerPemain]);
@@ -4400,6 +4426,10 @@ publicFor: pemainUpdate(playerid){
 			sendPesan(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda dapat menggunakan "YELLOW"/keluar penjara "WHITE"untuk keluar secara instant.");
 			format(pDialog[playerid], 114, TAG_POLICE" "WHITE"Tahanan %s telah menyelesaikan masa tahannya.", PlayerInfo[playerid][pPlayerName]);
 			SendMessageToDutyPolice(COLOR_POLISI, pDialog[playerid]);
+			SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
+			ClearAnimations(playerid);
+			if(IsPlayerAttachedObjectSlotUsed(playerid, BORGOL_ATTACH_INDEX))
+				RemovePlayerAttachedObject(playerid, BORGOL_ATTACH_INDEX);
 		}
 		else
 			format(str_temp, 70, "~w~Sisa masa tahanan ~r~%d ~w~detik", PlayerInfo[playerid][inPenjara]);

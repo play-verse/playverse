@@ -519,7 +519,7 @@ new PU_tempatFoto_in[2],
     PU_tempatBaju[1][2],
     PU_cityHallMasuk[3],
     PU_cityHallKeluar,
-    PU_bankLS[2],
+    PU_bankLS[2][2], // [ENTER/EXIT][0/1]
     PU_tempatMakan_in[2],
     PU_tempatMakan_out,
     PU_tempatKeluarRumah[2], // Hanya menyimpan ID terkecil dan Terbesar
@@ -553,8 +553,8 @@ new
 	Float:ACT_tokoBibit_Pos[4] = {1494.2061, -1659.1025, 13.2922, 358.1933},
 	Float:ACT_tokoGadget_Pos[4] = {446.3421, 1238.8604, 1081.9045, 89.6002},
 	Float:ACT_resepsionisPemerintah_Pos[4] = {-501.2156, 296.5012, 2001.0950, 182.1136},
-	Float:ACT_tellerBankLS_1_Pos[4] = {1417.4010, -990.2611, -55.2764, 358.6096},
-	Float:ACT_tellerBankLS_2_Pos[4] = {1421.3867, -990.4861, -55.2764, 357.0429},
+	Float:ACT_tellerBankLS_1_Pos[4] = {1391.5345, -30.0384, 1000.8950, 175.7600},
+	Float:ACT_tellerBankLS_2_Pos[4] = {1386.0791, -30.0127, 1000.8950, 175.5193},
 
 	// 3D Text (Chat Bubble)
 	Text3D:ACT_resepsionisPemerintah_Text,

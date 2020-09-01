@@ -104,11 +104,9 @@ loadAllArea(){
     ACT_tokoGadget_Area = CreateDynamicSphere(ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], 3.0);
     ACT_penjualDealer_Area = CreateDynamicSphere(ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], 3.0);
 
-
     
-    // Khusus untuk teller bank LS y coordinat di + 2.0 supaya agak majuan dikit AREA nya
-    ACT_tellerBankLS_1_Area = CreateDynamicSphere(ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1] + 2.0, ACT_tellerBankLS_1_Pos[2], 3.0);
-    ACT_tellerBankLS_2_Area = CreateDynamicSphere(ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1] + 2.0, ACT_tellerBankLS_2_Pos[2], 3.0);
+    ACT_tellerBankLS_1_Area = CreateDynamicSphere(ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1], ACT_tellerBankLS_1_Pos[2], 3.0);
+    ACT_tellerBankLS_2_Area = CreateDynamicSphere(ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1], ACT_tellerBankLS_2_Pos[2], 3.0);
 
     /* Dari Checkpoint */
     // Tempat foto

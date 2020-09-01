@@ -425,3 +425,8 @@ showDialogGuideText(playerid){
     }
     ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, str_judul, str_guide, "Ok", "");
 }
+
+showKonfirmasiAmbilGaji(playerid){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(nominal), 0) AS nominal FROM `gaji` WHERE id_user = '%d' AND status = '0'", PlayerInfo[playerid][pID]);
+    mysql_tquery(koneksi, pQuery[playerid], "showTotalGaji", "i", playerid);    
+}
