@@ -3187,9 +3187,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				if(jumlah < 1 || jumlah > 100) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_MAKANAN, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 100 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 
+				new const idx = GetPVarInt(playerid, "bmakan_index");
+
+				if(!CekJikaInventoryPlayerMuat(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah)){	
+					return dialogInventoryItemTidakMuat(playerid, jumlah, GetSlotInventoryPlayer(playerid), MENU_MAKANAN[idx][idItemMakanan]);
+				}
+
+				new
+					keterangan[50],
+					nama_item[50];
+
 				SetPVarInt(playerid, "bmakan_jumlah", jumlah);
 
-				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR_MAKAN, DIALOG_STYLE_LIST, "Pilih Metode Pembayaran:", "Uang Cash\nVia E-Banking", "Beli", "Kembali");
+				getNamaByIdItem(MENU_MAKANAN[idx][idItemMakanan], nama_item);
+				format(keterangan, 50, "Beli %s sebanyak %d", nama_item, jumlah);
+				dialogMetodeBayar(playerid, MENU_MAKANAN[idx][hargaMakanan] * jumlah, "selesaiBeliMakanan", keterangan);
 			}else{
 				DeletePVar(playerid, "bmakan_index");
 				DeletePVar(playerid, "bmakan_jumlah");

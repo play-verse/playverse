@@ -1233,6 +1233,19 @@ publicFor: selesaiBeliPhone(playerid) {
 	return 1;
 }
 
+publicFor: selesaiBeliMakanan(playerid){
+	new const idx = GetPVarInt(playerid, "bmakan_index"),
+		jumlah = GetPVarInt(playerid, "bmakan_jumlah");
+	new nama_item[50];
+
+	getNamaByIdItem(MENU_MAKANAN[idx][idItemMakanan], nama_item);
+	tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
+
+	format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", nama_item, jumlah, MENU_MAKANAN[idx][hargaMakanan]);
+	showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
+	return 1;
+}
+
 publicFor: isRekeningTujuanAda(playerid, const rekening[]){
 	new result_nama[50], rekening_temp[10];
 	if(cache_num_rows()){
