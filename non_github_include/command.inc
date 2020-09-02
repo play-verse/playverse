@@ -32,6 +32,7 @@ CMD:bc(playerid, params[]){
 CMD:settings(playerid, params[]){
     format(pDialog[playerid], sizePDialog, "%s HUD Status\n", ((PlayerInfo[playerid][tampilHUDStats] == true) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
     strcatEx(pDialog[playerid], sizePDialog, "%s Speedo Kendaraan\n", ((PlayerInfo[playerid][tampilSpeedo] == true) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
+    strcatEx(pDialog[playerid], sizePDialog, "%s Mode Foto\n", ((PlayerInfo[playerid][photoMode] == true) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
     ShowPlayerDialog(playerid, DIALOG_PENGATURAN, DIALOG_STYLE_LIST, "Pilihan pengaturan : ", pDialog[playerid], "Pilih", "Batal");
     return 1;
 }

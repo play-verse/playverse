@@ -4573,6 +4573,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						PlayerInfo[playerid][tampilHUDStats] = !PlayerInfo[playerid][tampilHUDStats];	
 
 						if(PlayerInfo[playerid][tampilHUDStats]){
+							if(PlayerInfo[playerid][photoMode]){
+								PlayerInfo[playerid][photoMode] = false;
+								hidePhotoMode(playerid);
+							}
 							tampilkanHUDStats(playerid);
 							server_message(playerid, "Berhasil menampilkan HUD status");
 						}
@@ -4615,6 +4619,20 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								PlayerTextDrawHide(playerid, SpeedoTD_VehInfo[playerid][0]);
 								PlayerTextDrawHide(playerid, SpeedoTD_VehInfo[playerid][1]);								
 							}
+						}
+					}
+					case 2: // Hide/show photo mode
+					{
+						PlayerInfo[playerid][photoMode] = !PlayerInfo[playerid][photoMode];
+						if(PlayerInfo[playerid][photoMode]){
+							SendClientMessage(playerid, COLOR_YELLOW, "* Berhasil menampilkan photo mode.");
+							SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Jika anda sebelumnya mengaktifkan HUD status, maka HUD akan terhide.");
+							SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Tekan F7 untuk hide chat, dll.");
+							showPhotoMode(playerid);
+						}
+						else{
+							SendClientMessage(playerid, COLOR_YELLOW, "* Berhasil menyembunyikan photo mode.");
+							hidePhotoMode(playerid);
 						}
 					}
 				}
@@ -7039,6 +7057,10 @@ public OnPlayerDeath(playerid, killerid, reason)
 
 	hideHUDStats(playerid);
 
+	// Reset Tampilan
+	PlayerInfo[playerid][photoMode] = false;
+	hidePhotoMode(playerid);
+
 	new random_spawn = random(sizeof(SPAWN_POINT));
 	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], SPAWN_POINT[random_spawn][SPAWN_POINT_X], SPAWN_POINT[random_spawn][SPAWN_POINT_Y], SPAWN_POINT[random_spawn][SPAWN_POINT_Z], SPAWN_POINT[random_spawn][SPAWN_POINT_A], 0, 0, 0, 0, 0, 0);
 
@@ -7097,6 +7119,8 @@ public OnGameModeInit()
 {	
 	// Initializing map andreas
 	CA_Init();
+
+	ManualVehicleEngineAndLights();
 
 	// Initializing iterator
 	Iter_Init(PVehKeys);

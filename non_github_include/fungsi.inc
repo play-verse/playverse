@@ -277,6 +277,9 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][inDie] = 0;
 	PlayerInfo[playerid][inPenjara] = 0;
 
+	PlayerInfo[playerid][photoMode] = false;
+	hidePhotoMode(playerid);
+
 	// Timer Pemain
 	// Delete Timer yang tidak -1
 	if(dari_callback == 2) {

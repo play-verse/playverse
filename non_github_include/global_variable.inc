@@ -93,6 +93,7 @@ enum pInfo
     lastGlobalChat,
 	bool:isOnAnimation, // Save state untuk animation
 	onTradeWith,
+    bool:photoMode, // Photo Mode
 
 	bool:isBusy, // Saat melakukan kegiatan yang tidak dapat diganggu
 
@@ -1451,3 +1452,7 @@ new const POLICE_SKIN_FEMALE[POLICE_MAX_LEVEL][] = {
  */
 
 new Iterator:TidakDikenali<MAX_PLAYERS + 1>;
+
+// Textdraw Photo Mode
+new Text:TextDraw_PhotoMode[8],
+    PlayerText:TextDraw_PhotoMode_Nama[MAX_PLAYERS];

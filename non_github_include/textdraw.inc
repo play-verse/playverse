@@ -226,6 +226,120 @@ loadTextdrawGlobal(){
 	TextDrawSetProportional(SpeedoTD[3], 1);
 	TextDrawSetSelectable(SpeedoTD[3], 0);
 	// End Global Speedo TD
+
+	// Begin Textdraw Photomode
+	TextDraw_PhotoMode[0] = TextDrawCreate(519.000000, 363.000000, "_");
+	TextDrawFont(TextDraw_PhotoMode[0], 1);
+	TextDrawLetterSize(TextDraw_PhotoMode[0], 0.183331, 5.800003);
+	TextDrawTextSize(TextDraw_PhotoMode[0], 328.500000, 155.000000);
+	TextDrawSetOutline(TextDraw_PhotoMode[0], 1);
+	TextDrawSetShadow(TextDraw_PhotoMode[0], 0);
+	TextDrawAlignment(TextDraw_PhotoMode[0], 2);
+	TextDrawColor(TextDraw_PhotoMode[0], -1);
+	TextDrawBackgroundColor(TextDraw_PhotoMode[0], 255);
+	TextDrawBoxColor(TextDraw_PhotoMode[0], 135);
+	TextDrawUseBox(TextDraw_PhotoMode[0], 1);
+	TextDrawSetProportional(TextDraw_PhotoMode[0], 1);
+	TextDrawSetSelectable(TextDraw_PhotoMode[0], 0);
+
+	TextDraw_PhotoMode[1] = TextDrawCreate(465.000000, 352.000000, "lay");
+	TextDrawFont(TextDraw_PhotoMode[1], 3);
+	TextDrawLetterSize(TextDraw_PhotoMode[1], 0.600000, 2.000000);
+	TextDrawTextSize(TextDraw_PhotoMode[1], 400.000000, 17.000000);
+	TextDrawSetOutline(TextDraw_PhotoMode[1], 1);
+	TextDrawSetShadow(TextDraw_PhotoMode[1], 0);
+	TextDrawAlignment(TextDraw_PhotoMode[1], 1);
+	TextDrawColor(TextDraw_PhotoMode[1], -1);
+	TextDrawBackgroundColor(TextDraw_PhotoMode[1], 255);
+	TextDrawBoxColor(TextDraw_PhotoMode[1], 50);
+	TextDrawUseBox(TextDraw_PhotoMode[1], 0);
+	TextDrawSetProportional(TextDraw_PhotoMode[1], 1);
+	TextDrawSetSelectable(TextDraw_PhotoMode[1], 0);
+
+	TextDraw_PhotoMode[2] = TextDrawCreate(452.000000, 352.000000, "P");
+	TextDrawFont(TextDraw_PhotoMode[2], 3);
+	TextDrawLetterSize(TextDraw_PhotoMode[2], 0.600000, 2.000000);
+	TextDrawTextSize(TextDraw_PhotoMode[2], 400.000000, 17.000000);
+	TextDrawSetOutline(TextDraw_PhotoMode[2], 1);
+	TextDrawSetShadow(TextDraw_PhotoMode[2], 0);
+	TextDrawAlignment(TextDraw_PhotoMode[2], 1);
+	TextDrawColor(TextDraw_PhotoMode[2], -1962934017);
+	TextDrawBackgroundColor(TextDraw_PhotoMode[2], 255);
+	TextDrawBoxColor(TextDraw_PhotoMode[2], 50);
+	TextDrawUseBox(TextDraw_PhotoMode[2], 0);
+	TextDrawSetProportional(TextDraw_PhotoMode[2], 1);
+	TextDrawSetSelectable(TextDraw_PhotoMode[2], 0);
+
+	TextDraw_PhotoMode[3] = TextDrawCreate(533.000000, 374.000000, "erse");
+	TextDrawFont(TextDraw_PhotoMode[3], 3);
+	TextDrawLetterSize(TextDraw_PhotoMode[3], 0.600000, 2.000000);
+	TextDrawTextSize(TextDraw_PhotoMode[3], 400.000000, 17.000000);
+	TextDrawSetOutline(TextDraw_PhotoMode[3], 1);
+	TextDrawSetShadow(TextDraw_PhotoMode[3], 0);
+	TextDrawAlignment(TextDraw_PhotoMode[3], 1);
+	TextDrawColor(TextDraw_PhotoMode[3], -1);
+	TextDrawBackgroundColor(TextDraw_PhotoMode[3], 255);
+	TextDrawBoxColor(TextDraw_PhotoMode[3], 50);
+	TextDrawUseBox(TextDraw_PhotoMode[3], 0);
+	TextDrawSetProportional(TextDraw_PhotoMode[3], 1);
+	TextDrawSetSelectable(TextDraw_PhotoMode[3], 0);
+
+	TextDraw_PhotoMode[4] = TextDrawCreate(519.000000, 374.000000, "V");
+	TextDrawFont(TextDraw_PhotoMode[4], 3);
+	TextDrawLetterSize(TextDraw_PhotoMode[4], 0.600000, 2.000000);
+	TextDrawTextSize(TextDraw_PhotoMode[4], 400.000000, 17.000000);
+	TextDrawSetOutline(TextDraw_PhotoMode[4], 1);
+	TextDrawSetShadow(TextDraw_PhotoMode[4], 0);
+	TextDrawAlignment(TextDraw_PhotoMode[4], 1);
+	TextDrawColor(TextDraw_PhotoMode[4], -1962934017);
+	TextDrawBackgroundColor(TextDraw_PhotoMode[4], 255);
+	TextDrawBoxColor(TextDraw_PhotoMode[4], 50);
+	TextDrawUseBox(TextDraw_PhotoMode[4], 0);
+	TextDrawSetProportional(TextDraw_PhotoMode[4], 1);
+	TextDrawSetSelectable(TextDraw_PhotoMode[4], 0);
+
+	TextDraw_PhotoMode[5] = TextDrawCreate(457.000000, 377.000000, "HUD:radar_gym");
+	TextDrawFont(TextDraw_PhotoMode[5], 4);
+	TextDrawLetterSize(TextDraw_PhotoMode[5], 0.600000, 2.000000);
+	TextDrawTextSize(TextDraw_PhotoMode[5], 19.000000, 15.000000);
+	TextDrawSetOutline(TextDraw_PhotoMode[5], 1);
+	TextDrawSetShadow(TextDraw_PhotoMode[5], 0);
+	TextDrawAlignment(TextDraw_PhotoMode[5], 1);
+	TextDrawColor(TextDraw_PhotoMode[5], -1);
+	TextDrawBackgroundColor(TextDraw_PhotoMode[5], 255);
+	TextDrawBoxColor(TextDraw_PhotoMode[5], 255);
+	TextDrawUseBox(TextDraw_PhotoMode[5], 1);
+	TextDrawSetProportional(TextDraw_PhotoMode[5], 1);
+	TextDrawSetSelectable(TextDraw_PhotoMode[5], 0);
+
+	TextDraw_PhotoMode[6] = TextDrawCreate(566.000000, 394.000000, "_");
+	TextDrawFont(TextDraw_PhotoMode[6], 1);
+	TextDrawLetterSize(TextDraw_PhotoMode[6], 0.600000, -0.049995);
+	TextDrawTextSize(TextDraw_PhotoMode[6], 311.000000, 61.500000);
+	TextDrawSetOutline(TextDraw_PhotoMode[6], 4);
+	TextDrawSetShadow(TextDraw_PhotoMode[6], 0);
+	TextDrawAlignment(TextDraw_PhotoMode[6], 2);
+	TextDrawColor(TextDraw_PhotoMode[6], -1);
+	TextDrawBackgroundColor(TextDraw_PhotoMode[6], 255);
+	TextDrawBoxColor(TextDraw_PhotoMode[6], -1962934047);
+	TextDrawUseBox(TextDraw_PhotoMode[6], 1);
+	TextDrawSetProportional(TextDraw_PhotoMode[6], 1);
+	TextDrawSetSelectable(TextDraw_PhotoMode[6], 0);
+
+	TextDraw_PhotoMode[7] = TextDrawCreate(500.000000, 366.000000, "HUD:radar_girlfriend");
+	TextDrawFont(TextDraw_PhotoMode[7], 4);
+	TextDrawLetterSize(TextDraw_PhotoMode[7], 0.600000, 2.000000);
+	TextDrawTextSize(TextDraw_PhotoMode[7], 17.000000, 17.000000);
+	TextDrawSetOutline(TextDraw_PhotoMode[7], 1);
+	TextDrawSetShadow(TextDraw_PhotoMode[7], 0);
+	TextDrawAlignment(TextDraw_PhotoMode[7], 1);
+	TextDrawColor(TextDraw_PhotoMode[7], -1);
+	TextDrawBackgroundColor(TextDraw_PhotoMode[7], 255);
+	TextDrawBoxColor(TextDraw_PhotoMode[7], 50);
+	TextDrawUseBox(TextDraw_PhotoMode[7], 1);
+	TextDrawSetProportional(TextDraw_PhotoMode[7], 1);
+	TextDrawSetSelectable(TextDraw_PhotoMode[7], 0);
+	// End Textdraw photo mode
 }
 
 unloadTextdrawGlobal(){
@@ -242,6 +356,9 @@ unloadTextdrawGlobal(){
 	TextDrawDestroy(SpeedoTD[1]);
 	TextDrawDestroy(SpeedoTD[2]);
 	TextDrawDestroy(SpeedoTD[3]);
+
+	for(new i=0;i<sizeof(TextDraw_PhotoMode);i++)
+		TextDrawDestroy(TextDraw_PhotoMode[i]);
 }
 
 // Show Item Textdraw
@@ -629,6 +746,22 @@ loadTextDrawPemain(playerid){
 	// Untuk Health MAX_VALUE = 1000 - 260
 	SpeedoTD_VehBar[playerid][1] = CreatePlayerProgressBar(playerid, 282.000000, 425.000000, 94.500000, 9.500000, -1962934017, 1000.000000 - 260.0, 0);
 	// End Speedo Pemain
+
+	// Begin Textdraw Photomode
+	TextDraw_PhotoMode_Nama[playerid] = CreatePlayerTextDraw(playerid, 519.000000, 403.000000, PlayerInfo[playerid][pPlayerName]);
+	PlayerTextDrawFont(playerid, TextDraw_PhotoMode_Nama[playerid], 1);
+	PlayerTextDrawLetterSize(playerid, TextDraw_PhotoMode_Nama[playerid], 0.370833, 1.250002);
+	PlayerTextDrawTextSize(playerid, TextDraw_PhotoMode_Nama[playerid], 294.000000, 155.000000);
+	PlayerTextDrawSetOutline(playerid, TextDraw_PhotoMode_Nama[playerid], 1);
+	PlayerTextDrawSetShadow(playerid, TextDraw_PhotoMode_Nama[playerid], 0);
+	PlayerTextDrawAlignment(playerid, TextDraw_PhotoMode_Nama[playerid], 2);
+	PlayerTextDrawColor(playerid, TextDraw_PhotoMode_Nama[playerid], -1);
+	PlayerTextDrawBackgroundColor(playerid, TextDraw_PhotoMode_Nama[playerid], 255);
+	PlayerTextDrawBoxColor(playerid, TextDraw_PhotoMode_Nama[playerid], 175);
+	PlayerTextDrawUseBox(playerid, TextDraw_PhotoMode_Nama[playerid], 1);
+	PlayerTextDrawSetProportional(playerid, TextDraw_PhotoMode_Nama[playerid], 1);
+	PlayerTextDrawSetSelectable(playerid, TextDraw_PhotoMode_Nama[playerid], 0);
+	// End Textdraw Photomode
 }
 
 unloadTextDrawPemain(playerid){
@@ -663,6 +796,9 @@ unloadTextDrawPemain(playerid){
 	PlayerTextDrawDestroy(playerid, SpeedoTD_VehInfo[playerid][1]);
 	DestroyPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][0]);
 	DestroyPlayerProgressBar(playerid, SpeedoTD_VehBar[playerid][1]);
+
+	// Textdraw Photomode
+	PlayerTextDrawDestroy(playerid, TextDraw_PhotoMode_Nama[playerid]);
 }
 
 /*
@@ -708,5 +844,32 @@ HideSpeedoForPlayer(playerid){
 
 	PlayerTextDrawHide(playerid, SpeedoTD_VehInfo[playerid][0]);
 	PlayerTextDrawHide(playerid, SpeedoTD_VehInfo[playerid][1]);
+	return 1;
+}
+
+showPhotoMode(playerid){
+	// if(PlayerInfo[playerid][photoMode])
+	// 	return 0;
+
+	if(PlayerInfo[playerid][tampilHUDStats])
+		hideHUDStats(playerid), PlayerInfo[playerid][tampilHUDStats] = false;
+
+	for(new i=0;i<sizeof(TextDraw_PhotoMode);i++)
+		TextDrawShowForPlayer(playerid, TextDraw_PhotoMode[i]);
+	
+	PlayerInfo[playerid][photoMode] = true;
+	PlayerTextDrawSetString(playerid, TextDraw_PhotoMode_Nama[playerid], PlayerInfo[playerid][pPlayerName]);
+	PlayerTextDrawShow(playerid, TextDraw_PhotoMode_Nama[playerid]);
+	return 1;
+}
+
+hidePhotoMode(playerid){
+	// if(!PlayerInfo[playerid][photoMode])
+	// 	return 0;
+
+	for(new i=0;i<sizeof(TextDraw_PhotoMode);i++)
+		TextDrawHideForPlayer(playerid, TextDraw_PhotoMode[i]);
+	PlayerTextDrawHide(playerid, TextDraw_PhotoMode_Nama[playerid]);
+	PlayerInfo[playerid][photoMode] = false;
 	return 1;
 }
