@@ -1251,6 +1251,13 @@ publicFor: selesaiBeliMakanan(playerid){
 	return 1;
 }
 
+publicFor: selesaiBeliKendaraan(playerid, metode_bayar, nominal, const keterangan_atm[]){
+	new vehid = GetPVarInt(playerid, "dveh_id");
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO vehicle(id_pemilik, id_model, pos_x, pos_y, pos_z, pos_a, color_1, color_2, harga_beli) SELECT '%d' AS id_pemilik, id_model, '%f' AS pos_x, '%f' AS pos_y, '%f' AS pos_z, '%f' AS pos_a, color_1, color_2, harga FROM vehicle_dealer WHERE id = '%d'", PlayerInfo[playerid][pID],  DVeh[vehid][dVehCoord][0], DVeh[vehid][dVehCoord][1], DVeh[vehid][dVehCoord][2], DVeh[vehid][dVehCoord][3], DVeh[vehid][dVehID]);
+	mysql_tquery(koneksi, pQuery[playerid], "prosesBeliKendaraan", "iiiis", playerid, vehid, metode_bayar, nominal, keterangan_atm);
+	return 1;
+}
+
 publicFor: isRekeningTujuanAda(playerid, const rekening[]){
 	new result_nama[50], rekening_temp[10];
 	if(cache_num_rows()){
@@ -3467,14 +3474,22 @@ LoadModifVehiclePlayer(vehicleid){
 
 /**
 	``` 
+	info @parameter
 		nominal = nominal yang dibutuhkan untuk transaksi
 		fungsi_callback_success = nama fungsi yang akan dipanggil saat pembayaran berhasil
 		keterangan_atm = Kata-kata yang disimpan pada transaksi, contoh : pembelian burger
+		langsung_potong = Langsung potong uang atau tidak (jika tidak maka, potong manual saat callback success)
+
+	info @return
+		playerid = player bersangkutan
+		metode_bayar = (0 - Cash | 1 - ATM)
+		nominal  = nominal uang
+		keterangan_atm = keterangan atm
 	```
  */
-
-dialogMetodeBayar(playerid, nominal, const fungsi_callback_success[], const keterangan_atm[]){
+dialogMetodeBayar(playerid, nominal, const fungsi_callback_success[], const keterangan_atm[], langsung_potong = 1){
 	SetPVarString(playerid, "metode_callback_sukses", fungsi_callback_success);
+	SetPVarInt(playerid, "metode_langsung_potong", langsung_potong);
 	SetPVarString(playerid, "metode_keterangan_atm", keterangan_atm);
 	SetPVarInt(playerid, "metode_nominal", nominal);
 	ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR, DIALOG_STYLE_LIST, YELLOW"Silahkan pilih metode pembayaran", GREEN"Uang Cash\n"ORANGE"E-Banking", "Pilih", "Batal");
@@ -3623,77 +3638,6 @@ DeleteVehicleDealer(veh_primary){
 	mysql_tquery(koneksi, sQuery);
 }
 
-publicFor: pembayaranKendaraanATM(playerid){
-	new saldo;
-	cache_get_value_name_int(0, "saldo", saldo);
-
-	if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam mobil", WHITE"Anda harus di dalam mobil yang ingin dibeli, jangan keluar hingga transaksi selesai.");
-
-	new vehid = GetPlayerVehicleID(playerid);
-	// Counter cheater jika model mobil dimanipulasi
-	if(!Iter_Contains(DVehIterator, vehid) || GetVehicleModel(vehid) != DVeh[vehid][dVehModel]) {
-		RemovePlayerFromVehicle(playerid);
-		// Banned Cheater
-		return 1;
-	}
-
-	if(saldo < DVeh[vehid][dVehHarga]){
-		RemovePlayerFromVehicle(playerid);
-		return showDialogPesan(playerid, RED"Anda tidak memiliki cukup saldo", WHITE"Anda tidak memiliki cukup saldo untuk melakukan transaksi tersebut\nSilahkan menggunakan metode lain atau isi saldo terlebih dahulu.");
-	}
-
-	// Beli vehicle dan masukan ke dalam data player
-	if(Iter_Contains(DVehIterator, vehid)){
-		inline responseQuery(){
-			new primary_id = cache_insert_id();
-			format(pDialog[playerid], sizePDialog, "Pembelian %s dari dealer", GetVehicleModelName(DVeh[vehid][dVehModel]));
-			addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -DVeh[vehid][dVehHarga], pDialog[playerid]);
-
-			// Pindah iterator
-			Iter_Remove(DVehIterator, vehid);
-			new idpv = Iter_Free(PVehIterator);
-			Iter_Add(PVehIterator, idpv);
-
-			Iter_Add(IDVehToPVehIterator, vehid);
-			IDVehToPVeh[vehid] = idpv;
-
-			PVeh[idpv][pVehID] = primary_id;
-			PVeh[idpv][pVehPemilik] = PlayerInfo[playerid][pID];
-			format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
-			PVeh[idpv][pVehicle] = vehid;
-			PVeh[idpv][pVehModel] = DVeh[vehid][dVehModel];
-			PVeh[idpv][pVehCoord][0] = DVeh[vehid][dVehCoord][0];
-			PVeh[idpv][pVehCoord][1] = DVeh[vehid][dVehCoord][1];
-			PVeh[idpv][pVehCoord][2] = DVeh[vehid][dVehCoord][2];
-			PVeh[idpv][pVehCoord][3] = DVeh[vehid][dVehCoord][3];
-			PVeh[idpv][pVehColor][0] = DVeh[vehid][dVehColor][0];
-			PVeh[idpv][pVehColor][1] = DVeh[vehid][dVehColor][1];
-			PVeh[idpv][pVehDarah] = 1000;
-			SetVehicleHealth(vehid, 1000);
-
-			format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
-			format(pDialog[playerid], sizePDialog, "%s"ORANGE"Selamat anda berhasil membeli kendaraan dengan spesifikasi sebagai berikut :\n\n", pDialog[playerid]);
-			format(pDialog[playerid], sizePDialog, "%s"PURPLE"Nama Kendaraan: "WHITE"%s\n", pDialog[playerid], GetVehicleModelName(DVeh[vehid][dVehModel]));
-			format(pDialog[playerid], sizePDialog, "%sHarga: "GREEN"$%d\n\n", pDialog[playerid], DVeh[vehid][dVehHarga]);
-			format(pDialog[playerid], sizePDialog, "%s"WHITE"Terimakasih sudah menggunakan layanan kami.\n\n"CYAN"*********************************************************************************\n", pDialog[playerid]);
-			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Berhasil membeli kendaraan", pDialog[playerid], "Ok", "");						
-
-			// Reset nilai & Hapus
-			DestroyDynamic3DTextLabel(DVeh[vehid][dVehText3D]);
-			DeleteVehicleDealer(DVeh[vehid][dVehID]);
-
-			static const kosong_dveh[DealerVehicleInfo];
-			DVeh[vehid] = kosong_dveh;	
-		}
-		MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO vehicle(id_pemilik, id_model, pos_x, pos_y, pos_z, pos_a, color_1, color_2) SELECT '%d' AS id_pemilik, id_model, '%f' AS pos_x, '%f' AS pos_y, '%f' AS pos_z, '%f' AS pos_a, color_1, color_2 FROM vehicle_dealer WHERE id = '%d'", PlayerInfo[playerid][pID],  DVeh[vehid][dVehCoord][0], DVeh[vehid][dVehCoord][1], DVeh[vehid][dVehCoord][2], DVeh[vehid][dVehCoord][3], DVeh[vehid][dVehID]);
-	}
-	else{
-		printf("[FATAL ERROR] #008 Invalid vehicle dealer ID.");
-		return 1;
-	}	
-	return 1;
-}
-
 publicFor: CekSlotItemPemain(playerid, bedakan_callback){
 	new total_item;
 	cache_get_value_name_int(0, "total_item", total_item);
@@ -3719,9 +3663,21 @@ publicFor: CekSlotItemPemain(playerid, bedakan_callback){
 	return 1;
 }
 
-publicFor: prosesBeliKendaraanCash(playerid, vehid){
+publicFor: prosesBeliKendaraan(playerid, vehid, metode_bayar, nominal, const keterangan_atm[]){
+	if(!Iter_Contains(DVehIterator, vehid) || GetVehicleModel(vehid) != DVeh[vehid][dVehModel]){
+		// rare case
+		RemovePlayerFromVehicle(playerid);
+		return 1;
+	}
+
+	if(metode_bayar == METODE_BAYAR_EBANKING)
+		addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -nominal, keterangan_atm);
+	else if(metode_bayar == METODE_BAYAR_CASH)
+		givePlayerUang(playerid, -nominal);
+	else // rare cash ?
+		return 1;
+
 	new primary_id = cache_insert_id();
-	givePlayerUang(playerid, -DVeh[vehid][dVehHarga]);
 
 	// Pindah iterator
 	Iter_Remove(DVehIterator, vehid);

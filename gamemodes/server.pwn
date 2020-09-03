@@ -2761,14 +2761,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new nominal = GetPVarInt(playerid, "metode_nominal"), fungsi_callback_sukses[50];
 				GetPVarString(playerid, "metode_callback_sukses", fungsi_callback_sukses, 50);
+				new langsung_potong = GetPVarInt(playerid, "metode_langsung_potong");
+
+				
+				DeletePVar(playerid, "metode_langsung_potong");
 				DeletePVar(playerid, "metode_nominal");
 				DeletePVar(playerid, "metode_callback_sukses");
 				DeletePVar(playerid, "metode_keterangan_atm");
 				if(nominal > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.\nSelalu pastikan untuk mempunyai uang yang cukup sebelum melakukan pembelian.");
 
-				givePlayerUang(playerid, -nominal);
+				if(langsung_potong)
+					givePlayerUang(playerid, -nominal);
+				
 				if(fungsi_callback_sukses[0] != EOS)
-					CallRemoteFunction(fungsi_callback_sukses, "i", playerid);
+					// Keterangan ATM dikasih dummy text untuk formalitas saja
+					CallRemoteFunction(fungsi_callback_sukses, "iiis", playerid, 0, nominal, "a");
 				else
 					printf("[ERROR] #009-A Callback Error di metode pembayaran cash.");
 			}else
@@ -2786,6 +2793,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					new nominal = GetPVarInt(playerid, "metode_nominal"), fungsi_callback_sukses[50], keterangan_atm[50], saldo;
 					GetPVarString(playerid, "metode_callback_sukses", fungsi_callback_sukses, sizeof(fungsi_callback_sukses));
 					GetPVarString(playerid, "metode_keterangan_atm", keterangan_atm, sizeof(keterangan_atm));
+					new langsung_potong = GetPVarInt(playerid, "metode_langsung_potong");
+
+					DeletePVar(playerid, "metode_langsung_potong");
 					DeletePVar(playerid, "metode_nominal");
 					DeletePVar(playerid, "metode_callback_sukses");
 					DeletePVar(playerid, "metode_keterangan_atm");
@@ -2793,9 +2803,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					cache_get_value_name_int(0, "saldo", saldo);
 
 					if(saldo > nominal){
-						addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -nominal, keterangan_atm);
+						if(langsung_potong)
+							addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -nominal, keterangan_atm);
 						if(fungsi_callback_sukses[0] != EOS)
-							CallRemoteFunction(fungsi_callback_sukses, "i", playerid);
+							CallRemoteFunction(fungsi_callback_sukses, "iiis", playerid, 1, nominal, keterangan_atm);
 						else
 							printf("[ERROR] #009-B Callback Error di metode pembayaran atm.");
 					}else{
@@ -3704,89 +3715,25 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						RemovePlayerFromVehicle(playerid);
 						showDialogPesan(playerid, RED"Slot Kendaraan Penuh", WHITE"Maaf slot kendaraan anda penuh, kendaraan anda telah mencapai batas maksimal!\nSilahkan sediakan slot terlebih dahulu sebelum membeli kembali.");
 					}else{
-						ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR_KENDARAAN, DIALOG_STYLE_LIST, "Pilih Metode Pembayaran:", "Uang Cash\nVia E-Banking", "Bayar", "Kembali");
+						if(!IsPlayerInAnyVehicle(playerid))
+							return showDialogPesan(playerid, RED"Anda harus di dalam kendaraan", WHITE"Anda harus didalam kendaraan yang ingin dibeli, jangan keluar hingga transaksi selesai.");
+
+						new vehid = GetPlayerVehicleID(playerid);
+						
+						if(!Iter_Contains(DVehIterator, vehid) || GetVehicleModel(vehid) != DVeh[vehid][dVehModel]) {
+							// case dimana mobil terganti
+							RemovePlayerFromVehicle(playerid);
+							return 1;
+						}
+						SetPVarInt(playerid, "dveh_id", vehid);
+						
+						new temp[50];
+						format(temp, 50, "membeli %s dari dealer", GetVehicleModelName(DVeh[vehid][dVehModel]));
+						dialogMetodeBayar(playerid, DVeh[vehid][dVehHarga], "selesaiBeliKendaraan", temp, 0);
 					}
 				}	
 
 				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT COUNT(*) AS total FROM vehicle WHERE id_pemilik = '%d'", PlayerInfo[playerid][pID]);
-			}else{
-				if(!IsPlayerAdmin(playerid)) RemovePlayerFromVehicle(playerid);
-			}
-			return 1;
-		}
-		case DIALOG_METODE_BAYAR_KENDARAAN:
-		{
-			if(response){
-				switch(listitem){
-					case 0: // Bayar Uang Cash
-					{
-						if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam kendaraan", WHITE"Anda harus didalam kendaraan yang ingin dibeli, jangan keluar hingga transaksi selesai.");
-
-						new vehid = GetPlayerVehicleID(playerid);
-						// Counter cheater jika model mobil dimanipulasi
-						if(!Iter_Contains(DVehIterator, vehid) || GetVehicleModel(vehid) != DVeh[vehid][dVehModel]) {
-							RemovePlayerFromVehicle(playerid);
-							// Banned Cheater
-							return 1;
-						}
-
-						if(getUangPlayer(playerid) < DVeh[vehid][dVehHarga]) {
-							RemovePlayerFromVehicle(playerid);
-							return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi untuk melakukan pembelian!");
-						}
-
-						// Beli vehicle dan masukan ke dalam data player
-						if(Iter_Contains(DVehIterator, vehid)){
-							// Ubah jadi pakai tquery biasa, saat menggunakan tquery_inline nilai variabel vehid tidak terkirim dengan benar (val = 21946644)
-							mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO vehicle(id_pemilik, id_model, pos_x, pos_y, pos_z, pos_a, color_1, color_2, harga_beli) SELECT '%d' AS id_pemilik, id_model, '%f' AS pos_x, '%f' AS pos_y, '%f' AS pos_z, '%f' AS pos_a, color_1, color_2, harga FROM vehicle_dealer WHERE id = '%d'", PlayerInfo[playerid][pID],  DVeh[vehid][dVehCoord][0], DVeh[vehid][dVehCoord][1], DVeh[vehid][dVehCoord][2], DVeh[vehid][dVehCoord][3], DVeh[vehid][dVehID]);
-							mysql_tquery(koneksi, pQuery[playerid], "prosesBeliKendaraanCash", "ii", playerid, vehid);
-						}
-						else{
-							printf("[FATAL ERROR] #008 Invalid vehicle dealer ID.");
-							return 0;
-						}				
-					}
-					case 1:
-					{
-						if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam kendaraan", WHITE"Anda harus di dalam kendaraan yang ingin dibeli, jangan keluar hingga transaksi selesai.");
-
-						new vehid = GetPlayerVehicleID(playerid);
-						// Counter cheater jika model mobil dimanipulasi
-						if(!Iter_Contains(DVehIterator, vehid) || GetVehicleModel(vehid) != DVeh[vehid][dVehModel]) {
-							RemovePlayerFromVehicle(playerid);
-							// Banned Cheater
-							return 1;
-						}
-
-						if(isnull(PlayerInfo[playerid][nomorRekening])) {
-							RemovePlayerFromVehicle(playerid);
-							return showDialogPesan(playerid, RED"Tidak memiliki ATM", WHITE"Anda tidak memiliki ATM.\nSilahkan buat ATM terlebih dahulu untuk menggunakan metode ini.");
-						}
-						if(PlayerInfo[playerid][ePhone] == 0) {
-							RemovePlayerFromVehicle(playerid);
-							return showDialogPesan(playerid, RED"Tidak memiliki ePhone", WHITE"Anda tidak memiliki ePhone.\nSilahkan beli dan gunakan ePhone terlebih dahulu (minimal ePhone 2) untuk menggunakan metode ini.");
-						}
-
-						format(pDialog[playerid], sizePDialog, WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", DVeh[vehid][dVehHarga]);
-						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_KENDARAAN_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran via E-Banking", pDialog[playerid], "Bayar", "Batal");
-					}
-				}
-			}else{
-				if(!IsPlayerAdmin(playerid)) RemovePlayerFromVehicle(playerid);
-			}
-			return 1;
-		}
-		case DIALOG_KONFIRMASI_BAYAR_KENDARAAN_VIA_ATM:
-		{
-			if(response){
-				if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam kendaraan", WHITE"Anda harus di dalam kendaraan yang ingin dibeli, jangan keluar hingga transaksi selesai.");
-
-				new vehid = GetPlayerVehicleID(playerid);
-				if(strlen(inputtext) != 8 || strcmp(PlayerInfo[playerid][nomorRekening], inputtext) != 0) {
-					format(pDialog[playerid], sizePDialog, RED"Anda tidak memasukan nomor rekening dengan benar!\n"WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\nHarga yang akan dikenakan adalah "GREEN"$%d.\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.", DVeh[vehid][dVehHarga]);
-					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_KENDARAAN_VIA_ATM, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran via E-Banking", pDialog[playerid], "Bayar", "Batal");
-				}
-				getSaldoPlayer(playerid, "pembayaranKendaraanATM");
 			}else{
 				if(!IsPlayerAdmin(playerid)) RemovePlayerFromVehicle(playerid);
 			}
