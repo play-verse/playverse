@@ -84,6 +84,8 @@ enum pInfo
     // Settings
     bool:tampilHUDStats,
     bool:tampilSpeedo,
+    bool:photoMode, // Photo Mode
+    bool:tampilJam,
 
     bool:sudahSpawn,
     bool:sudahLogin,
@@ -93,7 +95,6 @@ enum pInfo
     lastGlobalChat,
 	bool:isOnAnimation, // Save state untuk animation
 	onTradeWith,
-    bool:photoMode, // Photo Mode
 
 	bool:isBusy, // Saat melakukan kegiatan yang tidak dapat diganggu
 

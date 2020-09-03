@@ -228,6 +228,7 @@ resetPlayerVariable(playerid, dari_callback){
 
 	PlayerInfo[playerid][tampilHUDStats] = false;
 	PlayerInfo[playerid][tampilSpeedo] = true;
+	PlayerInfo[playerid][tampilJam] = true;
 
 	PlayerInfo[playerid][isOnMask] = 0;
 
@@ -404,6 +405,7 @@ spawnPemain(playerid, dari_callback = 0)
 	if(PlayerInfo[playerid][sudahSpawn]) return 1;
 	PlayerInfo[playerid][sudahSpawn] = true;
 	new house_Id = PlayerInfo[playerid][sHouse];
+	EnableHealthBarForPlayer(playerid, true);
 
 	// Tampilkan hanya jika settingan hidup
 	if(PlayerInfo[playerid][tampilHUDStats]) tampilkanHUDStats(playerid);
