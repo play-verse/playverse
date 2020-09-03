@@ -3,7 +3,10 @@ showDialogResepsionis(playerid){
     return ShowPlayerDialog(playerid, DIALOG_RESEPSIONIS_PEMERINTAH, DIALOG_STYLE_LIST, "Pilihan tindakan pengurusan data", "KTP\nPembuatan Nomor HP\nPerpanjang Masa Aktif Nomor HP", "Pilih", "Batal");
 }
 
-showDialogListItem(playerid){
+showDialogListItem(playerid, fromplayerid = INVALID_PLAYER_ID, dialogid = DIALOG_PILIH_ITEM){
+    if(fromplayerid == INVALID_PLAYER_ID)
+        fromplayerid = playerid;
+
 	format(pDialog[playerid], sizePDialog, "Nama\tJumlah\tKapasitas per Item\tKapasitas Terpakai\n");
 	
     new subString[64], 
@@ -14,7 +17,7 @@ showDialogListItem(playerid){
     ;
     
     LoopingItem(id_item){
-        jumlah = GetJumlahItemPlayer(playerid, id_item);
+        jumlah = GetJumlahItemPlayer(fromplayerid, id_item);
         if(jumlah < 1) continue;
 
         // Cek jika item yang sedang di looping adalah item yang ada pada halaman
@@ -34,6 +37,9 @@ showDialogListItem(playerid){
     }
 
     if(idx_temp == 0){
+        if(fromplayerid != playerid)
+            return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item "RED"kosong", WHITE"Maaf saat ini inventory player tersebut tidak berisi apapun!", "Ok", "");
+
         return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item "RED"kosong", WHITE"Maaf saat ini inventory item anda tidak berisi apapun!\n"YELLOW"Anda bisa mendapatkan item dari bekerja, berbelanja, ataupun saling bertukar item kepada player lain!", "Ok", "");
     }else if(floatround(idx_temp / BANYAK_DATA_PER_PAGE, floatround_floor) < GetPVarInt(playerid, "halaman")){
         if(GetPVarInt(playerid, "halaman") < 1) return 0; // Keluar dari fungsi jika kondisi aneh?
@@ -43,8 +49,16 @@ showDialogListItem(playerid){
 
     strcat(pDialog[playerid], ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
 
-    format(subString, 64, WHITE"Pilih barang anda : "GREEN"(page : %d)", GetPVarInt(playerid, "halaman") + 1);
-    return ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
+    if(fromplayerid != playerid)
+        format(subString, 64, WHITE"List Inventory %s : "GREEN"(page : %d)", PlayerInfo[fromplayerid][pPlayerName], GetPVarInt(playerid, "halaman") + 1);
+    else
+        format(subString, 64, WHITE"Pilih barang anda : "GREEN"(page : %d)", GetPVarInt(playerid, "halaman") + 1);
+    
+    // Case ini saja
+    if(dialogid == DIALOG_PERIKSA_INVENTORY)
+        return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Tutup", "");
+    else
+        return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
 }
 
 showDialogListFurniturePemain(playerid){

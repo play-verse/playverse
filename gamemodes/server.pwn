@@ -2775,7 +2775,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 				if(fungsi_callback_sukses[0] != EOS)
 					// Keterangan ATM dikasih dummy text untuk formalitas saja
-					CallRemoteFunction(fungsi_callback_sukses, "iiis", playerid, 0, nominal, "a");
+					CallRemoteFunction(fungsi_callback_sukses, "iiis", playerid, METODE_BAYAR_CASH, nominal, "a");
 				else
 					printf("[ERROR] #009-A Callback Error di metode pembayaran cash.");
 			}else
@@ -2806,7 +2806,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(langsung_potong)
 							addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -nominal, keterangan_atm);
 						if(fungsi_callback_sukses[0] != EOS)
-							CallRemoteFunction(fungsi_callback_sukses, "iiis", playerid, 1, nominal, keterangan_atm);
+							CallRemoteFunction(fungsi_callback_sukses, "iiis", playerid, METODE_BAYAR_EBANKING, nominal, keterangan_atm);
 						else
 							printf("[ERROR] #009-B Callback Error di metode pembayaran atm.");
 					}else{
@@ -6468,6 +6468,72 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				DeletePVar(playerid, "bill_keterangan");
 				format(pDialog[playerid], sizePDialog, "bayar tagihan %s", keterangan);
 				dialogMetodeBayar(playerid, GetPVarInt(playerid, "bill_nominal"), "selesaiBayarTagihan", pDialog[playerid]);
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_PERIKSA_INVENTORY:
+		{
+			new target_id = GetPVarInt(playerid, "periksa_target_id");
+			DeletePVar(playerid, "periksa_target_id");
+			if(response){
+				sendPesan(playerid, COLOR_BLUE, TAG_INFO, " "WHITE"Anda memperbolehkan %s untuk melihat inventory anda.", PlayerInfo[target_id][pPlayerName]);
+
+				sendPesan(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda harus tetap berada dekat dengan %s, agar inventory anda dapat diperiksa.", PlayerInfo[target_id][pPlayerName]);
+				sendPesan(target_id, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda harus tetap berada dekat dengan %s, agar dapat memeriksa inventorynya.", PlayerInfo[playerid][pPlayerName]);
+
+				sendPesan(target_id, COLOR_GREEN, TAG_INFO, " "WHITE"%s membolehkan anda untuk memeriksa inventorynya.", PlayerInfo[playerid][pPlayerName]);
+
+				SetPVarInt(target_id, "periksa_sedang_diperiksa_id", playerid);
+				showDialogListItem(target_id, playerid, DIALOG_PERIKSA_INVENTORY);
+			}else{
+				sendPesan(playerid, COLOR_RED, TAG_INFO, " "WHITE"Anda menolak %s untuk melihat inventory anda.", PlayerInfo[target_id][pPlayerName]);
+				sendPesan(target_id, COLOR_RED, TAG_INFO, " "WHITE"%s menolak anda untuk memeriksa inventorynya.", PlayerInfo[playerid][pPlayerName]);
+			}
+			return 1;
+		}
+		case DIALOG_PERIKSA_INVENTORY:
+		{
+			if(response){
+				new target_id = GetPVarInt(playerid, "periksa_sedang_diperiksa_id");
+				new Float:pos[3];
+
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					if(!IsPlayerConnected(target_id))
+						return error_command(playerid, "Pemain yang sedang diperiksa tidak ada.");
+
+					GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+					if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+						return error_command(playerid, "Pemain yang sedang diperiksa tidak berada didekat anda.");
+
+
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					showDialogListItem(playerid, target_id, DIALOG_PERIKSA_INVENTORY);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						if(!IsPlayerConnected(target_id))
+							return error_command(playerid, "Pemain yang sedang diperiksa tidak ada.");
+
+						GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+						if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+							return error_command(playerid, "Pemain yang sedang diperiksa tidak berada didekat anda.");
+
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						showDialogListItem(playerid, target_id, DIALOG_PERIKSA_INVENTORY);
+					}else{
+						if(!IsPlayerConnected(target_id))
+							return error_command(playerid, "Pemain yang sedang diperiksa tidak ada.");
+
+						GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+						if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+							return error_command(playerid, "Pemain yang sedang diperiksa tidak berada didekat anda.");
+
+
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListItem(playerid, target_id, DIALOG_PERIKSA_INVENTORY);
+					}
+					return 1;
+				}
 			}
 			return 1;
 		}

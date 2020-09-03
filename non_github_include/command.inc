@@ -902,6 +902,51 @@ CMD:bukaborgol(playerid, params[]){
     return 1;
 }
 
+CMD:cekmasatahanan(playerid, params[]){
+    if(!IsPlayerOnDutyPolice(playerid))
+        return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak memiliki otoritas.");
+
+    new target_id,
+        Float:pos[3];
+    if(sscanf(params, "u", target_id))
+        return error_syntax(playerid, "/cekmasatahanan [id target]");
+    
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Pemain yang dimaksud tidak ada.");
+
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+        return error_command(playerid, "Pemain yang di maksud tidak berada didekat anda.");
+
+    if(PlayerInfo[target_id][inPenjara] <= 0)
+        sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"%s tidak memiliki masa tahanan tersisa.", PlayerInfo[target_id][pPlayerName]);
+    else
+        sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"%s memiliki masa tahanan tersisa yaitu "RED"%d "WHITE"detik.", PlayerInfo[target_id][pPlayerName], PlayerInfo[target_id][inPenjara]);
+    return 1;
+}
+
+// Ini dapat dilakukan semua orang
+CMD:periksainventory(playerid, params[]){
+
+    new target_id,
+        Float:pos[3];
+    if(sscanf(params, "u", target_id))
+        return error_syntax(playerid, "/periksainventory [id pemain]");
+    
+    if(!IsPlayerConnected(target_id) || playerid == target_id)
+        return error_command(playerid, "Pemain yang dimaksud tidak ada.");
+
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+        return error_command(playerid, "Pemain yang di maksud tidak berada didekat anda.");
+
+    SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda akan mendapat pemberitahuan saat orang tersebut menerima/menolak.");
+    SetPVarInt(target_id, "periksa_target_id", playerid);
+    format(pDialog[playerid], sizePDialog, ""GREEN"%s "WHITE"ingin memeriksa inventory anda,\n"YELLOW"Apakah anda memperbolehkannya?", pDialog[playerid][pPlayerName]);
+    ShowPlayerDialog(target_id, DIALOG_KONFIRMASI_PERIKSA_INVENTORY, DIALOG_STYLE_MSGBOX, "Konfirmasi Periksa Inventory", pDialog[playerid], "Ya", "Tidak");
+    return 1;
+}
+
 /**
     Animations
  */
