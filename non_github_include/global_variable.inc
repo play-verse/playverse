@@ -1378,6 +1378,10 @@ new mancingTimer[MAX_PLAYERS],
 #define MEDIC_MAX_LEVEL 2
 #define POLICE_MAX_LEVEL 4
 
+#define MAX_OBJECT_POLICE 500
+#define MIN_SPEEDLIMIT 50
+#define MAX_SPEEDLIMIT 200
+
 /*
 	Jika tidak ada skin Female dan Male seperti Intel 
 		> (berarti tidak perlu pakai skin dari faction) - Langsung On duty tanpa ganti skin
@@ -1446,6 +1450,32 @@ new const POLICE_SKIN_FEMALE[POLICE_MAX_LEVEL][] = {
 
 #define COLOR_POLISI 		COLOR_LIGHT_BLUE
 #define COLOR_MEDIC 		COLOR_PINK
+
+enum _:OBJECT_POLICE_TYPE
+{
+	OBJECT_TYPE_RANJAU,
+	OBJECT_TYPE_BARIKADE,
+	OBJECT_TYPE_GARIS,
+	OBJECT_TYPE_CONE,
+	OBJECT_TYPE_SPEEDCAM
+}
+
+enum INFO_OBJECT_POLICE
+{
+	objID,
+	objType,
+	objAktif,
+	objData,
+	objArea,
+	Text3D:objLabel,
+	Float:objX,
+	Float:objY,
+	Float:objZ
+};
+
+new OBJECT_POLICE[MAX_OBJECT_POLICE][INFO_OBJECT_POLICE],
+	Iterator:ObjPoliceIterator<MAX_OBJECT_POLICE>,
+	EditingObjPolice[MAX_PLAYERS] = {-1, ...};
 /**
 	End Faction
  */

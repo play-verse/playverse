@@ -1043,12 +1043,11 @@ publicFor: pakaiJoranPancing(playerid){
 
 pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 	new Float: x, Float: y, Float: z, Float: a, Float: tmp, Float: x1, Float: y1, Float: x2, Float: y2,
-	id = Iter_Free(PlantIterator), plant_Id = GetClosestPlant(playerid),
-	vehid = GetPlayerVehicleID(playerid);
-	if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada diluar Interior atau Virtual World 0!");
+	id = Iter_Free(PlantIterator), plant_Id = GetClosestPlant(playerid);
+	if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
 	if(id == -1 || playerMaxPlant(playerid)) return error_command(playerid, "Tidak dapat menanam bibit lagi, tunggu hingga beberapa tanaman dipanen.");
 	if(plant_Id != -1) return error_command(playerid, "Anda tidak dapat menanam di tempat yang sudah ditanami bibit.");
-	if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Tidak dapat menanam bibit di dalam kendaraan.");
+	if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Tidak dapat menanam bibit di dalam kendaraan.");
 	if(!CA_IsPlayerOnSurface(playerid) || CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Anda tidak berada di permukaan tanah.");
 	GetPlayerPos(playerid, x, y, z);
 	new obj = CA_RayCastLine(x, y, z+1.0, x, y, z-2.0, tmp, tmp, tmp);
@@ -4052,7 +4051,7 @@ LoadSemuaATM()
 TurunkanPohon(playerid){
 	inline responseQuery(){
 		new total_item, vehid = GetPlayerVehicleID(playerid), treeVeh = vehDTree[vehid][treeAngkut];
-		if(!IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
+		if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
 		if(!IsMobilPickup(vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan pick up.");
 
 		// Filter apakah dia berada disekitar tempat pemotongan mana saja
@@ -4475,4 +4474,93 @@ publicFor: pemainUpdate(playerid){
 		GameTextForPlayer(playerid, str_temp, 1000, 3);
 	}
 	return 1;
+}
+
+CreateObjPolice(obj_id, const obj_name[], obj_data, obj_type, Float:x, Float:y, Float:z, Float:a){
+    if(obj_id < MAX_OBJECT_POLICE){
+  	    if(OBJECT_POLICE[obj_id][objAktif] == 0){
+            OBJECT_POLICE[obj_id][objAktif] = 1;
+            OBJECT_POLICE[obj_id][objX] = x;
+            OBJECT_POLICE[obj_id][objY] = y;
+            OBJECT_POLICE[obj_id][objZ] = z;
+			new obj_model, Float:obj_z, Float:obj_a, Float:area_range, Float:text_z;
+			switch(obj_type){
+				case OBJECT_TYPE_RANJAU:
+				{
+					obj_model = 2899; obj_z = z-0.7; obj_a = a-90; area_range = 3.0; text_z = z+1.5;
+				}
+				case OBJECT_TYPE_BARIKADE:
+				{
+					obj_model = 981; obj_z = z-0.3; obj_a = a; area_range = 3.0; text_z = z+1.5;
+				}
+				case OBJECT_TYPE_GARIS:
+				{
+					obj_model = 19834; obj_z = z; obj_a = a; area_range = 3.0; text_z = z+1.5;
+				}
+				case OBJECT_TYPE_CONE:
+				{
+					obj_model = 1238; obj_z = z-0.7; obj_a = a; area_range = 3.0; text_z = z+0.7;
+				}
+				case OBJECT_TYPE_SPEEDCAM:
+				{
+					obj_model = 18880; obj_z = z-1.5; obj_a = a; area_range = 30.0; text_z = z+3.0;
+				}
+			}
+            OBJECT_POLICE[obj_id][objID] = CreateDynamicObject(obj_model, x, y, obj_z, 0, 0, obj_a);
+			OBJECT_POLICE[obj_id][objData] = obj_data;
+			OBJECT_POLICE[obj_id][objArea] = CreateDynamicSphere(x, y, z, area_range);
+			OBJECT_POLICE[obj_id][objType] = obj_type;
+			new label[256];
+			if(obj_data != -1){
+				switch(obj_type){
+					case OBJECT_TYPE_SPEEDCAM:
+					{
+						format(label, sizeof(label), WHITE"["GREEN"%s"WHITE"]\nNo : "GREEN"%d"WHITE"\nBatas : "GREEN"%d KmpH", obj_name, obj_id, obj_data);
+					}
+				}
+			}else{
+				format(label, sizeof(label), WHITE"["GREEN"%s"WHITE"]\nNo : "GREEN"%d", obj_name, obj_id);
+			}
+			OBJECT_POLICE[obj_id][objLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, x, y, text_z, 10.0);
+			Iter_Add(ObjPoliceIterator, obj_id);
+	        return 1;
+  	    }
+  	}else{
+		print("Objek polisi mencapai limit!");
+	}
+  	return 0;
+}
+
+DeleteObjPolice(params){
+	OBJECT_POLICE[params][objAktif] = 0;
+	OBJECT_POLICE[params][objX] = 0.0;
+	OBJECT_POLICE[params][objY] = 0.0;
+	OBJECT_POLICE[params][objZ] = 0.0;
+	OBJECT_POLICE[params][objArea] = 0;
+	DestroyDynamicObject(OBJECT_POLICE[params][objID]);
+	DestroyDynamic3DTextLabel(OBJECT_POLICE[params][objLabel]);
+	OBJECT_POLICE[params][objLabel] = Text3D: -1;
+	Iter_SafeRemove(ObjPoliceIterator, params, params);
+	return 1;
+}
+
+ClosestObjPolice(playerid){
+    foreach(new i : ObjPoliceIterator){
+		if(Iter_Contains(ObjPoliceIterator, i)){
+			if(GetPVarType(playerid, "last_area")){
+				new areaid = GetPVarInt(playerid, "last_area");
+				if(areaid == OBJECT_POLICE[i][objArea]){
+					if(OBJECT_POLICE[i][objAktif] == 1){
+						return i;
+					}
+				}
+			}
+		}
+  	}
+    return -1;
+}
+
+EncodeTires(tires1, tires2, tires3, tires4){
+	return tires1 | (tires2 << 1) | (tires3 << 2) | (tires4 << 3);
+
 }
