@@ -2456,29 +2456,6 @@ publicFor: responseUpdateHari(tahun, hari){
 	TextDrawSetString(TD_JamTanggal[1], str_hari);
 }
 
-publicFor: pembayaranMakananATM(playerid){	
-	new idx = GetPVarInt(playerid, "bmakan_index"), jumlah = GetPVarInt(playerid, "bmakan_jumlah");
-	new harga = jumlah * MENU_MAKANAN[idx][hargaMakanan];
-	DeletePVar(playerid, "bmakan_index");
-	DeletePVar(playerid, "bmakan_jumlah");
-	new nama_item[50];	
-	getNamaByIdItem(MENU_MAKANAN[idx][idItemMakanan], nama_item);
-
-	new saldo;
-	cache_get_value_name_int(0, "saldo", saldo);
-	if(saldo > harga){
-		new string_keterangan[100];
-		format(string_keterangan, 100, "Pembelian %s sebanyak %d", nama_item, jumlah);
-		addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -harga, string_keterangan);
-		tambahItemPlayer(playerid, MENU_MAKANAN[idx][idItemMakanan], jumlah);
-		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", nama_item, jumlah, harga);
-		showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
-	}else{
-		showDialogPesan(playerid, RED"Saldo anda tidak mencukupi", WHITE"Maaf saldo yang terdapat pada ATM anda tidak mencukupi.\nSilahkan gunakan metode lain.");
-	}
-	return 1;
-}
-
 publicFor: pakaiMakanan(playerid, itemid){
 	tambahItemPlayer(playerid, itemid, -1);
 	ApplyAnimation(playerid, "FOOD", "EAT_Burger", 4.1, 0, 1, 1, 0, 0, 1);
