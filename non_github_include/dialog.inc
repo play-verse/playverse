@@ -44,7 +44,7 @@ showDialogListItem(playerid, fromplayerid = INVALID_PLAYER_ID, dialogid = DIALOG
     }else if(floatround(idx_temp / BANYAK_DATA_PER_PAGE, floatround_floor) < GetPVarInt(playerid, "halaman")){
         if(GetPVarInt(playerid, "halaman") < 1) return 0; // Keluar dari fungsi jika kondisi aneh?
         SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
-        return showDialogListItem(playerid);
+        return showDialogListItem(playerid, fromplayerid, dialogid);
     }
 
     strcat(pDialog[playerid], ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");

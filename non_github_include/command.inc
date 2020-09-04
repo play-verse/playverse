@@ -915,7 +915,7 @@ CMD:cekmasatahanan(playerid, params[]){
         return error_command(playerid, "Pemain yang dimaksud tidak ada.");
 
     GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
-    if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+    if(!IsPlayerInRangeOfPoint(playerid, 3.0, pos[0], pos[1], pos[2]))
         return error_command(playerid, "Pemain yang di maksud tidak berada didekat anda.");
 
     if(PlayerInfo[target_id][inPenjara] <= 0)
@@ -937,12 +937,14 @@ CMD:periksainventory(playerid, params[]){
         return error_command(playerid, "Pemain yang dimaksud tidak ada.");
 
     GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
-    if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+    if(!IsPlayerInRangeOfPoint(playerid, 3.0, pos[0], pos[1], pos[2]))
         return error_command(playerid, "Pemain yang di maksud tidak berada didekat anda.");
 
     SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda akan mendapat pemberitahuan saat orang tersebut menerima/menolak.");
     SetPVarInt(target_id, "periksa_target_id", playerid);
-    format(pDialog[playerid], sizePDialog, ""GREEN"%s "WHITE"ingin memeriksa inventory anda,\n"YELLOW"Apakah anda memperbolehkannya?", pDialog[playerid][pPlayerName]);
+    
+    format(pDialog[playerid], sizePDialog, GREEN"%s "WHITE"ingin memeriksa inventory anda,\n"YELLOW"Apakah anda memperbolehkannya?", PlayerInfo[playerid][pPlayerName]);
+
     ShowPlayerDialog(target_id, DIALOG_KONFIRMASI_PERIKSA_INVENTORY, DIALOG_STYLE_MSGBOX, "Konfirmasi Periksa Inventory", pDialog[playerid], "Ya", "Tidak");
     return 1;
 }

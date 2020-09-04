@@ -6476,18 +6476,18 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			new target_id = GetPVarInt(playerid, "periksa_target_id");
 			DeletePVar(playerid, "periksa_target_id");
 			if(response){
-				sendPesan(playerid, COLOR_BLUE, TAG_INFO, " "WHITE"Anda memperbolehkan %s untuk melihat inventory anda.", PlayerInfo[target_id][pPlayerName]);
+				sendPesan(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda memperbolehkan %s untuk melihat inventory anda.", PlayerInfo[target_id][pPlayerName]);
 
 				sendPesan(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda harus tetap berada dekat dengan %s, agar inventory anda dapat diperiksa.", PlayerInfo[target_id][pPlayerName]);
 				sendPesan(target_id, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda harus tetap berada dekat dengan %s, agar dapat memeriksa inventorynya.", PlayerInfo[playerid][pPlayerName]);
 
-				sendPesan(target_id, COLOR_GREEN, TAG_INFO, " "WHITE"%s membolehkan anda untuk memeriksa inventorynya.", PlayerInfo[playerid][pPlayerName]);
+				sendPesan(target_id, COLOR_GREEN, TAG_INFO" "WHITE"%s membolehkan anda untuk memeriksa inventorynya.", PlayerInfo[playerid][pPlayerName]);
 
 				SetPVarInt(target_id, "periksa_sedang_diperiksa_id", playerid);
 				showDialogListItem(target_id, playerid, DIALOG_PERIKSA_INVENTORY);
 			}else{
-				sendPesan(playerid, COLOR_RED, TAG_INFO, " "WHITE"Anda menolak %s untuk melihat inventory anda.", PlayerInfo[target_id][pPlayerName]);
-				sendPesan(target_id, COLOR_RED, TAG_INFO, " "WHITE"%s menolak anda untuk memeriksa inventorynya.", PlayerInfo[playerid][pPlayerName]);
+				sendPesan(playerid, COLOR_RED, TAG_INFO" "WHITE"Anda menolak %s untuk melihat inventory anda.", PlayerInfo[target_id][pPlayerName]);
+				sendPesan(target_id, COLOR_RED, TAG_INFO" "WHITE"%s menolak anda untuk memeriksa inventorynya.", PlayerInfo[playerid][pPlayerName]);
 			}
 			return 1;
 		}
@@ -6502,7 +6502,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						return error_command(playerid, "Pemain yang sedang diperiksa tidak ada.");
 
 					GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
-					if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+					if(!IsPlayerInRangeOfPoint(playerid, 3.0, pos[0], pos[1], pos[2]))
 						return error_command(playerid, "Pemain yang sedang diperiksa tidak berada didekat anda.");
 
 
@@ -6515,7 +6515,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							return error_command(playerid, "Pemain yang sedang diperiksa tidak ada.");
 
 						GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
-						if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+						if(!IsPlayerInRangeOfPoint(playerid, 3.0, pos[0], pos[1], pos[2]))
 							return error_command(playerid, "Pemain yang sedang diperiksa tidak berada didekat anda.");
 
 						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
@@ -6525,7 +6525,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							return error_command(playerid, "Pemain yang sedang diperiksa tidak ada.");
 
 						GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
-						if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2]))
+						if(!IsPlayerInRangeOfPoint(playerid, 3.0, pos[0], pos[1], pos[2]))
 							return error_command(playerid, "Pemain yang sedang diperiksa tidak berada didekat anda.");
 
 
