@@ -854,9 +854,18 @@ showPhotoMode(playerid){
 	if(PlayerInfo[playerid][tampilHUDStats])
 		hideHUDStats(playerid), PlayerInfo[playerid][tampilHUDStats] = false;
 
+	if(PlayerInfo[playerid][tampilJam]){
+		TextDrawHideForPlayer(playerid, TD_JamTanggal[0]);
+		TextDrawHideForPlayer(playerid, TD_JamTanggal[1]);
+		PlayerInfo[playerid][tampilJam] = false;
+	}
+
 	for(new i=0;i<sizeof(TextDraw_PhotoMode);i++)
 		TextDrawShowForPlayer(playerid, TextDraw_PhotoMode[i]);
-	
+
+	// weapon-config.inc healthbar
+	EnableHealthBarForPlayer(playerid, false);
+
 	PlayerInfo[playerid][photoMode] = true;
 	PlayerTextDrawSetString(playerid, TextDraw_PhotoMode_Nama[playerid], PlayerInfo[playerid][pPlayerName]);
 	PlayerTextDrawShow(playerid, TextDraw_PhotoMode_Nama[playerid]);
@@ -866,6 +875,9 @@ showPhotoMode(playerid){
 hidePhotoMode(playerid){
 	// if(!PlayerInfo[playerid][photoMode])
 	// 	return 0;
+
+	// weapon-config.inc healthbar
+	EnableHealthBarForPlayer(playerid, true);
 
 	for(new i=0;i<sizeof(TextDraw_PhotoMode);i++)
 		TextDrawHideForPlayer(playerid, TextDraw_PhotoMode[i]);

@@ -4495,16 +4495,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						PlayerInfo[playerid][photoMode] = !PlayerInfo[playerid][photoMode];
 						if(PlayerInfo[playerid][photoMode]){
-							// weapon-config.inc healthbar
-							EnableHealthBarForPlayer(playerid, false);
-
 							SendClientMessage(playerid, COLOR_YELLOW, "* Berhasil menampilkan photo mode.");
 							SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Jika anda sebelumnya mengaktifkan HUD status, maka HUD akan terhide.");
 							SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Tekan F7 untuk hide chat dan HUD bawaan GTA.");
 							showPhotoMode(playerid);
 						}
 						else{
-							EnableHealthBarForPlayer(playerid, true);
 							SendClientMessage(playerid, COLOR_YELLOW, "* Berhasil menyembunyikan photo mode.");
 							hidePhotoMode(playerid);
 						}
