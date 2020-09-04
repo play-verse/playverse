@@ -255,7 +255,7 @@ CMD:rumah(playerid, params[]){
 
 CMD:arumah(playerid, params[]){
     if(!IsPlayerAdmin(playerid)) return 0;
-    if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada diluar Interior atau Virtual World 0!");
+    if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
     ShowPlayerDialog(playerid, DIALOG_ADMIN_RUMAH, DIALOG_STYLE_LIST, WHITE"House Sytem :", "Buat Rumah\nReset Rumah\nHapus Rumah", "Pilih", "Batal");
     return 1;
 }
@@ -819,8 +819,8 @@ CMD:keluar(playerid, params[]){
 }
 
 CMD:hancurkan(playerid, params[]){
-    new text[50];
-    if(sscanf(params, "s[50]", text))
+    new text[50], number;
+    if(sscanf(params, "s[50]", text) || sscanf(params, "s[50]I(-1)", text, number))
         return error_syntax(playerid, "/hancurkan [aksi]");
 
     if(sama(text, "ganja") && IsPlayerOnDutyPolice(playerid)){
@@ -838,8 +838,247 @@ CMD:hancurkan(playerid, params[]){
         DFarm[plant_Id][plantItemID] = -1;
         SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan tanaman ganja.");
         sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Anda mendapatkan bonus pekerjaan sebesar "GREEN"$%d", BONUS_MENGHANCURKAN_GANJA);
-        
+
         addGajiPemain(playerid, BONUS_MENGHANCURKAN_GANJA, "bonus menghancurkan ganja");
+    }else if(sama(text, "ranjau") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1){
+            new id = ClosestObjPolice(playerid);
+            if(id != -1 && OBJECT_POLICE[id][objType] == OBJECT_TYPE_RANJAU){
+                DeleteObjPolice(id);
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan ranjau paku.");
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Tidak terdapat ranjau paku di sekitar.");
+            }
+        }else{
+            if(OBJECT_POLICE[number][objAktif] == 1 && OBJECT_POLICE[number][objType] == OBJECT_TYPE_RANJAU){
+                DeleteObjPolice(number);
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Ranjau paku dengan ID tersebut tidak ada.");
+            }
+        }
+    }else if(sama(text, "barikade") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1){
+            new id = ClosestObjPolice(playerid);
+            if(id != -1 && OBJECT_POLICE[id][objType] == OBJECT_TYPE_BARIKADE){
+                DeleteObjPolice(id);
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan barikade.");
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Tidak terdapat barikade di sekitar.");
+            }
+        }else{
+            if(OBJECT_POLICE[number][objAktif] == 1 && OBJECT_POLICE[number][objType] == OBJECT_TYPE_BARIKADE){
+                DeleteObjPolice(number);
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Barikade dengan ID tersebut tidak ada.");
+            }
+        }
+    }else if(sama(text, "cone") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1){
+            new id = ClosestObjPolice(playerid);
+            if(id != -1 && OBJECT_POLICE[id][objType] == OBJECT_TYPE_CONE){
+                DeleteObjPolice(id);
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan cone.");
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Tidak terdapat cone di sekitar.");
+            }
+        }else{
+            if(OBJECT_POLICE[number][objAktif] == 1 && OBJECT_POLICE[number][objType] == OBJECT_TYPE_CONE){
+                DeleteObjPolice(number);
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Cone dengan ID tersebut tidak ada.");
+            }
+        }
+    }else if(sama(text, "garis") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1){
+            new id = ClosestObjPolice(playerid);
+            if(id != -1 && OBJECT_POLICE[id][objType] == OBJECT_TYPE_GARIS){
+                DeleteObjPolice(id);
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan garis polisi.");
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Tidak terdapat garis polisi di sekitar.");
+            }
+        }else{
+            if(OBJECT_POLICE[number][objAktif] == 1 && OBJECT_POLICE[number][objType] == OBJECT_TYPE_GARIS){
+                DeleteObjPolice(number);
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Garis polisi dengan ID tersebut tidak ada.");
+            }
+        }
+    }else if(sama(text, "speedcam") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1){
+            new id = ClosestObjPolice(playerid);
+            if(id != -1 && OBJECT_POLICE[id][objType] == OBJECT_TYPE_SPEEDCAM){
+                DeleteObjPolice(id);
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan speed cam.");
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Tidak terdapat speed cam di sekitar.");
+            }
+        }else{
+            if(OBJECT_POLICE[number][objAktif] == 1 && OBJECT_POLICE[number][objType] == OBJECT_TYPE_SPEEDCAM){
+                DeleteObjPolice(number);
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Speed cam dengan ID tersebut tidak ada.");
+            }
+        }
+    }else
+        return error_command(playerid, "Aksi tidak ditemukan.");
+    return 1;
+}
+
+CMD:buat(playerid, params[]){
+    new text[50], number;
+    if(sscanf(params, "s[50]", text) || sscanf(params, "s[50]I(-1)", text, number))
+        return error_syntax(playerid, "/buat [aksi]");
+
+    if(sama(text, "ranjau") && IsPlayerOnDutyPolice(playerid)){
+        new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
+        if(id != -1){
+            if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+            if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+	        if(CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Tidak dapat melakukan ini di sekitar air.");
+            GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+            GetPlayerFacingAngle(playerid, pos[3]);
+            pos[0] += (3.0 * floatsin(-pos[3], degrees));
+            pos[1] += (3.0 * floatcos(-pos[3], degrees));
+            CreateObjPolice(id, "Ranjau Paku", -1, OBJECT_TYPE_RANJAU, pos[0], pos[1], pos[2], pos[3]);
+            SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil membuat ranjau paku.");
+        }else{
+            SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Tidak dapat membuat ranjau lagi.");
+        }
+    }else if(sama(text, "barikade") && IsPlayerOnDutyPolice(playerid)){
+        new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
+        if(id != -1){
+            if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+            if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+            if(CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Tidak dapat melakukan ini di sekitar air.");
+            GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+            GetPlayerFacingAngle(playerid, pos[3]);
+            pos[0] += (3.0 * floatsin(-pos[3], degrees));
+            pos[1] += (3.0 * floatcos(-pos[3], degrees));
+            CreateObjPolice(id, "Barikade", -1, OBJECT_TYPE_BARIKADE, pos[0], pos[1], pos[2], pos[3]);
+            SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil membuat barikade.");
+        }else{
+            SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Tidak dapat membuat barikade lagi.");
+        }
+    }else if(sama(text, "cone") && IsPlayerOnDutyPolice(playerid)){
+        new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
+        if(id != -1){
+            if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+            if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+	        if(CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Tidak dapat melakukan ini di sekitar air.");
+            GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+            GetPlayerFacingAngle(playerid, pos[3]);
+            pos[0] += (3.0 * floatsin(-pos[3], degrees));
+            pos[1] += (3.0 * floatcos(-pos[3], degrees));
+            CreateObjPolice(id, "Traffic Cone", -1, OBJECT_TYPE_CONE, pos[0], pos[1], pos[2], pos[3]);
+            SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil membuat kerucut.");
+        }else{
+            SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Tidak dapat membuat cone lagi.");
+        }
+    }else if(sama(text, "garis") && IsPlayerOnDutyPolice(playerid)){
+        new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
+        if(id != -1){
+            if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+            if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+	        if(CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Tidak dapat melakukan ini di sekitar air.");
+            GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+            GetPlayerFacingAngle(playerid, pos[3]);
+            pos[0] += (3.0 * floatsin(-pos[3], degrees));
+            pos[1] += (3.0 * floatcos(-pos[3], degrees));
+            CreateObjPolice(id, "Garis Polisi", -1, OBJECT_TYPE_GARIS, pos[0], pos[1], pos[2], pos[3]);
+            SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil membuat garis polisi.");
+        }else{
+            SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Tidak dapat membuat garis polisi lagi.");
+        }
+    }else if(sama(text, "speedcam") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1) return error_syntax(playerid, "/buat speedcam [limit]");
+        if(number >= MIN_SPEEDLIMIT && number <= MAX_SPEEDLIMIT){
+            new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
+            if(id != -1){
+                if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+                if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+	            if(CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Tidak dapat melakukan ini di sekitar air.");
+                GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+                GetPlayerFacingAngle(playerid, pos[3]);
+                pos[0] += (3.0 * floatsin(-pos[3], degrees));
+                pos[1] += (3.0 * floatcos(-pos[3], degrees));
+                CreateObjPolice(id, "Speed Cam", number, OBJECT_TYPE_SPEEDCAM, pos[0], pos[1], pos[2], pos[3]);
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil membuat speed cam.");
+            }else{
+                SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Tidak dapat membuat speed cam lagi.");
+            }
+        }else
+            return sendPesan(playerid, COLOR_RED, "* "WHITE"Limit hanya berkisar antara %d hingga %d.", MIN_SPEEDLIMIT, MAX_SPEEDLIMIT);
+    }else
+        return error_command(playerid, "Aksi tidak ditemukan.");
+    return 1;
+}
+
+CMD:ubah(playerid, params[]){
+    new text[50], number;
+    if(sscanf(params, "s[50]", text) || sscanf(params, "s[50]I(-1)", text, number))
+        return error_syntax(playerid, "/ubah [aksi]");
+
+    if(sama(text, "ranjau") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1){
+            return error_syntax(playerid, "/ubah ranjau [id]");
+        }else{
+            new id = ClosestObjPolice(playerid);
+            if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_RANJAU){
+                EditingObjPolice[playerid] = number;
+                EditDynamicObject(playerid, OBJECT_POLICE[number][objID]);
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Ranjau paku dengan ID tersebut tidak berada di sekitar anda.");
+            }
+        }
+    }else if(sama(text, "barikade") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1){
+            return error_syntax(playerid, "/ubah barikade [id]");
+        }else{
+            new id = ClosestObjPolice(playerid);
+            if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_BARIKADE){
+                EditingObjPolice[playerid] = id;
+                EditDynamicObject(playerid, OBJECT_POLICE[number][objID]);
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Barikade dengan ID tersebut tidak berada di sekitar anda.");
+            }
+        }
+    }else if(sama(text, "cone") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1){
+            return error_syntax(playerid, "/ubah cone [id]");
+        }else{
+            new id = ClosestObjPolice(playerid);
+            if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_CONE){
+                EditingObjPolice[playerid] = number;
+                EditDynamicObject(playerid, OBJECT_POLICE[number][objID]);
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Cone dengan ID tersebut tidak berada di sekitar anda.");
+            }
+        }
+    }else if(sama(text, "garis") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1){
+            return error_syntax(playerid, "/ubah garis [id]");
+        }else{
+            new id = ClosestObjPolice(playerid);
+            if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_GARIS){
+                EditingObjPolice[playerid] = number;
+                EditDynamicObject(playerid, OBJECT_POLICE[number][objID]);
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Garis polisi dengan ID tersebut tidak berada di sekitar anda.");
+            }
+        }
+    }else if(sama(text, "speedcam") && IsPlayerOnDutyPolice(playerid)){
+        if(number == -1){
+            return error_syntax(playerid, "/ubah speedcam [id]");
+        }else{
+            new id = ClosestObjPolice(playerid);
+            if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_SPEEDCAM){
+                EditingObjPolice[playerid] = number;
+                EditDynamicObject(playerid, OBJECT_POLICE[number][objID]);
+            }else{
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Speed cam dengan ID tersebut tidak berada di sekitar anda.");
+            }
+        }
     }else
         return error_command(playerid, "Aksi tidak ditemukan.");
     return 1;

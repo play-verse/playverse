@@ -5600,7 +5600,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								GetPlayerFacingAngle(playerid, a);
 								obj = CA_RayCastLine(x, y, z, x+(3.0*floatsin(-a, degrees)), y+(3.0*floatsin(-a, degrees)), z-3.0, tmp, tmp, tmp);
 								if(PlayerInfo[playerid][sisaJoran] <= 0) return error_command(playerid, "Anda tidak memiliki joran pancing.");
-								if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada diluar Interior atau Virtual World 0!");
+								if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
 								if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memancing dalam keadaan sekarang.");
 								if(obj != 20000) return error_command(playerid, "Anda harus berada di pinggir perairan untuk dapat memancing.");
 								tambahItemPlayer(playerid, 43, -1);
@@ -6903,8 +6903,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", 1, total_item, PlayerInfo[playerid][limitItem]);
 						return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
 					}else{
-						new vehid = GetPlayerVehicleID(playerid);
-						if(IsPlayerInVehicle(playerid, vehid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+						if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
 						if(nombakDelay[playerid] == 0){
 							nombakDelay[playerid] = 1;
 							nombakSecs[playerid] = 10;
@@ -7548,6 +7547,10 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_peralatanPancing, pDialog[playerid]);
 					}
+					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_PANCING, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_peralatanPancing, playerid, pDialog[playerid]);
+					}
 				}else if(ACT_peralatanPancing_User == playerid){
 					// Check apakah ini response yang pertama
 					if(ACT_peralatanPancing_Res == 0){
@@ -7577,6 +7580,10 @@ public OnPlayerText(playerid, text[]){
 						SetPVarInt(playerid, "interaksi_actor", ACT_tokoBibit);
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_tokoBibit, pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_BIBIT, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_tokoBibit, playerid, pDialog[playerid]);
 					}
 				}else if(ACT_tokoBibit_User == playerid){
 					// Check apakah ini response yang pertama
@@ -7608,6 +7615,10 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_tokoGadget, pDialog[playerid]);
 					}
+					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_GADGET, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_tokoGadget, playerid, pDialog[playerid]);
+					}
 				}else if(ACT_tokoGadget_User == playerid){
 					// Check apakah ini response yang pertama
 					if(ACT_tokoGadget_Res == 0){
@@ -7638,6 +7649,10 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_penjualDealer, pDialog[playerid]);
 					}
+					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_DEALER, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_penjualDealer, playerid, pDialog[playerid]);
+					}
 				}else if(ACT_penjualDealer_User == playerid){
 					// Check apakah ini response yang pertama
 					if(ACT_penjualDealer_Res == 0){
@@ -7667,6 +7682,10 @@ public OnPlayerText(playerid, text[]){
 						SetPVarInt(playerid, "interaksi_actor", ACT_tellerBankLS_1);
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_tellerBankLS_1, pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_TELLER_BANK_1, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_tellerBankLS_1, playerid, pDialog[playerid]);
 					}
 				}else if(ACT_tellerBankLS_1_User == playerid){
 					// Check apakah ini response yang pertama
@@ -7732,6 +7751,10 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_tokoNarko, pDialog[playerid]);
 					}
+					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_NARKO, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_tokoNarko, playerid, pDialog[playerid]);
+					}
 				}else if(ACT_tokoNarko_User == playerid){
 					// Check apakah ini response yang pertama
 					if(ACT_tokoNarko_Res == 0){
@@ -7761,6 +7784,10 @@ public OnPlayerText(playerid, text[]){
 						SetPVarInt(playerid, "interaksi_actor", ACT_tellerBankLS_2);
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_tellerBankLS_2, pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_TELLER_BANK_2, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_tellerBankLS_2, playerid, pDialog[playerid]);
 					}
 				}else if(ACT_tellerBankLS_2_User == playerid){
 					// Check apakah ini response yang pertama
@@ -8512,6 +8539,29 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
             SetDynamicObjectRot(objectid, DTree[id][treeRX], DTree[id][treeRY], DTree[id][treeRZ]);
             treeEditID[playerid] = -1;
         }
+    }else if(EditingObjPolice[playerid] != -1 && Iter_Contains(ObjPoliceIterator, EditingObjPolice[playerid])){
+		new id = EditingObjPolice[playerid], Float:text_z;
+        switch(OBJECT_POLICE[id][objType]){
+			case OBJECT_TYPE_RANJAU: text_z = OBJECT_POLICE[id][objZ]+1.5;
+			case OBJECT_TYPE_BARIKADE: text_z = OBJECT_POLICE[id][objZ]+1.5;
+			case OBJECT_TYPE_GARIS: text_z = OBJECT_POLICE[id][objZ]+1.5;
+			case OBJECT_TYPE_CONE: text_z = OBJECT_POLICE[id][objZ]+0.7;
+			case OBJECT_TYPE_SPEEDCAM: text_z = OBJECT_POLICE[id][objZ]+3.0;
+		}
+		if(response == EDIT_RESPONSE_FINAL){
+            OBJECT_POLICE[id][objX] = x;
+            OBJECT_POLICE[id][objY] = y;
+            OBJECT_POLICE[id][objZ] = z;
+            SetDynamicObjectPos(objectid, OBJECT_POLICE[id][objX], OBJECT_POLICE[id][objY], OBJECT_POLICE[id][objZ]);
+            Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, OBJECT_POLICE[id][objLabel], E_STREAMER_X, OBJECT_POLICE[id][objX]);
+            Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, OBJECT_POLICE[id][objLabel], E_STREAMER_Y, OBJECT_POLICE[id][objY]);
+            Streamer_SetFloatData(STREAMER_TYPE_3D_TEXT_LABEL, OBJECT_POLICE[id][objLabel], E_STREAMER_Z, text_z);
+            EditingObjPolice[playerid] = -1;
+        }
+        if(response == EDIT_RESPONSE_CANCEL){
+            SetDynamicObjectPos(objectid, OBJECT_POLICE[id][objX], OBJECT_POLICE[id][objY], OBJECT_POLICE[id][objZ]);
+            EditingObjPolice[playerid] = -1;
+        }
     }
 	return 1;
 }
@@ -8561,6 +8611,40 @@ public OnPlayerEnterDynamicArea(playerid, areaid){
 	}else if(areaid == AREA_pusatProperti[0]){
 		ShowPlayerDialog(playerid, DIALOG_MENU_PUSAT_PROPERTI, DIALOG_STYLE_LIST, "Apa yang ingin anda tanya :", "Lihat semua rumah yang terjual", "Ok", "Batal");
 		return 1;
+	}
+	if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER){
+		foreach(new i : ObjPoliceIterator){
+			if(Iter_Contains(ObjPoliceIterator, i)){
+				if(OBJECT_POLICE[i][objType] == OBJECT_TYPE_RANJAU){
+					// Ranjau
+					if(areaid == OBJECT_POLICE[i][objArea]){
+						if(OBJECT_POLICE[i][objAktif] == 1){
+							new panels, doors, lights, tires, vehid = GetPlayerVehicleID(playerid);
+							GetVehicleDamageStatus(vehid, panels, doors, lights, tires);
+							tires = EncodeTires(1, 1, 1, 1);
+							UpdateVehicleDamageStatus(vehid, panels, doors, lights, tires);
+							return 1;
+						}
+					}
+				}else if(OBJECT_POLICE[i][objType] == OBJECT_TYPE_SPEEDCAM){
+					// Speed Cam
+					if(areaid == OBJECT_POLICE[i][objArea]){
+						if(OBJECT_POLICE[i][objAktif] == 1){
+							new vehid = GetPlayerVehicleID(playerid),
+								vehspeed = GetVehicleSpeed(vehid);
+							if(vehspeed > OBJECT_POLICE[i][objData]){
+								new Float:x, Float:y, Float:z, vehmodel = GetVehicleModel(vehid);
+								GetPlayerPos(playerid, x, y, z);
+								PlayerPlaySound(playerid, 1132, 0.0, 0.0, 0.0);
+								format(pDialog[playerid], 192, TAG_POLICE" "WHITE"Kendaraan model %s, di sekitar daerah %s telah melanggar lalu lintas (Batas Kecepatan).", GetVehicleModelName(vehmodel), GetZoneName(x, y, z));
+								SendMessageToDutyPolice(COLOR_POLISI, pDialog[playerid]);
+								return 1;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	return 1;
 }
