@@ -1,5 +1,5 @@
 /**************************************************************************************************
-	ETERNITY LEGEND
+	PLAYVERSE
 
 	FUTURE BUG (PREDIKSI) :
 	- INT 32 BIT DARI AUTO INCREMENT (HUGE PLAYER SERVER)
@@ -4966,7 +4966,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							(GetVehicleModel(vehid) >= 534 && GetVehicleModel(vehid) <= 536) || \
 							(GetVehicleModel(vehid) >= 558 && GetVehicleModel(vehid) <= 562) || \
 							GetVehicleModel(vehid) == 565 || GetVehicleModel(vehid) == 567 || GetVehicleModel(vehid) == 576))
-							return showDialogPesan(playerid, RED"Kendaraan tidak bisa di paintjob", WHITE"Kendaraan ini tidak bisa di paintjob.\n"YELLOW"Pastikan anda sudah mengetahui kendaraan apa saja yang dapat di paintjob.\n\nAnda dapat melihatnya di website "ORANGE"Eternity Legend");
+							return showDialogPesan(playerid, RED"Kendaraan tidak bisa di paintjob", WHITE"Kendaraan ini tidak bisa di paintjob.\n"YELLOW"Pastikan anda sudah mengetahui kendaraan apa saja yang dapat di paintjob.\n\nAnda dapat melihatnya di website "ORANGE"resmi server.");
 						
 
 						SetPVarInt(playerid, "mekanik_vehicle_id", vehid);

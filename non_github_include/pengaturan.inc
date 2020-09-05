@@ -4,7 +4,7 @@
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 50
 
-#define NAMA_SERVER			"Eternity Legend"
+#define NAMA_SERVER			"Playverse"
 #define RULES_SERVER		"\n\
 							1. Dilarang menggunakan cheat apapun.\n\
 							2. Dilarang menggunakan modifikasi (mod) yang dapat merugikan player lain.\n\
