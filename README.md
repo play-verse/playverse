@@ -43,7 +43,8 @@ Development server
 sampctl package build dev
 ```
 
-Production server
+Production server 
+>_jika mengcompile menggunakan perintah ini, server harus dijalankan menggunakan **sampctl** juga_
 ```bash
 sampctl package build prod
 ```
