@@ -47,4 +47,7 @@ loadAllPickup(){
     // Toko Gadget
     PU_tokoGadget[0][ENTER_PICKUP] = buatPickupDanLabel(1318, 1097.6610, -1370.0361, 13.9844, "Toko Gadget "nama_A"\n"GREEN"Pintu Masuk");
     PU_tokoGadget[0][EXIT_PICKUP] = buatPickupDanLabel(1318, 438.7690, 1243.2151, 1081.9045, "Toko Gadget "nama_A"\n"GREEN"Pintu Keluar");
+
+    PU_tambangBesi[ENTER_PICKUP] = buatPickupDanLabel(1318, -685.2260, 2372.3379, 129.8383, "Pusat Tambang\n"GREEN"Pintu Masuk");
+    PU_tambangBesi[EXIT_PICKUP] = buatPickupDanLabel(1318, 2395.7302, -1506.7921, 1402.2000, "Pusat Tambang\n"GREEN"Pintu Keluar");
 }

@@ -1014,7 +1014,8 @@ publicFor: pakaiPaluTambang(playerid){
 	tambahItemPlayer(playerid, 8, -1);
 	PlayerInfo[playerid][sisaPalu] += 15;
 
-	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Palu Tambang = "GREEN"Penambahan kesempatan menambang sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan menambang anda direset jadi 0.", "Ok", "");
+	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item palu tambang"WHITE".");
+	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item palu tambang, "YELLOW"dapat digunakan untuk 15x percobaan menambang.");
 	return 1;
 }
 
@@ -1023,7 +1024,8 @@ publicFor: pakaiGergajiMesin(playerid){
 	tambahItemPlayer(playerid, 26, -1);
 	PlayerInfo[playerid][sisaGergaji] += 15;
 
-	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Gergaji Mesin = "GREEN"Penambahan kesempatan memotong sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan memotong anda direset jadi 0.", "Ok", "");
+	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item gergaji mesin"WHITE".");
+	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item gergaji mesin, "YELLOW"dapat digunakan untuk 15x percobaan memotong pohon.");
 	return 1;
 }
 
@@ -1034,7 +1036,9 @@ publicFor: pakaiTombakIkan(playerid){
 
 	SetPlayerArmedWeapon(playerid, 0);
 	SetPlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX, 11716, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
-	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Tombak Ikan = "GREEN"Penambahan kesempatan pakai tombak ikan sebanyak 15 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan pakai tombak ikan anda direset jadi 0.", "Ok", "");
+
+	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item tombak ikan"WHITE".");
+	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item tombak ikan, "YELLOW"dapat digunakan untuk 15x percobaan menombak ikan.");
 	return 1;
 }
 
@@ -1042,7 +1046,8 @@ publicFor: pakaiJoranPancing(playerid){
 	tambahItemPlayer(playerid, 35, -1);
 	PlayerInfo[playerid][sisaJoran] += 10;
 
-	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", "Penggunaan 1 item "YELLOW"Joran Pancing = "GREEN"Penambahan kesempatan pakai joran pancing sebanyak 10 kali.\n"RED"Note : Saat anda disconnect dari server maka kesempatan pakai tombak ikan anda direset jadi 0.", "Ok", "");
+	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item joran pancing"WHITE".");
+	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item joran pancing, "YELLOW"dapat digunakan untuk 10x percobaan memancing.");
 	return 1;
 }
 
@@ -2079,6 +2084,86 @@ publicFor: progressIsiBensin(playerid){
 		reset_PerbaikiKendaraan(playerid); // Pinjam juga fungsinya
 	}
 	return 1;
+}
+
+/**
+	@params - dari_tambang
+		0 - Tambang besar (lobang besar)
+		1 - Tambang yang ada interior
+*/
+publicFor: progressNambang(playerid, dari_tambang){
+	new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / NAMBANG_TIME;
+	if(value >= MAX_PROGRESS_BAR){
+		ClearAnimations(playerid);
+		PlayerInfo[playerid][isOnAnimation] = false;
+		PlayerInfo[playerid][isBusy] = false;
+
+		TogglePlayerControllable(playerid, 1);
+
+		if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX))
+		RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
+
+		PlayerInfo[playerid][sisaPalu]--;
+
+		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 1.5);
+
+		// Testing Probalities
+		new angka = random(15);
+		switch(angka){
+			case 1:
+			{
+				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"Berlian.");
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
+				tambahItemPlayer(playerid, 10, 1);
+			}
+			case 2..3:
+			{
+				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
+				tambahItemPlayer(playerid, 9, 1);
+			}
+			case 4..6:{
+				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"perunggu.");
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perunggu sangat berguna untuk banyak hal, kerja bagus.");
+				tambahItemPlayer(playerid, 11, 1);
+			}
+			case 7..9:
+			{
+				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
+				tambahItemPlayer(playerid, 12, 1);
+			}
+			default:{
+				SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
+			}
+		}
+
+		// Real Probalities
+		// new angka = random(1000000);
+		// if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
+		// 	SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"Berlian.");
+		// 	SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
+		// 	tambahItemPlayer(playerid, 10, 1);
+		// }else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
+		// 	SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
+		// 	SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
+		// 	tambahItemPlayer(playerid, 9, 1);
+		// }else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
+		// 	SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"perunggu.");
+		// 	SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perunggu sangat berguna untuk banyak hal, kerja bagus.");
+		// 	tambahItemPlayer(playerid, 11, 1);
+		// }else if(angka >= 120001 && angka <= 420000){ // Kemungkinan 30%
+		// 	SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
+		// 	SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
+		// 	tambahItemPlayer(playerid, 12, 1);
+		// }else{
+		// 	SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
+		// }
+
+		reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
+	}else{
+		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+	}
 }
 
 publicFor: progressIsiBensinPakaiItem(playerid, itemid, vehicleid){

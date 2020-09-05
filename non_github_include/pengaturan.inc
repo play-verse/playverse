@@ -166,6 +166,7 @@
 #define ISI_BENSIN_TIME 10
 #define BUAT_OBAT_TIME 10
 #define REVIVE_TIME 15
+#define NAMBANG_TIME 15
 
 #define MAX_PROGRESS_BAR 100.0 // Lamanya memperbaiki kendaraan
 
@@ -533,6 +534,8 @@
 #define TAG_REVIVE				"Revive:"
 #define TAG_RUMAH_SAKIT			"Rumah Sakit:"
 #define TAG_INFO				"Info:"
+#define TAG_NAMBANG				"Tambang:"
+#define TAG_ITEM				"Item:"
 
 /*
 	Job Define

@@ -164,7 +164,6 @@ loadAllArea(){
         SendRconCommand("exit");
     }
 
-    AREA_dalamPenjara[0] = CreateDynamicRectangle(265.7444, 88.2816, 262.7493, 84.8858, 1, 6);
-    AREA_dalamPenjara[1] = CreateDynamicRectangle(265.7446, 83.7841, 262.7487, 80.3857, 1, 6);
-    AREA_dalamPenjara[2] = CreateDynamicRectangle(265.7461, 79.2821, 262.7491, 75.8985, 1, 6);
+    AREA_dalamPenjara = CreateDynamicRectangle(266.3799, 88.9469, 262.3430, 75.5671, 1, 6);
+    AREA_bisaNambang = CreateDynamicCube(2729.2749, -1557.0197, 1386.6639, 2557.2344, -1462.8871, 1473.3191, VW_tambangInterior, 1);
 }

@@ -539,7 +539,8 @@ new PU_tempatFoto_in[2],
     PU_policeDept_out[1],
 	PU_pusatKeahlian[2],
 	PU_rumahSakit[1], // Untuk pintu keluar pakai Dynamic Area karena pickup tidak muncul
-	PU_tokoGadget[1][2];
+	PU_tokoGadget[1][2],
+	PU_tambangBesi[2];
 
 /**
 	ACTOR VARIABEL
@@ -657,6 +658,8 @@ new pintuPenjara[3];
 
 #define VW_tempatMakan_1 1
 #define VW_tempatMakan_2 2
+
+#define VW_tambangInterior 10
 
 /**
     Job / Aktifitas
@@ -1250,7 +1253,8 @@ new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
     AREA_simPraktik[1],
     AREA_pusatProperti[1],
 	AREA_spawnReparasi[sizeof(POSISI_SPAWN_REPARASI_MOBIL)],
-	AREA_dalamPenjara[3];
+	AREA_dalamPenjara,
+	AREA_bisaNambang;
 
 enum E_ATM
 {

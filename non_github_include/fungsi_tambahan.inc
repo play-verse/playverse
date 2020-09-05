@@ -35,8 +35,8 @@
 
 // IMPORTANT: Gunakan fungsi "sama" dari pada menggunakan "strcmp" langsung
 // strcmp jika membandingkan dengan string kosong maka dianggap tidak ada perbedaan
-sama(const kata1[], const kata2[])
-    return (!strcmp(kata1, kata2) && !isnull(kata1) && !isnull(kata2));
+sama(const kata1[], const kata2[], bool:ignorecase=false)
+    return (!strcmp(kata1, kata2, ignorecase) && !isnull(kata1) && !isnull(kata2));
 
 // Hanya untuk tampilan saja
 SetPlayerMoney(playerid, jumlah){
@@ -1193,4 +1193,4 @@ SendMessageToDutyPolice(warna, const pesan[]){
 #define GetExpMedicPlayer(%0)               PlayerInfo[%0][expMedic]
 #define GetExpMekanikPlayer(%0)             PlayerInfo[%0][expMekanik]
 
-#define IsPlayerInAnyAreaPenjara(%0)        (GetPVarType(%0, "last_area") && (GetPVarInt(%0, "last_area") == AREA_dalamPenjara[0] || GetPVarInt(%0, "last_area") == AREA_dalamPenjara[1] || GetPVarInt(%0, "last_area") == AREA_dalamPenjara[2]))
+#define IsPlayerInAnyAreaPenjara(%0)        (GetPVarType(%0, "last_area") && (GetPVarInt(%0, "last_area") == AREA_dalamPenjara))

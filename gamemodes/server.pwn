@@ -8005,6 +8005,10 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	}else if(pickupid == PU_tokoGadget[0][EXIT_PICKUP]){
 		pindahkanPemain(playerid, 1097.6973,-1372.5007,13.9844,178.3555, 0, 0, true);
 		return 1;
+	}else if(pickupid == PU_tambangBesi[ENTER_PICKUP]){
+		pindahkanPemain(playerid, 2398.0542, -1506.9365, 1402.2000, 267.2652, 1, VW_tambangInterior, true);
+	}else if(pickupid == PU_tambangBesi[EXIT_PICKUP]){
+		pindahkanPemain(playerid, -688.4846, 2372.3027, 129.6614, 87.0446, 0, 0, true);
 	}
 	return 1;
 }
