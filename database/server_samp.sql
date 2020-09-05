@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 30, 2020 at 04:20 PM
+-- Generation Time: Sep 05, 2020 at 06:23 PM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.10
 
@@ -97,6 +97,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `tambah_transaksi_atm` (`rekening_pe
 	INSERT INTO `trans_atm`(id_user, id_pengirim_penerima, nominal, tanggal, keterangan) 
 	SELECT a.id as id_user, b.id as id_pengirim_penerima, ex_nominal as nominal, NOW() as tanggal, ex_keterangan as keterangan FROM `user` a
 	LEFT JOIN `user` b ON b.rekening = rekening_pengirim WHERE a.rekening = rekening_penerima;
+END$$
+
+--
+-- Functions
+--
+DROP FUNCTION IF EXISTS `GetIDMarketplace`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `GetIDMarketplace` () RETURNS INT(11) BEGIN
+	DECLARE TEMP_ID INT DEFAULT 1;
+	SELECT IFNULL(MAX(id), 1) INTO TEMP_ID FROM marketplace;
+	RETURN TEMP_ID;
 END$$
 
 DELIMITER ;
@@ -279,7 +289,7 @@ CREATE TABLE `house_inv_item` (
 
 DROP TABLE IF EXISTS `item`;
 CREATE TABLE `item` (
-  `id_item` int(255) NOT NULL,
+  `id_item` int(11) NOT NULL,
   `nama_item` varchar(255) NOT NULL,
   `model_id` int(11) DEFAULT NULL,
   `keterangan` text DEFAULT NULL,
@@ -455,6 +465,23 @@ CREATE TABLE `lumber` (
   `treeRX` varchar(32) NOT NULL,
   `treeRY` varchar(32) NOT NULL,
   `treeRZ` varchar(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `marketplace`
+--
+
+DROP TABLE IF EXISTS `marketplace`;
+CREATE TABLE `marketplace` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `id_item` int(11) NOT NULL,
+  `id_user` bigint(20) NOT NULL,
+  `jumlah` int(11) NOT NULL DEFAULT 1,
+  `harga` bigint(50) NOT NULL DEFAULT 0 COMMENT 'Harga keseluruhan',
+  `tanggal` datetime DEFAULT NULL COMMENT 'Tanggal di post',
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Status :\r\n\r\n0 - Sedang Dijual\r\n1 - Terbeli\r\n'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -721,7 +748,7 @@ CREATE TABLE `user_item` (
   `id_user_item` bigint(20) UNSIGNED NOT NULL,
   `id_item` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
-  `jumlah` int(255) DEFAULT 1,
+  `jumlah` int(11) DEFAULT 1,
   `kunci` tinyint(4) NOT NULL DEFAULT 0 COMMENT 'Status terkunci (agar tidak bisa dihapus)\r\n- 0 = Tidak terkunci\r\n- 1 = Terkunci'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -1273,6 +1300,12 @@ ALTER TABLE `logs_user_konek`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `marketplace`
+--
+ALTER TABLE `marketplace`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `papan`
 --
 ALTER TABLE `papan`
@@ -1479,7 +1512,7 @@ ALTER TABLE `house_inv_item`
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `id_item` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `id_item` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- AUTO_INCREMENT for table `item_rarity`
@@ -1504,6 +1537,12 @@ ALTER TABLE `jenis_blocked`
 --
 ALTER TABLE `logs_user_konek`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `marketplace`
+--
+ALTER TABLE `marketplace`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `papan`
