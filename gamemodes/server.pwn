@@ -3895,6 +3895,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				cache_get_value_name_float(idx, "pos_y", pos[1]);
 				cache_get_value_name_float(idx, "pos_z", pos[2]);
 				cache_delete(PlayerInfo[playerid][tempCache]);
+				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
 				switch(listitem){
 					case 0: // Tampilkan letak furniture
 					{
@@ -6533,6 +6535,291 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_PILIH_ITEM_MARKETPLACE:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					showDialogBeliItemMarketplace(playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						showDialogBeliItemMarketplace(playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogBeliItemMarketplace(playerid);
+					}
+					return 1;
+				}
+
+				new id_item,
+					id_penjual,
+					nama_penjual[MAX_PLAYER_NAME + 1],
+					jumlah,
+					harga,
+					id_mp;
+
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+
+				cache_get_value_name_int(listitem, "id_item", id_item);
+				SetPVarInt(playerid, "mp_id_item", id_item);
+
+				cache_get_value_name_int(listitem, "id_user", id_penjual);
+				SetPVarInt(playerid, "mp_id_penjual", id_penjual);
+
+				cache_get_value_name_int(listitem, "jumlah", jumlah);
+				SetPVarInt(playerid, "mp_jumlah", jumlah);
+
+				cache_get_value_name_int(listitem, "harga", harga);
+				SetPVarInt(playerid, "mp_harga", harga);
+
+				cache_get_value_name_int(listitem, "id", id_mp);
+				SetPVarInt(playerid, "mp_id", id_mp);
+
+				cache_get_value_name(listitem, "nama", nama_penjual);
+				SetPVarString(playerid, "mp_nama_penjual", nama_penjual);
+
+				cache_delete(PlayerInfo[playerid][tempCache]);
+				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+				new nama_item[50];
+				getNamaByIdItem(id_item, nama_item);
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan membeli item dari markeplace, dengan spesifikasi :\n\n\
+					Nama Item \t: %s%s\n\
+					"WHITE"Jumlah \t: "ORANGE"%d\n\
+					"WHITE"Harga \t\t: "GREEN"$%d\n\
+					"WHITE"Nama Penjual \t: %s\n\n\
+					Apakah anda yakin ingin membelinya ?", 
+					GetColorRarity(getRarityByIdItem(id_item)),
+					nama_item,
+					jumlah,
+					harga,
+					nama_penjual);
+				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_ITEM_MARKETPLACE, DIALOG_STYLE_MSGBOX, "Konfirmasi beli item", pDialog[playerid], "Ok", "Keluar");
+			}else{
+				showDialogMenuInventory(playerid);
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_ITEM_MARKETPLACE:
+		{
+			if(response){
+				if(!CekJikaInventoryPlayerMuat(playerid, GetPVarInt(playerid, "mp_id_item"), GetPVarInt(playerid, "mp_jumlah"))){
+					dialogInventoryItemTidakMuat(playerid, GetPVarInt(playerid, "mp_jumlah"), GetSlotInventoryPlayer(playerid), GetPVarInt(playerid, "mp_id_item"));
+
+					DeletePVar(playerid, "mp_id_item");
+					DeletePVar(playerid, "mp_id_penjual");
+					DeletePVar(playerid, "mp_id");
+					DeletePVar(playerid, "mp_jumlah");
+					DeletePVar(playerid, "mp_harga");
+					DeletePVar(playerid, "mp_nama_penjual");
+					return 1;
+				}
+
+				new keterangan[50],
+					nama_item[50];
+				getNamaByIdItem(GetPVarInt(playerid, "mp_id_item"), nama_item);
+				format(keterangan, 50, "Beli %s sebanyak %d dari marketplace", nama_item, GetPVarInt(playerid, "mp_jumlah"));
+				dialogMetodeBayar(playerid, GetPVarInt(playerid, "mp_harga"), "selesaiMembeliItemMarketplace", keterangan, 0); // Jangan langsung potong
+			}
+			return 1;
+		}
+		case DIALOG_JUAL_ITEM_MARKETPLACE:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					showDialogListItem(playerid, .dialogid = DIALOG_JUAL_ITEM_MARKETPLACE);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						showDialogListItem(playerid, .dialogid = DIALOG_JUAL_ITEM_MARKETPLACE);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListItem(playerid, .dialogid = DIALOG_JUAL_ITEM_MARKETPLACE);
+					}
+					return 1;
+				}
+
+				SetPVarInt(playerid, "inv_indexlist", listitem);
+				new 
+					id_item = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")],
+					nama_item[50]
+				;
+
+				getNamaByIdItem(id_item, nama_item);
+
+				if(GetStatusKunciItemPlayer(playerid, id_item)){
+					resetPVarInventory(playerid);
+
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, ORANGE"Item tidak dapat dibuang", WHITE"Item ini "RED"dikunci.\n\n"YELLOW"Note : Item yang dikunci tidak dapat dibuang/dijual/diberi kepada orang lain.\nJika tetap ingin melakukan hal tersebut silahkan buka item terlebih dahulu.", "Ok", "");
+					return 1;
+				}
+
+				format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah item yang ingin dijual.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, GetJumlahItemPlayer(playerid, id_item));
+				strcat(pDialog[playerid], YELLOW"\n\nPastikan anda memasukan jumlah yang benar.");
+				ShowPlayerDialog(playerid, DIALOG_JUAL_ITEM_MARKETPLACE_JUMLAH, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dijual", pDialog[playerid], "Jual", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_JUAL_ITEM_MARKETPLACE_JUMLAH:
+		{
+			if(response)
+			{
+				new jumlah, 
+					nama_item[50], 
+					input_jumlah, 
+					item_id = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")];
+
+				jumlah = GetJumlahItemPlayer(playerid, item_id);
+				getNamaByIdItem(item_id, nama_item);
+
+				if(sscanf(inputtext, "i", input_jumlah)) {
+					format(pDialog[playerid], sizePDialog, RED"Masukan jumlah yang benar.\n"WHITE"Silahkan masukan jumlah item yang ingin dijual.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, jumlah);
+					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda memasukan jumlah yang benar.");
+					return ShowPlayerDialog(playerid, DIALOG_JUAL_ITEM_MARKETPLACE_JUMLAH, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dijual", pDialog[playerid], "Jual", "Batal");
+				}
+				if(input_jumlah < 1 || input_jumlah > jumlah){
+					format(pDialog[playerid], sizePDialog, RED"Jumlah yang dimasukan tidak valid.\n"WHITE"Silahkan masukan jumlah item yang ingin dijual.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, jumlah);
+					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda memasukan jumlah yang benar.");
+					return ShowPlayerDialog(playerid, DIALOG_JUAL_ITEM_MARKETPLACE_JUMLAH, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dijual", pDialog[playerid], "Jual", "Batal");
+				}
+				SetPVarInt(playerid, "mp_banyak_dijual", input_jumlah);
+
+				format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan harga jual.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Dijual : "GREEN"%d\n\n"YELLOW"Note: Harga yang dimasukan adalah harga total (bukan harga satuan).", nama_item, GetPVarInt(playerid, "mp_banyak_dijual"));
+				return ShowPlayerDialog(playerid, DIALOG_JUAL_ITEM_MARKETPLACE_HARGA, DIALOG_STYLE_INPUT, ORANGE"Masukan harga jual", pDialog[playerid], "Jual", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_JUAL_ITEM_MARKETPLACE_HARGA:
+		{
+			if(response){
+				new 
+					nama_item[50], 
+					input_harga, 
+					item_id = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")];
+
+				getNamaByIdItem(item_id, nama_item);
+
+				if(sscanf(inputtext, "i", input_harga)) {
+					format(pDialog[playerid], sizePDialog, RED"Masukan harga yang benar.\n"WHITE"Silahkan masukan harga jual.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Dijual : "GREEN"%d\n\n"YELLOW"Note: Harga yang dimasukan adalah harga total (bukan harga satuan).", nama_item, GetPVarInt(playerid, "mp_banyak_dijual"));
+					return ShowPlayerDialog(playerid, DIALOG_JUAL_ITEM_MARKETPLACE_HARGA, DIALOG_STYLE_INPUT, ORANGE"Masukan harga jual", pDialog[playerid], "Jual", "Batal");
+				}
+				if(input_harga < 10 || input_harga > MAXIMAL_MONEY_TRADE){
+					format(pDialog[playerid], sizePDialog, RED"Harga harus berkisar $10 hingga $%d.\n"WHITE"Silahkan masukan harga jual.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Dijual : "GREEN"%d\n\n"YELLOW"Note: Harga yang dimasukan adalah harga total (bukan harga satuan).", MAXIMAL_MONEY_TRADE, nama_item, GetPVarInt(playerid, "mp_banyak_dijual"));
+					return ShowPlayerDialog(playerid, DIALOG_JUAL_ITEM_MARKETPLACE_HARGA, DIALOG_STYLE_INPUT, ORANGE"Masukan harga jual", pDialog[playerid], "Jual", "Batal");
+				}
+
+				SetPVarInt(playerid, "mp_harga_jual", input_harga);
+
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan menjual.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Dijual : "GREEN"%d\n"WHITE"Harga \t: "GREEN"$%d\n\n"YELLOW"Apakah anda yakin ingin menjualnya?\nJika barang laku maka, anda akan dikenakan pajak sebesar %d persen.", nama_item, GetPVarInt(playerid, "mp_banyak_dijual"), input_harga, PAJAK_MARKETPLACE);
+				return ShowPlayerDialog(playerid, DIALOG_JUAL_ITEM_MARKETPLACE_KONFIRMASI, DIALOG_STYLE_MSGBOX, ORANGE"Konfirmasi Penjualan", pDialog[playerid], "Jual", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_JUAL_ITEM_MARKETPLACE_KONFIRMASI:
+		{
+			if(response){
+				new	item_id = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")],
+					jumlah = GetPVarInt(playerid, "mp_banyak_dijual");
+
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO marketplace(id_item, id_user, jumlah, harga, tanggal) VALUES(%d, %d, %d, %d, NOW())", item_id, PlayerInfo[playerid][pID], jumlah, GetPVarInt(playerid, "mp_harga_jual"));
+
+				if(mysql_tquery(koneksi, pQuery[playerid])){
+					new nama_item[50];
+					getNamaByIdItem(item_id, nama_item);
+
+					tambahItemPlayer(playerid, item_id, -jumlah);
+					format(pDialog[playerid], sizePDialog, WHITE"Berhasil memasukan dagangan, dengan spesifikasi.\n\n\
+						Nama Item : "PINK"%s\n\
+						"WHITE"Jumlah Dijual : "GREEN"%d\n\
+						"WHITE"Harga \t: "GREEN"$%d\n\n\
+						"YELLOW"Note: Jika barang laku maka, anda akan dikenakan pajak sebesar %d persen.", nama_item, 
+						jumlah, 
+						GetPVarInt(playerid, "mp_harga_jual"), 
+						PAJAK_MARKETPLACE);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Dagangan Marketplace", pDialog[playerid], "Ok", "");
+				}
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_DAGANGAN_MARKETPLACE:
+		{
+			if(response){
+				new mp_id,
+					status,
+					harga,
+					jumlah,
+					id_item,
+					nama_item[50];
+
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name_int(listitem, "id", mp_id);
+				cache_get_value_name_int(listitem, "id_item", id_item);
+				cache_get_value_name_int(listitem, "harga", harga);
+				cache_get_value_name_int(listitem, "jumlah", jumlah);
+				cache_get_value_name_int(listitem, "status", status);
+
+				cache_delete(PlayerInfo[playerid][tempCache]);
+				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+				SetPVarInt(playerid, "mpg_id", mp_id);
+				SetPVarInt(playerid, "mpg_id_item", id_item);
+				SetPVarInt(playerid, "mpg_harga", harga);
+				SetPVarInt(playerid, "mpg_jumlah", jumlah);
+
+				getNamaByIdItem(id_item, nama_item);
+
+				if(status == 0){
+					format(pDialog[playerid], sizePDialog, WHITE"Anda akan menarik dagangan anda, dengan spesifikasi.\n\
+						Nama Item \t: %s\n\
+						Jumlah \t: "YELLOW"%d\n\
+						"WHITE"Harga \t\t: "GREEN"$%d\n\n\
+						"YELLOW"Apakah anda yakin ingin menarik dagangan anda ?", 
+						nama_item, jumlah, harga);
+					ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_PENARIKAN_DAGANGAN, DIALOG_STYLE_MSGBOX, "Konfirmasi penarikan dagangan", pDialog[playerid], "Tarik", "Batal");
+				}else{
+					format(pDialog[playerid], sizePDialog, WHITE"Anda akan mengambil hasil dagangan anda, dengan spesifikasi.\n\
+						Nama Item \t: %s\n\
+						Jumlah \t: "YELLOW"%d\n\
+						"WHITE"Harga \t\t: "ORANGE"$%d "WHITE"-> "GREEN"$%d\n\n\
+						"YELLOW"Apakah anda yakin ingin mengambil hasil dagangan anda ?\n\n\
+						Note: Harga yang tertera adalah harga setelah kena pajak sebesar %d persen.", 
+						nama_item, jumlah, harga, harga - floatround(float(harga) * (float(PAJAK_MARKETPLACE) / 100.0), floatround_floor), PAJAK_MARKETPLACE);
+					ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_HASIL_DAGANGAN, DIALOG_STYLE_MSGBOX, "Konfirmasi pengambilan hasil dagangan", pDialog[playerid], "Ambil", "Batal");
+				}
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_PENARIKAN_DAGANGAN:
+		{
+			if(response){
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM marketplace WHERE id = %d AND id_user = %d AND status = 0", GetPVarInt(playerid, "mpg_id"), PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid], "selesaiPenarikanDagangan", "i", playerid);
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_HASIL_DAGANGAN:
+		{
+			if(response){
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM marketplace WHERE id = %d", GetPVarInt(playerid, "mpg_id"), PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				new const harga = GetPVarInt(playerid, "mpg_harga");
+				new const harga_final = harga - floatround(float(harga) * (float(PAJAK_MARKETPLACE) / 100.0), floatround_floor);
+				
+				givePlayerUang(playerid, harga_final);
+
+				format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil mengambil hasil dagangan anda.\n\
+					Uang hasil dagangan telah diberikan secara cash,\n\
+					Uang yang didapat telah dipotong oleh pajak sebesar %d persen.\n\nHasil dagangan sebelum terkena pajak "ORANGE"$%d "WHITE"dan setelah dikenakan menjadi "GREEN"$%d", PAJAK_MARKETPLACE, GetPVarInt(playerid, "mpg_harga"), harga_final);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Berhasil mengambil hasil dagangan", pDialog[playerid], "Tutup", "");
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -7882,7 +8169,56 @@ public OnPlayerText(playerid, text[]){
 						}
 					}
 				}
-			}								
+			}
+			else if(areaid == ACT_marketPlace_1_Area){
+				if(ACT_marketPlace_1_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_MARKETPLACE_1".*")){
+						ACT_marketPlace_1_User = playerid;
+						ACT_marketPlace_1_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_marketPlace_1);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_marketPlace_1, pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu)).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_MARKETPLACE_1, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_marketPlace_1, playerid, pDialog[playerid]);
+					}
+				}else if(ACT_marketPlace_1_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_marketPlace_1_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\sitem.*")){
+							SetPVarInt(playerid, "halaman", 0);
+							showDialogBeliItemMarketplace(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_1, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(menjual|jual)\\sitem.*")){
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) as jumlah FROM marketplace WHERE id_user = %d", PlayerInfo[playerid][pID]);
+							mysql_tquery(koneksi, pQuery[playerid], "cekJumlahDagangan", "i", playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_1, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(melihat|lihat|mengecek|cek)\\sdagangan.*")){
+							SetPVarInt(playerid, "halaman", 0);
+							showDialogDaganganMarketplace(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_1, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_marketPlace_1_User = INVALID_PLAYER_ID;
+							ACT_marketPlace_1_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_marketPlace_1, pDialog[playerid], 5);
+						}
+					}
+				}
+			}
 		}
 	}
 

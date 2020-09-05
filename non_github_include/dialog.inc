@@ -61,6 +61,16 @@ showDialogListItem(playerid, fromplayerid = INVALID_PLAYER_ID, dialogid = DIALOG
         return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
 }
 
+showDialogBeliItemMarketplace(playerid){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.*, b.nama FROM marketplace a INNER JOIN `user` b ON b.id = a.id_user WHERE a.status = 0 AND a.id_user != %d ORDER BY a.tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+    mysql_tquery(koneksi, pQuery[playerid], "tampilListMarketplace", "i", playerid);
+}
+
+showDialogDaganganMarketplace(playerid){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM marketplace WHERE id_user = %d", PlayerInfo[playerid][pID]);
+    mysql_tquery(koneksi, pQuery[playerid], "tampilListDaganganMarketplace", "i", playerid);
+}
+
 showDialogListFurniturePemain(playerid){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.id, b.nama_furniture, b.id_object, a.id_furniture, a.jumlah, b.keterangan FROM user_furniture a INNER JOIN furniture b ON a.id_furniture = b.id WHERE a.id_user = '%d' AND a.jumlah > 0 ORDER BY b.nama_furniture ASC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
     mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryFurniturePlayer", "i", playerid);

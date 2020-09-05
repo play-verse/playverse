@@ -110,6 +110,8 @@ loadAllArea(){
 
     ACT_rumahSakit_Area = CreateDynamicSphere(ACT_rumahSakit_Pos[0], ACT_rumahSakit_Pos[1], ACT_rumahSakit_Pos[2], 3.0);
 
+    ACT_marketPlace_1_Area = CreateDynamicSphere(ACT_marketPlace_1_Pos[0], ACT_marketPlace_1_Pos[1], ACT_marketPlace_1_Pos[2], 3.0);
+
     /* Dari Checkpoint */
     // Tempat foto
     AREA_tempatFoto = buatSPDanLabel(-201.7664,-25.4403,1002.2734, "Silahkan cetak foto\n"GREEN"Disini!", 1.0);

@@ -839,6 +839,81 @@ publicFor: tampilInventoryBarangPlayer(playerid){
 	return 1; // For deleteing cache tquery
 }
 
+publicFor: tampilListDaganganMarketplace(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		format(pDialog[playerid], sizePDialog, "Nama Barang\tJumlah\tHarga\tStatus\n");
+
+		new subString[64], 
+			jumlah, 
+			nama_item[100], 
+			harga,
+			id_item,
+			status;
+
+		for(new i = 0; i < rows; i++){
+			cache_get_value_name_int(i, "id_item", id_item);
+			cache_get_value_name_int(i, "jumlah", jumlah);
+			cache_get_value_name_int(i, "harga", harga);
+			cache_get_value_name_int(i, "status", status);
+			getNamaByIdItem(id_item, nama_item);
+
+			strcatEx(pDialog[playerid], sizePDialog, "%s%s\t"WHITE"%i\t"GREEN"$%i\t%s\n", GetColorRarity(getRarityByIdItem(id_item)), nama_item, jumlah, harga, (status == 0 ? (ORANGE"Menunggu") : (GREEN"Terjual")));
+		}
+
+		if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+		PlayerInfo[playerid][tempCache] = cache_save();
+
+		format(subString, 64, WHITE"List barang yang dagangan :");
+		ShowPlayerDialog(playerid, DIALOG_PILIH_DAGANGAN_MARKETPLACE, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
+	}else{
+		showDialogPesan(playerid, RED"Dagangan Marketplace kosong", WHITE"Anda tidak menjual apapun pada marketplace.");
+	}
+	return 1;
+}
+
+publicFor: tampilListMarketplace(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		format(pDialog[playerid], sizePDialog, "Nama Barang\tJumlah\tHarga\tPenjual\n");
+
+		new subString[64], 
+			jumlah, 
+			nama_item[100], 
+			harga,
+			nama_penjual[MAX_PLAYER_NAME + 1],
+			id_item;
+
+		for(new i = 0; i < rows; i++){
+			cache_get_value_name_int(i, "id_item", id_item);
+			cache_get_value_name_int(i, "jumlah", jumlah);
+			cache_get_value_name_int(i, "harga", harga);
+			cache_get_value_name(i, "nama", nama_penjual);
+			getNamaByIdItem(id_item, nama_item);			
+
+			strcatEx(pDialog[playerid], sizePDialog, "%s%s\t"WHITE"%i\t"GREEN"$%i\t"WHITE"%s\n", GetColorRarity(getRarityByIdItem(id_item)), nama_item, jumlah, harga, nama_penjual);
+		}
+		strcat(pDialog[playerid], ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+		if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+		PlayerInfo[playerid][tempCache] = cache_save();
+
+		format(subString, 64, WHITE"Pilih barang yang ingin dibeli : "GREEN"(page : %d)", GetPVarInt(playerid, "halaman") + 1);
+		ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM_MARKETPLACE, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
+	}else{
+		if(GetPVarInt(playerid, "halaman") < 1)
+			showDialogPesan(playerid, RED"Marketplace kosong", WHITE"Marketplace tidak berisi barang apapun yang sedang dijual.");
+		else{ // Kembalikan ke halaman sebelumnya
+			SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+			showDialogBeliItemMarketplace(playerid);
+		}
+	}
+
+	return 1; // For deleteing cache tquery	
+}
+
 publicFor: tambahExpSkillPlayer(playerid, skillid, jumlah){
 	switch(skillid){
 		case ID_SKILL_MEKANIK: // Mekanik
@@ -915,6 +990,17 @@ publicFor: tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan){
 // 	}
 // 	return 1;
 // }
+
+publicFor: cekJumlahDagangan(playerid){
+	new jumlah;
+	cache_get_value_name_int(0, "jumlah", jumlah);
+	if(jumlah < BATAS_DAGANGAN_MARKETPLACE){
+		SetPVarInt(playerid, "halaman", 0);
+		showDialogListItem(playerid, .dialogid = DIALOG_JUAL_ITEM_MARKETPLACE);
+	}else
+		showDialogPesan(playerid, RED"Dagangan melebihi batas", WHITE"Jumlah dagangan anda pada marketplace telah melebihi batas.\nSilahkan sisakan slot untuk dagangan baru anda terlebih dahulu.\n"YELLOW"Batas dagangan adalah 3");
+	return 1;
+}
 
 /*
 	ITEM USE TRIGGER
@@ -1150,6 +1236,22 @@ publicFor: isRekeningAda(playerid){
 	return 1;
 }
 
+publicFor: selesaiPenarikanDagangan(playerid){
+	if(cache_affected_rows() <= 0){
+		showDialogPesan(playerid, "Gagal menarik item", WHITE"Gagal menarik item dagangan.\nDikarenakan telah terjadi perubahan pada item anda.\nSilahkan cek kembali dagangan anda.");
+		return 1;
+	}
+	new nama_item[50];
+	getNamaByIdItem(GetPVarInt(playerid, "mpg_id_item"), nama_item);
+	tambahItemPlayer(playerid, GetPVarInt(playerid, "mpg_id_item"), GetPVarInt(playerid, "mpg_jumlah"));
+	format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil menarik dagangan anda.\n\
+		%s telah dikembalikan ke inventory anda sebanyak %d.\n\
+		Dagangan yang telah ditarik tidak akan tampil lagi di marketplace.", nama_item,
+		GetPVarInt(playerid, "mpg_jumlah"));
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Berhasil menarik dagangan", pDialog[playerid], "Tutup", "");
+	return 1;
+}
+
 publicFor: selesaiBayarKerusakanKendaraan(playerid){
 	new idpv = GetPVarInt(playerid, "fixbayar_idpv");
 	DeletePVar(playerid, "fixbayar_idpv");
@@ -1252,6 +1354,58 @@ publicFor: selesaiBeliMakanan(playerid){
 
 	format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil membeli "YELLOW"%s "WHITE" sebanyak "YELLOW"%d "WHITE"dengan harga total "GREEN"$%d\n"WHITE"Item langsung dikirimkan pada inventory anda, silahkan buka inventory untuk mengeceknya.", nama_item, jumlah, MENU_MAKANAN[idx][hargaMakanan]);
 	showDialogPesan(playerid, GREEN"Berhasil membeli makanan", pDialog[playerid]);
+	return 1;
+}
+
+publicFor: selesaiMembeliItemMarketplace(playerid, metode_bayar, nominal, const keterangan_atm[]){
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE marketplace SET status = 1 WHERE id = %d AND status = 0", GetPVarInt(playerid, "mp_id"));
+	mysql_tquery(koneksi, pQuery[playerid], "prosesBeliMarketplace", "iiis", playerid, metode_bayar, nominal, keterangan_atm);
+	return 1;
+}
+
+publicFor: prosesBeliMarketplace(playerid, metode_bayar, nominal, const keterangan_atm[]){
+	if(cache_affected_rows() <= 0){
+		showDialogPesan(playerid, "Item telah terjual", "Item yang ingin anda beli telah terjual/dibatalkan oleh pemiliknya.");
+		return 1;
+	}
+
+	// Potong uang	
+	if(metode_bayar == METODE_BAYAR_EBANKING)
+		addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -nominal, keterangan_atm);
+	else if(metode_bayar == METODE_BAYAR_CASH)
+		givePlayerUang(playerid, -nominal);
+	else // rare case ?
+		return 1;
+
+	new id_item = GetPVarInt(playerid, "mp_id_item"),
+		nama_penjual[MAX_PLAYER_NAME + 1],
+		jumlah = GetPVarInt(playerid, "mp_jumlah"),
+		nama_item[50];
+	
+	tambahItemPlayer(playerid, id_item, jumlah);
+
+	GetPVarString(playerid, "mp_nama_penjual", nama_penjual);
+	getNamaByIdItem(id_item, nama_item);
+
+	DeletePVar(playerid, "mp_id_item");
+	DeletePVar(playerid, "mp_id_penjual");
+	DeletePVar(playerid, "mp_id");
+	DeletePVar(playerid, "mp_jumlah");
+	DeletePVar(playerid, "mp_harga");
+	DeletePVar(playerid, "mp_nama_penjual");
+
+	format(pDialog[playerid], sizePDialog, WHITE"Sukses membeli item dari markeplace, dengan spesifikasi :\n\n\
+		Nama Item \t: %s%s\n\
+		"WHITE"Jumlah \t\t: "ORANGE"%d\n\
+		"WHITE"Harga \t\t: "GREEN"$%d\n\
+		"WHITE"Nama Penjual \t: %s\n\n\
+		Item akan langsung masuk inventory anda, terima kasih telah membeli.", 
+		GetColorRarity(getRarityByIdItem(id_item)),
+		nama_item,
+		jumlah,
+		nominal,
+		nama_penjual);
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Sukses membeli item", pDialog[playerid], "Tutup", "");
 	return 1;
 }
 
@@ -2133,8 +2287,9 @@ publicFor: progressNambang(playerid, dari_tambang){
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
 				tambahItemPlayer(playerid, 12, 1);
 			}
-			default:{
-				SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
+			default:
+			{
+				SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
 			}
 		}
 
@@ -4407,6 +4562,14 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_rumahSakit_Res = 0;
 		ACT_rumahSakit_Timer = -1;
+	}else if(actorid == ACT_marketPlace_1){
+		UpdateDynamic3DTextLabelText(ACT_marketPlace_1_Text, COLOR_WHITE, "");
+		if(ACT_marketPlace_1_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_marketPlace_1_User, "interaksi_actor", -1);
+			ACT_marketPlace_1_User = INVALID_PLAYER_ID;
+		}
+		ACT_marketPlace_1_Res = 0;
+		ACT_marketPlace_1_Timer = -1;
 	}
 	return 1;
 }
@@ -4432,6 +4595,8 @@ TerminateInteraksi_Alt(actorid){
 		DeletePreciseTimer(ACT_tokoNarko_Timer);
 	else if(actorid == ACT_rumahSakit && ACT_rumahSakit_Timer != -1)
 		DeletePreciseTimer(ACT_rumahSakit_Timer);
+	else if(actorid == ACT_marketPlace_1 && ACT_marketPlace_1_Timer != -1)
+		DeletePreciseTimer(ACT_marketPlace_1_Timer);
 	TerminateInteraksi(actorid);
 }
 

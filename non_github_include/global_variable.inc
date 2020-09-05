@@ -559,6 +559,7 @@ new
 	ACT_tellerBankLS_1,
 	ACT_tellerBankLS_2,
 	ACT_rumahSakit,
+	ACT_marketPlace_1,
 
 	// Posisi
 	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
@@ -569,8 +570,8 @@ new
 	Float:ACT_resepsionisPemerintah_Pos[4] = {-501.2156, 296.5012, 2001.0950, 182.1136},
 	Float:ACT_tellerBankLS_1_Pos[4] = {1391.5345, -30.0384, 1000.8950, 175.7600},
 	Float:ACT_tellerBankLS_2_Pos[4] = {1386.0791, -30.0127, 1000.8950, 175.5193},
-	// 
 	Float:ACT_rumahSakit_Pos[4] = {180.7404, 1777.2717, 3500.0225, 89.0838},
+	Float:ACT_marketPlace_1_Pos[4] = {1721.8665, -1657.9691, 20.5859, 179.3488},
 
 	// 3D Text (Chat Bubble)
 	Text3D:ACT_resepsionisPemerintah_Text,
@@ -583,6 +584,7 @@ new
 	Text3D:ACT_tellerBankLS_2_Text,
 	Text3D:ACT_tokoNarko_Text,
 	Text3D:ACT_rumahSakit_Text,
+	Text3D:ACT_marketPlace_1_Text,
 
 	// Binding User
 	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
@@ -595,6 +597,7 @@ new
 	ACT_tellerBankLS_2_User = INVALID_PLAYER_ID,
 	ACT_tokoNarko_User = INVALID_PLAYER_ID,
 	ACT_rumahSakit_User = INVALID_PLAYER_ID,
+	ACT_marketPlace_1_User = INVALID_PLAYER_ID,
 
 	// Response User
 	ACT_resepsionisPemerintah_Res = 0,
@@ -607,6 +610,7 @@ new
 	ACT_tellerBankLS_2_Res = 0,
 	ACT_tokoNarko_Res = 0,
 	ACT_rumahSakit_Res = 0,
+	ACT_marketPlace_1_Res = 0,
 
 	// Timer (Lama Response)
 	ACT_resepsionisPemerintah_Timer = -1,
@@ -619,6 +623,7 @@ new
 	ACT_tellerBankLS_2_Timer = -1,
 	ACT_tokoNarko_Timer = -1,
 	ACT_rumahSakit_Timer = -1,
+	ACT_marketPlace_1_Timer = -1,
 
 	// Area Actor
 	ACT_resepsionisPemerintah_Area,
@@ -630,7 +635,8 @@ new
 	ACT_tellerBankLS_1_Area,
 	ACT_tellerBankLS_2_Area,
 	ACT_tokoNarko_Area,
-	ACT_rumahSakit_Area
+	ACT_rumahSakit_Area,
+	ACT_marketPlace_1_Area
 ;
 
 /**
