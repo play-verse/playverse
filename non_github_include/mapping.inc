@@ -35,6 +35,7 @@
 //Toko Phone
 //Papan Text Guide
 //Interior Pintu Penjara
+//Interior Marketplace
 
 #define MALL_OBJECT_DRAW_DIST   30.0 // Even with a streamer, keep the draw distance on the objects inside the shops low.
 
@@ -72,6 +73,7 @@ loadAllMapingan(){
     tokoGadget();
     papanTextGuide();
     interiorPintuPenjara();
+    interiorMarketplace();
 }
 
 removeBangunanUntukMapping(playerid){
@@ -6590,4 +6592,8 @@ interiorPintuPenjara(){
 
     CreateDynamicObject(19302, 266.31070, 85.75240, 1001.26233,   0.00000, 0.00000, 90.00000);
     pintuPenjara[2] = CreateDynamicObject(19302, 266.31070, 87.48840, 1001.26233,   0.00000, 0.00000, 90.00000);
+}
+
+interiorMarketplace(){
+    CreateDynamicObject(19128, -2659.09521, 1410.28455, 909.16748,   0.00000, 0.00000, 0.00000);
 }

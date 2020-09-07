@@ -595,6 +595,9 @@
 #define NAMA_ACTOR_PENJUAL_NARKO	"puyeng"
 #define NAMA_ACTOR_RUMAH_SAKIT		"lucy"
 #define NAMA_ACTOR_MARKETPLACE_1	"sakura"
+#define NAMA_ACTOR_MARKETPLACE_2	"alexa"
+#define NAMA_ACTOR_MARKETPLACE_3	"ryu"
+#define NAMA_ACTOR_MARKETPLACE_4	"roxy"
 
 /**
 	Jenis Tagihan

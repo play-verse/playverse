@@ -4570,6 +4570,30 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_marketPlace_1_Res = 0;
 		ACT_marketPlace_1_Timer = -1;
+	}else if(actorid == ACT_marketPlace_2){
+		UpdateDynamic3DTextLabelText(ACT_marketPlace_2_Text, COLOR_WHITE, "");
+		if(ACT_marketPlace_2_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_marketPlace_2_User, "interaksi_actor", -1);
+			ACT_marketPlace_2_User = INVALID_PLAYER_ID;
+		}
+		ACT_marketPlace_2_Res = 0;
+		ACT_marketPlace_2_Timer = -1;
+	}else if(actorid == ACT_marketPlace_3){
+		UpdateDynamic3DTextLabelText(ACT_marketPlace_3_Text, COLOR_WHITE, "");
+		if(ACT_marketPlace_3_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_marketPlace_3_User, "interaksi_actor", -1);
+			ACT_marketPlace_3_User = INVALID_PLAYER_ID;
+		}
+		ACT_marketPlace_3_Res = 0;
+		ACT_marketPlace_3_Timer = -1;
+	}else if(actorid == ACT_marketPlace_4){
+		UpdateDynamic3DTextLabelText(ACT_marketPlace_4_Text, COLOR_WHITE, "");
+		if(ACT_marketPlace_4_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_marketPlace_4_User, "interaksi_actor", -1);
+			ACT_marketPlace_4_User = INVALID_PLAYER_ID;
+		}
+		ACT_marketPlace_4_Res = 0;
+		ACT_marketPlace_4_Timer = -1;
 	}
 	return 1;
 }
@@ -4597,6 +4621,12 @@ TerminateInteraksi_Alt(actorid){
 		DeletePreciseTimer(ACT_rumahSakit_Timer);
 	else if(actorid == ACT_marketPlace_1 && ACT_marketPlace_1_Timer != -1)
 		DeletePreciseTimer(ACT_marketPlace_1_Timer);
+	else if(actorid == ACT_marketPlace_2 && ACT_marketPlace_2_Timer != -1)
+		DeletePreciseTimer(ACT_marketPlace_2_Timer);
+	else if(actorid == ACT_marketPlace_3 && ACT_marketPlace_3_Timer != -1)
+		DeletePreciseTimer(ACT_marketPlace_3_Timer);
+	else if(actorid == ACT_marketPlace_4 && ACT_marketPlace_4_Timer != -1)
+		DeletePreciseTimer(ACT_marketPlace_4_Timer);
 	TerminateInteraksi(actorid);
 }
 
