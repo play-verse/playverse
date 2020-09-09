@@ -33,6 +33,8 @@ enum pInfo
 	activeMekanik,
 	expMedic,
 	activeMedic,
+	expBlacksmith,
+	activeBlacksmith,
 
     Cache:tempCache, // digunakan untuk menyimpan temporary cache : Misalnya cache inventory, cache skin. Jangan gunakan untuk yang penting
 
@@ -445,6 +447,15 @@ new const MENU_ALAT_MEKANIK[][INFO_MENU_ALAT] = {
     {51, 10000} // Ultimate Parts
 };
 
+enum INFO_MENU_BLACKSMITH {
+    idItemAlat,
+    hargaAlat
+};
+
+new const MENU_ALAT_BLACKSMITH[][INFO_MENU_BLACKSMITH] = {
+    {62, 10000} // Forger Case
+};
+
 new const MENU_BELI_ITEM_MEDIS[][INFO_BARANG_MARKET] = {
     {52, 100}, // Bubuk Herbal
     {53, 300}, // Obat Revive
@@ -540,7 +551,8 @@ new PU_tempatFoto_in[2],
 	PU_pusatKeahlian[2],
 	PU_rumahSakit[1], // Untuk pintu keluar pakai Dynamic Area karena pickup tidak muncul
 	PU_tokoGadget[1][2],
-	PU_tambangBesi[2];
+	PU_tambangBesi[2],
+	PU_tempatBlacksmith[2];
 
 /**
 	ACTOR VARIABEL
@@ -550,6 +562,7 @@ new
 
 	// ID Actor
 	ACT_skillMekanik,
+	ACT_skillBlacksmith,
 	ACT_penjualDealer, // Actor tempat player menjual mobil
 	ACT_peralatanPancing,
 	ACT_tokoBibit,
@@ -563,6 +576,7 @@ new
 
 	// Posisi
 	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
+	Float:ACT_skillBlacksmith_Pos[4] = {699.5562, -454.6995, -25.6099, 0.8854},
 	Float:ACT_penjualDealer_Pos[4] = {1012.9276, -1733.4741, 13.4834, 90.0930},
 	Float:ACT_peralatanPancing_Pos[4] = {1021.7353, -1892.2639, 12.7341, 273.1771},
 	Float:ACT_tokoBibit_Pos[4] = {1494.2061, -1659.1025, 13.2922, 358.1933},
@@ -576,6 +590,7 @@ new
 	// 3D Text (Chat Bubble)
 	Text3D:ACT_resepsionisPemerintah_Text,
 	Text3D:ACT_skillMekanik_Text,
+	Text3D:ACT_skillBlacksmith_Text,
 	Text3D:ACT_peralatanPancing_Text,
 	Text3D:ACT_tokoBibit_Text,
 	Text3D:ACT_tokoGadget_Text,
@@ -589,6 +604,7 @@ new
 	// Binding User
 	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
 	ACT_skillMekanik_User = INVALID_PLAYER_ID,
+	ACT_skillBlacksmith_User = INVALID_PLAYER_ID,
 	ACT_peralatanPancing_User = INVALID_PLAYER_ID,
 	ACT_tokoBibit_User = INVALID_PLAYER_ID,
 	ACT_tokoGadget_User = INVALID_PLAYER_ID,
@@ -602,6 +618,7 @@ new
 	// Response User
 	ACT_resepsionisPemerintah_Res = 0,
 	ACT_skillMekanik_Res = 0,
+	ACT_skillBlacksmith_Res = 0,
 	ACT_peralatanPancing_Res = 0,
 	ACT_tokoBibit_Res = 0,
 	ACT_tokoGadget_Res = 0,
@@ -615,6 +632,7 @@ new
 	// Timer (Lama Response)
 	ACT_resepsionisPemerintah_Timer = -1,
 	ACT_skillMekanik_Timer = -1,
+	ACT_skillBlacksmith_Timer = -1,
 	ACT_peralatanPancing_Timer = -1,
 	ACT_tokoBibit_Timer = -1,
 	ACT_tokoGadget_Timer = -1,
@@ -628,6 +646,7 @@ new
 	// Area Actor
 	ACT_resepsionisPemerintah_Area,
 	ACT_skillMekanik_Area,
+	ACT_skillBlacksmith_Area,
 	ACT_peralatanPancing_Area,
 	ACT_tokoBibit_Area,
 	ACT_tokoGadget_Area,
@@ -1244,6 +1263,7 @@ new AREA_beliPerabot[sizeof(POSISI_BELI_PERABOT)],
 	AREA_onDutyMedic, // Area On dan Off medic
 	AREA_GuidePemerintah,
 	AREA_GuideAhliMekanik,
+	AREA_GuideAhliBlacksmith,
 	AREA_Guide_peralatanPancing,
 	AREA_Guide_tokoBibit,
 	AREA_Guide_tokoGadget,

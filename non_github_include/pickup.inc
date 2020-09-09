@@ -50,4 +50,8 @@ loadAllPickup(){
 
     PU_tambangBesi[ENTER_PICKUP] = buatPickupDanLabel(1318, -685.2260, 2372.3379, 129.8383, "Pusat Tambang\n"GREEN"Pintu Masuk");
     PU_tambangBesi[EXIT_PICKUP] = buatPickupDanLabel(1318, 2395.7302, -1506.7921, 1402.2000, "Pusat Tambang\n"GREEN"Pintu Keluar");
+
+    // Blacksmith (pandai besi)
+    PU_tempatBlacksmith[ENTER_PICKUP] = buatPickupDanLabel(1318, 1720.2994, -1741.1611, 13.5469, "Pusat Blacksmith\n"GREEN"Pintu Masuk");
+    PU_tempatBlacksmith[EXIT_PICKUP] = buatPickupDanLabel(1318, 699.4554, -445.3720, -25.6097, "Pusat Blacksmith\n"GREEN"Pintu Keluar");
 }

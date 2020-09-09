@@ -278,6 +278,19 @@ showDialogBeliItemMedis(playerid){
     return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_MEDIS, DIALOG_STYLE_TABLIST_HEADERS, "Silahkan pilih alat yang ingin dibeli", str_beli, "Beli", "Batal");
 }
 
+showDialogBeliBlacksmith(playerid){
+    static str_beli[sizeof(MENU_ALAT_BLACKSMITH) * 50];
+    if(str_beli[0] == '\0'){
+        new nama_item[50];
+        strcat(str_beli, "Nama\tHarga\n");
+        for (new i = 0; i < sizeof(MENU_ALAT_BLACKSMITH); i++){
+            getNamaByIdItem(MENU_ALAT_BLACKSMITH[i][idItemAlat], nama_item);
+            strcatEx(str_beli, sizeof(str_beli), WHITE"%s\t"GREEN"$%d\n", nama_item, MENU_ALAT_BLACKSMITH[i][hargaAlat]);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_BELI_ALAT_BLACKSMITH, DIALOG_STYLE_TABLIST_HEADERS, "Silahkan pilih alat yang ingin dibeli", str_beli, "Beli", "Batal");
+}
+
 showDialogBeliPhone(playerid){
     static str_daftar_phone[sizeof(MENU_PHONE) * 100 + 100], subString[100];
     if(str_daftar_phone[0] == EOS){
@@ -439,6 +452,10 @@ showDialogGuideText(playerid){
             lama_respon_actor = LAMA_BATAS_RESPON_PENJUAL;
             format(tipe_actor, sizeof(tipe_actor), "Dealer");
             format(nama_penjual, sizeof(nama_penjual), "%s", NAMA_ACTOR_PENJUAL_DEALER);
+        }else if(areaid == AREA_GuideAhliBlacksmith){
+            lama_respon_actor = LAMA_BATAS_RESPON_AHLI;
+            format(tipe_actor, sizeof(tipe_actor), "Ahli Perajin");
+            format(nama_penjual, sizeof(nama_penjual), "%s", NAMA_ACTOR_SKILL_BLACKSMITH);
         }
         format(str_judul, sizeof(str_judul), GREEN"Guide Interaksi %s", tipe_actor);
         strcatEx(str_guide, 2000, YELLOW"Guide interaksi dengan %s.\n\n", tipe_actor);
@@ -458,6 +475,9 @@ showDialogGuideText(playerid){
             strcat(str_guide, "1. Katakan "YELLOW"saya ingin beli phone"WHITE" untuk membeli phone.\n");
         }else if(areaid == AREA_Guide_penjualDealer){
             strcat(str_guide, "1. Katakan "YELLOW"saya ingin jual mobil"WHITE" untuk menjual mobil.\n");
+        }else if(areaid == AREA_GuideAhliBlacksmith){
+            strcat(str_guide, "1. Katakan "YELLOW"saya ingin mengaktifkan skill blacksmith"WHITE" untuk mengaktifkan skill blacksmith.\n");
+            strcat(str_guide, "2. Katakan "YELLOW"saya ingin membeli item"WHITE" untuk membeli item-item yang berkaitan dengan blacksmith.\n");
         }
         strcatEx(str_guide, 2000, "\nJika anda menjawab tidak seperti hal diatas,\nmaka %s tidak akan mengerti maksud anda dan akan memberhentikan percakapan.\n\n", tipe_actor);
         strcat(str_guide, YELLOW"Jika masih tidak mengerti dengan hal diatas silahkan tanyakan di forum. Terimakasih telah membaca.\n");

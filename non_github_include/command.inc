@@ -136,7 +136,7 @@ CMD:infosaya(playerid, params[]){
 
 CMD:skill(playerid, const params[]){
     if(PlayerInfo[playerid][isBusy]) return SendClientMessage(playerid, COLOR_RED, TAG_SIBUK" "WHITE"Tidak dapat menggunakan skill sekarang, anda sedang melakukan hal lain.");
-    ShowPlayerDialog(playerid, DIALOG_MENU_SKILL, DIALOG_STYLE_LIST, "Skill", "Mekanik\nMedic", "Pilih", "Batal");
+    ShowPlayerDialog(playerid, DIALOG_MENU_SKILL, DIALOG_STYLE_LIST, "Skill", "Mekanik\nMedic\nBlacksmith", "Pilih", "Batal");
     return 1;
 }
 

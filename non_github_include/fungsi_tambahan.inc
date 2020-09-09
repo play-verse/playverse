@@ -1052,6 +1052,12 @@ ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_R
         // 15 detik batas interaksi
         ACT_marketPlace_1_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
         UpdateDynamic3DTextLabelText(ACT_marketPlace_1_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_skillBlacksmith){
+        if(ACT_skillBlacksmith_Timer != -1)
+            DeletePreciseTimer(ACT_skillBlacksmith_Timer);
+        // 15 detik batas interaksi
+        ACT_skillBlacksmith_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_skillBlacksmith_Text, COLOR_WHITE, text);
     }
 }
 
@@ -1176,6 +1182,17 @@ ActorResetAndProses(actorid, playerid, const text[] = ""){
             ActorResponse(ACT_marketPlace_1, pDialog[playerid], 5);
         }else
             ActorResponse(ACT_marketPlace_1, text, 5);
+    }
+    else if(actorid == ACT_skillBlacksmith){
+        ACT_skillBlacksmith_User = INVALID_PLAYER_ID;
+        ACT_skillBlacksmith_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_skillBlacksmith, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_skillBlacksmith, text, 5);
     }
 }
 
