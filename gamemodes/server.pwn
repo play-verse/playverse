@@ -6597,9 +6597,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					harga,
 					nama_penjual);
 				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_ITEM_MARKETPLACE, DIALOG_STYLE_MSGBOX, "Konfirmasi beli item", pDialog[playerid], "Ok", "Keluar");
-			}else{
-				showDialogMenuInventory(playerid);
-				resetPVarInventory(playerid);
 			}
 			return 1;
 		}
