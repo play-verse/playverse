@@ -1052,6 +1052,24 @@ ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_R
         // 15 detik batas interaksi
         ACT_marketPlace_1_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
         UpdateDynamic3DTextLabelText(ACT_marketPlace_1_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_marketPlace_2){
+        if(ACT_marketPlace_2_Timer != -1)
+            DeletePreciseTimer(ACT_marketPlace_2_Timer);
+        // 15 detik batas interaksi
+        ACT_marketPlace_2_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_marketPlace_2_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_marketPlace_3){
+        if(ACT_marketPlace_3_Timer != -1)
+            DeletePreciseTimer(ACT_marketPlace_3_Timer);
+        // 15 detik batas interaksi
+        ACT_marketPlace_3_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_marketPlace_3_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_marketPlace_4){
+        if(ACT_marketPlace_4_Timer != -1)
+            DeletePreciseTimer(ACT_marketPlace_4_Timer);
+        // 15 detik batas interaksi
+        ACT_marketPlace_4_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_marketPlace_4_Text, COLOR_WHITE, text);
     }else if(actorid == ACT_skillBlacksmith){
         if(ACT_skillBlacksmith_Timer != -1)
             DeletePreciseTimer(ACT_skillBlacksmith_Timer);
@@ -1182,6 +1200,39 @@ ActorResetAndProses(actorid, playerid, const text[] = ""){
             ActorResponse(ACT_marketPlace_1, pDialog[playerid], 5);
         }else
             ActorResponse(ACT_marketPlace_1, text, 5);
+    }
+    else if(actorid == ACT_marketPlace_2){
+        ACT_marketPlace_2_User = INVALID_PLAYER_ID;
+        ACT_marketPlace_2_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_marketPlace_2, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_marketPlace_2, text, 5);
+    }
+    else if(actorid == ACT_marketPlace_3){
+        ACT_marketPlace_3_User = INVALID_PLAYER_ID;
+        ACT_marketPlace_3_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_marketPlace_3, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_marketPlace_3, text, 5);
+    }
+    else if(actorid == ACT_marketPlace_4){
+        ACT_marketPlace_4_User = INVALID_PLAYER_ID;
+        ACT_marketPlace_4_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_marketPlace_4, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_marketPlace_4, text, 5);
     }
     else if(actorid == ACT_skillBlacksmith){
         ACT_skillBlacksmith_User = INVALID_PLAYER_ID;

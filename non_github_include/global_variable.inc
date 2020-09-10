@@ -548,7 +548,7 @@ new PU_tempatFoto_in[2],
     PU_tempatKeluarRumah[2], // Hanya menyimpan ID terkecil dan Terbesar
     PU_policeDept_in[1],
     PU_policeDept_out[1],
-	PU_pusatKeahlian[2],
+	PU_marketPlace[2],
 	PU_rumahSakit[1], // Untuk pintu keluar pakai Dynamic Area karena pickup tidak muncul
 	PU_tokoGadget[1][2],
 	PU_tambangBesi[2],
@@ -573,6 +573,9 @@ new
 	ACT_tellerBankLS_2,
 	ACT_rumahSakit,
 	ACT_marketPlace_1,
+	ACT_marketPlace_2,
+	ACT_marketPlace_3,
+	ACT_marketPlace_4,
 
 	// Posisi
 	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
@@ -585,7 +588,10 @@ new
 	Float:ACT_tellerBankLS_1_Pos[4] = {1391.5345, -30.0384, 1000.8950, 175.7600},
 	Float:ACT_tellerBankLS_2_Pos[4] = {1386.0791, -30.0127, 1000.8950, 175.5193},
 	Float:ACT_rumahSakit_Pos[4] = {180.7404, 1777.2717, 3500.0225, 89.0838},
-	Float:ACT_marketPlace_1_Pos[4] = {1721.8665, -1657.9691, 20.5859, 179.3488},
+	Float:ACT_marketPlace_1_Pos[4] = {-2658.6680, 1413.9584, 906.2734, 359.4943},
+	Float:ACT_marketPlace_2_Pos[4] = {-2662.8401, 1410.8647, 906.2734, 88.1685},
+	Float:ACT_marketPlace_3_Pos[4] = {-2659.6921, 1406.6693, 906.2734, 178.7227},
+	Float:ACT_marketPlace_4_Pos[4] = {-2655.5066, 1409.6869, 906.2734, 270.2169},
 
 	// 3D Text (Chat Bubble)
 	Text3D:ACT_resepsionisPemerintah_Text,
@@ -600,6 +606,9 @@ new
 	Text3D:ACT_tokoNarko_Text,
 	Text3D:ACT_rumahSakit_Text,
 	Text3D:ACT_marketPlace_1_Text,
+	Text3D:ACT_marketPlace_2_Text,
+	Text3D:ACT_marketPlace_3_Text,
+	Text3D:ACT_marketPlace_4_Text,
 
 	// Binding User
 	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
@@ -614,6 +623,9 @@ new
 	ACT_tokoNarko_User = INVALID_PLAYER_ID,
 	ACT_rumahSakit_User = INVALID_PLAYER_ID,
 	ACT_marketPlace_1_User = INVALID_PLAYER_ID,
+	ACT_marketPlace_2_User = INVALID_PLAYER_ID,
+	ACT_marketPlace_3_User = INVALID_PLAYER_ID,
+	ACT_marketPlace_4_User = INVALID_PLAYER_ID,
 
 	// Response User
 	ACT_resepsionisPemerintah_Res = 0,
@@ -628,6 +640,9 @@ new
 	ACT_tokoNarko_Res = 0,
 	ACT_rumahSakit_Res = 0,
 	ACT_marketPlace_1_Res = 0,
+	ACT_marketPlace_2_Res = 0,
+	ACT_marketPlace_3_Res = 0,
+	ACT_marketPlace_4_Res = 0,
 
 	// Timer (Lama Response)
 	ACT_resepsionisPemerintah_Timer = -1,
@@ -642,6 +657,9 @@ new
 	ACT_tokoNarko_Timer = -1,
 	ACT_rumahSakit_Timer = -1,
 	ACT_marketPlace_1_Timer = -1,
+	ACT_marketPlace_2_Timer = -1,
+	ACT_marketPlace_3_Timer = -1,
+	ACT_marketPlace_4_Timer = -1,
 
 	// Area Actor
 	ACT_resepsionisPemerintah_Area,
@@ -655,7 +673,10 @@ new
 	ACT_tellerBankLS_2_Area,
 	ACT_tokoNarko_Area,
 	ACT_rumahSakit_Area,
-	ACT_marketPlace_1_Area
+	ACT_marketPlace_1_Area,
+	ACT_marketPlace_2_Area,
+	ACT_marketPlace_3_Area,
+	ACT_marketPlace_4_Area
 ;
 
 /**

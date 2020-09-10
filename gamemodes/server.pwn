@@ -6606,9 +6606,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					harga,
 					nama_penjual);
 				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_ITEM_MARKETPLACE, DIALOG_STYLE_MSGBOX, "Konfirmasi beli item", pDialog[playerid], "Ok", "Keluar");
-			}else{
-				showDialogMenuInventory(playerid);
-				resetPVarInventory(playerid);
 			}
 			return 1;
 		}
@@ -7851,7 +7848,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PEMERINTAH, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_resepsionisPemerintah, playerid, pDialog[playerid]);
 					}
@@ -7903,7 +7900,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Hey %s!\nApa yang kamu perlukan disini?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_skillMekanik, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Hey %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_SKILL_MEKANIK, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("bro")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_skillMekanik, playerid, pDialog[playerid]);
 					}
@@ -7982,7 +7979,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_peralatanPancing, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_PANCING, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_peralatanPancing, playerid, pDialog[playerid]);
 					}
@@ -8016,7 +8013,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_tokoBibit, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_BIBIT, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_tokoBibit, playerid, pDialog[playerid]);
 					}
@@ -8050,7 +8047,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_tokoGadget, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_GADGET, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_tokoGadget, playerid, pDialog[playerid]);
 					}
@@ -8084,7 +8081,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_penjualDealer, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_DEALER, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_penjualDealer, playerid, pDialog[playerid]);
 					}
@@ -8118,7 +8115,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_tellerBankLS_1, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_TELLER_BANK_1, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_tellerBankLS_1, playerid, pDialog[playerid]);
 					}
@@ -8186,7 +8183,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_tokoNarko, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_NARKO, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_tokoNarko, playerid, pDialog[playerid]);
 					}
@@ -8220,7 +8217,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_tellerBankLS_2, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_TELLER_BANK_2, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_tellerBankLS_2, playerid, pDialog[playerid]);
 					}
@@ -8288,7 +8285,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_rumahSakit, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu)).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_RUMAH_SAKIT, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_rumahSakit, playerid, pDialog[playerid]);
 					}
@@ -8332,7 +8329,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_marketPlace_1, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu)).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_MARKETPLACE_1, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_marketPlace_1, playerid, pDialog[playerid]);
 					}
@@ -8371,6 +8368,153 @@ public OnPlayerText(playerid, text[]){
 					}
 				}
 			}
+			else if(areaid == ACT_marketPlace_2_Area){
+				if(ACT_marketPlace_2_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_MARKETPLACE_2".*")){
+						ACT_marketPlace_2_User = playerid;
+						ACT_marketPlace_2_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_marketPlace_2);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_marketPlace_2, pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_MARKETPLACE_2, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_marketPlace_2, playerid, pDialog[playerid]);
+					}
+				}else if(ACT_marketPlace_2_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_marketPlace_2_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\sitem.*")){
+							SetPVarInt(playerid, "halaman", 0);
+							showDialogBeliItemMarketplace(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_2, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(menjual|jual)\\sitem.*")){
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) as jumlah FROM marketplace WHERE id_user = %d", PlayerInfo[playerid][pID]);
+							mysql_tquery(koneksi, pQuery[playerid], "cekJumlahDagangan", "i", playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_2, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(melihat|lihat|mengecek|cek)\\sdagangan.*")){
+							SetPVarInt(playerid, "halaman", 0);
+							showDialogDaganganMarketplace(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_2, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_marketPlace_2_User = INVALID_PLAYER_ID;
+							ACT_marketPlace_2_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_marketPlace_2, pDialog[playerid], 5);
+						}
+					}
+				}
+			}
+			else if(areaid == ACT_marketPlace_3_Area){
+				if(ACT_marketPlace_3_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_MARKETPLACE_3".*")){
+						ACT_marketPlace_3_User = playerid;
+						ACT_marketPlace_3_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_marketPlace_3);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_marketPlace_3, pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_MARKETPLACE_3, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_marketPlace_3, playerid, pDialog[playerid]);
+					}
+				}else if(ACT_marketPlace_3_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_marketPlace_3_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\sitem.*")){
+							SetPVarInt(playerid, "halaman", 0);
+							showDialogBeliItemMarketplace(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_3, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(menjual|jual)\\sitem.*")){
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) as jumlah FROM marketplace WHERE id_user = %d", PlayerInfo[playerid][pID]);
+							mysql_tquery(koneksi, pQuery[playerid], "cekJumlahDagangan", "i", playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_3, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(melihat|lihat|mengecek|cek)\\sdagangan.*")){
+							SetPVarInt(playerid, "halaman", 0);
+							showDialogDaganganMarketplace(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_3, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_marketPlace_3_User = INVALID_PLAYER_ID;
+							ACT_marketPlace_3_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_marketPlace_3, pDialog[playerid], 5);
+						}
+					}
+				}
+			}	
+			else if(areaid == ACT_marketPlace_4_Area){
+				if(ACT_marketPlace_4_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_MARKETPLACE_4".*")){
+						ACT_marketPlace_4_User = playerid;
+						ACT_marketPlace_4_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_marketPlace_4);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_marketPlace_4, pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_MARKETPLACE_4, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_marketPlace_4, playerid, pDialog[playerid]);
+					}
+				}else if(ACT_marketPlace_4_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_marketPlace_4_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\sitem.*")){
+							SetPVarInt(playerid, "halaman", 0);
+							showDialogBeliItemMarketplace(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_4, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(menjual|jual)\\sitem.*")){
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) as jumlah FROM marketplace WHERE id_user = %d", PlayerInfo[playerid][pID]);
+							mysql_tquery(koneksi, pQuery[playerid], "cekJumlahDagangan", "i", playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_4, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(melihat|lihat|mengecek|cek)\\sdagangan.*")){
+							SetPVarInt(playerid, "halaman", 0);
+							showDialogDaganganMarketplace(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_marketPlace_4, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_marketPlace_4_User = INVALID_PLAYER_ID;
+							ACT_marketPlace_4_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_marketPlace_4, pDialog[playerid], 5);
+						}
+					}
+				}
+			}					
 			else if(areaid == ACT_skillBlacksmith_Area){ // Cek Jika berada pada area actor
 				if(ACT_skillBlacksmith_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
 					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_SKILL_BLACKSMITH".*")){
@@ -8467,10 +8611,10 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	}else if(pickupid == PU_tempatFoto_in[1]){
 		pindahkanPemain(playerid, -203.9351, -25.4899, 1002.2734, 330.6535, 16, VW_tempatFoto_2, false);
 		return 1;
-	}else if(pickupid == PU_pusatKeahlian[ENTER_PICKUP]){
-		pindahkanPemain(playerid, 1702.9329, -1667.8872, 20.2188, 269.3456, 18, 1, false);
+	}else if(pickupid == PU_marketPlace[ENTER_PICKUP]){
+		pindahkanPemain(playerid, -2640.2090, 1406.8171, 906.4609, 91.5918, 3, 1, true);
 		return 1;
-	}else if(pickupid == PU_pusatKeahlian[EXIT_PICKUP]){
+	}else if(pickupid == PU_marketPlace[EXIT_PICKUP]){
 		pindahkanPemain(playerid, 1477.4969, -1641.4519, 14.1652, 179.7030, 0, 0, true);
 		return 1;
 	}else if(pickupid == PU_tempatFoto_out){
