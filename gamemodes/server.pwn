@@ -4709,8 +4709,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 2: // Blacksmith
 					{
 						if(!PlayerInfo[playerid][activeBlacksmith]) return server_message(playerid, "Maaf skill blacksmith anda tidak aktif.");
+
+						/**
+							@IMPORTANT :
+								PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN 
+									``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
+								SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
+						*/
 						format(pDialog[playerid], sizePDialog, "Rakit Joran Pancing");
-						if(PlayerInfo[playerid][expBlacksmith] >= LEVEL_SKILL_DUA) strcat(pDialog[playerid], "\nRakit Tombak Ikan");
+						strcat(pDialog[playerid], "\nRakit Tombak Ikan");
 						
 						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_BLACKSMITH, DIALOG_STYLE_LIST, "Skill blacksmith : ", pDialog[playerid], "Pilih", "Batal");
 						return 1;
@@ -6829,24 +6836,24 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_PILIH_SKILL_BLACKSMITH:
 		{
 			if(response){
+				/**
+					@IMPORTANT :
+						PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN 
+							``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
+						SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
+				 */
 				switch(listitem){
 					case 0: // Craft joran pancing
 					{
-						static const barang_barang_blacksmith[2][2] = {
-							{12, 1}, // Perak - 1
-							{25, 1}  // Kayu - 1
-						};
-						// Mungkin butuh barang yang lain
-						cekKetersediaanMassiveItem(playerid, barang_barang_blacksmith, "konfirmasiBuatJoranPancing");
+						SetPVarInt(playerid, "bs_buat_id_item", ID_JORAN_PANCING); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
+						dialogKonfirmasiBuatItemBs(playerid, bahan_joran_pancing);
 					}
 					case 1: // Craft tombak ikan
 					{
-						static const barang_barang_blacksmith[2][2] = {
-							{11, 1}, // Perunggu - 1
-							{25, 1}  // Kayu - 1
-						};
-						// Mungkin butuh barang yang lain
-						cekKetersediaanMassiveItem(playerid, barang_barang_blacksmith, "konfirmasiBuatTombakIkan");
+						SetPVarInt(playerid, "bs_buat_id_item", ID_TOMBAK_IKAN); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
+						dialogKonfirmasiBuatItemBs(playerid, bahan_tombak_ikan);
 					}
 				}
 			}else
@@ -6898,81 +6905,52 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_KONFIRMASI_BUAT_JORAN_PANCING:
+		case DIALOG_KONFIRMASI_BUAT_ITEM:
 		{
-			if(response){
-				tambahItemPlayer(playerid, 12, -1);
-				tambahItemPlayer(playerid, 25, -1);
+			if(response){		
+				new ret = 0;
+				/**
+					@IMPORTANT :
+						PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN INI 
+						SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
+				 */
+				switch(GetPVarInt(playerid, "bs_buat_id_item")){
+					case ID_JORAN_PANCING:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_joran_pancing);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_joran_pancing);i++)
+								tambahItemPlayer(playerid, bahan_joran_pancing[i][0], -bahan_joran_pancing[i][1]);
+						}
+					}
+					case ID_TOMBAK_IKAN:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_tombak_ikan);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_tombak_ikan);i++)
+								tambahItemPlayer(playerid, bahan_tombak_ikan[i][0], -bahan_tombak_ikan[i][1]);
+						}
+					}
+					default:
+						return 1;
+				}
 
-				new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expBlacksmith], 1),
-					rand = random(100) + 1, // Generate random value 1 to 100
-					exp_didapat;
+				if(!ret)
+					return showDialogPesan(playerid, RED"Maaf item tidak cukup", WHITE"Item yang anda butuhkan untuk membuat item, tidak cukup.\nSilahkan kumpulkan item terlebih dahulu untuk dapat melanjutkan.");
 
-				if(rand <= rate_sukses){
-					tambahItemPlayer(playerid, 35, 1); // Beri item
+				// Pinjam timer perbaiki
+				if(PerbaikiTimer[playerid] != -1)
+					DeletePreciseTimer(PerbaikiTimer[playerid]);
+				PerbaikiTimer[playerid] = SetPreciseTimer("progressBuatItemBlacksmith", 1000, true, "i", playerid);
 
-					if(PlayerInfo[playerid][expBlacksmith] < LEVEL_SKILL_DUA) // Jika level exp player adalah lvl 1
-						exp_didapat = EXP_SUKSES_CURR_SKILL;
-					else // Jika level exp player >  1
-						exp_didapat = EXP_SUKSES_DOWN_SKILL;
-
-					tambahExpSkillPlayer(playerid, ID_SKILL_BLACKSMITH, exp_didapat); // 3 adalah id skill blacksmith
-					format(pDialog[playerid], sizePDialog, WHITE"Berhasil membuat joran pancing.\nAnda dapat menggunakan item ini untuk memancing ikan.\n\n"YELLOW"Karena berhasil membuat alat anda mendapatkan %d exp blacksmith.", exp_didapat);
-					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat joran pancing", pDialog[playerid], "Ok", "");
-
-					sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill blacksmith anda saat ini adalah %d.", PlayerInfo[playerid][expBlacksmith]);
-					return 1;
-				}else{
-					if(PlayerInfo[playerid][expBlacksmith] < LEVEL_SKILL_DUA) // Jika level exp player adalah lvl 1
-						exp_didapat = EXP_GAGAL_CURR_SKILL;
-					else // Jika level exp player >  1
-						exp_didapat = EXP_GAGAL_DOWN_SKILL;
-					
-					tambahExpSkillPlayer(playerid, ID_SKILL_BLACKSMITH, exp_didapat); // 3 adalah id skill blacksmith
-					
-					format(pDialog[playerid], sizePDialog, WHITE"Gagal membuat joran pancing.\n\n"YELLOW"Anda mendapatkan %d exp blacksmith.", exp_didapat);
-					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat joran pancing", pDialog[playerid], "Ok", "");
-					return 1;
-				}						
-			}
-			return 1;
-		}
-		case DIALOG_KONFIRMASI_BUAT_TOMBAK_IKAN:
-		{
-			if(response){
-				tambahItemPlayer(playerid, 11, -1);
-				tambahItemPlayer(playerid, 25, -1);
-
-				new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expBlacksmith], 2),
-					rand = random(100) + 1, // Generate random value 1 to 100
-					exp_didapat;
-
-				if(rand <= rate_sukses){
-					tambahItemPlayer(playerid, 36, 1); // Beri item
-
-					if(PlayerInfo[playerid][expBlacksmith] < LEVEL_SKILL_TIGA) // Jika level exp player adalah lvl 2
-						exp_didapat = EXP_SUKSES_CURR_SKILL;
-					else // Jika level exp player >  2
-						exp_didapat = EXP_SUKSES_DOWN_SKILL;
-
-					tambahExpSkillPlayer(playerid, ID_SKILL_BLACKSMITH, exp_didapat); // 3 adalah id skill blacksmith
-					format(pDialog[playerid], sizePDialog, WHITE"Berhasil membuat tombak ikan.\nAnda dapat menggunakan item ini untuk memancing ikan.\n\n"YELLOW"Karena berhasil membuat alat anda mendapatkan %d exp blacksmith.", exp_didapat);
-					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat tombak ikan", pDialog[playerid], "Ok", "");
-
-					sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill blacksmith anda saat ini adalah %d.", PlayerInfo[playerid][expBlacksmith]);
-					return 1;
-				}else{
-					if(PlayerInfo[playerid][expBlacksmith] < LEVEL_SKILL_TIGA) // Jika level exp player adalah lvl 2
-						exp_didapat = EXP_GAGAL_CURR_SKILL;
-					else // Jika level exp player >  2
-						exp_didapat = EXP_GAGAL_DOWN_SKILL;
-					
-					tambahExpSkillPlayer(playerid, ID_SKILL_BLACKSMITH, exp_didapat); // 3 adalah id skill blacksmith
-					
-					format(pDialog[playerid], sizePDialog, WHITE"Gagal membuat tombak ikan.\n\n"YELLOW"Anda mendapatkan %d exp blacksmith.", exp_didapat);
-					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat tombak ikan", pDialog[playerid], "Ok", "");
-					return 1;
-				}						
+				// Pinjam progress bar dari potong pohon
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+				ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+				TogglePlayerControllable(playerid, 0);
+				GameTextForPlayer(playerid, "~w~Sedang ~y~membuat...", 3000, 3);
+				PlayerCraftingMedicine(playerid);
+				PlayerInfo[playerid][isOnAnimation] = true;	
+				PlayerInfo[playerid][isBusy] = true;					
 			}
 			return 1;
 		}

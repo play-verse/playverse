@@ -1228,17 +1228,18 @@ CMD:periksainventory(playerid, params[]){
 CMD:duduk(playerid, params[]){
     if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy])
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
-    PlayerInfo[playerid][isOnAnimation] = true;
     ApplyAnimation(playerid, "PED", "SEAT_DOWN", 4.1, 0, 0, 0, 1, 0, 1);
     return 1;
 }
 
 CMD:berdiri(playerid, params[]){
+    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy])
+        return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
+
     new temp[2][15];
     GetAnimationName(GetPlayerAnimationIndex(playerid), temp[0], 15, temp[1], 15);
     if(!sama(temp[0], "PED") || !sama(temp[1], "SEAT_DOWN"))
         return server_message(playerid, "Anda sedang tidak duduk.");
-    PlayerInfo[playerid][isOnAnimation] = false;
     ApplyAnimation(playerid, "PED", "SEAT_UP", 4.1, 0, 0, 0, 0, 0, 1);
     return 1;
 }

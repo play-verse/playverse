@@ -571,6 +571,23 @@ getRateBerhasilSkill(current_exp, needed_level){
     return ((current_level - needed_level) * 5 >= 20) ? 100 : (current_level - needed_level) * 5 + 80;
 }
 
+getLevelBlacksmithPlayer(playerid){
+    if(PlayerInfo[playerid][expBlacksmith] < BLACKSMITH_LEVEL_SKILL_DUA)
+        return 1;
+    else if(PlayerInfo[playerid][expBlacksmith] < BLACKSMITH_LEVEL_SKILL_TIGA)
+        return 2;
+    else if(PlayerInfo[playerid][expBlacksmith] < BLACKSMITH_LEVEL_SKILL_EMPAT)
+        return 3;
+    else if(PlayerInfo[playerid][expBlacksmith] < BLACKSMITH_LEVEL_SKILL_LIMA)
+        return 4;
+    else if(PlayerInfo[playerid][expBlacksmith] < BLACKSMITH_LEVEL_SKILL_ENAM)
+        return 5;
+    else if(PlayerInfo[playerid][expBlacksmith] >= BLACKSMITH_LEVEL_SKILL_ENAM)
+        return 6;
+    else
+        return 0;
+}
+
 stock IsPointInRangeOfPoint(Float:x, Float:y, Float:z, Float:x2, Float:y2, Float:z2, Float:range){
     x2 -= x;
     y2 -= y;
@@ -1279,3 +1296,11 @@ SendMessageToDutyPolice(warna, const pesan[]){
 #define GetExpMekanikPlayer(%0)             PlayerInfo[%0][expMekanik]
 
 #define IsPlayerInAnyAreaPenjara(%0)        (GetPVarType(%0, "last_area") && (GetPVarInt(%0, "last_area") == AREA_dalamPenjara))
+
+IsItemPlayerCukup_Massive(playerid, const barang_barang[][], banyak_barang = sizeof(barang_barang)){
+    for(new i=0;i<banyak_barang;i++){
+        if(GetJumlahItemPlayer(playerid, barang_barang[i][0]) < barang_barang[i][1])
+            return 0;
+    }
+    return 1;
+}

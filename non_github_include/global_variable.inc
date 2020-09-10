@@ -1538,3 +1538,16 @@ new Iterator:TidakDikenali<MAX_PLAYERS + 1>;
 // Textdraw Photo Mode
 new Text:TextDraw_PhotoMode[8],
     PlayerText:TextDraw_PhotoMode_Nama[MAX_PLAYERS];
+
+/**
+	Bahan-Bahan Blacksmith
+ */
+new const bahan_joran_pancing[][2] = {
+	{12, 1}, // Perak - 1
+	{25, 1}  // Kayu - 1
+};
+
+new const bahan_tombak_ikan[][2] = {
+	{11, 1}, // Perunggu - 1
+	{25, 1}  // Kayu - 1
+};

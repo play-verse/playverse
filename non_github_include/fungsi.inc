@@ -1143,7 +1143,7 @@ publicFor: pakaiTombakIkan(playerid){
 }
 
 publicFor: pakaiJoranPancing(playerid){
-	tambahItemPlayer(playerid, 35, -1);
+	tambahItemPlayer(playerid, ID_JORAN_PANCING, -1);
 	PlayerInfo[playerid][sisaJoran] += 10;
 
 	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item joran pancing"WHITE".");
@@ -2088,6 +2088,53 @@ publicFor: progressBuatObatHerbal(playerid){
 	return 1;
 }
 
+publicFor: progressBuatItemBlacksmith(playerid){
+	if(!IsPlayerConnected(playerid)) {
+		reset_PerbaikiKendaraan(playerid);
+		return 1;
+	}
+
+	new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / CRAFTING_ITEM_TIME;
+	if(value >= MAX_PROGRESS_BAR){		
+		new id_item = GetPVarInt(playerid, "bs_buat_id_item"),
+			needed_level = GetPVarInt(playerid, "bs_buat_needed_level");
+
+		reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
+
+		new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expBlacksmith], needed_level),
+			rand = random(100) + 1, // Generate random value 1 to 100
+			exp_didapat = 0;
+
+		new nama_item[50];
+		getNamaByIdItem(id_item, nama_item);
+		if(rand <= rate_sukses){
+			tambahItemPlayer(playerid, id_item, 1); // Beri item
+
+			sendPesan(playerid, COLOR_GREEN, "[SKILL] "WHITE"Berhasil membuat "YELLOW"%s"WHITE", dengan menggunakan skill blacksmith.", nama_item);
+
+			if(getLevelBlacksmithPlayer(playerid) <= needed_level)
+				exp_didapat = EXP_SUKSES_CURR_SKILL;
+			else
+				exp_didapat = EXP_SUKSES_DOWN_SKILL;
+		}else{
+			sendPesan(playerid, COLOR_RED, "[SKILL] "WHITE"Gagal membuat "YELLOW"%s"WHITE", item yang menjadi bahan terpakai sia-sia.", nama_item);
+
+			if(getLevelBlacksmithPlayer(playerid) <= needed_level) 
+				exp_didapat = EXP_GAGAL_CURR_SKILL;
+			else 
+				exp_didapat = EXP_GAGAL_DOWN_SKILL;
+
+		}					
+		tambahExpSkillPlayer(playerid, ID_SKILL_BLACKSMITH, exp_didapat); // 3 adalah id skill blacksmith	
+
+		sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"Craft Item", exp_didapat);
+		sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill blacksmith anda saat ini adalah %d.", PlayerInfo[playerid][expBlacksmith]);
+	}else{
+		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+	}
+	return 1;
+}
+
 publicFor: progressModifKendaraan(playerid, vehicleid, componentid){
 	if(IsValidVehicle(vehicleid)){
 		new Float:vpos[3], Float:pos[3];
@@ -2427,28 +2474,6 @@ publicFor: konfirmasiPembuatanRekening(playerid, ada){
 		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", "Anda tidak memiliki cukup item yang diperlukan untuk pembuatan rekening.", "Ok", "");
 	}
 	return 1;
-}
-
-publicFor: konfirmasiBuatJoranPancing(playerid, ada){
-	if(ada){
-		new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expBlacksmith], 1);
-
-		format(pDialog[playerid], sizePDialog, WHITE"Anda akan membuat "GREEN"Joran Pancing.\n"WHITE"Rate keberhasilan penggunaan skill ini adalah "YELLOW"%d persen"WHITE".\n\nApakah anda yakin ?", rate_sukses);
-		ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_JORAN_PANCING, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan", pDialog[playerid], "Konfirmasi", "Batal");
-		return 1;
-	}else
-		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item joran pancing.\n\n"YELLOW"Anda membutuhkan 1 Perak dan 1 Kayu.", "Ok", "");
-}
-
-publicFor: konfirmasiBuatTombakIkan(playerid, ada){
-	if(ada){
-		new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expBlacksmith], 2);
-
-		format(pDialog[playerid], sizePDialog, WHITE"Anda akan membuat "GREEN"Tombak Ikan.\n"WHITE"Rate keberhasilan penggunaan skill ini adalah "YELLOW"%d persen"WHITE".\n\nApakah anda yakin ?", rate_sukses);
-		ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_TOMBAK_IKAN, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan", pDialog[playerid], "Konfirmasi", "Batal");
-		return 1;
-	}else
-		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item tombak ikan.\n\n"YELLOW"Anda membutuhkan 1 Perunggu dan 1 Kayu.", "Ok", "");
 }
 
 publicFor: cekSudahBisaAmbilKTP(playerid){

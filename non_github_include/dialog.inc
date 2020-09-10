@@ -489,3 +489,20 @@ showKonfirmasiAmbilGaji(playerid){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(nominal), 0) AS nominal FROM `gaji` WHERE id_user = '%d' AND status = '0'", PlayerInfo[playerid][pID]);
     mysql_tquery(koneksi, pQuery[playerid], "showTotalGaji", "i", playerid);    
 }
+
+dialogKonfirmasiBuatItemBs(playerid, const barang_barang[][], banyak_barang = sizeof(barang_barang)){
+    new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expBlacksmith], GetPVarInt(playerid, "bs_buat_needed_level")),
+        nama_item[50];
+    getNamaByIdItem(GetPVarInt(playerid, "bs_buat_id_item"), nama_item);
+
+    format(pDialog[playerid], sizePDialog, WHITE"Anda akan membuat "GREEN"%s"WHITE". Dengan bahan yang diperlukan:\n\n");
+    for(new i=0;i<banyak_barang; i++){
+        getNamaByIdItem(barang_barang[i][0], nama_item);
+        strcatEx(pDialog[playerid], sizePDialog, "- %s sebanyak %dx\n", nama_item, barang_barang[i][1]);
+    }
+    strcatEx(pDialog[playerid], sizePDialog, WHITE"\n\
+        Rate keberhasilan penggunaan skill ini adalah "YELLOW"%d persen"WHITE".\n\n\
+        Apakah anda yakin ?", rate_sukses);
+    ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_ITEM, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan", pDialog[playerid], "Konfirmasi", "Batal");
+    return 1;
+}
