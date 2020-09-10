@@ -4706,6 +4706,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_MEDIC, DIALOG_STYLE_LIST, "Skill medis : ", pDialog[playerid], "Pilih", "Batal");
 						return 1;
 					}
+					case 2: // Blacksmith
+					{
+						if(!PlayerInfo[playerid][activeBlacksmith]) return server_message(playerid, "Maaf skill blacksmith anda tidak aktif.");
+						format(pDialog[playerid], sizePDialog, "Rakit Joran Pancing");
+						if(PlayerInfo[playerid][expBlacksmith] >= LEVEL_SKILL_DUA) strcat(pDialog[playerid], "\nRakit Tombak Ikan");
+						
+						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_BLACKSMITH, DIALOG_STYLE_LIST, "Skill blacksmith : ", pDialog[playerid], "Pilih", "Batal");
+						return 1;
+					}
 				}
 			}
 			return 1;
@@ -6817,6 +6826,156 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_PILIH_SKILL_BLACKSMITH:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Craft joran pancing
+					{
+						static const barang_barang_blacksmith[2][2] = {
+							{12, 1}, // Perak - 1
+							{25, 1}  // Kayu - 1
+						};
+						// Mungkin butuh barang yang lain
+						cekKetersediaanMassiveItem(playerid, barang_barang_blacksmith, "konfirmasiBuatJoranPancing");
+					}
+					case 1: // Craft tombak ikan
+					{
+						static const barang_barang_blacksmith[2][2] = {
+							{11, 1}, // Perunggu - 1
+							{25, 1}  // Kayu - 1
+						};
+						// Mungkin butuh barang yang lain
+						cekKetersediaanMassiveItem(playerid, barang_barang_blacksmith, "konfirmasiBuatTombakIkan");
+					}
+				}
+			}else
+				cmd_skill(playerid, "");
+			return 1;
+		}
+		case DIALOG_BELI_ALAT_BLACKSMITH:
+		{
+			if(response){
+				SetPVarInt(playerid, "bAlat_index", listitem);
+				ShowPlayerDialog(playerid, DIALOG_JUMLAH_BELI_ALAT_BLACKSMITH, DIALOG_STYLE_INPUT, "Jumlah dibeli", WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_JUMLAH_BELI_ALAT_BLACKSMITH:
+		{
+			if(response){
+				new banyak_barang;
+				if(sscanf(inputtext, "i", banyak_barang)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_BELI_ALAT_BLACKSMITH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Jumlah tidak valid\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+
+				if(banyak_barang < 1 || banyak_barang > 1000) return ShowPlayerDialog(playerid, 				
+				DIALOG_JUMLAH_BELI_ALAT_BLACKSMITH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Jumlah harus berkisar antara 1 hingga 1000.\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+
+				new idx = GetPVarInt(playerid, "bAlat_index");
+
+				if(!CekJikaInventoryPlayerMuat(playerid, MENU_ALAT_BLACKSMITH[idx][idItemAlat], banyak_barang)){
+					return ShowPlayerDialog(playerid, 				
+				DIALOG_JUMLAH_BELI_ALAT_BLACKSMITH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Inventory anda tidak muat untuk menampung item sebanyak itu.\nCek inventory terlebih dahulu.\n\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+				}
+
+				new nama_alat[50];
+				getNamaByIdItem(MENU_ALAT_BLACKSMITH[idx][idItemAlat], nama_alat);
+				
+				SetPVarInt(playerid, "bAlat_jumlah", banyak_barang);
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan membeli "YELLOW"%s "WHITE"sebanyak "YELLOW"%d \n"WHITE"dengan total harga "GREEN"%d"WHITE".\nApakah anda yakin?", nama_alat, banyak_barang, MENU_ALAT_BLACKSMITH[idx][hargaAlat] * banyak_barang);
+				ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_ALAT_BLACKSMITH, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", pDialog[playerid], "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_ALAT_BLACKSMITH:
+		{
+			if(response){
+				new keterangan[50];
+				new idx = GetPVarInt(playerid, "bAlat_index"),
+					nama_alat[50];
+				getNamaByIdItem(MENU_ALAT_BLACKSMITH[idx][idItemAlat], nama_alat);
+				format(keterangan, 50, "beli %s sebanyak %dx", nama_alat, GetPVarInt(playerid, "bAlat_jumlah"));
+				dialogMetodeBayar(playerid, MENU_ALAT_BLACKSMITH[idx][hargaAlat] * GetPVarInt(playerid, "bAlat_jumlah"), "selesaiBayarAlatBlacksmith", keterangan);
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BUAT_JORAN_PANCING:
+		{
+			if(response){
+				tambahItemPlayer(playerid, 12, -1);
+				tambahItemPlayer(playerid, 25, -1);
+
+				new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expBlacksmith], 1),
+					rand = random(100) + 1, // Generate random value 1 to 100
+					exp_didapat;
+
+				if(rand <= rate_sukses){
+					tambahItemPlayer(playerid, 35, 1); // Beri item
+
+					if(PlayerInfo[playerid][expBlacksmith] < LEVEL_SKILL_DUA) // Jika level exp player adalah lvl 1
+						exp_didapat = EXP_SUKSES_CURR_SKILL;
+					else // Jika level exp player >  1
+						exp_didapat = EXP_SUKSES_DOWN_SKILL;
+
+					tambahExpSkillPlayer(playerid, ID_SKILL_BLACKSMITH, exp_didapat); // 3 adalah id skill blacksmith
+					format(pDialog[playerid], sizePDialog, WHITE"Berhasil membuat joran pancing.\nAnda dapat menggunakan item ini untuk memancing ikan.\n\n"YELLOW"Karena berhasil membuat alat anda mendapatkan %d exp blacksmith.", exp_didapat);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat joran pancing", pDialog[playerid], "Ok", "");
+
+					sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill blacksmith anda saat ini adalah %d.", PlayerInfo[playerid][expBlacksmith]);
+					return 1;
+				}else{
+					if(PlayerInfo[playerid][expBlacksmith] < LEVEL_SKILL_DUA) // Jika level exp player adalah lvl 1
+						exp_didapat = EXP_GAGAL_CURR_SKILL;
+					else // Jika level exp player >  1
+						exp_didapat = EXP_GAGAL_DOWN_SKILL;
+					
+					tambahExpSkillPlayer(playerid, ID_SKILL_BLACKSMITH, exp_didapat); // 3 adalah id skill blacksmith
+					
+					format(pDialog[playerid], sizePDialog, WHITE"Gagal membuat joran pancing.\n\n"YELLOW"Anda mendapatkan %d exp blacksmith.", exp_didapat);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat joran pancing", pDialog[playerid], "Ok", "");
+					return 1;
+				}						
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BUAT_TOMBAK_IKAN:
+		{
+			if(response){
+				tambahItemPlayer(playerid, 11, -1);
+				tambahItemPlayer(playerid, 25, -1);
+
+				new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expBlacksmith], 2),
+					rand = random(100) + 1, // Generate random value 1 to 100
+					exp_didapat;
+
+				if(rand <= rate_sukses){
+					tambahItemPlayer(playerid, 36, 1); // Beri item
+
+					if(PlayerInfo[playerid][expBlacksmith] < LEVEL_SKILL_TIGA) // Jika level exp player adalah lvl 2
+						exp_didapat = EXP_SUKSES_CURR_SKILL;
+					else // Jika level exp player >  2
+						exp_didapat = EXP_SUKSES_DOWN_SKILL;
+
+					tambahExpSkillPlayer(playerid, ID_SKILL_BLACKSMITH, exp_didapat); // 3 adalah id skill blacksmith
+					format(pDialog[playerid], sizePDialog, WHITE"Berhasil membuat tombak ikan.\nAnda dapat menggunakan item ini untuk memancing ikan.\n\n"YELLOW"Karena berhasil membuat alat anda mendapatkan %d exp blacksmith.", exp_didapat);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat tombak ikan", pDialog[playerid], "Ok", "");
+
+					sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill blacksmith anda saat ini adalah %d.", PlayerInfo[playerid][expBlacksmith]);
+					return 1;
+				}else{
+					if(PlayerInfo[playerid][expBlacksmith] < LEVEL_SKILL_TIGA) // Jika level exp player adalah lvl 2
+						exp_didapat = EXP_GAGAL_CURR_SKILL;
+					else // Jika level exp player >  2
+						exp_didapat = EXP_GAGAL_DOWN_SKILL;
+					
+					tambahExpSkillPlayer(playerid, ID_SKILL_BLACKSMITH, exp_didapat); // 3 adalah id skill blacksmith
+					
+					format(pDialog[playerid], sizePDialog, WHITE"Gagal membuat tombak ikan.\n\n"YELLOW"Anda mendapatkan %d exp blacksmith.", exp_didapat);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat tombak ikan", pDialog[playerid], "Ok", "");
+					return 1;
+				}						
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -7125,16 +7284,9 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				if(!IsPlayerInAnyVehicle(playerid)){
 					showDialogAmbilMobilReparasi(playerid);
 				}
-			}else if(areaid == AREA_Guide_peralatanPancing){
-				showDialogGuideText(playerid);
-				return 1;
-			}else if(areaid == AREA_Guide_tokoBibit){
-				showDialogGuideText(playerid);
-				return 1;
-			}else if(areaid == AREA_Guide_tokoGadget){
-				showDialogGuideText(playerid);
-				return 1;
-			}else if(areaid == AREA_Guide_penjualDealer){
+			}else if(areaid == AREA_Guide_peralatanPancing || areaid == AREA_Guide_tokoBibit ||
+					areaid == AREA_Guide_tokoGadget || areaid == AREA_Guide_penjualDealer ||
+					areaid == AREA_GuideAhliBlacksmith){
 				showDialogGuideText(playerid);
 				return 1;
 			}
@@ -8363,6 +8515,85 @@ public OnPlayerText(playerid, text[]){
 					}
 				}
 			}					
+			else if(areaid == ACT_skillBlacksmith_Area){ // Cek Jika berada pada area actor
+				if(ACT_skillBlacksmith_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_SKILL_BLACKSMITH".*")){
+						ACT_skillBlacksmith_User = playerid;
+						ACT_skillBlacksmith_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_skillBlacksmith);
+						format(pDialog[playerid], sizePDialog, "Hey %s!\nApa yang kamu perlukan disini?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_skillBlacksmith, pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+						format(pDialog[playerid], sizePDialog, "Hey %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_SKILL_BLACKSMITH, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("bro")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_skillBlacksmith, playerid, pDialog[playerid]);
+					}
+				}else if(ACT_skillBlacksmith_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_skillBlacksmith_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(mengambil|ambil|mengaktifkan|aktifkan)\\sskill\\sblacksmith.*")){
+							if(PlayerInfo[playerid][activeBlacksmith]){
+								format(pDialog[playerid], sizePDialog, "%s kamu telah mengaktifkan skill blacksmith\nKamu hanya dapat mengaktifkan saat belum diaktifkan saja.", PlayerInfo[playerid][pPlayerName]);
+								ActorResetAndProses(ACT_skillBlacksmith, playerid, pDialog[playerid]);
+							}else{
+								static nama_item_forger[50];
+								if(nama_item_forger[0] == '\0')
+									getNamaByIdItem(ID_FORGER_CASE, nama_item_forger);
+								format(pDialog[playerid], sizePDialog, "Oke %s\nKamu akan membutuhkan %s sebanyak %dx\nApakah kamu memilikinya?", PlayerInfo[playerid][pPlayerName], 
+								nama_item_forger,
+								BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_BLACKSMITH);
+								ACT_skillBlacksmith_Res = 1;
+								ActorResponse(ACT_skillBlacksmith, pDialog[playerid]);
+							}
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\sitem.*")){
+							showDialogBeliBlacksmith(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_skillBlacksmith, playerid);
+						}						
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_skillBlacksmith_User = INVALID_PLAYER_ID;
+							ACT_skillBlacksmith_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "%s, saya tidak mengerti\napa yang anda bilang.\n", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_skillBlacksmith, pDialog[playerid], 5);
+						}
+					}
+					else if(ACT_skillBlacksmith_Res == 1){ // Saya ingin mengaktifkan skill blacksmith
+						if(cekPattern(text, "(iya|ya|punya).*")){
+							if(GetJumlahItemPlayer(playerid, ID_FORGER_CASE) >= BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_BLACKSMITH){
+								format(pDialog[playerid], sizePDialog, "%s kamu berhasil mengaktifkan skill blacksmith\nSilahkan latih skill kamu\nsehingga dapat melakukan lebih banyak kemampuan.", PlayerInfo[playerid][pPlayerName]);
+								tambahItemPlayer(playerid, ID_FORGER_CASE, -BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_BLACKSMITH);
+
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
+									INSERT INTO user_skill(id_skill, id_user, exp, is_active)\
+									VALUES(%d, %d, 0, 1) ON DUPLICATE KEY UPDATE is_active = 1\
+								", ID_SKILL_BLACKSMITH, PlayerInfo[playerid][pID]);
+								mysql_tquery(koneksi, pQuery[playerid]);
+								PlayerInfo[playerid][activeBlacksmith] = 1;
+							}else{
+								static nama_item_ult[50];
+								if(nama_item_ult[0] == '\0')
+									getNamaByIdItem(ID_FORGER_CASE, nama_item_ult);
+								format(pDialog[playerid], sizePDialog, "Maaf %s.\nKamu tidak memiliki cukup %s\nSilahkan datang kembali lagi nanti.", PlayerInfo[playerid][pPlayerName], nama_item_ult);
+							}
+							ActorResetAndProses(ACT_skillBlacksmith, playerid, pDialog[playerid]);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_skillBlacksmith_User = INVALID_PLAYER_ID;
+							ACT_skillBlacksmith_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "%s, saya tidak mengerti\napa yang anda bilang.\n", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_skillBlacksmith, pDialog[playerid], 5);
+						}
+					}
+
+				}
+			}
 		}
 	}
 
@@ -8489,6 +8720,10 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		pindahkanPemain(playerid, 2398.0542, -1506.9365, 1402.2000, 267.2652, 1, VW_tambangInterior, true);
 	}else if(pickupid == PU_tambangBesi[EXIT_PICKUP]){
 		pindahkanPemain(playerid, -688.4846, 2372.3027, 129.6614, 87.0446, 0, 0, true);
+	}else if(pickupid == PU_tempatBlacksmith[ENTER_PICKUP]){
+		pindahkanPemain(playerid, 699.5331, -448.1602, -25.6180, 180.3815, 1, 1, true);
+	}else if(pickupid == PU_tempatBlacksmith[EXIT_PICKUP]){
+		pindahkanPemain(playerid, 1720.2979, -1739.0155, 13.5469, 1.1047, 0, 0, true);
 	}
 	return 1;
 }

@@ -263,6 +263,8 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][activeMekanik] = 0;
 	PlayerInfo[playerid][expMedic] = 0;
 	PlayerInfo[playerid][activeMedic] = 0;
+	PlayerInfo[playerid][expBlacksmith] = 0;
+	PlayerInfo[playerid][activeBlacksmith] = 0;
 
 	PlayerInfo[playerid][levelMedic] = 0;
 	PlayerInfo[playerid][levelPolice] = 0;
@@ -352,6 +354,12 @@ loadPlayerSkill(playerid){
 					{
 						PlayerInfo[playerid][expMedic] = exp_skill;
 						PlayerInfo[playerid][activeMedic] = is_active;
+						break;
+					}
+					case 3: // Blacksmith
+					{
+						PlayerInfo[playerid][expBlacksmith] = exp_skill;
+						PlayerInfo[playerid][activeBlacksmith] = is_active;
 						break;
 					}
 				}
@@ -925,6 +933,11 @@ publicFor: tambahExpSkillPlayer(playerid, skillid, jumlah){
 		{
 			PlayerInfo[playerid][expMedic] += jumlah;
 		}
+		case ID_SKILL_BLACKSMITH: // Blacksmith
+		{
+			PlayerInfo[playerid][expBlacksmith] += jumlah;
+		}
+		
 	}
 
 	// Pakai trigger procedure
@@ -1299,6 +1312,17 @@ publicFor: selesaiBayarItemMedis(playerid){
 
 	format(pDialog[playerid], sizePDialog, WHITE"Anda telah berhasil membeli "GREEN"%s"WHITE" sebanyak %dx.\nDengan harga "GREEN"$%d\n"YELLOW"Silahkan cek inventory kamu.", nama_alat, GetPVarInt(playerid, "bItem_jumlah"), MENU_BELI_ITEM_MEDIS[idx][hargaItemMarket] * GetPVarInt(playerid, "bItem_jumlah"));
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli item medis", pDialog[playerid], "Ok", "");
+	return 1;
+}
+
+publicFor: selesaiBayarAlatBlacksmith(playerid){
+	new idx = GetPVarInt(playerid, "bAlat_index"),
+		nama_alat[50];
+	getNamaByIdItem(MENU_ALAT_BLACKSMITH[idx][idItemAlat], nama_alat);
+	tambahItemPlayer(playerid, MENU_ALAT_BLACKSMITH[idx][idItemAlat], GetPVarInt(playerid, "bAlat_jumlah"));
+
+	format(pDialog[playerid], sizePDialog, WHITE"Anda telah berhasil membeli "GREEN"%s"WHITE" sebanyak %dx.\nDengan harga "GREEN"$%d\n"YELLOW"Silahkan cek inventory kamu.", nama_alat, GetPVarInt(playerid, "bAlat_jumlah"), MENU_ALAT_BLACKSMITH[idx][hargaAlat] * GetPVarInt(playerid, "bAlat_jumlah"));
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli alat blacksmith", pDialog[playerid], "Ok", "");
 	return 1;
 }
 
@@ -2403,6 +2427,28 @@ publicFor: konfirmasiPembuatanRekening(playerid, ada){
 		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", "Anda tidak memiliki cukup item yang diperlukan untuk pembuatan rekening.", "Ok", "");
 	}
 	return 1;
+}
+
+publicFor: konfirmasiBuatJoranPancing(playerid, ada){
+	if(ada){
+		new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expBlacksmith], 1);
+
+		format(pDialog[playerid], sizePDialog, WHITE"Anda akan membuat "GREEN"Joran Pancing.\n"WHITE"Rate keberhasilan penggunaan skill ini adalah "YELLOW"%d persen"WHITE".\n\nApakah anda yakin ?", rate_sukses);
+		ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_JORAN_PANCING, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan", pDialog[playerid], "Konfirmasi", "Batal");
+		return 1;
+	}else
+		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item joran pancing.\n\n"YELLOW"Anda membutuhkan 1 Perak dan 1 Kayu.", "Ok", "");
+}
+
+publicFor: konfirmasiBuatTombakIkan(playerid, ada){
+	if(ada){
+		new rate_sukses = getRateBerhasilSkill(PlayerInfo[playerid][expBlacksmith], 2);
+
+		format(pDialog[playerid], sizePDialog, WHITE"Anda akan membuat "GREEN"Tombak Ikan.\n"WHITE"Rate keberhasilan penggunaan skill ini adalah "YELLOW"%d persen"WHITE".\n\nApakah anda yakin ?", rate_sukses);
+		ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_TOMBAK_IKAN, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan", pDialog[playerid], "Konfirmasi", "Batal");
+		return 1;
+	}else
+		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item tombak ikan.\n\n"YELLOW"Anda membutuhkan 1 Perunggu dan 1 Kayu.", "Ok", "");
 }
 
 publicFor: cekSudahBisaAmbilKTP(playerid){
@@ -4595,6 +4641,14 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_marketPlace_4_Res = 0;
 		ACT_marketPlace_4_Timer = -1;
+	}else if(actorid == ACT_skillBlacksmith){
+		UpdateDynamic3DTextLabelText(ACT_skillBlacksmith_Text, COLOR_WHITE, "");
+		if(ACT_skillBlacksmith_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_skillBlacksmith_User, "interaksi_actor", -1);
+			ACT_skillBlacksmith_User = INVALID_PLAYER_ID;
+		}
+		ACT_skillBlacksmith_Res = 0;
+		ACT_skillBlacksmith_Timer = -1;
 	}
 	return 1;
 }
@@ -4628,6 +4682,8 @@ TerminateInteraksi_Alt(actorid){
 		DeletePreciseTimer(ACT_marketPlace_3_Timer);
 	else if(actorid == ACT_marketPlace_4 && ACT_marketPlace_4_Timer != -1)
 		DeletePreciseTimer(ACT_marketPlace_4_Timer);
+	else if(actorid == ACT_skillBlacksmith && ACT_skillBlacksmith_Timer != -1)
+		DeletePreciseTimer(ACT_skillBlacksmith_Timer);
 	TerminateInteraksi(actorid);
 }
 

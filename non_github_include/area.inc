@@ -99,12 +99,12 @@ loadAllArea(){
      */
     ACT_resepsionisPemerintah_Area = CreateDynamicSphere(ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], 3.0);
     ACT_skillMekanik_Area = CreateDynamicSphere(ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2], 3.0);
+    ACT_skillBlacksmith_Area = CreateDynamicSphere(ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2], 3.0);
     ACT_peralatanPancing_Area = CreateDynamicSphere(ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2], 3.0);
     ACT_tokoBibit_Area = CreateDynamicSphere(ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2], 3.0);
     ACT_tokoGadget_Area = CreateDynamicSphere(ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], 3.0);
     ACT_penjualDealer_Area = CreateDynamicSphere(ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], 3.0);
 
-    
     ACT_tellerBankLS_1_Area = CreateDynamicSphere(ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1], ACT_tellerBankLS_1_Pos[2], 3.0);
     ACT_tellerBankLS_2_Area = CreateDynamicSphere(ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1], ACT_tellerBankLS_2_Pos[2], 3.0);
 

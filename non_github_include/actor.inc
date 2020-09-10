@@ -43,7 +43,6 @@ loadAllActor(){
     // Bubble Chat Actor
     ACT_rumahSakit_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_rumahSakit_Pos[0], ACT_rumahSakit_Pos[1], ACT_rumahSakit_Pos[2] + 1.25, 10.0);
 
-
     // Actor di marketplace
     ACT_marketPlace_1 = CreateDynamicActor(141, ACT_marketPlace_1_Pos[0], ACT_marketPlace_1_Pos[1], ACT_marketPlace_1_Pos[2], ACT_marketPlace_1_Pos[3], .worldid = 1, .interiorid = 3);
     // Bubble Chat Actor
@@ -61,6 +60,10 @@ loadAllActor(){
     // Bubble Chat Actor
     ACT_marketPlace_4_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_marketPlace_4_Pos[0], ACT_marketPlace_4_Pos[1], ACT_marketPlace_4_Pos[2] + 1.25, 10.0);
 
+    // Actor di pandai besi
+    ACT_skillBlacksmith = CreateDynamicActor(151, ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2], ACT_skillBlacksmith_Pos[3], .worldid = 1, .interiorid = 1);
+    // Bubble Chat Actor
+    ACT_skillBlacksmith_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2] + 1.25, 10.0, .testlos = 1);
 }
 
 re_loadAllActor(){
@@ -80,6 +83,7 @@ re_loadAllActor(){
         if(IsValidDynamicActor(ACT_marketPlace_2)) DestroyDynamicActor(ACT_marketPlace_2);
         if(IsValidDynamicActor(ACT_marketPlace_3)) DestroyDynamicActor(ACT_marketPlace_3);
         if(IsValidDynamicActor(ACT_marketPlace_4)) DestroyDynamicActor(ACT_marketPlace_4);
+        if(IsValidDynamicActor(ACT_skillBlacksmith)) DestroyDynamicActor(ACT_skillBlacksmith);
 
         ACT__reload = 0;
         // Actor di toko peraltan pancing
@@ -120,5 +124,8 @@ re_loadAllActor(){
         ACT_marketPlace_3 = CreateDynamicActor(141, ACT_marketPlace_3_Pos[0], ACT_marketPlace_3_Pos[1], ACT_marketPlace_3_Pos[2], ACT_marketPlace_3_Pos[3], .worldid = 1, .interiorid = 3);
 
         ACT_marketPlace_4 = CreateDynamicActor(141, ACT_marketPlace_4_Pos[0], ACT_marketPlace_4_Pos[1], ACT_marketPlace_4_Pos[2], ACT_marketPlace_4_Pos[3], .worldid = 1, .interiorid = 3);
+    
+        // Actor di pandai besi
+        ACT_skillBlacksmith = CreateDynamicActor(151, ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2], ACT_skillBlacksmith_Pos[3], .worldid = 1, .interiorid = 1);
     }
 }

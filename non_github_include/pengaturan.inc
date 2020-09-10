@@ -15,7 +15,7 @@
 							7. Harus menaati peraturan roleplay yang berlaku.\n\
 							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
 
-#define MAX_SERVER_ITEM 61 // Diatur sesuai dengan banyak data didatabase 
+#define MAX_SERVER_ITEM 62 // Diatur sesuai dengan banyak data didatabase 
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -85,6 +85,7 @@
  // Dalam satuan detik
 #define LAMA_BATAS_RESPON_RESEPSIONIS 15
 #define LAMA_BATAS_RESPON_PENJUAL 15
+#define LAMA_BATAS_RESPON_AHLI 15
 
 #define LAMA_MENUNGGU_SAAT_SEKARAT 300
 
@@ -128,12 +129,14 @@
 #define BORGOL_ATTACH_INDEX 4
 
 #define BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK 1
+#define BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_BLACKSMITH 1
 
 /**
 	Skill Definition
  */
 #define ID_SKILL_MEKANIK 1
 #define ID_SKILL_MEDIC 2
+#define ID_SKILL_BLACKSMITH 3
 
 /*
 	LEVEL EXP:
@@ -409,6 +412,12 @@
 #define DIALOG_PILIH_DAGANGAN_MARKETPLACE 231
 #define DIALOG_KONFIRMASI_PENARIKAN_DAGANGAN 232
 #define DIALOG_KONFIRMASI_HASIL_DAGANGAN 233
+#define DIALOG_PILIH_SKILL_BLACKSMITH 234
+#define DIALOG_BELI_ALAT_BLACKSMITH 235
+#define DIALOG_JUMLAH_BELI_ALAT_BLACKSMITH 236
+#define DIALOG_KONFIRMASI_ALAT_BLACKSMITH 237
+#define DIALOG_KONFIRMASI_BUAT_JORAN_PANCING 238
+#define DIALOG_KONFIRMASI_BUAT_TOMBAK_IKAN 239
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DI DALAM INTERIOR
@@ -577,6 +586,7 @@
 #define ID_GANJOS    		34
 #define ID_BUBUK_HERBAL    	52
 #define ID_OBAT_HERBAL    	53
+#define ID_FORGER_CASE		62
 /*
  * End Defining Constant for ID item
  */
@@ -598,6 +608,7 @@
 #define NAMA_ACTOR_MARKETPLACE_2	"alexa"
 #define NAMA_ACTOR_MARKETPLACE_3	"ryu"
 #define NAMA_ACTOR_MARKETPLACE_4	"roxy"
+#define NAMA_ACTOR_SKILL_BLACKSMITH	"devi"
 
 /**
 	Jenis Tagihan
