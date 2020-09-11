@@ -7916,7 +7916,7 @@ public OnPlayerText(playerid, text[]){
 						}
 					}
 					else if(ACT_skillMekanik_Res == 1){ // Saya ingin mengaktifkan skill mekanik
-						if(cekPattern(text, "(iya|ya|punya).*")){
+						if(cekPattern(text, "(iya|ya|punya)[\\s\\S]*")){
 							if(GetJumlahItemPlayer(playerid, ID_ULTIMATE_PART) >= BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK){
 								format(pDialog[playerid], sizePDialog, "%s kamu berhasil mengaktifkan skill mekanik\nSilahkan latih skill kamu\nsehingga dapat melakukan lebih banyak kemampuan.", PlayerInfo[playerid][pPlayerName]);
 								tambahItemPlayer(playerid, ID_ULTIMATE_PART, -BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK);
@@ -8503,7 +8503,7 @@ public OnPlayerText(playerid, text[]){
 						format(pDialog[playerid], sizePDialog, "Hey %s!\nApa yang kamu perlukan disini?", PlayerInfo[playerid][pPlayerName]);
 						ActorResponse(ACT_skillBlacksmith, pDialog[playerid]);
 					}
-					else if(cekPattern(text, ".*siapa\\snama(\\skamu|mu).*")){
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
 						format(pDialog[playerid], sizePDialog, "Hey %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_SKILL_BLACKSMITH, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("bro")), PlayerInfo[playerid][pPlayerName]);
 						ActorResetAndProses(ACT_skillBlacksmith, playerid, pDialog[playerid]);
 					}
@@ -8541,7 +8541,7 @@ public OnPlayerText(playerid, text[]){
 						}
 					}
 					else if(ACT_skillBlacksmith_Res == 1){ // Saya ingin mengaktifkan skill blacksmith
-						if(cekPattern(text, "(iya|ya|punya).*")){
+						if(cekPattern(text, "(iya|ya|punya)[\\s\\S]*")){
 							if(GetJumlahItemPlayer(playerid, ID_FORGER_CASE) >= BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_BLACKSMITH){
 								format(pDialog[playerid], sizePDialog, "%s kamu berhasil mengaktifkan skill blacksmith\nSilahkan latih skill kamu\nsehingga dapat melakukan lebih banyak kemampuan.", PlayerInfo[playerid][pPlayerName]);
 								tambahItemPlayer(playerid, ID_FORGER_CASE, -BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_BLACKSMITH);
