@@ -28,6 +28,8 @@ enum pInfo
     jenisKelamin, // 0 - Laki , 1 - Perempuan
     limitItem, // Menyimpan limit dari inventory
 
+	levelAdmin,
+
 	// Skill EXP
 	expMekanik,
 	activeMekanik,

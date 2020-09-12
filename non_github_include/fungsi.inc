@@ -30,6 +30,8 @@ publicFor: isRegistered(playerid)
 
 		cache_get_value_name_int(0, "jenis_kelamin", PlayerInfo[playerid][jenisKelamin]);
 
+		cache_get_value_name_int(0, "admin_level", PlayerInfo[playerid][levelAdmin]);
+
 		// Equiped phone
 		cache_get_value_name_int(0, "use_phone", PlayerInfo[playerid][ePhone]);
 		cache_get_value_name_int(0, "save_house", PlayerInfo[playerid][sHouse]);
@@ -213,6 +215,7 @@ resetPlayerVariable(playerid, dari_callback){
     PlayerInfo[playerid][ePhone] = 0;
     PlayerInfo[playerid][nomorHP][0] = EOS;
     PlayerInfo[playerid][masaAktifNomor] = 0;
+	PlayerInfo[playerid][levelAdmin] = 0;
 	
     PlayerInfo[playerid][nomorRekening][0] = EOS;
 
@@ -416,6 +419,12 @@ spawnPemain(playerid, dari_callback = 0)
 	new house_Id = PlayerInfo[playerid][sHouse];
 	EnableHealthBarForPlayer(playerid, true);
 
+	// Instant respawn
+	if(PlayerInfo[playerid][inDie] == 1){
+		dari_callback = 1;
+		PlayerInfo[playerid][inDie] = 0;
+	}
+
 	// Tampilkan hanya jika settingan hidup
 	if(PlayerInfo[playerid][tampilHUDStats]) tampilkanHUDStats(playerid);
 
@@ -478,9 +487,9 @@ spawnPemain(playerid, dari_callback = 0)
 			TogglePlayerControllable(playerid, 0);
 			SetPreciseTimer("GantiSkinSaatSpawn", 2000, false, "i", playerid);
 
-			if(PlayerInfo[playerid][lastHp] > 0) {
+			if(PlayerInfo[playerid][lastHp] > 0.0) {
 				SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
-				if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+				if(PlayerInfo[playerid][lastArmour] > 0.0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 			}
 			
 			PlayerInfo[playerid][lastHp] = 0;
@@ -1263,6 +1272,15 @@ publicFor: selesaiPenarikanDagangan(playerid){
 		Dagangan yang telah ditarik tidak akan tampil lagi di marketplace.", nama_item,
 		GetPVarInt(playerid, "mpg_jumlah"));
 	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Berhasil menarik dagangan", pDialog[playerid], "Tutup", "");
+	return 1;
+}
+
+publicFor: selesaiCekUnban(playerid, const nama_user[]){
+	if(cache_affected_rows()){
+		sendPesan(playerid, COLOR_GREEN, TAG_ADMIN" "WHITE"Pemain dengan nama %s berhasil di unbanned.", nama_user);
+	}else{
+		sendPesan(playerid, COLOR_RED, TAG_ADMIN" "WHITE"Pemain dengan nama %s tidak ditemukan dalam daftar banned.", nama_user);
+	}
 	return 1;
 }
 

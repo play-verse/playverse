@@ -1,7 +1,7 @@
 /**
     Macro Function 
  */
-#define PlayerTalking(%0)               ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 1000, 1)
+#define PlayerTalking(%0)               ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 0, 0, 0, 2000, 1)
 #define ActorTalking(%0)                ApplyDynamicActorAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 0)
 #define PlayerGivesAnimation(%0)        ApplyAnimation(%0, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1)
 #define PlayerTakesAnimation(%0)        ApplyAnimation(%0, "CASINO", "SLOT_PLYR", 4.1, 0, 1, 1, 0, 2000, 1)
@@ -1292,6 +1292,15 @@ SendMessageToDutyPolice(warna, const pesan[]){
     return ret;
 }
 
+SendMessageToDutyMedic(warna, const pesan[]){
+    new ret = 0;
+    foreach(new i : Player){
+        if(IsPlayerOnDutyMedic(i))
+            SendClientMessage(i, warna, pesan), ret++;
+    }
+    return ret;
+}
+
 #define GetExpMedicPlayer(%0)               PlayerInfo[%0][expMedic]
 #define GetExpMekanikPlayer(%0)             PlayerInfo[%0][expMekanik]
 
@@ -1303,4 +1312,23 @@ IsItemPlayerCukup_Massive(playerid, const barang_barang[][], banyak_barang = siz
             return 0;
     }
     return 1;
+}
+
+#define GetLevelAdminPlayer(%0)             PlayerInfo[%0][levelAdmin]
+
+/**
+    Playerid untuk mengecek apakah dia menginput id sendiri
+
+*/
+// Tipe Aktif - Player yang menjadi target, sudah spawn, sudah login, dan tidak sedang sekarat
+#define TIPE_TARGET_AKTIF        0
+// Tipe Aktif - Player yang menjadi target, sudah spawn, sudah login, dan "bisa saja" sedang sekarat (tidak harus sekarat)
+#define TIPE_TARGET_ALLOW_SEKARAT      1
+IsInvalidTargetId(target_id, playerid, type = TIPE_TARGET_AKTIF){
+    if(type == TIPE_TARGET_AKTIF){
+        return (!IsPlayerConnected(target_id) || playerid == target_id || !PlayerInfo[target_id][sudahSpawn] || !PlayerInfo[target_id][sudahLogin] || PlayerInfo[target_id][inDie] > 0);
+    }else if(type == TIPE_TARGET_ALLOW_SEKARAT){
+        return (!IsPlayerConnected(target_id) || playerid == target_id || !PlayerInfo[target_id][sudahSpawn] || !PlayerInfo[target_id][sudahLogin]);
+    }
+    return 0;
 }

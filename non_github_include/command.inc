@@ -1,6 +1,11 @@
+/**
+    Admin Command
+*/
 CMD:kick(playerid, params[]){
+    // Jika level admin < 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
 	new target_id, pesan[256];
-    if(!IsPlayerAdmin(playerid)) return error_command(playerid, "Anda tidak dapat menggunakan perintah ini!");
 	if(sscanf(params, "us[256]", target_id, pesan)) return error_syntax(playerid, "/kick [playerid] [pesan]");
     if(!IsPlayerConnected(target_id)) return  error_command(playerid, "Player dengan id tersebut tidak ada!");
     if(target_id == playerid) return  error_command(playerid, "Tidak dapat mengusir diri sendiri!");
@@ -14,73 +19,30 @@ CMD:kick(playerid, params[]){
 	return 1;
 }
 
-CMD:bc(playerid, params[]){
-    new pesan[256];
-    if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
-    if(!IsPemainPunyaNomorAktif(playerid)) return error_command(playerid, "Maaf anda harus memiliki nomor hp yang aktif untuk dapat menggunakan fitur ini.");
-	if(sscanf(params, "s[256]", pesan)) return error_syntax(playerid, "/bc [pesan]");
-    if(gettime() - PlayerInfo[playerid][lastGlobalChat] < (2 * 60)){
-        format(msg, sizeof(msg), "Anda hanya dapat mengirim pesan broadcast 2 menit sekali, anda harus menunggu %d detik lagi!", 2 * 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
-        return error_command(playerid, msg);
-    }
-    format(msg, sizeof(msg), "**[BROADCAST] ("BLUE"+%s"WHITE") : %s", PlayerInfo[playerid][nomorHP], pesan);
-    SendClientMessageToAll(COLOR_WHITE, msg);
-    PlayerInfo[playerid][lastGlobalChat] = gettime();
-    return 1;
-}
+CMD:jetpack(playerid, params[]){    
+    // Jika level admin < 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
 
-CMD:settings(playerid, params[]){
-    format(pDialog[playerid], sizePDialog, "%s HUD Status\n", ((PlayerInfo[playerid][tampilHUDStats]) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
-    strcatEx(pDialog[playerid], sizePDialog, "%s Speedo Kendaraan\n", ((PlayerInfo[playerid][tampilSpeedo]) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
-    strcatEx(pDialog[playerid], sizePDialog, "%s Mode Foto\n", ((PlayerInfo[playerid][photoMode]) ? (RED"Matikan") : (GREEN"Aktifkan")));
-    strcatEx(pDialog[playerid], sizePDialog, "%s Tanggal dan Waktu\n", ((PlayerInfo[playerid][tampilJam]) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));    
-    ShowPlayerDialog(playerid, DIALOG_PENGATURAN, DIALOG_STYLE_LIST, "Pilihan pengaturan : ", pDialog[playerid], "Pilih", "Batal");
-    return 1;
-}
-
-CMD:jetpack(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
     SetPlayerSpecialAction(playerid, 2);
     return 1;
 }
 
 CMD:spawn(playerid, params[]){
+    // Jika level admin < 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
     new target_id;
-    if(!IsPlayerAdmin(playerid)) return 0;
 	if(sscanf(params, "u", target_id)) return error_syntax(playerid, "/spawn [playerid]");
+    SendClientMessage(target_id, COLOR_BLUE, TAG_ADMIN" "WHITE"Anda telah dispawn ulang oleh admin.");
     SpawnPlayer(target_id);
     return 1;
 }
 
-CMD:inventory(playerid, const params[]){
-    if(PlayerInfo[playerid][isBusy]) return SendClientMessage(playerid, COLOR_RED, TAG_SIBUK" "WHITE"Tidak dapat membuka inventory sekarang, anda sedang melakukan hal lain.");
-    showDialogMenuInventory(playerid);
-    return 1;
-}
-
-CMD:inv(playerid, params[]){
-    cmd_inventory(playerid, "");
-    return 1;
-}
-
-CMD:beliskin(playerid, params[]){    
-    if(!IsPlayerAdmin(playerid)) return 0;
-    new subString[16];
-    new len = ((PlayerInfo[playerid][jenisKelamin] == 0) ? sizeof(SKIN_MALE_GRATIS) : sizeof(SKIN_FEMALE_GRATIS));
-    new string[500];
-
-    for (new i = 0; i < len; i++) {
-        format(subString, sizeof(subString), "%i\n", PlayerInfo[playerid][jenisKelamin] == 0 ? SKIN_MALE_GRATIS[i] : SKIN_FEMALE_GRATIS[i]);
-        strcat(string, subString);
-    } 
-
-    ShowPlayerDialog(playerid, DIALOG_BELI_SKIN, DIALOG_STYLE_PREVIEW_MODEL, "Pilih skin yang anda inginkan", string, "Pilih", "Keluar");
-    return 1;
-}
-
 CMD:pindahpos(playerid, params[]){
+    // Jika level admin < 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+    
     new Float:x, Float:y, Float:z, Float:a, int, vw;
-    if(!IsPlayerAdmin(playerid)) return 0;
     if(sscanf(params, "ffffdd", x, y, z, a, int, vw)) return error_syntax(playerid, "/pindahpos [x] [y] [z] [a] [int] [vw]");
 
     pindahkanPemain(playerid, x, y, z, a, int, vw, true);	
@@ -88,13 +50,30 @@ CMD:pindahpos(playerid, params[]){
 }
 
 CMD:aveh(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
+    // Jika level admin < 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
+
     showDialogAdminVehicle(playerid);
     return 1;
 }
 
+CMD:ach(playerid, params[]){
+    // Jika level admin < 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;    
+
+    new pesan[144];
+	if(sscanf(params, "s[144]", pesan)) return error_syntax(playerid, "/ach [text]");
+    format(pesan, sizeof(pesan), "Achat "WHITE"%s(%d): %s", PlayerInfo[playerid][pPlayerName], playerid, pesan);
+
+    foreach(new i : Player){
+        if(GetLevelAdminPlayer(i) > 0) SendClientMessage(i, COLOR_RED, pesan);
+    }
+    return 1;
+}
+
 CMD:giveitem(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     new subString[45];
     static string[MAX_SERVER_ITEM * 45];
@@ -122,11 +101,359 @@ CMD:giveitem(playerid, params[]){
 }
 
 CMD:givemoney(playerid, params[]){
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
+
     new amount, target_id;
-    if(!IsPlayerAdmin(playerid)) return 0;
-    if(sscanf(params, "ud", target_id, amount)) return error_syntax(playerid, "/givemoney [id] [jumlah]");
+    if(sscanf(params, "ud", target_id, amount)) 
+        return error_syntax(playerid, "/givemoney [id] [jumlah]");
+    if(!IsPlayerConnected(target_id) || !PlayerInfo[target_id][sudahLogin])
+        return error_command(playerid, "Player yang dimaksud tidak terkoneksi/belum login.");
+
+    sendPesan(playerid, COLOR_BLUE, TAG_ADMIN" "WHITE"Berhasil memberi uang sebesar "GREEN"$%d "WHITE"kepada %s.", amount, PlayerInfo[target_id][pPlayerName]);
+    
+    sendPesan(target_id, COLOR_BLUE, TAG_ADMIN" "WHITE"Admin telah memberi anda uang sebesar "GREEN"$%d", amount);
     givePlayerUang(target_id, amount);
     return 1;
+}
+
+CMD:slap(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new target_id;
+    if(sscanf(params, "u", target_id)) return error_syntax(playerid, "/slap [playerid]");
+    if(!IsPlayerConnected(target_id) || !PlayerInfo[target_id][sudahSpawn]) return error_command(playerid, "Player yang dituju tidak ada!");
+
+    new Float:pos[3];
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    SetPlayerPos(target_id, pos[0], pos[1], pos[2] + 4);
+    PlayerPlaySound(target_id, 1130, pos[0], pos[1], pos[2] + 4);
+
+    sendPesan(playerid, COLOR_BLUE, TAG_ADMIN" "WHITE"Anda telah men-slap %s.", PlayerInfo[target_id][pPlayerName]);
+    SendClientMessage(target_id, COLOR_BLUE, TAG_ADMIN" "WHITE"Anda telah di slap oleh admin.");
+    return 1;
+}
+
+CMD:apapan(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    showDialogAdminPapan(playerid);
+    return 1;
+}
+
+CMD:arumah(playerid, params[]){
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
+
+    if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+    ShowPlayerDialog(playerid, DIALOG_ADMIN_RUMAH, DIALOG_STYLE_LIST, WHITE"House Sytem :", "Buat Rumah\nReset Rumah\nHapus Rumah", "Pilih", "Batal");
+    return 1;
+}
+
+CMD:alumber(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    ShowPlayerDialog(playerid, DIALOG_LUMBER_ADMIN, DIALOG_STYLE_LIST, WHITE"Lumberjack System :", "Buat Pohon\nEdit Pohon\nReset Pohon\nHapus Pohon", "Pilih", "Batal");
+    return 1;
+}
+
+CMD:aatm(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM, DIALOG_STYLE_LIST, "Menu admin untuk ATM :", "Buat ATM\nEdit ATM\nHapus ATM", "Pilih", "Batal");    
+    return 1;
+}
+
+CMD:aactor(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    ShowPlayerDialog(playerid, DIALOG_ADMIN_ACTOR, DIALOG_STYLE_LIST, "Menu admin untuk Actor :", "Respawn Actor", "Pilih", "Batal");    
+    return 1;
+}
+
+CMD:setadmin(playerid, params[]){
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2 || !IsPlayerAdmin(playerid)) return 0;
+
+    new target_id, level_admin;
+    if(sscanf(params, "ui", target_id, level_admin)) return error_syntax(playerid, "/setadmin [id pemain] [level]");
+    if(!IsPlayerConnected(target_id) || !PlayerInfo[target_id][sudahLogin] || !PlayerInfo[target_id][sudahSpawn])
+        return error_command(playerid, "Id pemain tidak valid.");
+
+    if(level_admin < 0 || level_admin > 2)
+        return error_command(playerid, "Invalid level admin, hanya bisa memasukan 0 - 2.");
+
+    PlayerInfo[target_id][levelAdmin] = level_admin;
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET admin_level = %d WHERE id = %d", level_admin, PlayerInfo[target_id][pID]);
+    mysql_tquery(koneksi, pQuery[playerid]);
+    
+    sendPesan(target_id, COLOR_BLUE, TAG_ADMIN" "WHITE"Level admin anda telah diset menjadi "ORANGE"%d "WHITE"oleh %s.", level_admin, PlayerInfo[playerid][pPlayerName]);
+    sendPesan(playerid, COLOR_GREEN, TAG_ADMIN" "WHITE"Berhasil mengganti level admin %s menjadi "ORANGE"%d "WHITE".", PlayerInfo[target_id][pPlayerName], level_admin);
+    return 1;
+}
+
+CMD:unban(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new username_pemain[MAX_PLAYER_NAME + 1];
+    if(sscanf(params, "s[25]", username_pemain)) 
+        return error_syntax(playerid, "/unban [username]");
+
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE a FROM user_blocked a INNER JOIN `user` b ON b.id = a.id_user WHERE b.nama = '%e' AND a.jenis_block = 2", username_pemain);
+    mysql_tquery(koneksi, pQuery[playerid], "selesaiCekUnban", "is", playerid, username_pemain);
+    return 1;
+}
+
+CMD:ban(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new target_id, text_temporary[10], lama_hari, status_temp = 0, alasan[50];
+    if(sscanf(params, "us[10]s[50]I(1)", target_id, text_temporary, alasan, lama_hari)) return error_syntax(playerid, "/ban [id] [permanent/temporary] [alasan] [banyak hari (jika temporary)]");
+
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Player tidak ada.");
+
+    if(sama("permanent", text_temporary)) status_temp = -1;    
+    else if(sama("temporary", text_temporary)) status_temp = 1;
+    
+    if(status_temp == 0)
+        return error_command(playerid, "Pastikan untuk memilih option permanent/temporary.");
+
+    if(status_temp == 1 && lama_hari <= 0)
+        return error_command(playerid, "Pastikan untuk memasukan hari yang valid.");
+
+    // Jenis Blocked = 2 (Adalah jenis Banned)
+    if(status_temp == 1)
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_blocked(id_user, jenis_block, expired, keterangan,happen,id_admin) VALUES(%d, %d, NOW() + INTERVAL %d DAY, '%e', NOW(), %d)", PlayerInfo[target_id][pID], 2, lama_hari, alasan, PlayerInfo[playerid][pID]);
+    else
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_blocked(id_user, jenis_block, expired, keterangan,happen,id_admin) VALUES(%d, %d, NULL, '%e', NOW(), %d)", PlayerInfo[target_id][pID], 2, alasan, PlayerInfo[playerid][pID]);
+    mysql_tquery(koneksi, pQuery[playerid]);
+
+    format(pDialog[playerid], sizePDialog, RED"Anda dibanned oleh admin.\n\n");
+    strcatEx(pDialog[playerid], sizePDialog, YELLOW"Dengan keterangan sebagai berikut :\n\n");
+    strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tJenis Block \t: "ORANGE"Banned\n");
+    
+    if(status_temp == 1)
+        strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tBerakhir pada \t: "GREEN"%d hari dari sekarang.\n", lama_hari);
+    else
+        strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tBerakhir pada \t: "ORANGE"Permanen.\n");
+
+    strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tKeterangan \t: "YELLOW"%s\n\n", alasan);
+    strcatEx(pDialog[playerid], sizePDialog, YELLOW"Jika anda merasa tidak melakukan pelanggaran rules, silahkan kirimkan "RED"Screenshot "YELLOW"ini ke forum, untuk meminta ban appeal.\n");
+    ShowPlayerDialog(target_id, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Dibanned", pDialog[playerid], "Ok", "");	
+    KickEx(target_id);
+
+    sendPesan(playerid, COLOR_GREEN, TAG_ADMIN" "WHITE"Berhasil membanned "ORANGE"%s"WHITE", anda memiliki tanggung jawab untuk mengontrol lebih lanjut player ini.");
+
+    new temp_msg[144];
+    format(temp_msg, sizeof(temp_msg), TAG_ADMIN" "RED"%s "WHITE"telah "RED"dibanned "WHITE"dari server dengan alasan : "YELLOW"%s "WHITE"!", PlayerInfo[target_id][pPlayerName], alasan);
+    SendClientMessageToAll(COLOR_ORANGE, temp_msg);
+    return 1;
+}
+
+CMD:setmedic(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new target_id, text_temporary[10], masa_aktif, level, status_temp = 0;
+    if(sscanf(params, "us[10]iI(1)", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setmedic [id] [permanent/expired] [level] [masa aktif (hari)]");
+
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Player tidak ada");
+
+    if(PlayerInfo[target_id][levelMedic] > 0){
+        error_command(playerid, "Pemain sudah menjadi medic.");
+        return note_message(playerid, "Jika anda berniat menambah masa aktif. silahkan pecat dahulu, lalu set kembali.");
+    }
+
+    if(sama("permanent", text_temporary)) status_temp = -1;    
+    else if(sama("expired", text_temporary)) status_temp = 1;
+    
+    if(status_temp == 0)
+        return error_command(playerid, "Pastikan untuk memilih option permanent/expired.");
+
+    if(status_temp == 1 && masa_aktif <= 0)
+        return error_command(playerid, "Pastikan untuk memasukan hari yang valid.");
+
+    if(level < 1 || level > sizeof(MEDIC_LEVEL))
+        return sendPesan(playerid, COLOR_RED, "* "WHITE"Level medic hanya berkisar antara 1 hingga %d.", sizeof(MEDIC_LEVEL));
+
+    if(status_temp == 1)
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_faction(id_faction, id_user, level, expired) VALUES(%d, %d, %d, NOW() + INTERVAL %d DAY)", ID_FACTION_MEDIC, PlayerInfo[target_id][pID], level, masa_aktif);
+    else
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_faction(id_faction, id_user, level) VALUES(%d, %d, %d)", ID_FACTION_MEDIC, PlayerInfo[target_id][pID], level);
+    
+    mysql_tquery(koneksi, pQuery[playerid]);
+    PlayerInfo[target_id][levelMedic] = level;
+
+    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil menjadikan %s(%d) sebagai medic.", PlayerInfo[target_id][pPlayerName], target_id);
+    
+    if(status_temp == 1)
+        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi medic dengan level %d selama %d hari kedepan.", level, masa_aktif);
+    else
+        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi medic dengan level %d dengan jangka waktu permanen.", level);
+
+    sendPesan(target_id, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda sekarang dapat bekerja pada rumah sakit sebagai %s.", GetNamaLevelMedic(level));
+    return 1;
+}
+
+CMD:pecatmedic(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new target_id;
+    if(sscanf(params, "u", target_id)) 
+        return error_syntax(playerid, "/pecatmedic [id]");
+
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Player tidak ada");
+
+    if(PlayerInfo[target_id][levelMedic] == 0)
+        return error_command(playerid, "Pemain bukan medic.");
+
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM user_faction WHERE id_user = %d AND id_faction = %d", PlayerInfo[target_id][pID], ID_FACTION_MEDIC);    
+    mysql_tquery(koneksi, pQuery[playerid]);
+
+    PlayerInfo[target_id][levelMedic] = 0;
+
+    // Off Duty kan
+    if(PlayerInfo[target_id][skinID] != GetPlayerSkin(target_id)){
+        ClearAnimations(target_id);
+        ubahSkinPemain(target_id, PlayerInfo[target_id][skinID]);
+        PlayerInfo[target_id][skinDuty] = 0;
+    }
+    SetPlayerDutyMedic(target_id, 0);
+    SetPlayerColor(target_id, COLOR_WHITE);        
+
+    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat medic %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
+
+    sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari medic.");
+    return 1;
+}
+
+CMD:setpolisi(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new target_id, text_temporary[10], masa_aktif, level, status_temp = 0;
+    if(sscanf(params, "us[10]iI(1)", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setpolisi [id] [permanent/expired] [level] [masa aktif (hari)]");
+
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Player tidak ada");
+
+    if(PlayerInfo[target_id][levelPolice] > 0){
+        error_command(playerid, "Pemain sudah menjadi polisi.");
+        return note_message(playerid, "Jika anda berniat menambah masa aktif. silahkan pecat dahulu, lalu set kembali.");
+    }
+
+    if(sama("permanent", text_temporary)) status_temp = -1;    
+    else if(sama("expired", text_temporary)) status_temp = 1;
+    
+    if(status_temp == 0)
+        return error_command(playerid, "Pastikan untuk memilih option permanent/expired.");
+
+    if(status_temp == 1 && masa_aktif <= 0)
+        return error_command(playerid, "Pastikan untuk memasukan hari yang valid.");
+
+    if(level < 1 || level > sizeof(POLICE_LEVEL))
+        return sendPesan(playerid, COLOR_RED, "* "WHITE"Level polisi hanya berkisar antara 1 hingga %d.", sizeof(POLICE_LEVEL));
+
+    if(status_temp == 1)
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_faction(id_faction, id_user, level, expired) VALUES(%d, %d, %d, NOW() + INTERVAL %d DAY)", ID_FACTION_POLISI, PlayerInfo[target_id][pID], level, masa_aktif);
+    else
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_faction(id_faction, id_user, level) VALUES(%d, %d, %d)", ID_FACTION_POLISI, PlayerInfo[target_id][pID], level);
+    
+    mysql_tquery(koneksi, pQuery[playerid]);
+    PlayerInfo[target_id][levelPolice] = level;
+
+    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil menjadikan %s(%d) sebagai polisi.", PlayerInfo[target_id][pPlayerName], target_id);
+    
+    if(status_temp == 1)
+        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi polisi dengan level %d selama %d hari kedepan.", level, masa_aktif);
+    else
+        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi polisi dengan level %d dengan jangka waktu permanen.", level);
+
+    sendPesan(target_id, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda sekarang dapat bekerja pada kantor polisi dengan jabatan sebagai %s.", GetNamaLevelPolice(level));
+    return 1;
+}
+
+CMD:pecatpolisi(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new target_id;
+    if(sscanf(params, "u", target_id)) 
+        return error_syntax(playerid, "/pecatpolisi [id]");
+
+    if(!IsPlayerConnected(target_id))
+        return error_command(playerid, "Player tidak ada");
+
+    if(PlayerInfo[target_id][levelPolice] == 0)
+        return error_command(playerid, "Pemain bukan polisi.");
+
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM user_faction WHERE id_user = %d AND id_faction = %d", PlayerInfo[target_id][pID], ID_FACTION_POLISI);    
+    mysql_tquery(koneksi, pQuery[playerid]);
+
+    PlayerInfo[target_id][levelPolice] = 0;
+
+    // Off Duty kan
+    if(PlayerInfo[target_id][skinID] != GetPlayerSkin(target_id)){
+        ClearAnimations(target_id);
+        ubahSkinPemain(target_id, PlayerInfo[target_id][skinID]);
+        PlayerInfo[target_id][skinDuty] = 0;
+    }
+    SetPlayerDutyPolice(target_id, 0);
+    ResetPlayerWeapons(target_id);
+    SetPlayerColor(target_id, COLOR_WHITE);    
+
+    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat polisi %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
+
+    sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari polisi.");
+    return 1;
+}
+/**
+    End Admin Command
+*/
+
+CMD:bc(playerid, params[]){
+    new pesan[256];
+    if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
+    if(!IsPemainPunyaNomorAktif(playerid)) return error_command(playerid, "Maaf anda harus memiliki nomor hp yang aktif untuk dapat menggunakan fitur ini.");
+	if(sscanf(params, "s[256]", pesan)) return error_syntax(playerid, "/bc [pesan]");
+    if(gettime() - PlayerInfo[playerid][lastGlobalChat] < (2 * 60)){
+        format(msg, sizeof(msg), "Anda hanya dapat mengirim pesan broadcast 2 menit sekali, anda harus menunggu %d detik lagi!", 2 * 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
+        return error_command(playerid, msg);
+    }
+    format(msg, sizeof(msg), "**[BROADCAST] ("BLUE"+%s"WHITE") : %s", PlayerInfo[playerid][nomorHP], pesan);
+    SendClientMessageToAll(COLOR_WHITE, msg);
+    PlayerInfo[playerid][lastGlobalChat] = gettime();
+    return 1;
+}
+
+CMD:settings(playerid, params[]){
+    format(pDialog[playerid], sizePDialog, "%s HUD Status\n", ((PlayerInfo[playerid][tampilHUDStats]) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
+    strcatEx(pDialog[playerid], sizePDialog, "%s Speedo Kendaraan\n", ((PlayerInfo[playerid][tampilSpeedo]) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));
+    strcatEx(pDialog[playerid], sizePDialog, "%s Mode Foto\n", ((PlayerInfo[playerid][photoMode]) ? (RED"Matikan") : (GREEN"Aktifkan")));
+    strcatEx(pDialog[playerid], sizePDialog, "%s Tanggal dan Waktu\n", ((PlayerInfo[playerid][tampilJam]) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));    
+    ShowPlayerDialog(playerid, DIALOG_PENGATURAN, DIALOG_STYLE_LIST, "Pilihan pengaturan : ", pDialog[playerid], "Pilih", "Batal");
+    return 1;
+}
+
+CMD:inventory(playerid, const params[]){
+    if(PlayerInfo[playerid][isBusy]) return SendClientMessage(playerid, COLOR_RED, TAG_SIBUK" "WHITE"Tidak dapat membuka inventory sekarang, anda sedang melakukan hal lain.");
+    showDialogMenuInventory(playerid);
+    return 1;
+}
+
+CMD:inv(playerid, params[]){
+    return cmd_inventory(playerid, "");
 }
 
 CMD:infosaya(playerid, params[]){
@@ -165,8 +492,7 @@ CMD:v(playerid, const params[]){
 }
 
 CMD:vehicle(playerid, params[]){
-    cmd_v(playerid, "");
-    return 1;
+    return cmd_v(playerid, "");
 }
 
 CMD:pm(playerid, params[]){
@@ -226,26 +552,6 @@ CMD:bunuhdiri(playerid, params[]){
     return 1;
 }
 
-CMD:slap(playerid, params[]){
-    new target_id;
-    if(!IsPlayerAdmin(playerid)) return 0;
-    if(sscanf(params, "u", target_id)) return error_syntax(playerid, "/slap [playerid]");
-    if(!IsPlayerConnected(target_id)) return error_command(playerid, "Player yang dituju tidak ada!");
-
-    new Float:pos[3];
-    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
-    SetPlayerPos(target_id, pos[0], pos[1], pos[2] + 4);
-    PlayerPlaySound(target_id, 1130, pos[0], pos[1], pos[2] + 4);
-
-    SendClientMessage(target_id, COLOR_LIGHT_BLUE, "Admin: anda telah di slap oleh admin.");
-    return 1;
-}
-CMD:apapan(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
-    showDialogAdminPapan(playerid);
-    return 1;
-}
-
 CMD:rumah(playerid, params[]){
     if(GetPlayerInterior(playerid) == 0) return error_command(playerid, "Anda tidak di dalam rumah manapun.");
     if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] != PlayerInfo[playerid][pID]) return error_command(playerid, "Anda bukan pemilik rumah.");
@@ -253,12 +559,6 @@ CMD:rumah(playerid, params[]){
     return 1;
 }
 
-CMD:arumah(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
-    if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
-    ShowPlayerDialog(playerid, DIALOG_ADMIN_RUMAH, DIALOG_STYLE_LIST, WHITE"House Sytem :", "Buat Rumah\nReset Rumah\nHapus Rumah", "Pilih", "Batal");
-    return 1;
-}
 CMD:inforumah(playerid, const params[]){
     if(lastHousePickup[playerid] == -1) return error_command(playerid, "Maaf anda tidak berada di ikon rumah!");
     new string[256], id, Float:x, Float:y, Float:z;
@@ -353,12 +653,6 @@ CMD:inforumah(playerid, const params[]){
     return 1;
 }
 
-CMD:alumber(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
-    ShowPlayerDialog(playerid, DIALOG_LUMBER_ADMIN, DIALOG_STYLE_LIST, WHITE"Lumberjack System :", "Buat Pohon\nEdit Pohon\nReset Pohon\nHapus Pohon", "Pilih", "Batal");
-    return 1;
-}
-
 CMD:lumberjack(playerid, const params[]){
     ShowPlayerDialog(playerid, DIALOG_LUMBER, DIALOG_STYLE_LIST, WHITE"Lumberjack System :", "Cari Pohon\nPotong Pohon\nPindahkan Pohon\nTurunkan Pohon\nCek Muatan Pohon\nTempat Pemotongan Pohon", "Pilih", "Batal");
     return 1;
@@ -407,12 +701,6 @@ CMD:gali(playerid, params[]){
     ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
     PlayerInfo[playerid][isOnAnimation] = true;	
     PlayerInfo[playerid][isBusy] = true;
-    return 1;
-}
-
-CMD:aatm(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
-    ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM, DIALOG_STYLE_LIST, "Menu admin untuk ATM :", "Buat ATM\nEdit ATM\nHapus ATM", "Pilih", "Batal");    
     return 1;
 }
 
@@ -519,167 +807,6 @@ CMD:beriuang(playerid, params[]){
     return 1;
 }
 
-/**
-    Admin Faction
- */
-CMD:setmedic(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
-
-    new target_id, text_temporary[10], masa_aktif, level, status_temp = 0;
-    if(sscanf(params, "us[10]iI(1)", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setmedic [id] [permanent/expired] [level] [masa aktif (hari)]");
-
-    if(!IsPlayerConnected(target_id))
-        return error_command(playerid, "Player tidak ada");
-
-    if(PlayerInfo[target_id][levelMedic] > 0){
-        error_command(playerid, "Pemain sudah menjadi medic.");
-        return note_message(playerid, "Jika anda berniat menambah masa aktif. silahkan pecat dahulu, lalu set kembali.");
-    }
-
-    if(sama("permanent", text_temporary)) status_temp = -1;    
-    else if(sama("expired", text_temporary)) status_temp = 1;
-    
-    if(status_temp == 0)
-        return error_command(playerid, "Pastikan untuk memilih option permanent/expired.");
-
-    if(status_temp == 1 && masa_aktif <= 0)
-        return error_command(playerid, "Pastikan untuk memasukan hari yang valid.");
-
-    if(level < 1 || level > sizeof(MEDIC_LEVEL))
-        return sendPesan(playerid, COLOR_RED, "* "WHITE"Level medic hanya berkisar antara 1 hingga %d.", sizeof(MEDIC_LEVEL));
-
-    if(status_temp == 1)
-        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_faction(id_faction, id_user, level, expired) VALUES(%d, %d, %d, NOW() + INTERVAL %d DAY)", ID_FACTION_MEDIC, PlayerInfo[target_id][pID], level, masa_aktif);
-    else
-        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_faction(id_faction, id_user, level) VALUES(%d, %d, %d)", ID_FACTION_MEDIC, PlayerInfo[target_id][pID], level);
-    
-    mysql_tquery(koneksi, pQuery[playerid]);
-    PlayerInfo[target_id][levelMedic] = level;
-
-    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil menjadikan %s(%d) sebagai medic.", PlayerInfo[target_id][pPlayerName], target_id);
-    
-    if(status_temp == 1)
-        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi medic dengan level %d selama %d hari kedepan.", level, masa_aktif);
-    else
-        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi medic dengan level %d dengan jangka waktu permanen.", level);
-
-    sendPesan(target_id, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda sekarang dapat bekerja pada rumah sakit sebagai %s.", GetNamaLevelMedic(level));
-    return 1;
-}
-
-CMD:pecatmedic(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
-
-    new target_id;
-    if(sscanf(params, "u", target_id)) 
-        return error_syntax(playerid, "/pecatmedic [id]");
-
-    if(!IsPlayerConnected(target_id))
-        return error_command(playerid, "Player tidak ada");
-
-    if(PlayerInfo[target_id][levelMedic] == 0)
-        return error_command(playerid, "Pemain bukan medic.");
-
-    mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM user_faction WHERE id_user = %d AND id_faction = %d", PlayerInfo[target_id][pID], ID_FACTION_MEDIC);    
-    mysql_tquery(koneksi, pQuery[playerid]);
-
-    PlayerInfo[target_id][levelMedic] = 0;
-
-    // Off Duty kan
-    if(PlayerInfo[target_id][skinID] != GetPlayerSkin(target_id)){
-        ClearAnimations(target_id);
-        ubahSkinPemain(target_id, PlayerInfo[target_id][skinID]);
-        PlayerInfo[target_id][skinDuty] = 0;
-    }
-    SetPlayerDutyMedic(target_id, 0);
-    SetPlayerColor(target_id, COLOR_WHITE);        
-
-    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat medic %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
-
-    sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari medic.");
-    return 1;
-}
-
-CMD:setpolisi(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
-
-    new target_id, text_temporary[10], masa_aktif, level, status_temp = 0;
-    if(sscanf(params, "us[10]iI(1)", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setpolisi [id] [permanent/expired] [level] [masa aktif (hari)]");
-
-    if(!IsPlayerConnected(target_id))
-        return error_command(playerid, "Player tidak ada");
-
-    if(PlayerInfo[target_id][levelPolice] > 0){
-        error_command(playerid, "Pemain sudah menjadi polisi.");
-        return note_message(playerid, "Jika anda berniat menambah masa aktif. silahkan pecat dahulu, lalu set kembali.");
-    }
-
-    if(sama("permanent", text_temporary)) status_temp = -1;    
-    else if(sama("expired", text_temporary)) status_temp = 1;
-    
-    if(status_temp == 0)
-        return error_command(playerid, "Pastikan untuk memilih option permanent/expired.");
-
-    if(status_temp == 1 && masa_aktif <= 0)
-        return error_command(playerid, "Pastikan untuk memasukan hari yang valid.");
-
-    if(level < 1 || level > sizeof(POLICE_LEVEL))
-        return sendPesan(playerid, COLOR_RED, "* "WHITE"Level polisi hanya berkisar antara 1 hingga %d.", sizeof(POLICE_LEVEL));
-
-    if(status_temp == 1)
-        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_faction(id_faction, id_user, level, expired) VALUES(%d, %d, %d, NOW() + INTERVAL %d DAY)", ID_FACTION_POLISI, PlayerInfo[target_id][pID], level, masa_aktif);
-    else
-        mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_faction(id_faction, id_user, level) VALUES(%d, %d, %d)", ID_FACTION_POLISI, PlayerInfo[target_id][pID], level);
-    
-    mysql_tquery(koneksi, pQuery[playerid]);
-    PlayerInfo[target_id][levelPolice] = level;
-
-    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil menjadikan %s(%d) sebagai polisi.", PlayerInfo[target_id][pPlayerName], target_id);
-    
-    if(status_temp == 1)
-        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi polisi dengan level %d selama %d hari kedepan.", level, masa_aktif);
-    else
-        sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi polisi dengan level %d dengan jangka waktu permanen.", level);
-
-    sendPesan(target_id, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda sekarang dapat bekerja pada kantor polisi dengan jabatan sebagai %s.", GetNamaLevelPolice(level));
-    return 1;
-}
-
-CMD:pecatpolisi(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
-
-    new target_id;
-    if(sscanf(params, "u", target_id)) 
-        return error_syntax(playerid, "/pecatpolisi [id]");
-
-    if(!IsPlayerConnected(target_id))
-        return error_command(playerid, "Player tidak ada");
-
-    if(PlayerInfo[target_id][levelPolice] == 0)
-        return error_command(playerid, "Pemain bukan polisi.");
-
-    mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM user_faction WHERE id_user = %d AND id_faction = %d", PlayerInfo[target_id][pID], ID_FACTION_POLISI);    
-    mysql_tquery(koneksi, pQuery[playerid]);
-
-    PlayerInfo[target_id][levelPolice] = 0;
-
-    // Off Duty kan
-    if(PlayerInfo[target_id][skinID] != GetPlayerSkin(target_id)){
-        ClearAnimations(target_id);
-        ubahSkinPemain(target_id, PlayerInfo[target_id][skinID]);
-        PlayerInfo[target_id][skinDuty] = 0;
-    }
-    SetPlayerDutyPolice(target_id, 0);
-    ResetPlayerWeapons(target_id);
-    SetPlayerColor(target_id, COLOR_WHITE);    
-
-    sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat polisi %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
-
-    sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari polisi.");
-    return 1;
-}
-
-
 /*
  * Lepas Helm Dan Mask
  */
@@ -738,14 +865,38 @@ CMD:lepastopeng(playerid, params[]){
  * End Lepas Helm dan Mask
  */
 
+CMD:panggilmedis(playerid, params[]){
+    if(!PlayerInfo[playerid][inDie]) 
+        return error_command(playerid, "Anda tidak sedang sekarat.");
 
-CMD:aactor(playerid, params[]){
-    if(!IsPlayerAdmin(playerid)) return 0;
-    ShowPlayerDialog(playerid, DIALOG_ADMIN_ACTOR, DIALOG_STYLE_LIST, "Menu admin untuk Actor :", "Respawn Actor", "Pilih", "Batal");    
-    return 1;
+    new pesan[144];
+    format(pesan, sizeof(pesan), TAG_MEDIC" "WHITE"%s(%d) sedang sekarat dan membutuhkan bantuan. Ketik /tampillokasipasien %d untuk menandai marker.", PlayerInfo[playerid][pPlayerName], playerid);
+    new online_medic = SendMessageToDutyMedic(COLOR_RED, pesan);
+
+    if(!online_medic)
+        return SendClientMessage(playerid, COLOR_RED, TAG_MEDIC" "WHITE"Tidak ada medis yang sedang bertugas saat ini.");
+
+    return SendClientMessage(playerid, COLOR_MEDIC, TAG_MEDIC" "WHITE"Berhasil mengirim pesan ke medis, tunggu beberapa saat..");
 }
 
-CMD:panggilmedis(playerid, params[]){
+CMD:tampillokasipasien(playerid, params[]){
+    if(!IsPlayerOnDutyMedic(playerid)) 
+        return error_command(playerid, "Anda tidak sedang bertugas medis.");
+    
+    new target_id;
+    if(sscanf(params, "u", target_id)) 
+        return error_syntax(playerid, "/tampillokasipasien [id pemain]");
+
+    if(IsInvalidTargetId(target_id, playerid, TIPE_TARGET_ALLOW_SEKARAT))
+        return error_command(playerid, "Id pemain tujuan tidak valid.");
+    
+    if(PlayerInfo[target_id][inDie] < 1)
+        return error_command(playerid, "Pemain tidak sedang sekarat.");
+
+    new Float:pos[3];
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    SetPlayerCheckpoint(playerid, pos[0], pos[1], pos[2], 3.0);
+    PlayerInfo[playerid][activeMarker] = true;
     return 1;
 }
 
@@ -1241,6 +1392,14 @@ CMD:berdiri(playerid, params[]){
     if(!sama(temp[0], "PED") || !sama(temp[1], "SEAT_DOWN"))
         return server_message(playerid, "Anda sedang tidak duduk.");
     ApplyAnimation(playerid, "PED", "SEAT_UP", 4.1, 0, 0, 0, 0, 0, 1);
+    return 1;
+}
+
+CMD:clearanimasi(playerid, params[]){
+    if(PlayerInfo[playerid][isBusy])
+        return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
+    PlayerInfo[playerid][isOnAnimation] = false;
+    ClearAnimations(playerid);
     return 1;
 }
 /**
