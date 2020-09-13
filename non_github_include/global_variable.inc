@@ -154,7 +154,7 @@ new registerInfo[MAX_PLAYERS][rInfo];
 
 
 new msg[256];
-new total_vehicles_from_files=0;
+// new total_vehicles_from_files=0;
 
 /*
     GLOBAL VARIABLE FOR HOUSE VAR

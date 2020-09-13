@@ -7582,6 +7582,7 @@ public OnGameModeInit()
 
 	worldTimer = SetPreciseTimer("updateWorldTime", 1000, true);
 
+	#if defined LOAD_VEHICLE_FROM_FILES
 	// SPECIAL
 	total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/trains.txt");
 	total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/pilots.txt");
@@ -7600,6 +7601,7 @@ public OnGameModeInit()
     total_vehicles_from_files += LoadStaticVehiclesFromFile("vehicles/red_county.txt");
 
     printf("Total vehicles from files: %d",total_vehicles_from_files);
+	#endif
 
     // Sweeper Vehicle
     vehicleSweeper[0] = CreateVehicle(574, 708.4822, -1193.1827, 15.0324, 0.0000, -1, -1, TIME_SWEEPER*60000);
