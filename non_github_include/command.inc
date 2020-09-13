@@ -418,6 +418,55 @@ CMD:pecatpolisi(playerid, params[]){
     sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari polisi.");
     return 1;
 }
+
+CMD:tele(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new target_id;
+    if(sscanf(params, "u", target_id)) 
+        return error_syntax(playerid, "/tele [id pemain]");
+
+    if(IsInvalidTargetId(target_id, playerid, TIPE_TARGET_ALLOW_SEKARAT))
+        return error_command(playerid, "ID Pemain invalid.");
+
+    new Float:pos[4];
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);    
+    GetPlayerFacingAngle(target_id, pos[3]);
+
+    pindahkanPemain(playerid, pos[0], pos[1] + 0.5, pos[2], pos[3], GetPlayerInterior(target_id), GetPlayerVirtualWorld(target_id), true);
+    PlayerInfo[playerid][inHouse] = PlayerInfo[target_id][inHouse];
+    sendPesan(playerid, COLOR_BLUE, TAG_ADMIN" "WHITE"Anda berhasil teleport ke posisi %s berada.", PlayerInfo[target_id][pPlayerName]);
+    return 1;
+}
+
+CMD:get(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new target_id;
+    if(sscanf(params, "u", target_id)) 
+        return error_syntax(playerid, "/get [id pemain]");
+
+    if(IsInvalidTargetId(target_id, playerid, TIPE_TARGET_ALLOW_SEKARAT))
+        return error_command(playerid, "ID Pemain invalid.");
+
+    if(PlayerInfo[target_id][inDie])
+        return error_command(playerid, "Pemain yang dimaksud sedang sekarat, memindahkannya dapat menyebabkan bug.");
+
+    new Float:pos[4];
+    GetPlayerPos(playerid, pos[0], pos[1], pos[2]);    
+    GetPlayerFacingAngle(playerid, pos[3]);
+
+    pindahkanPemain(target_id, pos[0], pos[1] + 0.5, pos[2], pos[3], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid), true);
+
+    PlayerInfo[target_id][inHouse] = PlayerInfo[playerid][inHouse];
+    
+    sendPesan(playerid, COLOR_BLUE, TAG_ADMIN" "WHITE"Berhasil memindahkan %s keposisi anda sekarang.", PlayerInfo[target_id][pPlayerName]);
+    
+    sendPesan(target_id, COLOR_BLUE, TAG_ADMIN" "WHITE"Anda diteleportkan ke posisi admin %s berada.", PlayerInfo[playerid][pPlayerName]);
+    return 1;
+}
 /**
     End Admin Command
 */
