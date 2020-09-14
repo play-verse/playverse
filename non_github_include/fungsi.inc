@@ -141,19 +141,25 @@ publicFor: filterLoginPemain(playerid){
 		new nama_block[100], 
 			happen[100],
 			berakhir[100],
-			keterangan[255];
+			keterangan[255],
+			bool:is_berakhir_null;
 		
 		cache_get_value_name(0, "nama_block", nama_block);
 		cache_get_value_name(0, "happen", happen);
 		cache_get_value_name(0, "expired", berakhir);
 		cache_get_value_name(0, "keterangan", keterangan);
+		cache_is_value_name_null(0, "berakhir", is_berakhir_null);
 
 		format(pDialog[playerid], sizePDialog, WHITE"Selamat datang kembali "GREEN"%s\n\n", PlayerInfo[playerid][pPlayerName]);
 		strcatEx(pDialog[playerid], sizePDialog, ORANGE"Maaf saat ini akun kamu sedang diblock.\n");
 		strcatEx(pDialog[playerid], sizePDialog, YELLOW"Dengan ketentuan sebagai berikut :\n\n");
 		strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tJenis Block \t: "ORANGE"%s\n", nama_block);
 		strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tTerjadi pada \t: "RED"%s\n", happen);
-		strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tBerakhir pada \t: "GREEN"%s\n", berakhir);
+		if(!is_berakhir_null)
+			strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tBerakhir pada \t: "GREEN"%s\n", berakhir);
+		else
+			strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tBerakhir pada \t: "ORANGE"Permanen\n");
+
 		strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tKeterangan \t: "YELLOW"%s\n\n", keterangan);
 		strcatEx(pDialog[playerid], sizePDialog, YELLOW"Dengan adanya pemblokiran pemain diharapkan dapat lebih tertib dan mengikuti peraturan server.\n");
 		strcatEx(pDialog[playerid], sizePDialog, WHITE"Terimakasih, atas pengertiannya.\n");
@@ -2106,6 +2112,29 @@ publicFor: progressBuatObatHerbal(playerid){
 	return 1;
 }
 
+publicFor: progressBuatItemMasak(playerid){
+	if(!IsPlayerConnected(playerid)) {
+		reset_PerbaikiKendaraan(playerid);
+		return 1;
+	}
+
+	new Float:value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + MAX_PROGRESS_BAR / MASAK_ITEM_TAMBANG_TIME;
+	if(value >= MAX_PROGRESS_BAR){		
+		new id_item = GetPVarInt(playerid, "masak_buat_id_item");
+
+		new nama_item[50];
+		getNamaByIdItem(id_item, nama_item);
+
+		reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
+		tambahItemPlayer(playerid, id_item, 1); // Beri item
+
+		sendPesan(playerid, COLOR_GREEN, "[SKILL] "WHITE"Berhasil membuat "YELLOW"%s"WHITE" dengan cara memasak.", nama_item);
+	}else{
+		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
+	}
+	return 1;
+}
+
 publicFor: progressBuatItemBlacksmith(playerid){
 	if(!IsPlayerConnected(playerid)) {
 		reset_PerbaikiKendaraan(playerid);
@@ -2352,58 +2381,71 @@ publicFor: progressNambang(playerid, dari_tambang){
 		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 1.5);
 
 		// Testing Probalities
-		new angka = random(15);
-		switch(angka){
-			case 1:
-			{
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"Berlian.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
-				tambahItemPlayer(playerid, 10, 1);
-			}
-			case 2..3:
-			{
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
-				tambahItemPlayer(playerid, 9, 1);
-			}
-			case 4..6:{
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"perunggu.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perunggu sangat berguna untuk banyak hal, kerja bagus.");
-				tambahItemPlayer(playerid, 11, 1);
-			}
-			case 7..9:
-			{
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
-				tambahItemPlayer(playerid, 12, 1);
-			}
-			default:
-			{
-				SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
-			}
-		}
+		// new angka = random(15);
+		// switch(angka){
+		// 	case 1:
+		// 	{
+		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"Berlian.");
+		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
+		// 		tambahItemPlayer(playerid, 10, 1);
+		// 	}
+		// 	case 2..3:
+		// 	{
+		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
+		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
+		// 		tambahItemPlayer(playerid, 9, 1);
+		// 	}
+		// 	case 4..6:{
+		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"Aluminium.");
+		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Aluminium sangat berguna untuk banyak hal, kerja bagus.");
+		// 		tambahItemPlayer(playerid, 11, 1);
+		// 	}
+		// 	case 7..9:
+		// 	{
+		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
+		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
+		// 		tambahItemPlayer(playerid, 12, 1);
+		// 	}
+		// 	default:
+		// 	{
+		// 		SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
+		// 	}
+		// }
 
 		// Real Probalities
-		// new angka = random(1000000);
-		// if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
-		// 	SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"Berlian.");
-		// 	SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
-		// 	tambahItemPlayer(playerid, 10, 1);
-		// }else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
-		// 	SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
-		// 	SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
-		// 	tambahItemPlayer(playerid, 9, 1);
-		// }else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
-		// 	SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"perunggu.");
-		// 	SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perunggu sangat berguna untuk banyak hal, kerja bagus.");
-		// 	tambahItemPlayer(playerid, 11, 1);
-		// }else if(angka >= 120001 && angka <= 420000){ // Kemungkinan 30%
-		// 	SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
-		// 	SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
-		// 	tambahItemPlayer(playerid, 12, 1);
-		// }else{
-		// 	SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
-		// }
+		new angka = random(1000000);
+		if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
+			SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"Berlian.");
+			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
+			tambahItemPlayer(playerid, 10, 1);
+		}else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
+			SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
+			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
+			tambahItemPlayer(playerid, 9, 1);
+		}else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
+			SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"aluminium.");
+			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Aluminium sangat berguna untuk banyak hal, kerja bagus.");
+			tambahItemPlayer(playerid, 11, 1);
+		}else if(angka >= 120001 && angka <= 420000){ // Kemungkinan 30%
+			new rand = random(10);
+
+			switch(rand){
+				case 0:
+				{
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
+					tambahItemPlayer(playerid, ID_PERAK, 1);
+				}
+				default:
+				{
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"bijih besi.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih besi merupakan material yang bagus.");
+					tambahItemPlayer(playerid, ID_BIJIH_BESI, 1);
+				}
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
+		}
 
 		reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
 	}else{
@@ -2465,7 +2507,7 @@ publicFor: konfirmasiBuatAlatPerbaikan(playerid, ada){
 		ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_ALAT_PERBAIKAN, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan", pDialog[playerid], "Konfirmasi", "Batal");
 		return 1;
 	}else
-		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item alat perbaikan.\n\n"YELLOW"Anda membutuhkan 1 Perunggu dan 3 Perak.", "Ok", "");
+		return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat item alat perbaikan.\n\n"YELLOW"Anda membutuhkan 1 Aluminium dan 3 Perak.", "Ok", "");
 }
 
 
@@ -2567,7 +2609,7 @@ publicFor: selesaiNambang(playerid){
 			tambahItemPlayer(playerid, 9, 1);
 		}
 		case 4..6:{
-			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Perunggu"WHITE".\nPerunggu adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
+			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Aluminium"WHITE".\nAluminium adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
 			tambahItemPlayer(playerid, 11, 1);
 		}
 		case 7..9:
@@ -2588,7 +2630,7 @@ publicFor: selesaiNambang(playerid){
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
 	// 		tambahItemPlayer(playerid, 9, 1);
 	// }else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
-	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Perunggu"WHITE".\nPerunggu adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
+	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Aluminium"WHITE".\nAluminium adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
 	// 		tambahItemPlayer(playerid, 11, 1);
 	// }else if(angka >= 120001 && angka <= 420000){ // Kemungkinan 30%
 	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");

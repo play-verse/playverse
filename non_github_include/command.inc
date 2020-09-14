@@ -178,7 +178,7 @@ CMD:aactor(playerid, params[]){
 
 CMD:setadmin(playerid, params[]){
     // Jika bukan admin level 2
-    if(GetLevelAdminPlayer(playerid) < 2 || !IsPlayerAdmin(playerid)) return 0;
+    if(GetLevelAdminPlayer(playerid) < 2 && !IsPlayerAdmin(playerid)) return 0;
 
     new target_id, level_admin;
     if(sscanf(params, "ui", target_id, level_admin)) return error_syntax(playerid, "/setadmin [id pemain] [level]");
@@ -215,7 +215,7 @@ CMD:ban(playerid, params[]){
     if(GetLevelAdminPlayer(playerid) < 1) return 0;
 
     new target_id, text_temporary[10], lama_hari, status_temp = 0, alasan[50];
-    if(sscanf(params, "us[10]s[50]I(1)", target_id, text_temporary, alasan, lama_hari)) return error_syntax(playerid, "/ban [id] [permanent/temporary] [alasan] [banyak hari (jika temporary)]");
+    if(sscanf(params, "us[10]is[50]", target_id, text_temporary, lama_hari, alasan)) return error_syntax(playerid, "/ban [id] [permanent/temporary] [banyak hari (jika permanent isi asal)] [alasan]");
 
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Player tidak ada.");
@@ -246,7 +246,7 @@ CMD:ban(playerid, params[]){
         strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tBerakhir pada \t: "ORANGE"Permanen.\n");
 
     strcatEx(pDialog[playerid], sizePDialog, WHITE"->\tKeterangan \t: "YELLOW"%s\n\n", alasan);
-    strcatEx(pDialog[playerid], sizePDialog, YELLOW"Jika anda merasa tidak melakukan pelanggaran rules, silahkan kirimkan "RED"Screenshot "YELLOW"ini ke forum, untuk meminta ban appeal.\n");
+    strcatEx(pDialog[playerid], sizePDialog, YELLOW"Jika anda merasa tidak melakukan pelanggaran rules,\nsilahkan kirimkan "RED"Screenshot "YELLOW"ini ke forum, untuk meminta ban appeal.\n");
     ShowPlayerDialog(target_id, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Dibanned", pDialog[playerid], "Ok", "");	
     KickEx(target_id);
 
@@ -470,6 +470,17 @@ CMD:get(playerid, params[]){
 /**
     End Admin Command
 */
+
+CMD:masak(playerid, params[]){
+    if(PlayerInfo[playerid][isBusy]) 
+        return error_command(playerid, "Anda sedang melakukan hal lain sekarang.");
+
+    if(!IsPlayerInRangeOfPoint(playerid, 2.5, -794.9869, 2425.4514, 158.1323))
+        return error_command(playerid, "Anda harus berada dekat kompor material.");
+    
+    showDialogMasakTambang(playerid);
+    return 1;
+}
 
 CMD:bc(playerid, params[]){
     new pesan[256];
@@ -760,67 +771,6 @@ CMD:farm(playerid, params[]){
 
 CMD:fishing(playerid, params[]){
     ShowPlayerDialog(playerid, DIALOG_FISHING, DIALOG_STYLE_LIST, WHITE"Fishing System :", "Mancing Ikan\nToko Peralatan Pancing", "Pilih", "Batal");
-    return 1;
-}
-
-CMD:bicara(playerid, params[]){
-    if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2])){
-        ActorTalking(ACT_skillMekanik);
-        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
-            "WHITE"Saya adalah ahli mekanik. Saya dapat membantu kamu dalam mendapatkan skill mekanik.\n\
-            Untuk dapat membuka skill kamu harus memiliki "LIGHT_BLUE"1 item Segel Skill.\n\
-            "WHITE"Apakah kamu memilikinya ?", PlayerInfo[playerid][pPlayerName]);
-        ShowPlayerDialog(playerid, DIALOG_TALK_TO_AHLI_MEKANIK, DIALOG_STYLE_MSGBOX, "Ahli Mekanik berkata :", pDialog[playerid], "Ada", "Tidak ada");
-    }
-    // Actor Dealer
-    else if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2])){
-        ActorTalking(ACT_penjualDealer);
-        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
-            "WHITE"Saya adalah manager dealer. \n\
-            Kamu dapat mengurus beberapa hal yang berkaitan dengan dealer.\n\
-            Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
-        ShowPlayerDialog(playerid, DIALOG_TALK_TO_DEALER_MANAGER, DIALOG_STYLE_MSGBOX, "Dealer Manager berkata :", pDialog[playerid], "Jawab", "Batal");
-    }
-    // Actor Toko Peralatan Pancing
-    else if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2])){
-        ActorTalking(ACT_peralatanPancing);
-        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
-            "WHITE"Saya adalah penjual peralatan pancing. \n\
-            Kamu dapat mengurus beberapa hal yang berkaitan dengan peralatan pancing.\n\
-            Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
-        ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_PANCING, DIALOG_STYLE_MSGBOX, "Penjual Peralatan Pancing berkata :", pDialog[playerid], "Jawab", "Batal");
-    }
-    // Actor Toko Bibit
-    else if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2])){
-        ActorTalking(ACT_tokoBibit);
-        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
-            "WHITE"Saya adalah penjual bibit. \n\
-            Kamu dapat mengurus beberapa hal yang berkaitan dengan bibit.\n\
-            Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
-        ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_BIBIT, DIALOG_STYLE_MSGBOX, "Penjual Bibit berkata :", pDialog[playerid], "Jawab", "Batal");
-    }
-    // Actor Toko Bibit Narko
-    else if(IsPlayerInRangeOfPoint(playerid, 3.0, POINT_NARKO[MrPuyengRand][NARKO_X], POINT_NARKO[MrPuyengRand][NARKO_Y], POINT_NARKO[MrPuyengRand][NARKO_Z])){
-        ActorTalking(ACT_tokoNarko);
-        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
-            "WHITE"Saya adalah penjual bibit ilegal. \n\
-            Kamu dapat mengurus beberapa hal yang berkaitan dengan bibit ilegal.\n\
-            Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
-        ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_BIBIT_NARKO, DIALOG_STYLE_MSGBOX, "Penjual Bibit Ilegal berkata :", pDialog[playerid], "Jawab", "Batal");
-    }
-    // Actor Toko Gadget
-    else if(IsPlayerInRangeOfPoint(playerid, 3.0, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2])){
-        ActorTalking(ACT_tokoGadget);
-        format(pDialog[playerid], sizePDialog, GREEN"Hai %s,\n\
-            "WHITE"Saya adalah penjual gadget. \n\
-            Kamu dapat mengurus beberapa hal yang berkaitan dengan gadget.\n\
-            Adakah yang bisa saya bantu ?", PlayerInfo[playerid][pPlayerName]);
-        ShowPlayerDialog(playerid, DIALOG_TALK_TO_PENJUAL_GADGET, DIALOG_STYLE_MSGBOX, "Penjual Gadget berkata :", pDialog[playerid], "Jawab", "Batal");
-    }
-
-    // Lakukan cara yang sama seperti diatas jika menambah untuk yang lain
-    // GetDynamicActor... IsPlayerInRange .. return
-
     return 1;
 }
 

@@ -4810,7 +4810,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0: // Craft alat perbaikan
 					{
 						static const barang_barang_mekanik[2][2] = {
-							{11, 1}, // Perunggu - 1
+							{11, 1}, // Aluminium - 1
 							{12, 3}  // Perak - 3
 						};
 						// Mungkin butuh besi dll lagi
@@ -6951,6 +6951,117 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				PlayerCraftingMedicine(playerid);
 				PlayerInfo[playerid][isOnAnimation] = true;	
 				PlayerInfo[playerid][isBusy] = true;					
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_MASAK_TAMBANG:
+		{
+			if(response){				
+				/**
+					@IMPORTANT :
+					PADA SETIAP PENAMBAHAN MASAK ITEM
+					TAMBAHKAN JUGA PADA BAGIAN INI
+				*/
+				switch(listitem){
+					case 0: // Besi
+					{
+						SetPVarInt(playerid, "masak_buat_id_item", ID_BESI);
+						dialogKonfirmasiMasakItem(playerid, bahan_besi_utuh);
+					}
+					case 1: // Emas
+					{
+						SetPVarInt(playerid, "masak_buat_id_item", ID_EMAS);
+						dialogKonfirmasiMasakItem(playerid, bahan_emas_utuh);
+					}
+					case 2: // Aluminium
+					{
+						SetPVarInt(playerid, "masak_buat_id_item", ID_ALUMINIUM);
+						dialogKonfirmasiMasakItem(playerid, bahan_aluminium_utuh);
+					}
+					case 3: // Perak
+					{
+						SetPVarInt(playerid, "masak_buat_id_item", ID_PERAK);
+						dialogKonfirmasiMasakItem(playerid, bahan_perak_utuh);
+					}
+					case 4: // Berlian
+					{
+						SetPVarInt(playerid, "masak_buat_id_item", ID_BERLIAN);
+						dialogKonfirmasiMasakItem(playerid, bahan_berlian_utuh);
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_MASAK_ITEM_TAMBANG:
+		{
+			if(response){
+				new ret = 0;
+				/**
+					@IMPORTANT :
+					PADA SETIAP PENAMBAHAN MASAK ITEM
+					TAMBAHKAN JUGA PADA BAGIAN INI
+				*/
+				switch(GetPVarInt(playerid, "masak_buat_id_item")){
+					case ID_BESI:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_besi_utuh);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_besi_utuh);i++)
+								tambahItemPlayer(playerid, bahan_besi_utuh[i][0], -bahan_besi_utuh[i][1]);
+						}
+					}
+					case ID_EMAS:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_emas_utuh);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_emas_utuh);i++)
+								tambahItemPlayer(playerid, bahan_emas_utuh[i][0], -bahan_emas_utuh[i][1]);
+						}
+					}
+					case ID_ALUMINIUM:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_aluminium_utuh);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_aluminium_utuh);i++)
+								tambahItemPlayer(playerid, bahan_aluminium_utuh[i][0], -bahan_aluminium_utuh[i][1]);
+						}
+					}
+					case ID_PERAK:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_perak_utuh);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_perak_utuh);i++)
+								tambahItemPlayer(playerid, bahan_perak_utuh[i][0], -bahan_perak_utuh[i][1]);
+						}
+					}
+					case ID_BERLIAN:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_berlian_utuh);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_berlian_utuh);i++)
+								tambahItemPlayer(playerid, bahan_berlian_utuh[i][0], -bahan_berlian_utuh[i][1]);
+						}
+					}
+					default:
+						return 1;
+				}
+
+				if(!ret)
+					return showDialogPesan(playerid, RED"Maaf item tidak cukup", WHITE"Item yang anda butuhkan untuk membuat item, tidak cukup.\nSilahkan kumpulkan item terlebih dahulu untuk dapat melanjutkan.");
+
+				// Pinjam timer perbaiki
+				if(PerbaikiTimer[playerid] != -1)
+					DeletePreciseTimer(PerbaikiTimer[playerid]);
+				PerbaikiTimer[playerid] = SetPreciseTimer("progressBuatItemMasak", 1000, true, "i", playerid);
+
+				// Pinjam progress bar dari potong pohon
+				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+				ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
+				TogglePlayerControllable(playerid, 0);
+				GameTextForPlayer(playerid, "~w~Sedang ~y~membuat...", 3000, 3);
+				PlayerCraftingMedicine(playerid);
+				PlayerInfo[playerid][isOnAnimation] = true;	
+				PlayerInfo[playerid][isBusy] = true;
 			}
 			return 1;
 		}

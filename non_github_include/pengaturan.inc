@@ -15,7 +15,7 @@
 							7. Harus menaati peraturan roleplay yang berlaku.\n\
 							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
 
-#define MAX_SERVER_ITEM 62 // Diatur sesuai dengan banyak data didatabase 
+#define MAX_SERVER_ITEM 67 // Diatur sesuai dengan banyak data didatabase 
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -180,6 +180,7 @@
 #define REVIVE_TIME 15
 #define NAMBANG_TIME 15
 #define CRAFTING_ITEM_TIME 15
+#define MASAK_ITEM_TAMBANG_TIME 30
 
 #define MAX_PROGRESS_BAR 100.0 // Lamanya memperbaiki kendaraan
 
@@ -424,6 +425,8 @@
 #define DIALOG_JUMLAH_BELI_ALAT_BLACKSMITH 236
 #define DIALOG_KONFIRMASI_ALAT_BLACKSMITH 237
 #define DIALOG_KONFIRMASI_BUAT_ITEM 238
+#define DIALOG_PILIH_MASAK_TAMBANG 239
+#define DIALOG_KONFIRMASI_MASAK_ITEM_TAMBANG 240
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DI DALAM INTERIOR
@@ -595,6 +598,19 @@
 #define ID_FORGER_CASE		62
 #define ID_JORAN_PANCING	35
 #define ID_TOMBAK_IKAN		36
+#define ID_TOMBAK_IKAN		36
+
+#define ID_BIJIH_BESI		63
+#define ID_SERBUK_EMAS		65
+#define ID_SERBUK_BERLIAN	67
+#define ID_BIJIH_PERAK		66
+#define ID_BIJIH_ALUMINIUM	68
+
+#define ID_PERAK			12
+#define ID_EMAS				9
+#define ID_BERLIAN			10
+#define ID_ALUMINIUM		11
+#define ID_BESI				64
 /*
  * End Defining Constant for ID item
  */

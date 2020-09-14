@@ -506,3 +506,37 @@ dialogKonfirmasiBuatItemBs(playerid, const barang_barang[][], banyak_barang = si
     ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_ITEM, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan", pDialog[playerid], "Konfirmasi", "Batal");
     return 1;
 }
+
+dialogKonfirmasiMasakItem(playerid, const barang_barang[][], banyak_barang = sizeof(barang_barang)){
+    new nama_item[50];
+    getNamaByIdItem(GetPVarInt(playerid, "masak_buat_id_item"), nama_item);
+
+    format(pDialog[playerid], sizePDialog, WHITE"Anda akan membuat "GREEN"%s"WHITE". Dengan bahan yang diperlukan:\n\n");
+    for(new i=0;i<banyak_barang; i++){
+        getNamaByIdItem(barang_barang[i][0], nama_item);
+        strcatEx(pDialog[playerid], sizePDialog, "- %s sebanyak %dx\n", nama_item, barang_barang[i][1]);
+    }
+    strcatEx(pDialog[playerid], sizePDialog, WHITE"\n\
+        Apakah anda yakin ?");
+    ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_MASAK_ITEM_TAMBANG, DIALOG_STYLE_MSGBOX, "Konfirmasi pembuatan item", pDialog[playerid], "Konfirmasi", "Batal");
+    return 1;
+}
+
+showDialogMasakTambang(playerid){
+    ShowPlayerDialog(
+        playerid, 
+        DIALOG_PILIH_MASAK_TAMBANG, 
+        DIALOG_STYLE_LIST, 
+        "Pilih item yang akan dibuat", 
+        // List item
+        "Besi\n\
+        Emas\n\
+        Aluminium\n\
+        Perak\n\
+        Berlian", 
+        // End List item
+        "Pilih",
+        "Batal"
+    );
+    return 1;
+}

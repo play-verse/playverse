@@ -1550,6 +1550,26 @@ new const bahan_joran_pancing[][2] = {
 };
 
 new const bahan_tombak_ikan[][2] = {
-	{11, 1}, // Perunggu - 1
+	{11, 1}, // Aluminium - 1
 	{25, 1}  // Kayu - 1
+};
+
+new const bahan_besi_utuh[][2] = {
+	{ID_BIJIH_BESI, 5} // Bijih besi - 5
+};
+
+new const bahan_emas_utuh[][2] = {
+	{ID_SERBUK_EMAS, 9} 
+};
+
+new const bahan_perak_utuh[][2] = {
+	{ID_BIJIH_PERAK, 5}
+};
+
+new const bahan_berlian_utuh[][2] = {
+	{ID_SERBUK_BERLIAN, 9}
+};
+
+new const bahan_aluminium_utuh[][2] = {
+	{ID_BIJIH_ALUMINIUM, 5} 
 };
