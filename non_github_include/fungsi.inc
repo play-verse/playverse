@@ -1966,8 +1966,8 @@ publicFor: progressPerbaikiKendaraan(playerid, vehicleid, alat_dibutuhkan){
 					exp_didapat = EXP_SUKSES_DOWN_SKILL;
 
 				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
-				sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"memperbaiki kendaraan", exp_didapat);
-				sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+				sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"memperbaiki kendaraan", exp_didapat);
+				sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
@@ -2017,8 +2017,8 @@ publicFor: progressWarnainKendaraan(playerid, vehicleid, color1, color2){
 					exp_didapat = EXP_SUKSES_DOWN_SKILL;
 
 				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
-				sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"mewarnain kendaraan", exp_didapat);
-				sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+				sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"mewarnain kendaraan", exp_didapat);
+				sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
@@ -2067,8 +2067,8 @@ publicFor: progressPaintjobKendaraan(playerid, vehicleid, paintjobid){
 					exp_didapat = EXP_SUKSES_DOWN_SKILL;
 
 				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
-				sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"paintjob kendaraan", exp_didapat);
-				sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+				sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"paintjob kendaraan", exp_didapat);
+				sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
@@ -2104,8 +2104,8 @@ publicFor: progressBuatObatHerbal(playerid){
 			exp_didapat = EXP_SUKSES_DOWN_SKILL;
 
 		tambahExpSkillPlayer(playerid, ID_SKILL_MEDIC, exp_didapat);
-		sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"buat obat herbal", exp_didapat);
-		sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill medic anda saat ini adalah %d.", PlayerInfo[playerid][expMedic]);
+		sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"buat obat herbal", exp_didapat);
+		sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill medic anda saat ini adalah %d.", PlayerInfo[playerid][expMedic]);
 	}else{
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 	}
@@ -2128,7 +2128,7 @@ publicFor: progressBuatItemMasak(playerid){
 		reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
 		tambahItemPlayer(playerid, id_item, 1); // Beri item
 
-		sendPesan(playerid, COLOR_GREEN, "[SKILL] "WHITE"Berhasil membuat "YELLOW"%s"WHITE" dengan cara memasak.", nama_item);
+		sendPesan(playerid, COLOR_GREEN, TAG_CRAFT" "WHITE"Berhasil membuat "YELLOW"%s"WHITE" dengan cara memasak.", nama_item);
 	}else{
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 	}
@@ -2157,14 +2157,14 @@ publicFor: progressBuatItemBlacksmith(playerid){
 		if(rand <= rate_sukses){
 			tambahItemPlayer(playerid, id_item, 1); // Beri item
 
-			sendPesan(playerid, COLOR_GREEN, "[SKILL] "WHITE"Berhasil membuat "YELLOW"%s"WHITE", dengan menggunakan skill blacksmith.", nama_item);
+			sendPesan(playerid, COLOR_GREEN, TAG_CRAFT" "WHITE"Berhasil membuat "YELLOW"%s"WHITE", dengan menggunakan skill blacksmith.", nama_item);
 
 			if(getLevelBlacksmithPlayer(playerid) <= needed_level)
 				exp_didapat = EXP_SUKSES_CURR_SKILL;
 			else
 				exp_didapat = EXP_SUKSES_DOWN_SKILL;
 		}else{
-			sendPesan(playerid, COLOR_RED, "[SKILL] "WHITE"Gagal membuat "YELLOW"%s"WHITE", item yang menjadi bahan terpakai sia-sia.", nama_item);
+			sendPesan(playerid, COLOR_RED, TAG_SKILL" "WHITE"Gagal membuat "YELLOW"%s"WHITE", item yang menjadi bahan terpakai sia-sia.", nama_item);
 
 			if(getLevelBlacksmithPlayer(playerid) <= needed_level) 
 				exp_didapat = EXP_GAGAL_CURR_SKILL;
@@ -2174,8 +2174,8 @@ publicFor: progressBuatItemBlacksmith(playerid){
 		}					
 		tambahExpSkillPlayer(playerid, ID_SKILL_BLACKSMITH, exp_didapat); // 3 adalah id skill blacksmith	
 
-		sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"Craft Item", exp_didapat);
-		sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill blacksmith anda saat ini adalah %d.", PlayerInfo[playerid][expBlacksmith]);
+		sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"Craft Item", exp_didapat);
+		sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill blacksmith anda saat ini adalah %d.", PlayerInfo[playerid][expBlacksmith]);
 	}else{
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 	}
@@ -2223,8 +2223,8 @@ publicFor: progressModifKendaraan(playerid, vehicleid, componentid){
 					exp_didapat = EXP_SUKSES_DOWN_SKILL;
 
 				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
-				sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"modifikasi kendaraan", exp_didapat);
-				sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+				sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"modifikasi kendaraan", exp_didapat);
+				sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
@@ -2299,8 +2299,8 @@ publicFor: progressRevive(playerid){
 					exp_didapat = EXP_SUKSES_DOWN_SKILL;
 
 				tambahExpSkillPlayer(playerid, ID_SKILL_MEDIC, exp_didapat);
-				sendPesan(playerid, COLOR_YELLOW, "[SKILL] "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"revive orang sekarat", exp_didapat);
-				sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill medic anda saat ini adalah %d.", PlayerInfo[playerid][expMedic]);
+				sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"revive orang sekarat", exp_didapat);
+				sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill medic anda saat ini adalah %d.", PlayerInfo[playerid][expMedic]);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}

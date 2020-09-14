@@ -6914,6 +6914,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN INI 
 						SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
 				 */
+				if(!CekJikaInventoryPlayerMuat(playerid, GetPVarInt(playerid, "bs_buat_id_item"), 1)){
+					new nama_item[50];
+					getNamaByIdItem(GetPVarInt(playerid, "bs_buat_id_item"), nama_item);
+
+					format(pDialog[playerid], sizePDialog, WHITE"Inventory anda tidak muat untuk menyimpan.\nSisihkan terlebih dahulu slot untuk item %s yang akan dibuat.", nama_item);
+					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Slot inventory tidak muat", pDialog[playerid], "Ok", "");
+				}
+				
 				switch(GetPVarInt(playerid, "bs_buat_id_item")){
 					case ID_JORAN_PANCING:
 					{
@@ -7001,6 +7009,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					PADA SETIAP PENAMBAHAN MASAK ITEM
 					TAMBAHKAN JUGA PADA BAGIAN INI
 				*/
+				if(!CekJikaInventoryPlayerMuat(playerid, GetPVarInt(playerid, "masak_buat_id_item"), 1)){
+					new nama_item[50];
+					getNamaByIdItem(GetPVarInt(playerid, "masak_buat_id_item"), nama_item);
+
+					format(pDialog[playerid], sizePDialog, WHITE"Inventory anda tidak muat untuk menyimpan.\nSisihkan terlebih dahulu slot untuk item %s yang akan dibuat.", nama_item);
+					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Slot inventory tidak muat", pDialog[playerid], "Ok", "");
+				}
+
 				switch(GetPVarInt(playerid, "masak_buat_id_item")){
 					case ID_BESI:
 					{

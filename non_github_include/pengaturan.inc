@@ -15,7 +15,7 @@
 							7. Harus menaati peraturan roleplay yang berlaku.\n\
 							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
 
-#define MAX_SERVER_ITEM 67 // Diatur sesuai dengan banyak data didatabase 
+#define MAX_SERVER_ITEM 68 // Diatur sesuai dengan banyak data didatabase 
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -566,6 +566,9 @@
 #define TAG_INFO				"Info:"
 #define TAG_NAMBANG				"Tambang:"
 #define TAG_ITEM				"Item:"
+#define TAG_CRAFT				"Craft:"
+#define TAG_BLACKSMITH			"Blacksmith:"
+#define TAG_SKILL				"Skill:"
 
 /*
 	Job Define
