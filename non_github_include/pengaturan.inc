@@ -571,6 +571,7 @@
 #define TAG_BLACKSMITH			"Blacksmith:"
 #define TAG_SKILL				"Skill:"
 #define TAG_REPORT 				"REPORT:"
+#define TAG_ASK 				"Ask:"
 
 /*
 	Job Define

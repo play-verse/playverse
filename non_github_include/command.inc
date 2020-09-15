@@ -476,6 +476,32 @@ CMD:get(playerid, params[]){
     sendPesan(target_id, COLOR_BLUE, TAG_ADMIN" "WHITE"Anda diteleportkan ke posisi admin %s berada.", PlayerInfo[playerid][pPlayerName]);
     return 1;
 }
+
+CMD:pma(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new text[200], targetid;
+    if(sscanf(params, "us[144]", targetid, text))
+        return error_syntax(playerid, "/pma [id pemain] [text]");
+
+    if(!IsPlayerConnected(targetid) || playerid == targetid)
+        return error_command(playerid, "Player tidak valid.");
+
+    new text_to_admin[200];
+    format(text_to_admin, 200, "PMA %s(%d) > %s(%d): "SILVER"%s", PlayerInfo[playerid][pPlayerName], playerid, PlayerInfo[targetid][pPlayerName], targetid, text);
+
+    // SendMessageToAllAdmin
+    foreach(new i : Player){
+        if(GetLevelAdminPlayer(i) > 0) 
+            SendClientMessage(i, COLOR_BLUE, text_to_admin);
+    }
+
+    format(text, sizeof(text), "PMA "TAG_ADMIN" "WHITE"%s", text);
+    SendClientMessage(targetid, COLOR_BLUE, text);
+    return 1;
+}
+
 /**
     End Admin Command
 */
@@ -488,7 +514,7 @@ CMD:report(playerid, params[]){
     // Jika perbedaan waktu antara last report dan waktu sekarang < 60 detik
     if(gettime() - PlayerInfo[playerid][lastReport] < 60){
         format(text, sizeof(text), "Anda hanya dapat mengirim report 1 menit sekali, anda harus menunggu %d detik lagi!", 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
-        return error_command(playerid, msg);
+        return error_command(playerid, text);
     }
     
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO report_log(id_user,text,tanggal) VALUES(%d,'%e',NOW())", PlayerInfo[playerid][pID],text);
@@ -504,6 +530,30 @@ CMD:report(playerid, params[]){
 
     PlayerInfo[playerid][lastReport] = gettime();
     sendPesan(playerid, COLOR_ORANGE, TAG_REPORT" "WHITE"Berhasil mensubmit report, report akan direview oleh admin.");
+    return 1;
+}
+
+CMD:ask(playerid, params[]){
+    new text[200];
+    if(sscanf(params, "s[144]", text))
+        return error_syntax(playerid, "/ask [text]");
+
+    // Jika perbedaan waktu antara last report dan waktu sekarang < 5 detik
+    if(gettime() - PlayerInfo[playerid][lastAsk] < 5){
+        format(text, sizeof(text), "Anda hanya dapat mengirim report 5 detik sekali, anda harus menunggu %d detik lagi!", 5 + PlayerInfo[playerid][lastAsk] - gettime());
+        return error_command(playerid, text);
+    }
+    
+    format(text, sizeof(text), TAG_ASK" "WHITE"%s(%d): %s", PlayerInfo[playerid][pPlayerName], playerid, text);
+
+    // SendMessageToAllAdmin
+    foreach(new i : Player){
+        if(GetLevelAdminPlayer(i) > 0) 
+            SendClientMessage(i, COLOR_YELLOW, text);
+    }
+
+    PlayerInfo[playerid][lastAsk] = gettime();
+    sendPesan(playerid, COLOR_ORANGE, TAG_ASK" "WHITE"Berhasil mensubmit pertanyaan, pertanyaan akan direview oleh admin.");
     return 1;
 }
 

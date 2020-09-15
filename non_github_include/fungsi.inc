@@ -227,6 +227,7 @@ resetPlayerVariable(playerid, dari_callback){
 
 	PlayerInfo[playerid][preloadAnim] = 0;
 	PlayerInfo[playerid][lastGlobalChat] = 0;
+	PlayerInfo[playerid][lastAsk] = 0;
 	PlayerInfo[playerid][lastReport] = 0;
 	PlayerInfo[playerid][reply] = -1;
 	PlayerInfo[playerid][sudahLogin] = false;
