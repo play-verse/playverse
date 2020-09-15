@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.1
+-- version 4.9.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 09, 2020 at 12:11 PM
--- Server version: 10.4.11-MariaDB
--- PHP Version: 7.4.2
+-- Generation Time: Sep 15, 2020 at 06:55 PM
+-- Server version: 10.4.8-MariaDB
+-- PHP Version: 7.3.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -53,7 +53,7 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (8, 'Palu Tambang', 19631, 'Palu Tambang digunakan untuk menambang, 1x use item ini = 15 kali kesempatan tambang.', 'pakaiPaluTambang', 3, 2),
 (9, 'Emas', 19941, 'Emas adalah item yang langka, berguna untuk banyak hal dan memiliki nilai yang tinggi.', NULL, 4, 4),
 (10, 'Berlian', 1559, 'Berlian adalah item yang sangat langka, berguna untuk membuat item-item langka dan dapat menghasilkan banyak uang.', NULL, 5, 5),
-(11, 'Perunggu', 2936, 'Perunggu adalah item yang bagus dan diminati, berguna untuk banyak hal.', NULL, 2, 3),
+(11, 'Aluminium', 2936, 'Aluminium adalah item yang bagus dan diminati, berguna untuk banyak hal.', NULL, 2, 3),
 (12, 'Perak', 16134, 'Perak adalah item yang bagus dan diminati, biasanya digunakan untuk membuat berbagai item.', NULL, 1, 3),
 (13, 'Air Minum Mineral', 2647, 'Air minum mineral dapat menambah status minum sebanyak 5', 'pakaiMinuman', 1, 1),
 (14, 'Steak', 19882, 'Steak dapat menambah status makan sebanyak 50', 'pakaiMakanan', 2, 2),
@@ -104,7 +104,26 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (59, 'Pil Darah Putih 20', 1241, 'Dapat digunakan untuk menambah armour secara instant sebanyak 20 persen.', 'pakaiPilPutih', 4, 3),
 (60, 'Pil Darah Putih 50', 1241, 'Dapat digunakan untuk menambah armour secara instant sebanyak 50 persen.', 'pakaiPilPutih', 4, 3),
 (61, 'Pil Darah Putih 100', 1241, 'Dapat digunakan untuk menambah armour secara instant sebanyak 100 persen.', 'pakaiPilPutih', 4, 3),
-(62, 'Forger Case', 2780, 'Bahan utama yang dibutuhkan untuk dapat memulai skill Blacksmith.', NULL, 5, 5);
+(62, 'Forger Case', 2780, 'Bahan utama yang dibutuhkan untuk dapat memulai skill Blacksmith.', NULL, 5, 5),
+(63, 'Bijih Besi', 3117, 'Bijih besi merupakan material untuk membuat besi utuh.', NULL, 1, 2),
+(64, 'Besi', 3117, 'Besi digunakan oleh banyak item sebagai material baku.', NULL, 3, 2),
+(65, 'Serbuk Emas', 19941, 'Serbuk emas merupakan material untuk membuat emas utuh.', NULL, 1, 3),
+(66, 'Bijih Perak', 16134, 'Bahan dasar pembuat perak.', NULL, 1, 2),
+(67, 'Serbuk Berlian', 1559, 'Bahan dasar pembuat berlian.', NULL, 1, 3),
+(68, 'Bijih Aluminium', 2936, 'Bahan dasar pembuat aluminium.', NULL, 1, 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `report_log`
+--
+
+CREATE TABLE `report_log` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_user` bigint(20) UNSIGNED NOT NULL COMMENT 'ID User yang mereport',
+  `text` varchar(255) DEFAULT NULL,
+  `tanggal` datetime DEFAULT NULL COMMENT 'tanggal submit report'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Indexes for dumped tables
@@ -117,6 +136,12 @@ ALTER TABLE `item`
   ADD PRIMARY KEY (`id_item`);
 
 --
+-- Indexes for table `report_log`
+--
+ALTER TABLE `report_log`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -124,7 +149,13 @@ ALTER TABLE `item`
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `id_item` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `id_item` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
+
+--
+-- AUTO_INCREMENT for table `report_log`
+--
+ALTER TABLE `report_log`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
