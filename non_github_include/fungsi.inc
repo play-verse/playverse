@@ -1,7 +1,7 @@
 publicFor: isRegistered(playerid)
 {
 	// ClearChat
-	ClearChat(playerid);
+	ClearChatEx(playerid);
 
 	new randVal = random(2);
 	if(randVal){
@@ -227,6 +227,7 @@ resetPlayerVariable(playerid, dari_callback){
 
 	PlayerInfo[playerid][preloadAnim] = 0;
 	PlayerInfo[playerid][lastGlobalChat] = 0;
+	PlayerInfo[playerid][lastReport] = 0;
 	PlayerInfo[playerid][reply] = -1;
 	PlayerInfo[playerid][sudahLogin] = false;
 	PlayerInfo[playerid][sudahSpawn] = false;
@@ -1528,6 +1529,41 @@ publicFor: tampilSaldoPlayer(playerid){
 	else
 		printf("[ERROR] #03 Error fungsi tampil saldo (%d)%s - ID user(%d)", playerid, PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pID]);
 	return 1;
+}
+
+publicFor: tampilReportPlayer(playerid){
+	new rows;
+	cache_get_row_count(rows);
+	if(rows){
+		format(pDialog[playerid], sizePDialog, "Nama\tTanggal\tText\n");
+		new nama_user[MAX_PLAYER_NAME + 1], tanggal_temp[50], keterangan[50];
+		for(new i = 0; i < rows; i++){
+			cache_get_value_name(i, "nama", nama_user);
+			cache_get_value_name(i, "tanggal", tanggal_temp);
+			cache_get_value_name(i, "text", keterangan);
+
+			strcatEx(pDialog[playerid], sizePDialog, "%s\t%s\t%s\n", nama_user, tanggal_temp, keterangan);
+		}
+		strcat(pDialog[playerid], ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+		// IMPORTANT untuk selalu menghapus cache yang lama setiap ingin menyimpannya dengan yang baru
+		if(cache_is_valid(PlayerInfo[playerid][tempCache])) 
+			cache_delete(PlayerInfo[playerid][tempCache]);
+		PlayerInfo[playerid][tempCache] = cache_save();
+
+		new subString[64];
+		format(subString, 64, WHITE"Daftar laporan : "GREEN"(page : %d)", GetPVarInt(playerid, "halaman") + 1);
+		return ShowPlayerDialog(playerid, DIALOG_TAMPIL_REPORT, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
+	}else{
+		if(GetPVarInt(playerid, "halaman") < 1)
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Report "RED"kosong", WHITE"Maaf saat ini report kosong!", "Ok", "");
+		else{ // Kembalikan ke halaman sebelumnya
+			SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+			showReportPlayer(playerid);
+		}
+	}
+	return 1;
+
 }
 
 tampilInventoryItemPlayer(playerid, dialog_id, const judul[] = "Pilih item"){

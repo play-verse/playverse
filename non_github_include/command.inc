@@ -440,6 +440,15 @@ CMD:tele(playerid, params[]){
     return 1;
 }
 
+CMD:tampilreport(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    SetPVarInt(playerid, "halaman", 0);
+    showReportPlayer(playerid);
+    return 1;
+}
+
 CMD:get(playerid, params[]){
     // Jika bukan admin level 1 (bukan admin)
     if(GetLevelAdminPlayer(playerid) < 1) return 0;
@@ -470,6 +479,33 @@ CMD:get(playerid, params[]){
 /**
     End Admin Command
 */
+
+CMD:report(playerid, params[]){
+    new text[200];
+    if(sscanf(params, "s[144]", text))
+        return error_syntax(playerid, "/report [text]");
+
+    // Jika perbedaan waktu antara last report dan waktu sekarang < 60 detik
+    if(gettime() - PlayerInfo[playerid][lastReport] < 60){
+        format(text, sizeof(text), "Anda hanya dapat mengirim report 1 menit sekali, anda harus menunggu %d detik lagi!", 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
+        return error_command(playerid, msg);
+    }
+    
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO report_log(id_user,text,tanggal) VALUES(%d,'%e',NOW())", PlayerInfo[playerid][pID],text);
+    mysql_tquery(koneksi, pQuery[playerid]);
+
+    format(text, sizeof(text), TAG_REPORT" "WHITE"%s(%d): %s", PlayerInfo[playerid][pPlayerName], playerid, text);
+
+    // SendMessageToAllAdmin
+    foreach(new i : Player){
+        if(GetLevelAdminPlayer(i) > 0) 
+            SendClientMessage(i, COLOR_RED, text);
+    }
+
+    PlayerInfo[playerid][lastReport] = gettime();
+    sendPesan(playerid, COLOR_ORANGE, TAG_REPORT" "WHITE"Berhasil mensubmit report, report akan direview oleh admin.");
+    return 1;
+}
 
 CMD:masak(playerid, params[]){
     if(PlayerInfo[playerid][isBusy]) 
@@ -503,6 +539,11 @@ CMD:settings(playerid, params[]){
     strcatEx(pDialog[playerid], sizePDialog, "%s Mode Foto\n", ((PlayerInfo[playerid][photoMode]) ? (RED"Matikan") : (GREEN"Aktifkan")));
     strcatEx(pDialog[playerid], sizePDialog, "%s Tanggal dan Waktu\n", ((PlayerInfo[playerid][tampilJam]) ? (RED"Sembunyikan") : (GREEN"Tampilkan")));    
     ShowPlayerDialog(playerid, DIALOG_PENGATURAN, DIALOG_STYLE_LIST, "Pilihan pengaturan : ", pDialog[playerid], "Pilih", "Batal");
+    return 1;
+}
+
+CMD:clearchat(playerid, params[]){
+    ClearChatEx(playerid);
     return 1;
 }
 
@@ -1394,13 +1435,6 @@ CMD:berdiri(playerid, params[]){
     return 1;
 }
 
-CMD:clearanimasi(playerid, params[]){
-    if(PlayerInfo[playerid][isBusy])
-        return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
-    PlayerInfo[playerid][isOnAnimation] = false;
-    ClearAnimations(playerid);
-    return 1;
-}
 /**
     End Animations
  */

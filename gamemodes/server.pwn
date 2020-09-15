@@ -7081,6 +7081,49 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_TAMPIL_REPORT:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					showReportPlayer(playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						showReportPlayer(playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						showReportPlayer(playerid);
+					}
+					return 1;
+				}
+
+				new nama_user[MAX_PLAYER_NAME + 1], 
+					keterangan[244], 
+					temp_tanggal[50];
+				cache_set_active(PlayerInfo[playerid][tempCache]);
+				cache_get_value_name(listitem, "nama", nama_user);
+				cache_get_value_name(listitem, "text", keterangan);
+				cache_get_value_name(listitem, "tanggal", temp_tanggal);
+
+				cache_delete(PlayerInfo[playerid][tempCache]);
+				PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+				format(
+					pDialog[playerid], 
+					sizePDialog, 
+					WHITE"Nama pelapor : "GREEN"%s\n\
+					"WHITE"Tanggal lapor : "GREEN"%s\n\
+					"WHITE"Text : %s\n", 
+					nama_user, 
+					temp_tanggal, 
+					keterangan
+				);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Detail report", pDialog[playerid], "Ok", "");
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;

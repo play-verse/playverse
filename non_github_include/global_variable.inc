@@ -97,6 +97,7 @@ enum pInfo
     reply, // -1 kalau gaada
 	bool:onSelectedTextdraw,
     lastGlobalChat,
+	lastReport,
 	bool:isOnAnimation, // Save state untuk animation
 	onTradeWith,
 
