@@ -9531,6 +9531,7 @@ public OnPlayerDamage(&playerid, &Float:amount, &issuerid, &weapon, &bodypart){
 	GetPlayerHealth(playerid, health);
 	if(!PlayerInfo[playerid][inDie] && health - amount <= 1.0 && !CA_IsPlayerInWater(playerid, depth[0], depth[1])){
 		PlayerInfo[playerid][inDie] = LAMA_MENUNGGU_SAAT_SEKARAT;
+		SetPlayerHealth(playerid, 1.0);
 		animasiSekarat(playerid);
 		return 0;
 	}

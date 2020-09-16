@@ -52,4 +52,7 @@ loadAllMapIcon(){
 
     // Toko Gadget
     CreateDynamicMapIcon(1097.6610, -1370.0361, 13.9844, 38, 1, 0, 0, -1, 100.0);
+
+    // Tambang Interior
+    CreateDynamicMapIcon(-688.4846, 2372.3027, 129.6614, 11, 1, 0, 0, -1, 100.0);
 }

@@ -513,7 +513,7 @@ CMD:report(playerid, params[]){
 
     // Jika perbedaan waktu antara last report dan waktu sekarang < 60 detik
     if(gettime() - PlayerInfo[playerid][lastReport] < 60){
-        format(text, sizeof(text), "Anda hanya dapat mengirim report 1 menit sekali, anda harus menunggu %d detik lagi!", 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
+        format(text, sizeof(text), "Anda hanya dapat mengirim report 1 menit sekali, anda harus menunggu %d detik lagi!", 60 + PlayerInfo[playerid][lastReport] - gettime());
         return error_command(playerid, text);
     }
     
