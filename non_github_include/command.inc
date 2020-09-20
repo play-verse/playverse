@@ -176,6 +176,13 @@ CMD:aactor(playerid, params[]){
     return 1;
 }
 
+CMD:arent(playerid, params[]){
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
+
+    ShowPlayerDialog(playerid, DIALOG_ADMIN_RENT, DIALOG_STYLE_LIST, "Rent System :", "Vehicle", "Pilih", "Batal");
+    return 1;
+}
+
 CMD:setadmin(playerid, params[]){
     // Jika bukan admin level 2
     if(GetLevelAdminPlayer(playerid) < 2 && !IsPlayerAdmin(playerid)) return 0;
@@ -864,8 +871,29 @@ CMD:lepastopeng(playerid, params[]){
  * End Lepas Helm dan Mask
  */
 
+CMD:panggil(playerid, params[])
+{
+	new number;
+    if(sscanf(params, "i", number)) 
+        return error_syntax(playerid, "/panggil [nomor]");
+    // if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
+    // if(!IsPemainPunyaNomorAktif(playerid)) return error_command(playerid, "Maaf anda harus memiliki nomor hp yang aktif untuk dapat menggunakan fitur ini.");
+	// if(number == PlayerInfo[playerid][nomorHP]) return error_command(playerid, "Tidak dapat melakukan panggilan ke nomor hp pribadi.");
+    if(number == 123){
+        format(pDialog[playerid], sizePDialog, WHITE"Nomor Resmi yang tersedia :\n123 - Pusat Bantuan Panggilan\n911 - Panggilan Darurat (Medis/Polisi)", PlayerInfo[playerid][pPlayerName]);
+        ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Pusat Bantuan Panggilan", pDialog[playerid], "Ok", "");	
+		return 1;
+	}else if(number == 911){
+        ShowPlayerDialog(playerid, DIALOG_PANGGIL_DARURAT, DIALOG_STYLE_LIST, WHITE"Panggilan Darurat :", "Medis\nPolisi", "Pilih", "Batal");
+		return 1;
+	}else{
+        error_command(playerid, "Maaf nomor yang anda tuju tidak tersedia.");
+    }
+	return 1;
+}
+
 CMD:panggilmedis(playerid, params[]){
-    if(!PlayerInfo[playerid][inDie]) 
+    if(!PlayerInfo[playerid][inDie])
         return error_command(playerid, "Anda tidak sedang sekarat.");
 
     new pesan[144];
@@ -880,7 +908,7 @@ CMD:panggilmedis(playerid, params[]){
 
 CMD:tampillokasipasien(playerid, params[]){
     if(!IsPlayerOnDutyMedic(playerid)) 
-        return error_command(playerid, "Anda tidak sedang bertugas medis.");
+        return error_command(playerid, "Anda tidak sedang bertugas sebagai medis.");
     
     new target_id;
     if(sscanf(params, "u", target_id)) 
@@ -891,6 +919,27 @@ CMD:tampillokasipasien(playerid, params[]){
     
     if(PlayerInfo[target_id][inDie] < 1)
         return error_command(playerid, "Pemain tidak sedang sekarat.");
+
+    new Float:pos[3];
+    GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
+    SetPlayerCheckpoint(playerid, pos[0], pos[1], pos[2], 3.0);
+    PlayerInfo[playerid][activeMarker] = true;
+    return 1;
+}
+
+CMD:tampillokasibantuan(playerid, params[]){
+    if(!IsPlayerOnDutyPolice(playerid)) 
+        return error_command(playerid, "Anda tidak sedang bertugas sebagaipolisi.");
+    
+    new target_id;
+    if(sscanf(params, "u", target_id)) 
+        return error_syntax(playerid, "/tampillokasibantuan [id pemain]");
+
+    if(IsInvalidTargetId(target_id, playerid))
+        return error_command(playerid, "Id pemain tujuan tidak valid.");
+    
+    if(PlayerInfo[target_id][inHelp] < 1)
+        return error_command(playerid, "Pemain tidak sedang meminta bantuan.");
 
     new Float:pos[3];
     GetPlayerPos(target_id, pos[0], pos[1], pos[2]);
@@ -1056,20 +1105,20 @@ CMD:hancurkan(playerid, params[]){
                 SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Barikade dengan ID tersebut tidak ada.");
             }
         }
-    }else if(sama(text, "cone", true) && IsPlayerOnDutyPolice(playerid)){
+    }else if(sama(text, "sign", true) && IsPlayerOnDutyPolice(playerid)){
         if(number == -1){
             new id = ClosestObjPolice(playerid);
-            if(id != -1 && OBJECT_POLICE[id][objType] == OBJECT_TYPE_CONE){
+            if(id != -1 && OBJECT_POLICE[id][objType] == OBJECT_TYPE_SIGN){
                 DeleteObjPolice(id);
-                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan cone.");
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan sign.");
             }else{
-                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Tidak terdapat cone di sekitar.");
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Tidak terdapat sign di sekitar.");
             }
         }else{
-            if(OBJECT_POLICE[number][objAktif] == 1 && OBJECT_POLICE[number][objType] == OBJECT_TYPE_CONE){
+            if(OBJECT_POLICE[number][objAktif] == 1 && OBJECT_POLICE[number][objType] == OBJECT_TYPE_SIGN){
                 DeleteObjPolice(number);
             }else{
-                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Cone dengan ID tersebut tidak ada.");
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Sign dengan ID tersebut tidak ada.");
             }
         }
     }else if(sama(text, "garis", true) && IsPlayerOnDutyPolice(playerid)){
@@ -1144,7 +1193,7 @@ CMD:buat(playerid, params[]){
         }else{
             SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Tidak dapat membuat barikade lagi.");
         }
-    }else if(sama(text, "cone", true) && IsPlayerOnDutyPolice(playerid)){
+    }else if(sama(text, "sign", true) && IsPlayerOnDutyPolice(playerid)){
         new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
         if(id != -1){
             if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
@@ -1154,10 +1203,10 @@ CMD:buat(playerid, params[]){
             GetPlayerFacingAngle(playerid, pos[3]);
             pos[0] += (3.0 * floatsin(-pos[3], degrees));
             pos[1] += (3.0 * floatcos(-pos[3], degrees));
-            CreateObjPolice(id, "Traffic Cone", -1, OBJECT_TYPE_CONE, pos[0], pos[1], pos[2], pos[3]);
+            CreateObjPolice(id, "Road Sign", -1, OBJECT_TYPE_SIGN, pos[0], pos[1], pos[2], pos[3]);
             SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil membuat kerucut.");
         }else{
-            SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Tidak dapat membuat cone lagi.");
+            SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Tidak dapat membuat sign lagi.");
         }
     }else if(sama(text, "garis", true) && IsPlayerOnDutyPolice(playerid)){
         new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
@@ -1227,16 +1276,16 @@ CMD:ubah(playerid, params[]){
                 SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Barikade dengan ID tersebut tidak berada di sekitar anda.");
             }
         }
-    }else if(sama(text, "cone", true) && IsPlayerOnDutyPolice(playerid)){
+    }else if(sama(text, "sign", true) && IsPlayerOnDutyPolice(playerid)){
         if(number == -1){
-            return error_syntax(playerid, "/ubah cone [id]");
+            return error_syntax(playerid, "/ubah sign [id]");
         }else{
             new id = ClosestObjPolice(playerid);
-            if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_CONE){
+            if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_SIGN){
                 EditingObjPolice[playerid] = number;
                 EditDynamicObject(playerid, OBJECT_POLICE[number][objID]);
             }else{
-                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Cone dengan ID tersebut tidak berada di sekitar anda.");
+                SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Sign dengan ID tersebut tidak berada di sekitar anda.");
             }
         }
     }else if(sama(text, "garis", true) && IsPlayerOnDutyPolice(playerid)){
@@ -1369,6 +1418,21 @@ CMD:periksainventory(playerid, params[]){
     format(pDialog[playerid], sizePDialog, GREEN"%s "WHITE"ingin memeriksa inventory anda,\n"YELLOW"Apakah anda memperbolehkannya?", PlayerInfo[playerid][pPlayerName]);
 
     ShowPlayerDialog(target_id, DIALOG_KONFIRMASI_PERIKSA_INVENTORY, DIALOG_STYLE_MSGBOX, "Konfirmasi Periksa Inventory", pDialog[playerid], "Ya", "Tidak");
+    return 1;
+}
+
+CMD:batalsewakendaraan(playerid, params[]){
+    if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus berada di dalam kendaraan sewa.");
+    new vehid = GetPlayerVehicleID(playerid), rentid = RentPlayerVehID[vehid];
+    if(!Iter_Contains(RentPlayerVehIter, rentid)) return error_command(playerid, "Kendaraan bukan kendaraan sewa, dnda harus berada di dalam kendaraan sewa.");
+    new placeid = ClosestRentVehPlace(playerid);
+    if(placeid != -1){
+        if(placeid != RentPlayerVeh[rentid][rentPlayerVehPlaceID]) return error_command(playerid, "Anda harus di sekitar penyewaan kendaraan yang anda sewa pertama kali.");
+        unloadRentPlayerVeh(playerid, 1);
+        SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil membatalkan sewa kendaraan.");
+    }else{
+        error_command(playerid, "Anda harus di sekitar penyewaan kendaraan yang anda sewa pertama kali.");
+    }
     return 1;
 }
 

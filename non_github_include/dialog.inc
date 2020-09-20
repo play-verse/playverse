@@ -540,3 +540,15 @@ showDialogMasakTambang(playerid){
     );
     return 1;
 }
+
+showDialogBuatRentVeh(playerid){
+    static str_daftar_veh[sizeof(HARGA_VEHICLE_RENT) * 100 + 100], subString[100];
+    if(str_daftar_veh[0] == EOS){
+        strcat(str_daftar_veh, WHITE"Nama\tHarga\n");
+        for(new i = 0; i < sizeof(HARGA_VEHICLE_RENT); i++){
+            format(subString, 100, WHITE"%s\t"GREEN"$%d/jam\n", HARGA_VEHICLE_RENT[i][namaModel], HARGA_VEHICLE_RENT[i][hargaModel]);
+            strcat(str_daftar_veh, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_ADMIN_RENT_VEHICLE_BUAT, DIALOG_STYLE_TABLIST_HEADERS, "Vehicle Rent System :", str_daftar_veh, "Pilih", "Kembali");
+}
