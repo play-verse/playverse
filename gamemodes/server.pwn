@@ -7135,7 +7135,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					// Vehicle
 					case 0:
 					{
-						ShowPlayerDialog(playerid, DIALOG_ADMIN_RENT_VEHICLE, DIALOG_STYLE_LIST, "Vehicle Rent System :", "Buat Rent Place\nHapus Rent Place\nBuat Vehicle\nEdit Vehicle", "Pilih", "Batal");
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_RENT_VEHICLE, DIALOG_STYLE_LIST, "Vehicle Rent System :", "Buat Rent Place\nHapus Rent Place\nSewa Gratis\nBuat Vehicle\nEdit Vehicle", "Pilih", "Batal");
 					}
 				}
 			}
@@ -7154,7 +7154,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(closest != -1) return error_command(playerid, "Tidak dapat membuat di sekitar penyewaan kendaraan.");
 							new Float: x, Float: y, Float: z;
 							GetPlayerPos(playerid, x, y, z);
-							createRentVehPlace(id, x, y, z);
+							createRentVehPlace(id, 0, x, y, z);
 
 							mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `vehicle_rent_place` (id, pos_x, pos_y, pos_z) VALUES ('%d', '%f', '%f', '%f')", id, x, y, z);
 							mysql_tquery(koneksi, pQuery[playerid]);
@@ -7179,6 +7179,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									}
 								}
 							}
+							foreach(new i : RentPlayerVehIter){
+								if(Iter_Contains(RentPlayerVehIter, i)){
+									if(RentPlayerVeh[i][rentVehPlaceID] == placeid){
+										error_command(playerid, "Tidak menghapus tempat penyewaan kendaraan ketika terdapat kendaraan yang disewa.");
+										return 1;
+									}else{
+										goto label_hapus_rent_place;
+									}
+								}
+							}
 							label_hapus_rent_place:
 							DestroyDynamicArea(RentPlace[placeid][rentPlaceID]);
 							DestroyDynamic3DTextLabel(RentPlace[placeid][rentPlaceLabel]);
@@ -7197,13 +7207,27 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							error_command(playerid, "Anda tidak berada di tempat penyewaan kendaraan.");
 						}
 					}
-					// Buat Vehicle
+					// Gratis
 					case 2:
+					{
+						new placeid = ClosestRentVehPlace(playerid);
+						if(placeid != -1){
+							if(RentPlace[placeid][rentPlaceFree] == 1){
+								ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_PLACE_FREE, DIALOG_STYLE_LIST, "Vehicle Rent System :", "Ubah Gratis (On)\nUbah Semua Gratis", "Pilih", "Batal");
+							}else{
+								ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_PLACE_FREE, DIALOG_STYLE_LIST, "Vehicle Rent System :", "Ubah Gratis (Off)\nUbah Semua Gratis", "Pilih", "Batal");
+							}
+						}else{
+							error_command(playerid, "Anda tidak berada di tempat penyewaan kendaraan.");
+						}
+					}
+					// Buat Vehicle
+					case 3:
 					{
 						showDialogBuatRentVeh(playerid);
 					}
 					// Edit Vehicle
-					case 3:
+					case 4:
 					{
 						if(RentVehEdit[playerid] == 0){
 							ShowPlayerDialog(playerid, DIALOG_ADMIN_RENT_VEHICLE_EDIT, DIALOG_STYLE_LIST, "Vehicle Rent System :", "Simpan Vehicle\nHapus Vehicle\nRespawn Vehicle\nMode Edit (Off)", "Pilih", "Batal");
@@ -7285,7 +7309,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						new vehid = GetPVarInt(playerid, "id_vehicle_rent"),
 							listid = RentVeh[RentVehID[vehid]][rentVehList];
-						format(pDialog[playerid], sizePDialog, WHITE"Berapa lama durasi waktu penyewaan kendaraan yang anda inginkan?\n"YELLOW"Harga sewa 1 jam adalah "GREEN"%d", HARGA_VEHICLE_RENT[listid][hargaModel]);
+						format(pDialog[playerid], sizePDialog, WHITE"Berapa lama durasi waktu penyewaan kendaraan yang anda inginkan?\n"YELLOW"Harga sewa 1 jam adalah "GREEN"$%d", HARGA_VEHICLE_RENT[listid][hargaModel]);
 						ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_WAKTU_JAM, DIALOG_STYLE_INPUT, "Pilih durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
 					}
 					// Hari
@@ -7293,7 +7317,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						new vehid = GetPVarInt(playerid, "id_vehicle_rent"),
 							listid = RentVeh[RentVehID[vehid]][rentVehList];
-						format(pDialog[playerid], sizePDialog, WHITE"Berapa lama durasi waktu penyewaan kendaraan yang anda inginkan?\n"YELLOW"Harga sewa 1 hari adalah "GREEN"%d", HARGA_VEHICLE_RENT[listid][hargaModel]*24);
+						format(pDialog[playerid], sizePDialog, WHITE"Berapa lama durasi waktu penyewaan kendaraan yang anda inginkan?\n"YELLOW"Harga sewa 1 hari adalah "GREEN"$%d", HARGA_VEHICLE_RENT[listid][hargaModel]*24);
 						ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_WAKTU_HARI, DIALOG_STYLE_INPUT, "Pilih durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
 					}
 				}
@@ -7311,21 +7335,24 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(pDialog[playerid], sizePDialog, RED"Masukan durasi jam yang benar.\n"WHITE"Silahkan masukan durasi jam.");
 					return ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_WAKTU_JAM, DIALOG_STYLE_INPUT, ORANGE"Masukan durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
 				}
-				if(input_jam < 1 || input_jam > 23){
-					format(pDialog[playerid], sizePDialog, RED"Durasi jam berkisar 1 hingga 23\n"WHITE"Silahkan masukan durasi jam.");
+				if(input_jam < 2 || input_jam > 23){
+					format(pDialog[playerid], sizePDialog, RED"Durasi jam berkisar 3 hingga 23\n"WHITE"Silahkan masukan durasi jam.");
 					return ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_WAKTU_JAM, DIALOG_STYLE_INPUT, ORANGE"Masukan durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
 				}
 				new vehid = GetPVarInt(playerid, "id_vehicle_rent"),
 					listid = RentVeh[RentVehID[vehid]][rentVehList],
 					placeid = RentVeh[RentVehID[vehid]][rentVehPlaceID],
 					hargasewa = input_jam*HARGA_VEHICLE_RENT[listid][hargaModel];
+				if(RentPlace[placeid][rentPlaceFree] == 1){
+					hargasewa = 0;
+				}
 				SetPVarInt(playerid, "durasi_vehicle_rent", input_jam);
 				SetPVarInt(playerid, "harga_vehicle_rent", hargasewa);
 				format(pDialog[playerid], sizePDialog, WHITE"Anda akan melakukan penyewaan kendaraan sebagai berikut.\n\
 				No. Penyewaan Kendaraan : "GREEN"%d\n\
 				"WHITE"Nama Kendaraan : "GREEN"%s\n\
 				"WHITE"Lama Durasi : "GREEN"%d jam\n\
-				"WHITE"Harga Sewa : "GREEN"%d\n", placeid, HARGA_VEHICLE_RENT[listid][namaModel], input_jam, hargasewa);
+				"WHITE"Harga Sewa : "GREEN"$%d\n", placeid, HARGA_VEHICLE_RENT[listid][namaModel], input_jam, hargasewa);
 				ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_KONFIRMASI, DIALOG_STYLE_MSGBOX, GREEN"Konfirmasi Penyewaan Kendaraan", pDialog[playerid], "Setuju", "Batal");
 			}else{
 				DeletePVar(playerid, "id_vehicle_rent");
@@ -7341,8 +7368,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(pDialog[playerid], sizePDialog, RED"Masukan durasi hari yang benar.\n"WHITE"Silahkan masukan durasi hari.");
 					return ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_WAKTU_HARI, DIALOG_STYLE_INPUT, ORANGE"Masukan durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
 				}
-				if(input_hari < 1 || input_hari > 28){
-					format(pDialog[playerid], sizePDialog, RED"Durasi hari berkisar 1 hingga 28\n"WHITE"Silahkan masukan durasi hari.");
+				if(input_hari < 0 || input_hari > 3){
+					format(pDialog[playerid], sizePDialog, RED"Durasi hari berkisar 1 hingga 3\n"WHITE"Silahkan masukan durasi hari.");
 					return ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_WAKTU_HARI, DIALOG_STYLE_INPUT, ORANGE"Masukan durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
 				}
 				new vehid = GetPVarInt(playerid, "id_vehicle_rent"),
@@ -7350,13 +7377,20 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					placeid = RentVeh[RentVehID[vehid]][rentVehPlaceID],
 					hargajam = input_hari*24,
 					hargasewa = hargajam*HARGA_VEHICLE_RENT[listid][hargaModel];
+				if(RentPlace[placeid][rentPlaceFree] == 1){
+					if(input_hari > 1){
+						format(pDialog[playerid], sizePDialog, RED"Durasi hari di batasi hingga 1\n"WHITE"Silahkan masukan durasi hari.");
+						return ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_WAKTU_HARI, DIALOG_STYLE_INPUT, ORANGE"Masukan durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
+					}
+					hargasewa = 0;
+				}
 				SetPVarInt(playerid, "durasi_vehicle_rent", hargajam);
 				SetPVarInt(playerid, "harga_vehicle_rent", hargasewa);
 				format(pDialog[playerid], sizePDialog, WHITE"Anda akan melakukan penyewaan kendaraan sebagai berikut.\n\
 				No. Penyewaan Kendaraan : "GREEN"%d\n\
 				"WHITE"Nama Kendaraan : "GREEN"%s\n\
 				"WHITE"Lama Durasi : "GREEN"%d hari\n\
-				"WHITE"Harga Sewa : "GREEN"%d\n", RentPlaceID[placeid], HARGA_VEHICLE_RENT[listid][namaModel], input_hari, hargasewa);
+				"WHITE"Harga Sewa : "GREEN"$%d\n", RentPlaceID[placeid], HARGA_VEHICLE_RENT[listid][namaModel], input_hari, hargasewa);
 				ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_KONFIRMASI, DIALOG_STYLE_MSGBOX, GREEN"Konfirmasi Penyewaan Kendaraan", pDialog[playerid], "Setuju", "Batal");
 			}else{
 				DeletePVar(playerid, "id_vehicle_rent");
@@ -7415,6 +7449,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(placeid != RentVeh[RentVehID[vehid]][rentVehPlaceID]) return error_command(playerid, "Anda harus di sekitar penyewaan kendaraan.");
 							respawnRentVeh(playerid, RentVehID[vehid]);
 							SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil menyimpan kendaraan sewa.");
+						}else{
+							error_command(playerid, "Anda tidak berada di tempat penyewaan kendaraan.");
 						}
 					}
 					// Hapus Vehicle
@@ -7504,6 +7540,164 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 					}
 				}
+			}
+			return 1;
+		}
+		case DIALOG_RENT_VEHICLE_PLACE_FREE:
+		{
+			if(response){
+				switch(listitem){
+					// Ubah Gratis
+					case 0:
+					{
+						new placeid = ClosestRentVehPlace(playerid);
+						if(placeid != -1){
+							SetPVarInt(playerid, "tipe_vehicle_rent_free", 0);
+							SetPVarInt(playerid, "placeid_vehicle_rent", placeid);
+							ShowPlayerDialog(playerid, DIALOG_RENT_PLACE_FREE_WAKTU, DIALOG_STYLE_LIST, "Pilih jenis waktu :", "Jam\nHari", "Pilih", "Batal");
+						}else{
+							error_command(playerid, "Anda tidak berada di tempat penyewaan kendaraan.");
+						}
+					}
+					// Ubah Semua Gratis
+					case 1:
+					{
+						SetPVarInt(playerid, "tipe_vehicle_rent_free", 1);
+						ShowPlayerDialog(playerid, DIALOG_RENT_PLACE_FREE_WAKTU, DIALOG_STYLE_LIST, "Pilih jenis waktu :", "Jam\nHari", "Pilih", "Batal");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_RENT_PLACE_FREE_WAKTU:
+		{
+			if(response){
+				switch(listitem){
+					// Jam
+					case 0:
+					{
+						ShowPlayerDialog(playerid, DIALOG_RENT_PLACE_FREE_JAM, DIALOG_STYLE_INPUT, "Pilih durasi waktu penyewaan :", WHITE"Berapa lama durasi waktu penyewaan kendaraan yang anda inginkan?\nJika anda mengisi "GREEN"0"WHITE", maka anda menonaktifkan fitur gratis penyewaan kendaraan.", "Lanjut", "Batal");
+					}
+					// Hari
+					case 1:
+					{
+						ShowPlayerDialog(playerid, DIALOG_RENT_PLACE_FREE_HARI, DIALOG_STYLE_INPUT, "Pilih durasi waktu penyewaan :", WHITE"Berapa lama durasi waktu penyewaan kendaraan yang anda inginkan?\nJika anda mengisi "GREEN"0"WHITE", maka anda menonaktifkan fitur gratis penyewaan kendaraan.", "Lanjut", "Batal");
+					}
+				}
+			}else{
+				DeletePVar(playerid, "tipe_vehicle_rent_free");
+				DeletePVar(playerid, "placeid_vehicle_rent");
+			}
+			return 1;
+		}
+		case DIALOG_RENT_PLACE_FREE_JAM:
+		{
+			if(response){
+				new input_jam;
+				if(sscanf(inputtext, "i", input_jam)) {
+					format(pDialog[playerid], sizePDialog, RED"Masukan durasi jam yang benar.\n"WHITE"Silahkan masukan durasi jam.");
+					return ShowPlayerDialog(playerid, DIALOG_RENT_PLACE_FREE_JAM, DIALOG_STYLE_INPUT, ORANGE"Masukan durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
+				}
+				if(input_jam < 0 || input_jam > 23){
+					format(pDialog[playerid], sizePDialog, RED"Durasi jam berkisar 1 hingga 23\n"WHITE"Silahkan masukan durasi jam.");
+					return ShowPlayerDialog(playerid, DIALOG_RENT_PLACE_FREE_JAM, DIALOG_STYLE_INPUT, ORANGE"Masukan durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
+				}
+				SetPVarInt(playerid, "tipewaktu_vehicle_rent_free", 0);
+				SetPVarInt(playerid, "durasi_vehicle_free", input_jam);
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan mengatur penyewaan kendaraan menjadi gratis dengan lama durasi "GREEN"%d jam"WHITE".", input_jam);
+				ShowPlayerDialog(playerid, DIALOG_RENT_PLACE_FREE_KONFRIM, DIALOG_STYLE_MSGBOX, GREEN"Konfirmasi Penyewaan Kendaraan", pDialog[playerid], "Setuju", "Batal");
+			}else{
+				DeletePVar(playerid, "tipe_vehicle_rent_free");
+				DeletePVar(playerid, "placeid_vehicle_rent");
+			}
+			return 1;
+		}
+		case DIALOG_RENT_PLACE_FREE_HARI:
+		{
+			if(response){
+				new input_hari;
+				if(sscanf(inputtext, "i", input_hari)) {
+					format(pDialog[playerid], sizePDialog, RED"Masukan durasi hari yang benar.\n"WHITE"Silahkan masukan durasi hari.");
+					return ShowPlayerDialog(playerid, DIALOG_RENT_PLACE_FREE_HARI, DIALOG_STYLE_INPUT, ORANGE"Masukan durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
+				}
+				if(input_hari < 0 || input_hari > 28){
+					format(pDialog[playerid], sizePDialog, RED"Durasi hari berkisar 1 hingga 28\n"WHITE"Silahkan masukan durasi hari.");
+					return ShowPlayerDialog(playerid, DIALOG_RENT_PLACE_FREE_HARI, DIALOG_STYLE_INPUT, ORANGE"Masukan durasi waktu penyewaan :", pDialog[playerid], "Lanjut", "Batal");
+				}
+				new inputjam = input_hari*24;
+				SetPVarInt(playerid, "tipewaktu_vehicle_rent_free", 1);
+				SetPVarInt(playerid, "durasi_vehicle_free", inputjam);
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan mengatur penyewaan kendaraan menjadi gratis dengan lama durasi "GREEN"%d hari"WHITE".", input_hari);
+				ShowPlayerDialog(playerid, DIALOG_RENT_PLACE_FREE_KONFRIM, DIALOG_STYLE_MSGBOX, GREEN"Konfirmasi Penyewaan Kendaraan", pDialog[playerid], "Setuju", "Batal");
+			}else{
+				DeletePVar(playerid, "tipe_vehicle_rent_free");
+				DeletePVar(playerid, "placeid_vehicle_rent");
+			}
+			return 1;
+		}
+		case DIALOG_RENT_PLACE_FREE_KONFRIM:
+		{
+			if(response){
+				new tipe_waktu = GetPVarInt(playerid, "tipewaktu_vehicle_rent_free"),
+					tipe_free = GetPVarInt(playerid, "tipe_vehicle_rent_free"),
+					time_durasi = GetPVarInt(playerid, "durasi_vehicle_free"),
+					placeid = GetPVarInt(playerid, "placeid_vehicle_rent"),
+					durasi_habis = gettime()+(time_durasi*3600);
+				// input durasi 0 - kosong, disable
+				if(time_durasi == 0){
+					RentPlace[placeid][rentPlaceFree] = 0;
+					RentPlace[placeid][rentPlaceFreeDurasi] = 0;
+					// 1 tempat
+					if(tipe_free == 0){
+						sendPesan(playerid, COLOR_RED, GREEN"[KENDARAAN SEWA] "WHITE"Anda berhasil menonaktifkan sewa gratis di penyewaan kendaraan ("GREEN"ID:%d"WHITE").", placeid);
+					// semua tempat
+					}else{
+						SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda berhasil menonaktifkan sewa gratis di semua penyewaan kendaraan.");
+					}
+				}else{
+					// 1 tempat
+					if(tipe_free == 0){
+						// jam
+						if(tipe_waktu == 0){
+							sendPesan(playerid, COLOR_RED, GREEN"[KENDARAAN SEWA] "WHITE"Anda berhasil mengatur penyewaan kendaraan ("GREEN"ID:%d"WHITE") menjadi gratis selama %d jam.", placeid, time_durasi);
+						// hari
+						}else{
+							sendPesan(playerid, COLOR_RED, GREEN"[KENDARAAN SEWA] "WHITE"Anda berhasil mengatur penyewaan kendaraan ("GREEN"ID:%d"WHITE") menjadi gratis selama %d hari.", placeid, time_durasi/24);
+						}
+						RentPlace[placeid][rentPlaceFree] = 1;
+						RentPlace[placeid][rentPlaceFreeDurasi] = durasi_habis;
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_rent_place SET durasi_gratis = %d WHERE id = %d", durasi_habis, placeid);
+						mysql_tquery(koneksi, pQuery[playerid]);
+						reloadRentVehPlaceLabel(placeid);
+					// semua tempat
+					}else{
+						// jam
+						if(tipe_waktu == 0){
+							sendPesan(playerid, COLOR_RED, GREEN"[KENDARAAN SEWA] "WHITE"Anda berhasil mengatur semua penyewaan kendaraan menjadi gratis selama %d jam.", time_durasi);
+						// hari
+						}else{
+							sendPesan(playerid, COLOR_RED, GREEN"[KENDARAAN SEWA] "WHITE"Anda berhasil mengatur semua penyewaan kendaraan menjadi gratis selama %d hari.", time_durasi/24);
+						}
+						foreach(new i : RentPlaceIterator){
+							if(Iter_Contains(RentPlaceIterator, i)){
+								RentPlace[i][rentPlaceFree] = 1;
+								RentPlace[i][rentPlaceFreeDurasi] = durasi_habis;
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_rent_place SET durasi_gratis = %d WHERE id = %d", durasi_habis, i);
+								mysql_tquery(koneksi, pQuery[playerid]);
+								reloadRentVehPlaceLabel(i);
+							}
+						}
+					}
+				}
+				DeletePVar(playerid, "durasi_vehicle_free");
+				DeletePVar(playerid, "tipe_vehicle_rent_free");
+				DeletePVar(playerid, "placeid_vehicle_rent");
+				DeletePVar(playerid, "tipewaktu_vehicle_rent_free");
+			}else{
+				DeletePVar(playerid, "durasi_vehicle_free");
+				DeletePVar(playerid, "tipe_vehicle_rent_free");
+				DeletePVar(playerid, "placeid_vehicle_rent");
+				DeletePVar(playerid, "tipewaktu_vehicle_rent_free");
 			}
 			return 1;
 		}
@@ -8357,6 +8551,19 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 				RemovePlayerFromVehicle(playerid);
 			}
 		}else if(Iter_Contains(RentVehIterator, RentVehID[vehid])){
+			new placeid = ClosestRentVehPlace(playerid);
+			if(placeid != -1){
+				if(RentPlace[placeid][rentPlaceFree] == 1){
+					if(gettime() > RentPlace[placeid][rentPlaceFreeDurasi]){
+						RentPlace[placeid][rentPlaceFree] = 0;
+						RentPlace[placeid][rentPlaceFreeDurasi] = 0;
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_rent_place SET durasi_gratis = 0 WHERE id = %d", placeid);
+						mysql_tquery(koneksi, pQuery[playerid]);
+						reloadRentVehPlaceLabel(placeid);
+						RemovePlayerFromVehicle(playerid);
+					}
+				}
+			}
 			if(GetLevelAdminPlayer(playerid) == 2 && RentVehEdit[playerid] == 1) return 1;
 			if(RentPlayerVehID[vehid] == -1){
 				ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE, DIALOG_STYLE_MSGBOX, "Penyewaan Kendaraan", WHITE"Apakah anda ingin menyewa kendaraan ini? Jika anda ingin silahkan klik "GREEN"Sewa"WHITE" untuk melanjutkan.", "Sewa", "Batal");

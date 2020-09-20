@@ -826,6 +826,8 @@ enum RentVehicleInfo
 	rentVehPlaceID,
     Float:rentVehPos[4],
 	rentPlaceID,
+	rentPlaceFree,
+	rentPlaceFreeDurasi,
 	Text3D:rentPlaceLabel,
 	Float:rentPlacePos[3],
 	rentPlayerVehID,

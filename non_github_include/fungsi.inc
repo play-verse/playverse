@@ -4979,17 +4979,18 @@ EncodeTires(tires1, tires2, tires3, tires4){
 }
 
 loadAllRentVehPlace(){
-	new placeid, pX[32], pY[32], pZ[32];
+	new placeid, time_durasi, pX[32], pY[32], pZ[32];
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `vehicle_rent_place`");
 	cache_get_row_count(row);
 	while(idx < row){
 		result = cache_save();
 		cache_get_value_name_int(idx, "id", placeid);
+		cache_get_value_name_int(idx, "durasi_gratis", time_durasi);
 		cache_get_value_name(idx, "pos_x", pX);
 		cache_get_value_name(idx, "pos_y", pY);
 		cache_get_value_name(idx, "pos_z", pZ);
-		createRentVehPlace(placeid, floatstr(pX), floatstr(pY), floatstr(pZ));
+		createRentVehPlace(placeid, time_durasi, floatstr(pX), floatstr(pY), floatstr(pZ));
 		cache_set_active(result);
 		
 		#if DEBUG_SERVER_LOAD == true
@@ -5001,24 +5002,45 @@ loadAllRentVehPlace(){
 	cache_delete(result);
 }
 
-createRentVehPlace(placeid, Float:pX, Float:pY, Float:pZ){
+createRentVehPlace(placeid, time_durasi, Float:pX, Float:pY, Float:pZ){
 	if(placeid < MAX_PLACE_RENT_VEHICLES){
-		new id = CreateDynamicSphere(pX, pY, pZ, 10.0);
+		new status_sewa[16],
+			id = CreateDynamicSphere(pX, pY, pZ, 10.0);
 		RentPlaceID[id] = placeid;
 		RentPlace[placeid][rentPlaceID] = id;
+		if(time_durasi > 0){
+			RentPlace[placeid][rentPlaceFree] = 1;
+			format(status_sewa, sizeof(status_sewa), "Gratis");
+		}else{
+			RentPlace[placeid][rentPlaceFree] = 0;
+			format(status_sewa, sizeof(status_sewa), "Bayar");
+		}
+		RentPlace[placeid][rentPlaceFreeDurasi] = time_durasi;
 		RentPlace[placeid][rentPlacePos][0] = pX;
 		RentPlace[placeid][rentPlacePos][1] = pY;
 		RentPlace[placeid][rentPlacePos][2] = pZ;
-
-		new label[256];
-		format(label, sizeof(label), WHITE"["GREEN"Penyewaan Kendaraan"WHITE"]\nNo : "GREEN"%d", placeid);
-		RentPlace[placeid][rentPlaceLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, pX, pY, pZ+0.5, 5.0);
+		reloadRentVehPlaceLabel(placeid);
 		Iter_Add(RentPlaceIterator, placeid);
 		return 1;
 	}else{
 		print("Rent Vehicle Place mencapai limit!");
 	}
 	return 0;
+}
+
+reloadRentVehPlaceLabel(placeid){
+	if(IsValidDynamic3DTextLabel(RentPlace[placeid][rentPlaceLabel])){
+		DestroyDynamic3DTextLabel(RentPlace[placeid][rentPlaceLabel]);
+	}
+
+	new status_sewa[16], label[256];
+	if(RentPlace[placeid][rentPlaceFree] > 0){
+		format(status_sewa, sizeof(status_sewa), "Gratis");
+	}else{
+		format(status_sewa, sizeof(status_sewa), "Bayar");
+	}
+	format(label, sizeof(label), WHITE"["GREEN"Penyewaan Kendaraan"WHITE"]\nNo : "GREEN"%d"WHITE"\nStatus : "GREEN"%s", placeid, status_sewa);
+	RentPlace[placeid][rentPlaceLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, RentPlace[placeid][rentPlacePos][0], RentPlace[placeid][rentPlacePos][1], RentPlace[placeid][rentPlacePos][2]+0.5, 5.0);
 }
 
 ClosestRentVehPlace(playerid, Float: range = 5.0){
