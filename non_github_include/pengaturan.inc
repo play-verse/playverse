@@ -4,6 +4,12 @@
 #undef MAX_PLAYERS
 #define MAX_PLAYERS 50
 
+#define DISABLE_REGISTER
+
+#define FORUM_URL		"https://forum.playverse.org/"
+#define WIKI_URL		"https://wiki.playverse.org/"
+#define UCP_URL			"https://ucp.playverse.org/"
+
 #define NAMA_SERVER			"Playverse"
 #define RULES_SERVER		"\n\
 							1. Dilarang menggunakan cheat apapun.\n\

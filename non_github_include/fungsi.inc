@@ -12,6 +12,15 @@ publicFor: isRegistered(playerid)
 		InterpolateCameraLookAt(playerid, 2572.100097, -1254.850952, 82.680725, 2466.521972, -1651.870483, 46.339923, 15000);
 	}
 
+	// Cek Nama Format Nama
+	if(!cekAllowNama(PlayerInfo[playerid][pPlayerName])){
+		// Sendclient messagenya sengaja dipisah agar pengeksekusiannya terstruktur dan tidak didahului oleh perintah Kick dikarenakan jika satu Sendclientmessage dengan string yang panjang, rendernya juga lama.
+		SendClientMessage(playerid, COLOR_RED, "Nama yang anda gunakan tidak mengikuti rules server!");
+		SendClientMessage(playerid, COLOR_YELLOW, "Nama hanya dapat berisi huruf dan _ (underscore), nama juga harus terdiri dari minimal 3 karakter.");
+		SendClientMessage(playerid, COLOR_YELLOW, "Nama tidak dapat diawali dan diakhiri underscore!");
+		KickEx(playerid);
+		return 1;
+	}
 
 	// Cek jika field id user kosong - maka dianggap belum ada user
 	new bool:is_null = true;
@@ -113,24 +122,32 @@ publicFor: isRegistered(playerid)
 	}
 	else
 	{
-		// Cek Nama Format Nama
-		if(!cekAllowNama(PlayerInfo[playerid][pPlayerName])){
-			// Sendclient messagenya sengaja dipisah agar pengeksekusiannya terstruktur dan tidak didahului oleh perintah Kick dikarenakan jika satu Sendclientmessage dengan string yang panjang, rendernya juga lama.
-			SendClientMessage(playerid, COLOR_RED, "Nama yang anda gunakan tidak mengikuti rules server!");
-			SendClientMessage(playerid, COLOR_YELLOW, "Nama hanya dapat berisi huruf dan _ (underscore), nama juga harus terdiri dari minimal 3 karakter.");
-			SendClientMessage(playerid, COLOR_YELLOW, "Nama tidak dapat diawali dan diakhiri underscore!");
+		#if defined DISABLE_REGISTER
+			SendClientMessage(playerid, COLOR_RED, "Akun belum terdaftar");
+			SendClientMessage(playerid, COLOR_YELLOW, "Silahkan mendaftar via forum, menggunakan link "FORUM_URL".");
+			SendClientMessage(playerid, COLOR_YELLOW, "Baca juga instruksi pendaftaran akun melalui "WIKI_URL" ataupun forum.");
+
+			format(pDialog[playerid], sizePDialog, YELLOW"Selamat datang di Playverse Virtual Roleplay\n\n");
+			strcat(pDialog[playerid], WHITE"Sebagai player baru anda dapat mengikuti instruksi pada "FORUM_URL"\n");
+			strcat(pDialog[playerid], WHITE"Atau berikut adalah alur pendaftaran.\n");
+			strcat(pDialog[playerid], WHITE"1. Daftar akun forum dengan link "YELLOW""FORUM_URL".\n");
+			strcat(pDialog[playerid], WHITE"2. Verifikasi email forum (jika tidak verifikasi maka akun forum tidak aktif).\n");
+			strcat(pDialog[playerid], WHITE"3. Login ke UCP di "YELLOW""UCP_URL" "WHITE"(gunakan akun forum yang aktif).\n");
+			strcat(pDialog[playerid], WHITE"4. Daftarkan akun SA-MP pada UCP.\n");
+			strcat(pDialog[playerid], WHITE"5. Login ke SA-MP dan selamat bermain.\n\n");
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Akun belum terdaftar", pDialog[playerid], "Ok", "");
+
 			KickEx(playerid);
-			return 1;
-		}
+		#else
+			PlayerInfo[playerid][tampilHUDStats] = true;	
 
-		PlayerInfo[playerid][tampilHUDStats] = true;	
+			// Spawn player
+			SetSpawnInfo(playerid, 0, 0, 2093.7747,-1806.4586,13.5499,87.6500, 0, 0, 0, 0, 0, 0);
+			SetPlayerVirtualWorld(playerid, playerid + 100);
+			// SpawnPlayer(playerid);
 
-		// Spawn player
-		SetSpawnInfo(playerid, 0, 0, 2093.7747,-1806.4586,13.5499,87.6500, 0, 0, 0, 0, 0, 0);
-		SetPlayerVirtualWorld(playerid, playerid + 100);
-		// SpawnPlayer(playerid);
-
-        ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD, WHITE"SILAHKAN DAFTAR", WHITE"Kamu "RED"belum "WHITE"terdaftar di server","Daftar","Keluar");
+			ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD, WHITE"SILAHKAN DAFTAR", WHITE"Kamu "RED"belum "WHITE"terdaftar di server","Daftar","Keluar");
+		#endif
 	}
 	return 1;
 
