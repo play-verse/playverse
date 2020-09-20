@@ -402,8 +402,6 @@ publicFor: registerUser(playerid)
 		setUangPlayer(playerid, 100);
 		// tampilkanTextDrawUang(playerid);
 
-		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET current_skin = '%d' WHERE id = '%d'", registerInfo[playerid][freeSkinID], PlayerInfo[playerid][pID]);
-		mysql_tquery(koneksi, pQuery[playerid]);
 		PlayerInfo[playerid][skinID] = registerInfo[playerid][freeSkinID];
 
 		saveHistoryLogin(playerid);
