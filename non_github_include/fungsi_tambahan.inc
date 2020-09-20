@@ -1,7 +1,7 @@
 /**
     Macro Function 
  */
-#define PlayerTalking(%0)               ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 0, 0, 0, 2000, 1)
+#define PlayerTalking(%0)               ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 2000, 1)
 #define ActorTalking(%0)                ApplyDynamicActorAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 0)
 #define PlayerGivesAnimation(%0)        ApplyAnimation(%0, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1)
 #define PlayerTakesAnimation(%0)        ApplyAnimation(%0, "CASINO", "SLOT_PLYR", 4.1, 0, 1, 1, 0, 2000, 1)
@@ -13,7 +13,7 @@
 
 #define IsPlayerOnTrade(%0)         (PlayerInfo[%0][onTradeWith] != INVALID_PLAYER_ID)
 
-#define ClearChat(%0)               for(new _i=0;_i!=10;++_i) SendClientMessage(%0, -1, "")
+#define ClearChatEx(%0)               for(new _i=0;_i!=10;++_i) SendClientMessage(%0, -1, "")
 
 #define GetNamaRarity(%0)           ITEM_RARITY[%0 - 1][namaRarity]
 #define GetColorRarity(%0)          ITEM_RARITY[%0 - 1][colorRarity]

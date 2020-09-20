@@ -552,3 +552,8 @@ showDialogBuatRentVeh(playerid){
     }
     return ShowPlayerDialog(playerid, DIALOG_ADMIN_RENT_VEHICLE_BUAT, DIALOG_STYLE_TABLIST_HEADERS, "Vehicle Rent System :", str_daftar_veh, "Pilih", "Kembali");
 }
+
+showReportPlayer(playerid){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.*,b.nama FROM report_log a INNER JOIN `user` b ON b.id = a.id_user ORDER BY a.id DESC LIMIT %i, %i", BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+    return mysql_tquery(koneksi, pQuery[playerid], "tampilReportPlayer", "i", playerid);
+}
