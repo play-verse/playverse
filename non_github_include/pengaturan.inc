@@ -21,7 +21,7 @@
 							7. Harus menaati peraturan roleplay yang berlaku.\n\
 							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
 
-#define MAX_SERVER_ITEM 62 // Diatur sesuai dengan banyak data didatabase 
+#define MAX_SERVER_ITEM 68 // Diatur sesuai dengan banyak data didatabase 
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
