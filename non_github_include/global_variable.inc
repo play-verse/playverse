@@ -62,6 +62,7 @@ enum pInfo
 	// Menyimpan timer count down sebelum dia di spawn di rumah sakit
 	inDie, // Jika sedang sekarat bilangan positif - untuk sekarat, 0 - untuk false
 	inPenjara, // Jika sedang di penjara
+	inHelp, // Jika sedang minta bantuan polisi
 
     preloadAnim, // Preload anim
 	inHouse,
@@ -804,6 +805,54 @@ new const SIM_SOAL[][INFO_SOAL] = {
 };
 
 /**
+    Sewa Kendaraan
+*/
+enum INFO_HARGA_VEHICLE_RENT {
+	namaModel[16],
+	idModel,
+    hargaModel
+}
+
+new const HARGA_VEHICLE_RENT[][INFO_HARGA_VEHICLE_RENT] = {
+    {"Fagio", 462, 3},
+	{"Bike", 509, 1}
+};
+
+enum RentVehicleInfo
+{
+	rentVehID,
+	rentVehList,
+    rentVehModel,
+	rentVehPlaceID,
+    Float:rentVehPos[4],
+	rentPlaceID,
+	rentPlaceFree,
+	rentPlaceFreeDurasi,
+	Text3D:rentPlaceLabel,
+	Float:rentPlacePos[3],
+	rentPlayerVehID,
+	rentPlayerVehList,
+	rentPlayerVehUser,
+	rentPlayerVehUserPid,
+    rentPlayerVehModel,
+	rentPlayerVehPlaceID,
+	rentPlayerVehTime,
+    Float:rentPlayerVehPos[4],
+}
+
+new Iterator:RentVehIterator<MAX_VEHICLES>,
+	RentVeh[MAX_VEHICLES][RentVehicleInfo],
+	Iterator:RentPlaceIterator<MAX_PLACE_RENT_VEHICLES>,
+	RentPlace[MAX_PLACE_RENT_VEHICLES][RentVehicleInfo],
+	Iterator:RentPlayerVehIter<MAX_VEHICLES>,
+	RentPlayerVeh[MAX_VEHICLES][RentVehicleInfo],
+	RentPlaceID[2048] = {-1, ...}, // Jumlah sphere / dynamic area, kalau di isi MAX_PLACE_RENT_VEHICLES jadi minus karena kelebihan kapasitas
+	RentVehID[MAX_VEHICLES] = {-1, ...},
+	RentVehEdit[MAX_PLAYERS],
+	RentPlayerVehID[MAX_VEHICLES] = {-1, ...},
+	RentPlayerVehUser[MAX_PLAYERS] = {-1, ...};
+
+/**
     Speedometer
 */
 new PlayerText:SpeedoTD_VehInfo[MAX_PLAYERS][2],
@@ -1346,24 +1395,13 @@ enum FarmInfo{
     Float: plantRZ
 }
 
-enum POINT_NARKO_INFO {
-    Float:NARKO_X,
-    Float:NARKO_Y,
-    Float:NARKO_Z
-}
-new const POINT_NARKO[][POINT_NARKO_INFO] = {
-    {-347.8211, -1046.2611, 59.8125},
-    {-76.8100, -1136.6704, 1.0781},
-	{-401.6376, -1419.8185, 26.3281},
-	{-610.9626, -1071.5093, 23.4350}
-};
-
 enum POINT_NARKO_ACTOR_INFO {
 	Float:NARKO_X,
     Float:NARKO_Y,
     Float:NARKO_Z,
 	Float:NARKO_A
 }
+
 new const POINT_NARKO_ACTOR[][POINT_NARKO_ACTOR_INFO] = {
     {-347.8122,-1045.7191,59.8125,182.658},
     {-76.8813,-1136.6028,1.0781,68.5732},
@@ -1513,7 +1551,7 @@ enum _:OBJECT_POLICE_TYPE
 	OBJECT_TYPE_RANJAU,
 	OBJECT_TYPE_BARIKADE,
 	OBJECT_TYPE_GARIS,
-	OBJECT_TYPE_CONE,
+	OBJECT_TYPE_SIGN,
 	OBJECT_TYPE_SPEEDCAM
 }
 
