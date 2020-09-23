@@ -3394,7 +3394,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						new hitung = 0, subString[50];
 						format(pDialog[playerid], sizePDialog, WHITE"Daftar ID papan terdekat (sejauh radius 20 meter) "RED"dengan LIMIT 20 papan.\n");
-						foreach(new i : Range(0, jumlahBoard)){
+
+						foreach(new i : BoardIterator){
 							if(IsPlayerInRangeOfPoint(playerid, 20, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ])){
 								format(subString, 50, "ID - %d\n", i);
 								strcat(pDialog[playerid], subString);
@@ -3464,9 +3465,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				if(strlen(inputtext) < 1 || strlen(inputtext) > 1000) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN, DIALOG_STYLE_INPUT, "Input tulisan", RED"Panjang tulisan harus antara 1 hingga 1000 karakter.\n"WHITE"Silahkan Input text yang ingin anda tulis di papan.", "Ok", "Kembali");
 
-				if((jumlahBoard + 1) >= MAX_BOARDS) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN, DIALOG_STYLE_INPUT, "Input tulisan", RED"Server telah mencapai batas maksimal papan.\n"WHITE"Silahkan Input text yang ingin anda tulis di papan.", "Ok", "Kembali");
+				new i = Iter_Free(BoardIterator);
 
-				new i = jumlahBoard;
+				if(i == -1) return showDialogPesan(playerid, "Maximum", RED"Server telah mencapai batas maksimal papan.");
+
 				GetPlayerPos(playerid, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ]);
 				BoardInfo[i][bModel] = GetPVarInt(playerid, "a_model_papan");
 				BoardInfo[i][bCX] = BoardInfo[i][bCX] + 2;
@@ -3486,8 +3488,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				format(pDialog[playerid], sizePDialog, "Berhasil membuat board "WHITE"ID %d. (object: 5846)", i);
 				SendClientMessage(playerid, COLOR_GREEN, pDialog[playerid]);
 
-				SaveBoard(BoardInfo[i][bModel], BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ], BoardInfo[i][bCRX], BoardInfo[i][bCRY], BoardInfo[i][bCRZ], BoardInfo[i][bText], BoardInfo[i][bFontSiz]);
-				jumlahBoard++;
+				SaveBoard(BoardInfo[i][bModel], BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ], BoardInfo[i][bCRX], BoardInfo[i][bCRY], BoardInfo[i][bCRZ], BoardInfo[i][bText], BoardInfo[i][bFontSiz], i, true);
 			}else{
 				return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN_MODEL, DIALOG_STYLE_MSGBOX, "Input ID Object Papan", "Input ID object papan (gunakan \"19805\" jika ingin papan biasa)\nJika ingin melihat model lain buka dev.prineside.com lalu masukan keyword \"board\"\nPastikan untuk menginputkan id yang benar.", "Ok", "Kembali");
 			}
@@ -3538,7 +3539,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SetDynamicObjectMaterialText(BoardInfo[idx][bBoard], 0, BoardInfo[idx][bText],OBJECT_MATERIAL_SIZE_256x128, "Arial", BoardInfo[idx][bFontSiz], 1, 0x000000FF,0xFFFFFFFF,OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
 
 				SendClientMessage(playerid, COLOR_BLUE, "* Anda berhasil mengubah text pada papan.");
-				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
+				
+				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], idx);
+
 				bEditID[playerid] = 0;
 				EditingObject[playerid] = EDITING_NONE;
 			}
@@ -3569,7 +3572,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				BoardInfo[idx][bFontSiz] = strval(inputtext);
 				SetDynamicObjectMaterialText(BoardInfo[idx][bBoard], 0, BoardInfo[idx][bText],OBJECT_MATERIAL_SIZE_256x128, "Arial", BoardInfo[idx][bFontSiz], 1, 0x000000FF,0xFFFFFFFF,OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
 
-				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
+				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], idx);
+
 				bEditID[playerid] = 0;
 				EditingObject[playerid] = EDITING_NONE;
 			}else{
@@ -10004,7 +10008,8 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 			EditingObject[playerid] = EDITING_NONE;
 			BoardInfo[idx][bStatus] = 0;
 			
-			SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
+			SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], idx);
+
 			format(pDialog[playerid], sizePDialog, "* Kamu berhasil mengedit posisi dari board ID : %d.", idx);
 			SendClientMessage(playerid, COLOR_GREEN, pDialog[playerid]);
 		}

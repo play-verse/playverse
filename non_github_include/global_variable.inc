@@ -866,7 +866,6 @@ new PlayerText:SpeedoTD_VehInfo[MAX_PLAYERS][2],
  */
 enum boardInfo
 {
-	boardID,
 	bBoard,
 	bModel,
 	Float:bCX,
@@ -880,7 +879,7 @@ enum boardInfo
 	bFontSiz
 }
 new BoardInfo[MAX_BOARDS][boardInfo];
-new jumlahBoard = 0; // Menyimpan jumlah Board
+new Iterator:BoardIterator<MAX_BOARDS>;
 
 new bEditID[MAX_PLAYERS];
 new Float:bCPos[MAX_PLAYERS][3];

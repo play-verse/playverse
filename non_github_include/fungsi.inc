@@ -3661,61 +3661,72 @@ mulaiPraktikSIM(playerid){
 
 UnloadBoards(){
 	static const kosong[boardInfo];
-	foreach(new i : Range(0, jumlahBoard)){
+	foreach(new i : BoardIterator){
 		DestroyDynamicObject(BoardInfo[i][bBoard]);
 		BoardInfo[i] = kosong;
+
+		new cur = i;
+		Iter_SafeRemove(BoardIterator, cur, i);		
 	}
-	jumlahBoard = 0;
 }
 
-DeleteBoard(i){
-	DestroyDynamicObject(BoardInfo[i][bBoard]);
-	mysql_format(koneksi, sQuery, sizeSQuery, "DELETE FROM papan WHERE id_papan = '%d'", BoardInfo[i][boardID]);
+DeleteBoard(boardid){
+	DestroyDynamicObject(BoardInfo[boardid][bBoard]);
+	mysql_format(koneksi, sQuery, sizeSQuery, "DELETE FROM papan WHERE id_papan = '%d'", boardid);
 	mysql_tquery(koneksi, sQuery);
 
+	Iter_Remove(BoardIterator, boardid);
+
 	static const kosong[boardInfo];
-	BoardInfo[i] = kosong;
+	BoardInfo[boardid] = kosong;
 }
 
 LoadBoards()
 {
 	new Cache:result = mysql_query(koneksi, "SELECT * FROM papan");
-	new temp_text[1000];
-	cache_get_row_count(jumlahBoard);
-	foreach(new i : Range(0, jumlahBoard)){
-		cache_get_value_name_int(i, "id_papan", BoardInfo[i][boardID]);
-		cache_get_value_name_int(i, "id_model", BoardInfo[i][bModel]);
-		cache_get_value_name_int(i, "font_size", BoardInfo[i][bFontSiz]);
+	new temp_text[1000],
+		boardid,
+		rows;
+	
+	cache_get_row_count(rows);
 
-		cache_get_value_name_float(i, "pos_x", BoardInfo[i][bCX]);
-		cache_get_value_name_float(i, "pos_y", BoardInfo[i][bCY]);
-		cache_get_value_name_float(i, "pos_z", BoardInfo[i][bCZ]);
-		cache_get_value_name_float(i, "rot_x", BoardInfo[i][bCRX]);
-		cache_get_value_name_float(i, "rot_y", BoardInfo[i][bCRY]);
-		cache_get_value_name_float(i, "rot_z", BoardInfo[i][bCRZ]);
+	for(new i = 0; i < rows; i++){
+		cache_get_value_name_int(i, "id_papan", boardid);
+
+		cache_get_value_name_int(i, "id_model", BoardInfo[boardid][bModel]);
+		cache_get_value_name_int(i, "font_size", BoardInfo[boardid][bFontSiz]);
+
+		cache_get_value_name_float(i, "pos_x", BoardInfo[boardid][bCX]);
+		cache_get_value_name_float(i, "pos_y", BoardInfo[boardid][bCY]);
+		cache_get_value_name_float(i, "pos_z", BoardInfo[boardid][bCZ]);
+		cache_get_value_name_float(i, "rot_x", BoardInfo[boardid][bCRX]);
+		cache_get_value_name_float(i, "rot_y", BoardInfo[boardid][bCRY]);
+		cache_get_value_name_float(i, "rot_z", BoardInfo[boardid][bCRZ]);
 		
 		cache_get_value_name(i, "text", temp_text);
-		format(BoardInfo[i][bText], 1000, "%s", temp_text);
+		format(BoardInfo[boardid][bText], 1000, "%s", temp_text);
 
 		#if defined DEBUG_SERVER_LOAD
-			printf("Board ID(%d) berhasil di load", BoardInfo[i][boardID]);
+			printf("Board ID(%d) berhasil di load", boardid);
 		#endif
 
-		strreplace(BoardInfo[i][bText], "\\n", "\n");
+		strreplace(BoardInfo[boardid][bText], "\\n", "\n");
 		
-		BoardInfo[i][bBoard] = CreateDynamicObject(BoardInfo[i][bModel], BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ], BoardInfo[i][bCRX], BoardInfo[i][bCRY], BoardInfo[i][bCRZ]);
+		BoardInfo[boardid][bBoard] = CreateDynamicObject(BoardInfo[boardid][bModel], BoardInfo[boardid][bCX], BoardInfo[boardid][bCY], BoardInfo[boardid][bCZ], BoardInfo[boardid][bCRX], BoardInfo[boardid][bCRY], BoardInfo[boardid][bCRZ]);
 
-		SetDynamicObjectMaterialText(BoardInfo[i][bBoard], 0, BoardInfo[i][bText], OBJECT_MATERIAL_SIZE_256x128, "Arial", BoardInfo[i][bFontSiz], 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
-		BoardInfo[i][bStatus] = 1;
+		Iter_Add(BoardIterator, boardid);
+
+		SetDynamicObjectMaterialText(BoardInfo[boardid][bBoard], 0, BoardInfo[boardid][bText], OBJECT_MATERIAL_SIZE_256x128, "Arial", BoardInfo[boardid][bFontSiz], 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
+		BoardInfo[boardid][bStatus] = 1;
 	}
 	cache_delete(result);
 }
 
 // Kosongkan board id untuk INSERT
 // isi argumen board id untuk UPDATE
-SaveBoard(modelid, Float:x, Float:y, Float:z, Float:rot_x, Float:rot_y, Float:rot_z, const text[], fontsize, boardid = -1)
+SaveBoard(modelid, Float:x, Float:y, Float:z, Float:rot_x, Float:rot_y, Float:rot_z, const text[], fontsize, boardid, bool:baru = false)
 {
-	if(boardid == -1){ // INSERT
+	if(baru){ // Insert
 		mysql_format(koneksi, sQuery, sizeSQuery, "INSERT INTO papan(id_model,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,text,font_size) VALUES('%d', '%f', '%f', '%f', '%f', '%f', '%f', '%e', '%d')", modelid, x, y, z, rot_x, rot_y, rot_z, text, fontsize);
 	}else{ // Update
 		mysql_format(koneksi, sQuery, sizeSQuery, "UPDATE papan SET id_model = '%d', pos_x = '%f', pos_y = '%f',pos_z = '%f', rot_x = '%f', rot_y = '%f', rot_z = '%f', text = '%e', font_size = '%d' WHERE id_papan = '%d'", modelid, x, y, z, rot_x, rot_y, rot_z, text, fontsize, boardid);
