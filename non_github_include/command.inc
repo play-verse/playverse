@@ -509,6 +509,61 @@ CMD:pma(playerid, params[]){
     return 1;
 }
 
+CMD:spec(playerid, params[]) {
+	new idtujuan;
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+	
+	if(sscanf(params, "u", idtujuan))
+        return error_syntax(playerid, "/spec [id tujuan]");
+
+	if(idtujuan == INVALID_PLAYER_ID || idtujuan == playerid || !IsPlayerConnected(idtujuan))
+        return error_command(playerid, "Pemain tujuan tidak valid.");
+
+	if(PlayerInfo[idtujuan][inSpectating] != INVALID_PLAYER_ID)
+		return error_command(playerid, "Pemain ini sedang spectator orang lain.");
+
+	if(GetPlayerState(idtujuan) == PLAYER_STATE_WASTED)
+        return error_command(playerid, "Pemain tujuan tidak berada dalam kondisi bisa di spec.");
+
+	if(PlayerInfo[playerid][inSpectating] == INVALID_PLAYER_ID){	
+        GetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
+        GetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+        GetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
+        GetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
+		
+        TogglePlayerSpectating(playerid, 1);
+
+		SpectatePlayer(playerid, idtujuan);
+        sendPesan(playerid, COLOR_PINK, TAG_SPEC" "WHITE"Anda sekarang men-spectator %s.", PlayerInfo[idtujuan][pPlayerName]);
+
+		PlayerInfo[playerid][inSpectating] = idtujuan;
+        PlayerInfo[idtujuan][inSpectate] = true;
+	} else {
+        SpectatePlayer(playerid, idtujuan);
+        sendPesan(playerid, COLOR_PINK, TAG_SPEC" "WHITE"Anda sekarang men-spectator %s.", PlayerInfo[idtujuan][pPlayerName]);
+
+        PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+
+		PlayerInfo[playerid][inSpectating] = idtujuan;
+        PlayerInfo[idtujuan][inSpectate] = true;
+	}
+    return 1;
+}
+
+CMD:specoff(playerid, const params[]) {
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+	if(PlayerInfo[playerid][inSpectating] == INVALID_PLAYER_ID)
+        return error_command(playerid, "Anda tidak sedang spektator siapapun.");
+
+    PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+    PlayerInfo[playerid][inSpectating] = INVALID_PLAYER_ID;
+	TogglePlayerSpectating(playerid, 0);
+	return 1;
+}
+
 /**
     End Admin Command
 */

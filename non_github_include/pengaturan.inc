@@ -596,6 +596,7 @@
 #define TAG_SKILL				"Skill:"
 #define TAG_REPORT 				"REPORT:"
 #define TAG_ASK 				"Ask:"
+#define TAG_SPEC				"Spec:"
 
 /*
 	Job Define

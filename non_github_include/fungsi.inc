@@ -258,6 +258,8 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][tampilSpeedo] = true;
 	PlayerInfo[playerid][tampilJam] = true;
 
+	PlayerInfo[playerid][inSpectate] = false;
+
 	PlayerInfo[playerid][isOnMask] = 0;
 
 	lepasTandaTrade(playerid);
@@ -280,6 +282,8 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][last_y] = 0;
 	PlayerInfo[playerid][last_z] = 0;
 	PlayerInfo[playerid][last_a] = 0;
+
+	PlayerInfo[playerid][inSpectating] = INVALID_PLAYER_ID;
 
 	/**
 		Invetory Item
@@ -490,6 +494,8 @@ spawnPemain(playerid, dari_callback = 0)
 			SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
 			if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 		}
+
+		PlayerInfo[playerid][inSpectating] = INVALID_PLAYER_ID;
 
 		PlayerInfo[playerid][lastHp] = 0;
 		PlayerInfo[playerid][lastArmour] = 0;

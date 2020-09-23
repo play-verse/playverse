@@ -117,6 +117,9 @@ enum pInfo
 	// 0 jika tidak memakai apapun
 	isOnMask, 
 
+	inSpectating, // ID player yang sedang di spec
+	bool:inSpectate, // Jika sedang dispectator
+
 	hungryStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 	thirstyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 

@@ -114,6 +114,18 @@ public OnPlayerDisconnect(playerid, reason){
 		SpeedoTimer[playerid] = -1;
 	}
 
+	if(PlayerInfo[playerid][inSpectating] != INVALID_PLAYER_ID && IsPlayerConnected(PlayerInfo[playerid][inSpectating]))
+		PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+
+	if(PlayerInfo[playerid][inSpectate]){
+		foreach(new i : Player){
+			if(PlayerInfo[i][inSpectating] == playerid){
+				cmd_specoff(playerid, "");
+				sendPesan(i, COLOR_BLUE, TAG_SPEC" "WHITE"%s telah meninggalkan server.", PlayerInfo[playerid][pPlayerName]);
+			}
+		}
+	}
+
 	reset_PerbaikiKendaraan(playerid);
 
 	if(PlayerInfo[playerid][sudahLogin]) {
@@ -8538,6 +8550,13 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 		PlayerTextDrawSetString(playerid, SpeedoTD_VehInfo[playerid][0], GetVehicleModelName(GetVehicleModel(vehid)));
 		ShowSpeedoForPlayer(playerid, vehid);
 
+		if(PlayerInfo[playerid][inSpectate]){
+			foreach(new i : Player){
+				if(PlayerInfo[i][inSpectating] == playerid)
+					SpectatePlayer(i, playerid);
+			}
+		}
+
 		// Filtering state and condition
 		if(newstate == PLAYER_STATE_DRIVER && Iter_Contains(DVehIterator, vehid)){
 			format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
@@ -8633,6 +8652,12 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}
 	}else if((oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER) && newstate == PLAYER_STATE_ONFOOT){
+		if(PlayerInfo[playerid][inSpectate]){
+			foreach(new i : Player){
+				if(PlayerInfo[i][inSpectating] == playerid)
+					SpectatePlayer(i, playerid);
+			}
+		}
 		HideSpeedoForPlayer(playerid);
 	}
 	return 1;
@@ -10288,6 +10313,17 @@ public OnPlayerDamage(&playerid, &Float:amount, &issuerid, &weapon, &bodypart){
 public OnPlayerStreamIn(playerid, forplayerid){
 	if(PlayerInfo[playerid][isOnMask])
 		ShowPlayerNameTagForPlayer(playerid, forplayerid, 0);
+	return 1;
+}
+
+public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
+	if(newinteriorid != oldinteriorid){
+		foreach(new i : Player) {
+			if(PlayerInfo[i][inSpectating] == playerid){
+				SetPlayerInterior(i, GetPlayerInterior(playerid));
+			}
+		}
+	}
 	return 1;
 }
 
