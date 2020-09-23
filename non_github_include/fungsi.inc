@@ -2433,86 +2433,65 @@ publicFor: progressNambang(playerid, dari_tambang){
 
 		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 1.5);
 
-		// Testing Probalities
-		// new angka = random(15);
-		// switch(angka){
-		// 	case 1:
-		// 	{
-		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"Berlian.");
-		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
-		// 		tambahItemPlayer(playerid, 10, 1);
-		// 	}
-		// 	case 2..3:
-		// 	{
-		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
-		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
-		// 		tambahItemPlayer(playerid, 9, 1);
-		// 	}
-		// 	case 4..6:{
-		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"Aluminium.");
-		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Aluminium sangat berguna untuk banyak hal, kerja bagus.");
-		// 		tambahItemPlayer(playerid, 11, 1);
-		// 	}
-		// 	case 7..9:
-		// 	{
-		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
-		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
-		// 		tambahItemPlayer(playerid, 12, 1);
-		// 	}
-		// 	default:
-		// 	{
-		// 		SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
-		// 	}
-		// }
-
-		// Real Probalities
-		new angka = random(1000000);
-		if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
-			SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"berlian.");
-			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
-			tambahItemPlayer(playerid, ID_BERLIAN, 1);
-		}else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
-			SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
-			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
-			tambahItemPlayer(playerid, ID_EMAS, 1);
-		}else if(angka >= 20001 && angka <= 100000){ // Kemungkinan 8%
-			SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"besi.");
-			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Besi sangat berguna untuk banyak hal, kerja bagus.");
-			tambahItemPlayer(playerid, ID_BESI, 1);
-		}else if(angka >= 100001 && angka <= 400000){ // Kemungkinan 30%
-			new rand = random(1000) + 1;
-			if(rand >= 1 && rand <= 30){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
-				tambahItemPlayer(playerid, ID_PERAK, 1);
-			}else if(rand >= 31 && rand <= 40){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"aluminium.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Aluminium sangat berguna untuk banyak hal, kerja bagus.");
-				tambahItemPlayer(playerid, ID_ALUMINIUM, 1);
-			}else if(rand >= 41 && rand <= 100){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"bijih aluminium.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih aluminium merupakan bahan dasar aluminium.");
-				tambahItemPlayer(playerid, ID_BIJIH_ALUMINIUM, 1);
-			}else if(rand >= 101 && rand <= 200){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"bijih perak.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih perak merupakan bahan dasar perak.");
-				tambahItemPlayer(playerid, ID_BIJIH_PERAK, 1);
-			}else if(rand >= 201 && rand <= 204){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"serbuk berlian.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk berlian merupakan bahan dasar berlian.");
-				tambahItemPlayer(playerid, ID_SERBUK_BERLIAN, 1);
-			}else if(rand >= 205 && rand <= 2010){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"serbuk emas.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk emas merupakan bahan dasar emas.");
-				tambahItemPlayer(playerid, ID_SERBUK_EMAS, 1);
-			}else{
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "GREY"bijih besi.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih besi merupakan material yang bagus.");
-				tambahItemPlayer(playerid, ID_BIJIH_BESI, 1);
-			}
-
+		if(dari_tambang == 1){
+			// Real Probalities
+			new const angka = random(1000000);
+			if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
+				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"berlian.");
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
+				tambahItemPlayer(playerid, ID_BERLIAN, 1);
+			}else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
+				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
+				tambahItemPlayer(playerid, ID_EMAS, 1);
+			}else if(angka >= 20001 && angka <= 100000){ // Kemungkinan 8%
+				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"besi.");
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Besi sangat berguna untuk banyak hal, kerja bagus.");
+				tambahItemPlayer(playerid, ID_BESI, 1);
+			}else if(angka >= 100001 && angka <= 400000){ // Kemungkinan 30%
+				new const rand = random(1000) + 1;
+				if(rand >= 1 && rand <= 30){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
+					tambahItemPlayer(playerid, ID_PERAK, 1);
+				}else if(rand >= 31 && rand <= 40){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"aluminium.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Aluminium sangat berguna untuk banyak hal, kerja bagus.");
+					tambahItemPlayer(playerid, ID_ALUMINIUM, 1);
+				}else if(rand >= 41 && rand <= 100){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"bijih aluminium.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih aluminium merupakan bahan dasar aluminium.");
+					tambahItemPlayer(playerid, ID_BIJIH_ALUMINIUM, 1);
+				}else if(rand >= 101 && rand <= 200){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"bijih perak.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih perak merupakan bahan dasar perak.");
+					tambahItemPlayer(playerid, ID_BIJIH_PERAK, 1);
+				}else if(rand >= 201 && rand <= 204){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"serbuk berlian.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk berlian merupakan bahan dasar berlian.");
+					tambahItemPlayer(playerid, ID_SERBUK_BERLIAN, 1);
+				}else if(rand >= 205 && rand <= 2010){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"serbuk emas.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk emas merupakan bahan dasar emas.");
+					tambahItemPlayer(playerid, ID_SERBUK_EMAS, 1);
+				}else{
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "GREY"bijih besi.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih besi merupakan material yang bagus.");
+					tambahItemPlayer(playerid, ID_BIJIH_BESI, 1);
+				}
+			}else
+				SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
 		}else{
-			SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
+			// Real Probalities
+			new const angka = random(1000);
+			if(angka < 150){ // Probabilitas 15%
+				sendPesan(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "GREY"batu bara"WHITE" sebanyak "GREEN"%d"WHITE", kerja bagus.", (angka % 3) + 1);
+				tambahItemPlayer(playerid, ID_BATU_BARA, (angka % 3) + 1);
+			}else if(angka >= 151 && angka <= 300){ // Kemungkinan 15%
+				sendPesan(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"batu bata"WHITE" sebanyak "GREEN"%d"WHITE", kerja bagus.", (angka % 3) + 1);
+				tambahItemPlayer(playerid, ID_BATU_BATA, (angka % 3) + 1);
+			}else
+				SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
 		}
 
 		reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya

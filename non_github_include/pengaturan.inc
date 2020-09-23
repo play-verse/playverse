@@ -257,7 +257,6 @@
 #define DIALOG_TARIK_UANG_NOMINAL 56
 #define DIALOG_TARIK_UANG_KONFIRMASI 57
 #define DIALOG_INFO_SALDO_HISTORY 58
-#define DIALOG_TANYA_TAMBANG 59
 #define DIALOG_MENU_GAJI 60
 #define DIALOG_PILIHAN_AMBIL_GAJI 61
 #define DIALOG_E_BANKING_MENU 62
@@ -642,6 +641,10 @@
 #define ID_BERLIAN			10
 #define ID_ALUMINIUM		11
 #define ID_BESI				64
+
+#define ID_BATU_BATA		69
+#define ID_BATU_BARA		70
+
 /*
  * End Defining Constant for ID item
  */

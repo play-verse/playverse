@@ -3079,36 +3079,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_TANYA_TAMBANG:
-		{
-			if(response){
-				if(PlayerAction[playerid][sedangNambang]) return error_command(playerid, "Anda sedang menambang, tunggu beberapa saat.");
-				if(getStatusMakanPemain(playerid) <= 10) return error_command(playerid, "Anda kehabisan energi, silahkan makan terlebih dahulu untuk dapat bekerja kembali.");
-
-				inline responseQuery(){
-					new total_item;
-					static const kapasitas_unpredict = 5;
-					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + kapasitas_unpredict) > PlayerInfo[playerid][limitItem]){
-						// Buat kapasitas unpredict nya 5 - Karena berlian memiliki kapasitas paling besar yaitu 5
-						dialogInventoryItemTidakMuat(playerid, 1, total_item, .kapasitas_unpredict = kapasitas_unpredict);
-					}else{
-						PlayerAction[playerid][timerNambang] = SetPreciseTimer("selesaiNambang", 3000, 0, "i", playerid);
-						PlayerAction[playerid][sedangNambang] = true;
-						GameTextForPlayer(playerid, "~w~Sedang ~y~menambang...", 3000, 3);
-
-						SetPlayerAttachedObject(playerid, MINING_ATTACH_INDEX, 19631, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
-						TogglePlayerControllable(playerid, 0);
-						SetPlayerArmedWeapon(playerid, 0);
-						ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
-						PlayerInfo[playerid][isOnAnimation] = true;
-						PlayerInfo[playerid][isBusy] = true;
-					}
-				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
-			}
-			return 1;
-		}
 		case DIALOG_MENU_GAJI:
 		{
 			if(response){
@@ -10241,11 +10211,6 @@ public OnPlayerEnterDynamicArea(playerid, areaid){
 	// }else if(areaid == AREA_tellerBankLS[0] || areaid == AREA_tellerBankLS[1]){
 	// 	showDialogTellerBank(playerid);
 	// 	return 1;
-	// ID nya harus simetris (berurut dengan setiap |x2 - x1| = 1)
-	}else if(areaid >= AREA_Tambang[0] && areaid <= AREA_Tambang[sizeof(AREA_Tambang) - 1]) {
-		if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Anda harus berjalan kaki untuk dapat menambang!");
-		if(PlayerInfo[playerid][sisaPalu] <= 0) return error_command(playerid, "Anda kehabisan kesempatan menambang, gunakan item Palu Tambang untuk menambah kesempatan anda.");
-		ShowPlayerDialog(playerid, DIALOG_TANYA_TAMBANG, DIALOG_STYLE_MSGBOX, "Ingin menambang", "Apakah anda ingin menambang?\n"YELLOW"Note : Anda membutuhkan cangkul untuk menambang.", "Ya", "Tidak");
 	}else if(areaid == AREA_beliMakanCepatSaji){
 		showDialogTempatMakan(playerid);
 		return 1;

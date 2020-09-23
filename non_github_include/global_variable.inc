@@ -814,8 +814,9 @@ enum INFO_HARGA_VEHICLE_RENT {
 }
 
 new const HARGA_VEHICLE_RENT[][INFO_HARGA_VEHICLE_RENT] = {
-    {"Fagio", 462, 3},
-	{"Bike", 509, 1}
+    {"Fagio", 462, 4},
+	{"Bike", 509, 1},
+	{"Bobcat", 422,10}
 };
 
 enum RentVehicleInfo

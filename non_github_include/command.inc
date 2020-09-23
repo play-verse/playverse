@@ -829,13 +829,17 @@ CMD:pizzaboy(playerid, const params[]){
 }
 
 CMD:gali(playerid, params[]){
-    if(!IsPlayerInAnyDynamicArea(playerid) || !GetPVarType(playerid, "last_area") || GetPVarInt(playerid, "last_area") != AREA_bisaNambang)
+    if(!IsPlayerInAnyDynamicArea(playerid) || !GetPVarType(playerid, "last_area"))
         return error_command(playerid, "Hanya dapat menggali/menambang pada area pertambangan.");
 
     if(PlayerInfo[playerid][sisaPalu] <= 0)
         return error_command(playerid, "Anda membutuhkan cangkul/palu tambang untuk menggali");
 
-    if(PlayerInfo[playerid][isBusy]) return error_command(playerid, "Anda sedang melakukan hal lain sekarang.");
+    if(PlayerInfo[playerid][isBusy]) 
+        return error_command(playerid, "Anda sedang melakukan hal lain sekarang.");
+
+    if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT)
+        return error_command(playerid, "Anda harus berjalan kaki untuk dapat melakukan hal ini."); 
 
     if(getStatusMakanPemain(playerid) <= 15.0) return error_command(playerid, "Anda kehabisan energi, silahkan makan terlebih dahulu untuk dapat bekerja kembali.");
 
@@ -844,10 +848,19 @@ CMD:gali(playerid, params[]){
         return server_message(playerid, "Anda tidak memiliki cukup ruang pada inventory, kosongkan minimal 5 slot.");
     }
 
+    new dari_tambang;
+    if(GetPVarInt(playerid, "last_area") == AREA_bisaNambang){
+        dari_tambang = 1;
+    }else if(GetPVarInt(playerid, "last_area") >= AREA_Tambang[0] && GetPVarInt(playerid, "last_area") <= AREA_Tambang[sizeof(AREA_Tambang) - 1]){
+        dari_tambang = 0;
+    }else{
+        return error_command(playerid, "Hanya dapat menggali/menambang pada area pertambangan.");
+    }
+
     // Pinjam timer perbaiki
     if(PerbaikiTimer[playerid] != -1)
         DeletePreciseTimer(PerbaikiTimer[playerid]);
-    PerbaikiTimer[playerid] = SetPreciseTimer("progressNambang", 1000, true, "ii", playerid, 1);
+    PerbaikiTimer[playerid] = SetPreciseTimer("progressNambang", 1000, true, "ii", playerid, dari_tambang);
 
     // Pinjam progress bar dari potong pohon
     SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);

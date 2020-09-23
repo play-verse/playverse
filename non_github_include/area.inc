@@ -145,7 +145,7 @@ loadAllArea(){
 
     // AREA Tambang
     foreach(new i : Range(0, sizeof(POSISI_NAMBANG))){
-        AREA_Tambang[i] = buatSPDanLabel(POSISI_NAMBANG[i][POSISI_X], POSISI_NAMBANG[i][POSISI_Y], POSISI_NAMBANG[i][POSISI_Z], GREEN"Tambang tersedia", 1.5, POSISI_NAMBANG[i][POSISI_VW], POSISI_NAMBANG[i][POSISI_INT]);
+        AREA_Tambang[i] = buatSPDanLabel(POSISI_NAMBANG[i][POSISI_X], POSISI_NAMBANG[i][POSISI_Y], POSISI_NAMBANG[i][POSISI_Z], GREEN"Gali disini", 1.5, POSISI_NAMBANG[i][POSISI_VW], POSISI_NAMBANG[i][POSISI_INT]);
     }
     if(AREA_Tambang[0] + sizeof(POSISI_NAMBANG) - 1 != AREA_Tambang[sizeof(POSISI_NAMBANG) - 1]){
         printf("[ERROR] #05 Area tambang tidak memiliki ID yang simetris.");
