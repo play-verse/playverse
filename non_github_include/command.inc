@@ -983,19 +983,19 @@ CMD:panggil(playerid, params[])
 	return 1;
 }
 
-CMD:panggilmedis(playerid, params[]){
-    if(!PlayerInfo[playerid][inDie])
-        return error_command(playerid, "Anda tidak sedang sekarat.");
+// CMD:panggilmedis(playerid, params[]){
+//     if(!PlayerInfo[playerid][inDie])
+//         return error_command(playerid, "Anda tidak sedang sekarat.");
 
-    new pesan[144];
-    format(pesan, sizeof(pesan), TAG_MEDIC" "WHITE"%s(%d) sedang sekarat dan membutuhkan bantuan. Ketik /tampillokasipasien %d untuk menandai marker.", PlayerInfo[playerid][pPlayerName], playerid);
-    new online_medic = SendMessageToDutyMedic(COLOR_RED, pesan);
+//     new pesan[144];
+//     format(pesan, sizeof(pesan), TAG_MEDIC" "WHITE"%s(%d) sedang sekarat dan membutuhkan bantuan. Ketik /tampillokasipasien %d untuk menandai marker.", PlayerInfo[playerid][pPlayerName], playerid);
+//     new online_medic = SendMessageToDutyMedic(COLOR_RED, pesan);
 
-    if(!online_medic)
-        return SendClientMessage(playerid, COLOR_RED, TAG_MEDIC" "WHITE"Tidak ada medis yang sedang bertugas saat ini.");
+//     if(!online_medic)
+//         return SendClientMessage(playerid, COLOR_RED, TAG_MEDIC" "WHITE"Tidak ada medis yang sedang bertugas saat ini.");
 
-    return SendClientMessage(playerid, COLOR_MEDIC, TAG_MEDIC" "WHITE"Berhasil mengirim pesan ke medis, tunggu beberapa saat..");
-}
+//     return SendClientMessage(playerid, COLOR_MEDIC, TAG_MEDIC" "WHITE"Berhasil mengirim pesan ke medis, tunggu beberapa saat..");
+// }
 
 CMD:tampillokasipasien(playerid, params[]){
     if(!IsPlayerOnDutyMedic(playerid)) 
@@ -1519,7 +1519,11 @@ CMD:batalsewakendaraan(playerid, params[]){
     new placeid = ClosestRentVehPlace(playerid);
     if(placeid != -1){
         if(placeid != RentPlayerVeh[rentid][rentPlayerVehPlaceID]) return error_command(playerid, "Anda harus di sekitar penyewaan kendaraan yang anda sewa pertama kali.");
-        unloadRentPlayerVeh(playerid, 1);
+        if(Iter_Contains(RentPlayerVehIter, rentid)){
+			if(RentPlayerVehUser[playerid] != -1){
+				unloadRentPlayerVeh(vehid, 1);
+			}
+		}
         SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil membatalkan sewa kendaraan.");
     }else{
         error_command(playerid, "Anda harus di sekitar penyewaan kendaraan yang anda sewa pertama kali.");
@@ -1552,3 +1556,16 @@ CMD:berdiri(playerid, params[]){
 /**
     End Animations
  */
+
+CMD:help(playerid, params[]){
+    if(GetLevelAdminPlayer(playerid) >= 0){
+        ShowPlayerDialog(playerid, DIALOG_HELP_MENU, DIALOG_STYLE_LIST, "Perintah Bantuan :", "Umum\nPekerjaan\nAdmin\nFraksi", "Pilih", "Batal");
+    }else{
+        if(IsPlayerOnDutyMedic(playerid) || IsPlayerOnDutyPolice(playerid)){
+            ShowPlayerDialog(playerid, DIALOG_HELP_MENU, DIALOG_STYLE_LIST, "Perintah Bantuan :", "Umum\nPekerjaan\nFraksi", "Pilih", "Batal");
+        }else{
+            ShowPlayerDialog(playerid, DIALOG_HELP_MENU, DIALOG_STYLE_LIST, "Perintah Bantuan :", "Umum\nPekerjaan", "Pilih", "Batal");
+        }
+    }
+    return 1;
+}

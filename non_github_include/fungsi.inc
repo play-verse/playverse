@@ -4996,7 +4996,7 @@ EncodeTires(tires1, tires2, tires3, tires4){
 }
 
 loadAllRentVehPlace(){
-	new placeid, time_durasi, pX[32], pY[32], pZ[32];
+	new placeid, time_durasi, Float:spawn_x, Float:spawn_y, Float:spawn_z;
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `vehicle_rent_place`");
 	cache_get_row_count(row);
@@ -5004,10 +5004,10 @@ loadAllRentVehPlace(){
 		result = cache_save();
 		cache_get_value_name_int(idx, "id", placeid);
 		cache_get_value_name_int(idx, "durasi_gratis", time_durasi);
-		cache_get_value_name(idx, "pos_x", pX);
-		cache_get_value_name(idx, "pos_y", pY);
-		cache_get_value_name(idx, "pos_z", pZ);
-		createRentVehPlace(placeid, time_durasi, floatstr(pX), floatstr(pY), floatstr(pZ));
+		cache_get_value_name_float(idx, "pos_x", spawn_x);
+		cache_get_value_name_float(idx, "pos_y", spawn_y);
+		cache_get_value_name_float(idx, "pos_z", spawn_z);
+		createRentVehPlace(placeid, time_durasi, spawn_x, spawn_y, spawn_z);
 		cache_set_active(result);
 		
 		#if DEBUG_SERVER_LOAD == true
@@ -5017,6 +5017,22 @@ loadAllRentVehPlace(){
 		idx++;
 	}
 	cache_delete(result);
+}
+
+unloadAllRentVehPlace(){
+	foreach(new i : RentPlaceIterator){
+		new areaid = RentPlace[i][rentPlaceID];
+		RentPlaceID[areaid] = -1;
+		RentPlace[i][rentPlaceID] = -1;
+		RentPlace[i][rentPlaceFree] = -1;
+		RentPlace[i][rentPlaceFreeDurasi] = -1;
+		RentPlace[i][rentPlacePos][0] = 0;
+		RentPlace[i][rentPlacePos][1] = 0;
+		RentPlace[i][rentPlacePos][2] = 0;
+		DestroyDynamicArea(areaid);
+		DestroyDynamic3DTextLabel(RentPlace[i][rentPlaceLabel]);
+		Iter_SafeRemove(RentPlaceIterator, i, i);
+	}
 }
 
 createRentVehPlace(placeid, time_durasi, Float:pX, Float:pY, Float:pZ){
@@ -5074,7 +5090,7 @@ ClosestRentVehPlace(playerid, Float: range = 5.0){
 }
 
 loadAllRentVeh(){
-	new rentid, listid, placeid, spawn_x[32], spawn_y[32], spawn_z[32], z_angle[32];
+	new rentid, listid, placeid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle;
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `vehicle_rent`");
 	cache_get_row_count(row);
@@ -5083,11 +5099,11 @@ loadAllRentVeh(){
 		cache_get_value_name_int(idx, "id", rentid);
 		cache_get_value_name_int(idx, "id_list", listid);
 		cache_get_value_name_int(idx, "id_place", placeid);
-		cache_get_value_name(idx, "pos_x", spawn_x);
-		cache_get_value_name(idx, "pos_y", spawn_y);
-		cache_get_value_name(idx, "pos_z", spawn_z);
-		cache_get_value_name(idx, "pos_z", z_angle);
-		createRentVeh(rentid, listid, placeid, floatstr(spawn_x), floatstr(spawn_y), floatstr(spawn_z), floatstr(z_angle));
+		cache_get_value_name_float(idx, "pos_x", spawn_x);
+		cache_get_value_name_float(idx, "pos_y", spawn_y);
+		cache_get_value_name_float(idx, "pos_z", spawn_z);
+		cache_get_value_name_float(idx, "pos_a", z_angle);
+		createRentVeh(rentid, listid, placeid, spawn_x, spawn_y, spawn_z, z_angle);
 		cache_set_active(result);
 		
 		#if DEBUG_SERVER_LOAD == true
@@ -5097,6 +5113,23 @@ loadAllRentVeh(){
 		idx++;
 	}
 	cache_delete(result);
+}
+
+unloadAllRentVeh(){
+	foreach(new i : RentVehIterator){
+		new vehid = RentVeh[i][rentVehID];
+		RentVehID[vehid] = -1;
+		RentVeh[i][rentVehID] = -1;
+		RentVeh[i][rentVehList] = -1;
+		RentVeh[i][rentVehPlaceID] = -1;
+		RentVeh[i][rentVehModel] = -1;
+		RentVeh[i][rentVehPos][0] = 0;
+		RentVeh[i][rentVehPos][1] = 0;
+		RentVeh[i][rentVehPos][2] = 0;
+		RentVeh[i][rentVehPos][3] = 0;
+		DestroyVehicle(vehid);
+		Iter_SafeRemove(RentVehIterator, i, i);
+	}
 }
 
 createRentVeh(rentid, listid, placeid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle){
@@ -5113,6 +5146,7 @@ createRentVeh(rentid, listid, placeid, Float:spawn_x, Float:spawn_y, Float:spawn
 		RentVeh[rentid][rentVehPos][2] = spawn_z;
 		RentVeh[rentid][rentVehPos][3] = z_angle;
 		Iter_Add(RentVehIterator, rentid);
+		SetVehicleToRespawn(id);
 		return 1;
 	}else{
 		print("Rent Vehicle mencapai limit!");
@@ -5120,29 +5154,33 @@ createRentVeh(rentid, listid, placeid, Float:spawn_x, Float:spawn_y, Float:spawn
 	return 0;
 }
 
-respawnRentVeh(playerid, rentid){
-	new Float:sX, Float:sY, Float:sZ, Float:sAngle, vehid = GetPlayerVehicleID(playerid);
-	GetVehiclePos(vehid, sX, sY, sZ);
-	GetVehicleZAngle(vehid, sAngle);
+respawnRentVeh(playerid, vehicleid, rentid){
+	new Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle;
+	GetVehiclePos(vehicleid, spawn_x, spawn_y, spawn_z);
+	GetVehicleZAngle(vehicleid, z_angle);
+
 	DestroyVehicle(RentVeh[rentid][rentVehID]);
-	createRentVeh(rentid, RentVeh[rentid][rentVehList], RentVeh[rentid][rentVehPlaceID], sX, sY, sZ, sAngle);
+	createRentVeh(rentid, RentVeh[rentid][rentVehList], RentVeh[rentid][rentVehPlaceID], spawn_x, spawn_y, spawn_z, z_angle);
+	
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_rent SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f' WHERE id = '%d'", spawn_x, spawn_y, spawn_z, z_angle, rentid);
+	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }
 
 loadRentPlayerVeh(playerid){
 	inline responseQuery(){
 		if(cache_num_rows()){
-			new rentid, userid, listid, placeid, rent_time, spawn_x[32], spawn_y[32], spawn_z[32], z_angle[32];
+			new rentid, userid, listid, placeid, rent_time, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle;
 			cache_get_value_name_int(0, "id", rentid);
 			cache_get_value_name_int(0, "id_user", userid);
 			cache_get_value_name_int(0, "id_list", listid);
 			cache_get_value_name_int(0, "id_place", placeid);
-			cache_get_value_name(0, "pos_x", spawn_x);
-			cache_get_value_name(0, "pos_y", spawn_y);
-			cache_get_value_name(0, "pos_z", spawn_z);
-			cache_get_value_name(0, "pos_z", z_angle);
+			cache_get_value_name_float(0, "pos_x", spawn_x);
+			cache_get_value_name_float(0, "pos_y", spawn_y);
+			cache_get_value_name_float(0, "pos_z", spawn_z);
+			cache_get_value_name_float(0, "pos_a", z_angle);
 			cache_get_value_name_int(0, "expired", rent_time);
-			createRentPlayerVeh(playerid, rentid, userid, listid, placeid, floatstr(spawn_x), floatstr(spawn_y), floatstr(spawn_z), floatstr(z_angle), rent_time);
+			createRentPlayerVeh(playerid, rentid, userid, listid, placeid, spawn_x, spawn_y, spawn_z, z_angle, rent_time);
 			#if DEBUG_SERVER_LOAD == true
 				printf("Rent Vehicle load id(%d)", rentid);
 			#endif
@@ -5151,22 +5189,20 @@ loadRentPlayerVeh(playerid){
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM vehicle_rent_player WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 }
 
-unloadRentPlayerVeh(playerid, delete){
-	new vehid = RentPlayerVehUser[playerid],
-		rentid = RentPlayerVehID[vehid],
-		bensin = GetVehicleFuel(vehid);
-		
+unloadRentPlayerVeh(vehicleid, delete){
+	new temp_query[512],
+		rentid = RentPlayerVehID[vehicleid],
+		Pid = RentPlayerVeh[rentid][rentPlayerVehUserPid];
+
 	if(delete == 0){
-		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_rent_player SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', bensin = '%d' WHERE id = '%d'", RentPlayerVeh[rentid][rentPlayerVehPos][0], RentPlayerVeh[rentid][rentPlayerVehPos][1], RentPlayerVeh[rentid][rentPlayerVehPos][2], RentPlayerVeh[rentid][rentPlayerVehPos][3], bensin, rentid);
-		mysql_tquery(koneksi, pQuery[playerid]);
+		saveRentPlayerVeh(vehicleid);
 	}else if(delete == 1){
-		mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM vehicle_rent_player WHERE id  = %d", rentid);
-		mysql_tquery(koneksi, pQuery[playerid]);
+		mysql_format(koneksi, temp_query, sizeof(temp_query), "DELETE FROM vehicle_rent_player WHERE id  = %d", rentid);
+		mysql_tquery(koneksi, temp_query);
 	}
 
-	DestroyVehicle(vehid);
-	RentPlayerVehID[vehid] = -1;
-	RentPlayerVehUser[playerid] = -1;
+	RentPlayerVehID[vehicleid] = -1;
+	RentPlayerVehUser[Pid] = -1;
 	RentPlayerVeh[rentid][rentPlayerVehID] = -1;
 	RentPlayerVeh[rentid][rentPlayerVehUser] = -1;
 	RentPlayerVeh[rentid][rentPlayerVehUserPid] = -1;
@@ -5178,6 +5214,7 @@ unloadRentPlayerVeh(playerid, delete){
 	RentPlayerVeh[rentid][rentPlayerVehPos][2] = 0;
 	RentPlayerVeh[rentid][rentPlayerVehPos][3] = 0;
 	RentPlayerVeh[rentid][rentPlayerVehTime] = 0;
+	DestroyVehicle(vehicleid);
 	Iter_Remove(RentPlayerVehIter, rentid);
 	return 1;
 }
@@ -5200,9 +5237,22 @@ createRentPlayerVeh(playerid, rentid, userid, listid, placeid, Float:spawn_x, Fl
 		RentPlayerVeh[rentid][rentPlayerVehPos][3] = z_angle;
 		RentPlayerVeh[rentid][rentPlayerVehTime] = rent_time;
 		Iter_Add(RentPlayerVehIter, rentid);
+		SetVehicleToRespawn(id);
 		return 1;
 	}else{
 		print("Rent Player Vehicle mencapai limit!");
 	}
 	return 0;
+}
+
+saveRentPlayerVeh(vehicleid){
+	new temp_query[256], Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle,
+		bensin = GetVehicleFuel(vehicleid),
+		rentid = RentPlayerVehID[vehicleid];
+	GetVehiclePos(vehicleid, spawn_x, spawn_y, spawn_z);
+	GetVehicleZAngle(vehicleid, z_angle);
+
+	mysql_format(koneksi, temp_query, sizeof(temp_query), "UPDATE vehicle_rent_player SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', bensin = '%d' WHERE id = '%d'", spawn_x, spawn_y, spawn_z, z_angle, bensin, rentid);
+	mysql_tquery(koneksi, temp_query);
+	return 1;
 }
