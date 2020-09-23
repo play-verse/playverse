@@ -134,6 +134,11 @@ public OnPlayerDisconnect(playerid, reason){
 					UpdatePosisiDarahVehiclePlayer(vehicleid);
 				}
 			}
+			if(Iter_Contains(RentPlayerVehIter, RentPlayerVehID[vehicleid])){
+				if(RentPlayerVehUser[playerid] != -1){
+					unloadRentPlayerVeh(vehicleid, 0);
+				}
+			}
 		}
 	}else{
 		// Pastikan dia memiliki loginAttempt dan merupakan player terdaftar
@@ -168,10 +173,6 @@ public OnPlayerDisconnect(playerid, reason){
 	// hideTextDrawUang(playerid);
 	ResetPlayerMoney(playerid);
 	unloadTextDrawPemain(playerid);
-
-	if(RentPlayerVehUser[playerid] != -1){
-		unloadRentPlayerVeh(playerid, 0);
-	}
 	return 1;
 }
 
@@ -7451,7 +7452,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						new placeid = ClosestRentVehPlace(playerid);
 						if(placeid != -1){
 							if(placeid != RentVeh[RentVehID[vehid]][rentVehPlaceID]) return error_command(playerid, "Anda harus di sekitar penyewaan kendaraan.");
-							respawnRentVeh(playerid, RentVehID[vehid]);
+							respawnRentVeh(playerid, vehid, RentVehID[vehid]);
 							SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil menyimpan kendaraan sewa.");
 						}else{
 							error_command(playerid, "Anda tidak berada di tempat penyewaan kendaraan.");
@@ -7745,6 +7746,65 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					keterangan
 				);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Detail report", pDialog[playerid], "Ok", "");
+			}
+			return 1;
+		}
+		case DIALOG_HELP_MENU:
+		{
+			if(response){
+				switch(listitem){
+					// Umum
+					case 0:
+					{
+						new str_guide[1500];
+						strcat(str_guide, YELLOW"/infosaya /inventory (/inv) /settings /ask /report\n");
+						strcat(str_guide, YELLOW"/inforumah /rumah /beriuang /pm /r\n");
+						strcat(str_guide, YELLOW"/vehicle /v /batalsewakendaraan /lepashelm /lepastopeng\n");
+						strcat(str_guide, YELLOW"/anim /berdiri /duduk /periksainventory /ephone\n");
+						strcat(str_guide, YELLOW"/panggil /bc /keluar /skill /bunuhdiri\n");
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Umum):", str_guide, "Ok", "");
+					}
+					// Pekerjaan
+					case 1:
+					{
+						new str_guide[1500];
+						strcat(str_guide, YELLOW"/masak /lumberjack /trashmaster /pizzaboy /gali\n");
+						strcat(str_guide, YELLOW"/farm /fishing\n");
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Pekerjaan):", str_guide, "Ok", "");
+					}
+					// Admin
+					case 2:
+					{
+						new str_guide[1500];
+						if(GetLevelAdminPlayer(playerid) >= 1){
+							strcat(str_guide, YELLOW"Level 1 :\n");
+							strcat(str_guide, YELLOW"/kick /jetpack /spawn /pindahpos /ach\n");
+							strcat(str_guide, YELLOW"/slap /apapan /alumber /aatm /aactor\n");
+							strcat(str_guide, YELLOW"/unban /ban /setmedic /pecatmedic /setpolisi\n");
+							strcat(str_guide, YELLOW"/pecatpolisi /tele /tampilreport /get /pma\n");
+						}
+						if(GetLevelAdminPlayer(playerid) >= 2){
+							strcat(str_guide, YELLOW"Level 2 :\n");
+							strcat(str_guide, YELLOW"/aveh /giveitem /givemoney /arumah /arent\n");
+							strcat(str_guide, YELLOW"/setadmin\n");
+						}
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Admin):", str_guide, "Ok", "");
+					}
+					// Fraksi
+					case 3:
+					{
+						new str_guide[1500];
+						if(GetLevelAdminPlayer(playerid) >= 0 || IsPlayerOnDutyMedic(playerid)){
+							strcat(str_guide, YELLOW"/skill /tampillokasipasien\n");
+						}
+						if(GetLevelAdminPlayer(playerid) >= 0 || IsPlayerOnDutyPolice(playerid)){
+							strcat(str_guide, YELLOW"/skill /tampillokasibantuan /buka /tutup /penjarakan\n");
+							strcat(str_guide, YELLOW"/hapusmasapenjara /hancurkan /buat /ubah /borgol\n");
+							strcat(str_guide, YELLOW"/bukaborgol /cekmasatahanan\n");
+						}
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Fraksi):", str_guide, "Ok", "");
+					}
+				}
 			}
 			return 1;
 		}
@@ -8237,6 +8297,14 @@ public OnPlayerDeath(playerid, killerid, reason)
 				UpdatePosisiDarahVehiclePlayer(vehicleid);
 			}
 		}
+		if(Iter_Contains(RentPlayerVehIter, RentPlayerVehID[vehicleid])){
+			new Float:darah;
+			GetVehicleHealth(vehicleid, darah);
+			if(darah > 300.0)
+			{
+				saveRentPlayerVeh(vehicleid);
+			}
+		}
 	}
 
 	return 1;
@@ -8284,6 +8352,7 @@ public OnGameModeInit()
 	Iter_Init(PVehKeys);
 	Iter_Add(ATMs, 0);
 	Iter_Add(TidakDikenali, 0);
+	Iter_Clear(RentPlayerVehIter);
 
 	koneksi = mysql_connect_file();
 	errno = mysql_errno(koneksi);
@@ -8461,6 +8530,8 @@ public OnGameModeExit(){
 	unloadTextdrawGlobal();
 	unloadAllHouse();
 	UnloadBoards();
+	unloadAllRentVeh();
+	unloadAllRentVehPlace();
 	DeletePreciseTimer(worldTimer);
 	mysql_close(koneksi);
 	return 1;
@@ -8582,7 +8653,11 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 					RemovePlayerFromVehicle(playerid);
 				}else{
 					if(gettime() > RentPlayerVeh[RentPlayerVehID[vehid]][rentPlayerVehTime]){
-						unloadRentPlayerVeh(playerid, 1);
+						if(Iter_Contains(RentPlayerVehIter, RentPlayerVehID[vehid])){
+							if(RentPlayerVehUser[playerid] != -1){
+								unloadRentPlayerVeh(vehid, 1);
+							}
+						}
 					}
 				}
 			}
@@ -8622,15 +8697,13 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 			}
 		}
 		if(Iter_Contains(RentPlayerVehIter, RentPlayerVehID[vehicleid])){
-			new Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle,
-				rentid = RentPlayerVehID[vehicleid];
-			GetVehiclePos(vehicleid, spawn_x, spawn_y, spawn_z);
-			GetVehicleZAngle(vehicleid, z_angle);
-			RentPlayerVeh[rentid][rentPlayerVehPos][0] = spawn_x;
-			RentPlayerVeh[rentid][rentPlayerVehPos][1] = spawn_y;
-			RentPlayerVeh[rentid][rentPlayerVehPos][2] = spawn_z;
-			RentPlayerVeh[rentid][rentPlayerVehPos][3] = z_angle;
-		}	
+			new Float:darah;
+			GetVehicleHealth(vehicleid, darah);
+			if(!IsVehicleFlipped(vehicleid) && darah > 251) // kendaraan tidak terbalik dan kendaraan tidak berasap parah
+			{
+				saveRentPlayerVeh(vehicleid);
+			}
+		}
 	}
     return 1;
 }
@@ -9881,7 +9954,11 @@ public OnVehicleDeath(vehicleid, killerid){
 		format(pDialog[Pid], 50, "denda sewa kendaraaan");
 		addTagihanPemain(Pid, TAGIHAN_DENDA_SEWA_KENDARAAN, pDialog[Pid], JENIS_TAGIHAN_DENDA_SEWA_KENDARAAN);
 
-		unloadRentPlayerVeh(Pid, 1);
+		if(Iter_Contains(RentPlayerVehIter, rentid)){
+			if(RentPlayerVehUser[Pid] != -1){
+				unloadRentPlayerVeh(vehicleid, 1);
+			}
+		}
 	}
 	return 1;
 }
