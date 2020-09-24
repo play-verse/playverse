@@ -543,7 +543,13 @@ CMD:spec(playerid, params[]) {
         SpectatePlayer(playerid, idtujuan);
         sendPesan(playerid, COLOR_PINK, TAG_SPEC" "WHITE"Anda sekarang men-spectator %s.", PlayerInfo[idtujuan][pPlayerName]);
 
-        PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+        new cnt = 0;
+        foreach(new i : Player){
+            if(PlayerInfo[i][inSpectating] == PlayerInfo[playerid][inSpectating])
+                cnt++;
+        }
+        if(cnt <= 1)
+            PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
 
 		PlayerInfo[playerid][inSpectating] = idtujuan;
         PlayerInfo[idtujuan][inSpectate] = true;
@@ -558,7 +564,14 @@ CMD:specoff(playerid, const params[]) {
 	if(PlayerInfo[playerid][inSpectating] == INVALID_PLAYER_ID)
         return error_command(playerid, "Anda tidak sedang spektator siapapun.");
 
-    PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+    new cnt = 0;
+    foreach(new i : Player){
+        if(PlayerInfo[i][inSpectating] == PlayerInfo[playerid][inSpectating])
+            cnt++;
+    }
+    if(cnt <= 1)
+        PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+
     PlayerInfo[playerid][inSpectating] = INVALID_PLAYER_ID;
 	TogglePlayerSpectating(playerid, 0);
 	return 1;

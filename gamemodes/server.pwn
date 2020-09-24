@@ -114,8 +114,15 @@ public OnPlayerDisconnect(playerid, reason){
 		SpeedoTimer[playerid] = -1;
 	}
 
-	if(PlayerInfo[playerid][inSpectating] != INVALID_PLAYER_ID && IsPlayerConnected(PlayerInfo[playerid][inSpectating]))
-		PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+	if(PlayerInfo[playerid][inSpectating] != INVALID_PLAYER_ID && IsPlayerConnected(PlayerInfo[playerid][inSpectating])){
+		new cnt = 0;
+        foreach(new i : Player){
+            if(i != playerid && PlayerInfo[i][inSpectating] == PlayerInfo[playerid][inSpectating])
+                cnt++;
+        }
+        if(cnt <= 0)
+            PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+	}
 
 	if(PlayerInfo[playerid][inSpectate]){
 		foreach(new i : Player){
