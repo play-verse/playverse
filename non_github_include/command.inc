@@ -509,6 +509,61 @@ CMD:pma(playerid, params[]){
     return 1;
 }
 
+CMD:spec(playerid, params[]) {
+	new idtujuan;
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+	
+	if(sscanf(params, "u", idtujuan))
+        return error_syntax(playerid, "/spec [id tujuan]");
+
+	if(idtujuan == INVALID_PLAYER_ID || idtujuan == playerid || !IsPlayerConnected(idtujuan))
+        return error_command(playerid, "Pemain tujuan tidak valid.");
+
+	if(PlayerInfo[idtujuan][inSpectating] != INVALID_PLAYER_ID)
+		return error_command(playerid, "Pemain ini sedang spectator orang lain.");
+
+	if(GetPlayerState(idtujuan) == PLAYER_STATE_WASTED)
+        return error_command(playerid, "Pemain tujuan tidak berada dalam kondisi bisa di spec.");
+
+	if(PlayerInfo[playerid][inSpectating] == INVALID_PLAYER_ID){	
+        GetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
+        GetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
+        GetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
+        GetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
+		
+        TogglePlayerSpectating(playerid, 1);
+
+		SpectatePlayer(playerid, idtujuan);
+        sendPesan(playerid, COLOR_PINK, TAG_SPEC" "WHITE"Anda sekarang men-spectator %s.", PlayerInfo[idtujuan][pPlayerName]);
+
+		PlayerInfo[playerid][inSpectating] = idtujuan;
+        PlayerInfo[idtujuan][inSpectate] = true;
+	} else {
+        SpectatePlayer(playerid, idtujuan);
+        sendPesan(playerid, COLOR_PINK, TAG_SPEC" "WHITE"Anda sekarang men-spectator %s.", PlayerInfo[idtujuan][pPlayerName]);
+
+        PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+
+		PlayerInfo[playerid][inSpectating] = idtujuan;
+        PlayerInfo[idtujuan][inSpectate] = true;
+	}
+    return 1;
+}
+
+CMD:specoff(playerid, const params[]) {
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+	if(PlayerInfo[playerid][inSpectating] == INVALID_PLAYER_ID)
+        return error_command(playerid, "Anda tidak sedang spektator siapapun.");
+
+    PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+    PlayerInfo[playerid][inSpectating] = INVALID_PLAYER_ID;
+	TogglePlayerSpectating(playerid, 0);
+	return 1;
+}
+
 /**
     End Admin Command
 */
@@ -829,13 +884,17 @@ CMD:pizzaboy(playerid, const params[]){
 }
 
 CMD:gali(playerid, params[]){
-    if(!IsPlayerInAnyDynamicArea(playerid) || !GetPVarType(playerid, "last_area") || GetPVarInt(playerid, "last_area") != AREA_bisaNambang)
+    if(!IsPlayerInAnyDynamicArea(playerid) || !GetPVarType(playerid, "last_area"))
         return error_command(playerid, "Hanya dapat menggali/menambang pada area pertambangan.");
 
     if(PlayerInfo[playerid][sisaPalu] <= 0)
         return error_command(playerid, "Anda membutuhkan cangkul/palu tambang untuk menggali");
 
-    if(PlayerInfo[playerid][isBusy]) return error_command(playerid, "Anda sedang melakukan hal lain sekarang.");
+    if(PlayerInfo[playerid][isBusy]) 
+        return error_command(playerid, "Anda sedang melakukan hal lain sekarang.");
+
+    if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT)
+        return error_command(playerid, "Anda harus berjalan kaki untuk dapat melakukan hal ini."); 
 
     if(getStatusMakanPemain(playerid) <= 15.0) return error_command(playerid, "Anda kehabisan energi, silahkan makan terlebih dahulu untuk dapat bekerja kembali.");
 
@@ -844,10 +903,19 @@ CMD:gali(playerid, params[]){
         return server_message(playerid, "Anda tidak memiliki cukup ruang pada inventory, kosongkan minimal 5 slot.");
     }
 
+    new dari_tambang;
+    if(GetPVarInt(playerid, "last_area") == AREA_bisaNambang){
+        dari_tambang = 1;
+    }else if(GetPVarInt(playerid, "last_area") >= AREA_Tambang[0] && GetPVarInt(playerid, "last_area") <= AREA_Tambang[sizeof(AREA_Tambang) - 1]){
+        dari_tambang = 0;
+    }else{
+        return error_command(playerid, "Hanya dapat menggali/menambang pada area pertambangan.");
+    }
+
     // Pinjam timer perbaiki
     if(PerbaikiTimer[playerid] != -1)
         DeletePreciseTimer(PerbaikiTimer[playerid]);
-    PerbaikiTimer[playerid] = SetPreciseTimer("progressNambang", 1000, true, "ii", playerid, 1);
+    PerbaikiTimer[playerid] = SetPreciseTimer("progressNambang", 1000, true, "ii", playerid, dari_tambang);
 
     // Pinjam progress bar dari potong pohon
     SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);

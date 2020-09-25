@@ -114,6 +114,18 @@ public OnPlayerDisconnect(playerid, reason){
 		SpeedoTimer[playerid] = -1;
 	}
 
+	if(PlayerInfo[playerid][inSpectating] != INVALID_PLAYER_ID && IsPlayerConnected(PlayerInfo[playerid][inSpectating]))
+		PlayerInfo[PlayerInfo[playerid][inSpectating]][inSpectate] = false;
+
+	if(PlayerInfo[playerid][inSpectate]){
+		foreach(new i : Player){
+			if(PlayerInfo[i][inSpectating] == playerid){
+				cmd_specoff(playerid, "");
+				sendPesan(i, COLOR_BLUE, TAG_SPEC" "WHITE"%s telah meninggalkan server.", PlayerInfo[playerid][pPlayerName]);
+			}
+		}
+	}
+
 	reset_PerbaikiKendaraan(playerid);
 
 	if(PlayerInfo[playerid][sudahLogin]) {
@@ -3079,36 +3091,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_TANYA_TAMBANG:
-		{
-			if(response){
-				if(PlayerAction[playerid][sedangNambang]) return error_command(playerid, "Anda sedang menambang, tunggu beberapa saat.");
-				if(getStatusMakanPemain(playerid) <= 10) return error_command(playerid, "Anda kehabisan energi, silahkan makan terlebih dahulu untuk dapat bekerja kembali.");
-
-				inline responseQuery(){
-					new total_item;
-					static const kapasitas_unpredict = 5;
-					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + kapasitas_unpredict) > PlayerInfo[playerid][limitItem]){
-						// Buat kapasitas unpredict nya 5 - Karena berlian memiliki kapasitas paling besar yaitu 5
-						dialogInventoryItemTidakMuat(playerid, 1, total_item, .kapasitas_unpredict = kapasitas_unpredict);
-					}else{
-						PlayerAction[playerid][timerNambang] = SetPreciseTimer("selesaiNambang", 3000, 0, "i", playerid);
-						PlayerAction[playerid][sedangNambang] = true;
-						GameTextForPlayer(playerid, "~w~Sedang ~y~menambang...", 3000, 3);
-
-						SetPlayerAttachedObject(playerid, MINING_ATTACH_INDEX, 19631, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
-						TogglePlayerControllable(playerid, 0);
-						SetPlayerArmedWeapon(playerid, 0);
-						ApplyAnimation(playerid, "CHAINSAW", "CSAW_1", 4.1, 1, 0, 0, 1, 0, 1);
-						PlayerInfo[playerid][isOnAnimation] = true;
-						PlayerInfo[playerid][isBusy] = true;
-					}
-				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
-			}
-			return 1;
-		}
 		case DIALOG_MENU_GAJI:
 		{
 			if(response){
@@ -3395,7 +3377,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						new hitung = 0, subString[50];
 						format(pDialog[playerid], sizePDialog, WHITE"Daftar ID papan terdekat (sejauh radius 20 meter) "RED"dengan LIMIT 20 papan.\n");
-						foreach(new i : Range(0, jumlahBoard)){
+
+						foreach(new i : BoardIterator){
 							if(IsPlayerInRangeOfPoint(playerid, 20, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ])){
 								format(subString, 50, "ID - %d\n", i);
 								strcat(pDialog[playerid], subString);
@@ -3465,9 +3448,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				if(strlen(inputtext) < 1 || strlen(inputtext) > 1000) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN, DIALOG_STYLE_INPUT, "Input tulisan", RED"Panjang tulisan harus antara 1 hingga 1000 karakter.\n"WHITE"Silahkan Input text yang ingin anda tulis di papan.", "Ok", "Kembali");
 
-				if((jumlahBoard + 1) >= MAX_BOARDS) return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN, DIALOG_STYLE_INPUT, "Input tulisan", RED"Server telah mencapai batas maksimal papan.\n"WHITE"Silahkan Input text yang ingin anda tulis di papan.", "Ok", "Kembali");
+				new i = Iter_Free(BoardIterator);
 
-				new i = jumlahBoard;
+				if(i == -1) return showDialogPesan(playerid, "Maximum", RED"Server telah mencapai batas maksimal papan.");
+
 				GetPlayerPos(playerid, BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ]);
 				BoardInfo[i][bModel] = GetPVarInt(playerid, "a_model_papan");
 				BoardInfo[i][bCX] = BoardInfo[i][bCX] + 2;
@@ -3487,8 +3471,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				format(pDialog[playerid], sizePDialog, "Berhasil membuat board "WHITE"ID %d. (object: 5846)", i);
 				SendClientMessage(playerid, COLOR_GREEN, pDialog[playerid]);
 
-				SaveBoard(BoardInfo[i][bModel], BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ], BoardInfo[i][bCRX], BoardInfo[i][bCRY], BoardInfo[i][bCRZ], BoardInfo[i][bText], BoardInfo[i][bFontSiz]);
-				jumlahBoard++;
+				SaveBoard(BoardInfo[i][bModel], BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ], BoardInfo[i][bCRX], BoardInfo[i][bCRY], BoardInfo[i][bCRZ], BoardInfo[i][bText], BoardInfo[i][bFontSiz], i, true);
 			}else{
 				return ShowPlayerDialog(playerid, DIALOG_ADMIN_PAPAN_BUAT_PAPAN_MODEL, DIALOG_STYLE_MSGBOX, "Input ID Object Papan", "Input ID object papan (gunakan \"19805\" jika ingin papan biasa)\nJika ingin melihat model lain buka dev.prineside.com lalu masukan keyword \"board\"\nPastikan untuk menginputkan id yang benar.", "Ok", "Kembali");
 			}
@@ -3539,7 +3522,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SetDynamicObjectMaterialText(BoardInfo[idx][bBoard], 0, BoardInfo[idx][bText],OBJECT_MATERIAL_SIZE_256x128, "Arial", BoardInfo[idx][bFontSiz], 1, 0x000000FF,0xFFFFFFFF,OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
 
 				SendClientMessage(playerid, COLOR_BLUE, "* Anda berhasil mengubah text pada papan.");
-				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
+				
+				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], idx);
+
 				bEditID[playerid] = 0;
 				EditingObject[playerid] = EDITING_NONE;
 			}
@@ -3570,7 +3555,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				BoardInfo[idx][bFontSiz] = strval(inputtext);
 				SetDynamicObjectMaterialText(BoardInfo[idx][bBoard], 0, BoardInfo[idx][bText],OBJECT_MATERIAL_SIZE_256x128, "Arial", BoardInfo[idx][bFontSiz], 1, 0x000000FF,0xFFFFFFFF,OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
 
-				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
+				SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], idx);
+
 				bEditID[playerid] = 0;
 				EditingObject[playerid] = EDITING_NONE;
 			}else{
@@ -8643,6 +8629,13 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 		PlayerTextDrawSetString(playerid, SpeedoTD_VehInfo[playerid][0], GetVehicleModelName(GetVehicleModel(vehid)));
 		ShowSpeedoForPlayer(playerid, vehid);
 
+		if(PlayerInfo[playerid][inSpectate]){
+			foreach(new i : Player){
+				if(PlayerInfo[i][inSpectating] == playerid)
+					SpectatePlayer(i, playerid);
+			}
+		}
+
 		// Filtering state and condition
 		if(newstate == PLAYER_STATE_DRIVER && Iter_Contains(DVehIterator, vehid)){
 			format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
@@ -8738,6 +8731,12 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}
 	}else if((oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER) && newstate == PLAYER_STATE_ONFOOT){
+		if(PlayerInfo[playerid][inSpectate]){
+			foreach(new i : Player){
+				if(PlayerInfo[i][inSpectating] == playerid)
+					SpectatePlayer(i, playerid);
+			}
+		}
 		HideSpeedoForPlayer(playerid);
 	}
 	return 1;
@@ -10160,7 +10159,8 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 			EditingObject[playerid] = EDITING_NONE;
 			BoardInfo[idx][bStatus] = 0;
 			
-			SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], BoardInfo[idx][boardID]);
+			SaveBoard(BoardInfo[idx][bModel], BoardInfo[idx][bCX], BoardInfo[idx][bCY], BoardInfo[idx][bCZ], BoardInfo[idx][bCRX], BoardInfo[idx][bCRY], BoardInfo[idx][bCRZ], BoardInfo[idx][bText], BoardInfo[idx][bFontSiz], idx);
+
 			format(pDialog[playerid], sizePDialog, "* Kamu berhasil mengedit posisi dari board ID : %d.", idx);
 			SendClientMessage(playerid, COLOR_GREEN, pDialog[playerid]);
 		}
@@ -10315,11 +10315,6 @@ public OnPlayerEnterDynamicArea(playerid, areaid){
 	// }else if(areaid == AREA_tellerBankLS[0] || areaid == AREA_tellerBankLS[1]){
 	// 	showDialogTellerBank(playerid);
 	// 	return 1;
-	// ID nya harus simetris (berurut dengan setiap |x2 - x1| = 1)
-	}else if(areaid >= AREA_Tambang[0] && areaid <= AREA_Tambang[sizeof(AREA_Tambang) - 1]) {
-		if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Anda harus berjalan kaki untuk dapat menambang!");
-		if(PlayerInfo[playerid][sisaPalu] <= 0) return error_command(playerid, "Anda kehabisan kesempatan menambang, gunakan item Palu Tambang untuk menambah kesempatan anda.");
-		ShowPlayerDialog(playerid, DIALOG_TANYA_TAMBANG, DIALOG_STYLE_MSGBOX, "Ingin menambang", "Apakah anda ingin menambang?\n"YELLOW"Note : Anda membutuhkan cangkul untuk menambang.", "Ya", "Tidak");
 	}else if(areaid == AREA_beliMakanCepatSaji){
 		showDialogTempatMakan(playerid);
 		return 1;
@@ -10397,6 +10392,17 @@ public OnPlayerDamage(&playerid, &Float:amount, &issuerid, &weapon, &bodypart){
 public OnPlayerStreamIn(playerid, forplayerid){
 	if(PlayerInfo[playerid][isOnMask])
 		ShowPlayerNameTagForPlayer(playerid, forplayerid, 0);
+	return 1;
+}
+
+public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
+	if(newinteriorid != oldinteriorid){
+		foreach(new i : Player) {
+			if(PlayerInfo[i][inSpectating] == playerid){
+				SetPlayerInterior(i, GetPlayerInterior(playerid));
+			}
+		}
+	}
 	return 1;
 }
 

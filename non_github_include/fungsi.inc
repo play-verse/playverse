@@ -258,6 +258,8 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][tampilSpeedo] = true;
 	PlayerInfo[playerid][tampilJam] = true;
 
+	PlayerInfo[playerid][inSpectate] = false;
+
 	PlayerInfo[playerid][isOnMask] = 0;
 
 	lepasTandaTrade(playerid);
@@ -280,6 +282,8 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][last_y] = 0;
 	PlayerInfo[playerid][last_z] = 0;
 	PlayerInfo[playerid][last_a] = 0;
+
+	PlayerInfo[playerid][inSpectating] = INVALID_PLAYER_ID;
 
 	/**
 		Invetory Item
@@ -490,6 +494,8 @@ spawnPemain(playerid, dari_callback = 0)
 			SetPlayerHealth(playerid, PlayerInfo[playerid][lastHp]);
 			if(PlayerInfo[playerid][lastArmour] > 0) SetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
 		}
+
+		PlayerInfo[playerid][inSpectating] = INVALID_PLAYER_ID;
 
 		PlayerInfo[playerid][lastHp] = 0;
 		PlayerInfo[playerid][lastArmour] = 0;
@@ -2433,86 +2439,65 @@ publicFor: progressNambang(playerid, dari_tambang){
 
 		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 1.5);
 
-		// Testing Probalities
-		// new angka = random(15);
-		// switch(angka){
-		// 	case 1:
-		// 	{
-		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"Berlian.");
-		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
-		// 		tambahItemPlayer(playerid, 10, 1);
-		// 	}
-		// 	case 2..3:
-		// 	{
-		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
-		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
-		// 		tambahItemPlayer(playerid, 9, 1);
-		// 	}
-		// 	case 4..6:{
-		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"Aluminium.");
-		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Aluminium sangat berguna untuk banyak hal, kerja bagus.");
-		// 		tambahItemPlayer(playerid, 11, 1);
-		// 	}
-		// 	case 7..9:
-		// 	{
-		// 		SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
-		// 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
-		// 		tambahItemPlayer(playerid, 12, 1);
-		// 	}
-		// 	default:
-		// 	{
-		// 		SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
-		// 	}
-		// }
-
-		// Real Probalities
-		new angka = random(1000000);
-		if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
-			SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"berlian.");
-			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
-			tambahItemPlayer(playerid, ID_BERLIAN, 1);
-		}else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
-			SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
-			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
-			tambahItemPlayer(playerid, ID_EMAS, 1);
-		}else if(angka >= 20001 && angka <= 100000){ // Kemungkinan 8%
-			SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"besi.");
-			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Besi sangat berguna untuk banyak hal, kerja bagus.");
-			tambahItemPlayer(playerid, ID_BESI, 1);
-		}else if(angka >= 100001 && angka <= 400000){ // Kemungkinan 30%
-			new rand = random(1000) + 1;
-			if(rand >= 1 && rand <= 30){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
-				tambahItemPlayer(playerid, ID_PERAK, 1);
-			}else if(rand >= 31 && rand <= 40){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"aluminium.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Aluminium sangat berguna untuk banyak hal, kerja bagus.");
-				tambahItemPlayer(playerid, ID_ALUMINIUM, 1);
-			}else if(rand >= 41 && rand <= 100){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"bijih aluminium.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih aluminium merupakan bahan dasar aluminium.");
-				tambahItemPlayer(playerid, ID_BIJIH_ALUMINIUM, 1);
-			}else if(rand >= 101 && rand <= 200){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"bijih perak.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih perak merupakan bahan dasar perak.");
-				tambahItemPlayer(playerid, ID_BIJIH_PERAK, 1);
-			}else if(rand >= 201 && rand <= 204){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"serbuk berlian.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk berlian merupakan bahan dasar berlian.");
-				tambahItemPlayer(playerid, ID_SERBUK_BERLIAN, 1);
-			}else if(rand >= 205 && rand <= 2010){
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"serbuk emas.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk emas merupakan bahan dasar emas.");
-				tambahItemPlayer(playerid, ID_SERBUK_EMAS, 1);
-			}else{
-				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "GREY"bijih besi.");
-				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih besi merupakan material yang bagus.");
-				tambahItemPlayer(playerid, ID_BIJIH_BESI, 1);
-			}
-
+		if(dari_tambang == 1){
+			// Real Probalities
+			new const angka = random(1000000);
+			if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
+				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"berlian.");
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
+				tambahItemPlayer(playerid, ID_BERLIAN, 1);
+			}else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
+				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
+				tambahItemPlayer(playerid, ID_EMAS, 1);
+			}else if(angka >= 20001 && angka <= 100000){ // Kemungkinan 8%
+				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"besi.");
+				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Besi sangat berguna untuk banyak hal, kerja bagus.");
+				tambahItemPlayer(playerid, ID_BESI, 1);
+			}else if(angka >= 100001 && angka <= 400000){ // Kemungkinan 30%
+				new const rand = random(1000) + 1;
+				if(rand >= 1 && rand <= 30){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
+					tambahItemPlayer(playerid, ID_PERAK, 1);
+				}else if(rand >= 31 && rand <= 40){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"aluminium.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Aluminium sangat berguna untuk banyak hal, kerja bagus.");
+					tambahItemPlayer(playerid, ID_ALUMINIUM, 1);
+				}else if(rand >= 41 && rand <= 100){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"bijih aluminium.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih aluminium merupakan bahan dasar aluminium.");
+					tambahItemPlayer(playerid, ID_BIJIH_ALUMINIUM, 1);
+				}else if(rand >= 101 && rand <= 200){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"bijih perak.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih perak merupakan bahan dasar perak.");
+					tambahItemPlayer(playerid, ID_BIJIH_PERAK, 1);
+				}else if(rand >= 201 && rand <= 204){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"serbuk berlian.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk berlian merupakan bahan dasar berlian.");
+					tambahItemPlayer(playerid, ID_SERBUK_BERLIAN, 1);
+				}else if(rand >= 205 && rand <= 2010){
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"serbuk emas.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk emas merupakan bahan dasar emas.");
+					tambahItemPlayer(playerid, ID_SERBUK_EMAS, 1);
+				}else{
+					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "GREY"bijih besi.");
+					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih besi merupakan material yang bagus.");
+					tambahItemPlayer(playerid, ID_BIJIH_BESI, 1);
+				}
+			}else
+				SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
 		}else{
-			SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
+			// Real Probalities
+			new const angka = random(1000);
+			if(angka < 150){ // Probabilitas 15%
+				sendPesan(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "GREY"batu bara"WHITE" sebanyak "GREEN"%d"WHITE", kerja bagus.", (angka % 3) + 1);
+				tambahItemPlayer(playerid, ID_BATU_BARA, (angka % 3) + 1);
+			}else if(angka >= 151 && angka <= 300){ // Kemungkinan 15%
+				sendPesan(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"batu bata"WHITE" sebanyak "GREEN"%d"WHITE", kerja bagus.", (angka % 3) + 1);
+				tambahItemPlayer(playerid, ID_BATU_BATA, (angka % 3) + 1);
+			}else
+				SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
 		}
 
 		reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
@@ -3661,61 +3646,72 @@ mulaiPraktikSIM(playerid){
 
 UnloadBoards(){
 	static const kosong[boardInfo];
-	foreach(new i : Range(0, jumlahBoard)){
+	foreach(new i : BoardIterator){
 		DestroyDynamicObject(BoardInfo[i][bBoard]);
 		BoardInfo[i] = kosong;
+
+		new cur = i;
+		Iter_SafeRemove(BoardIterator, cur, i);		
 	}
-	jumlahBoard = 0;
 }
 
-DeleteBoard(i){
-	DestroyDynamicObject(BoardInfo[i][bBoard]);
-	mysql_format(koneksi, sQuery, sizeSQuery, "DELETE FROM papan WHERE id_papan = '%d'", BoardInfo[i][boardID]);
+DeleteBoard(boardid){
+	DestroyDynamicObject(BoardInfo[boardid][bBoard]);
+	mysql_format(koneksi, sQuery, sizeSQuery, "DELETE FROM papan WHERE id_papan = '%d'", boardid);
 	mysql_tquery(koneksi, sQuery);
 
+	Iter_Remove(BoardIterator, boardid);
+
 	static const kosong[boardInfo];
-	BoardInfo[i] = kosong;
+	BoardInfo[boardid] = kosong;
 }
 
 LoadBoards()
 {
 	new Cache:result = mysql_query(koneksi, "SELECT * FROM papan");
-	new temp_text[1000];
-	cache_get_row_count(jumlahBoard);
-	foreach(new i : Range(0, jumlahBoard)){
-		cache_get_value_name_int(i, "id_papan", BoardInfo[i][boardID]);
-		cache_get_value_name_int(i, "id_model", BoardInfo[i][bModel]);
-		cache_get_value_name_int(i, "font_size", BoardInfo[i][bFontSiz]);
+	new temp_text[1000],
+		boardid,
+		rows;
+	
+	cache_get_row_count(rows);
 
-		cache_get_value_name_float(i, "pos_x", BoardInfo[i][bCX]);
-		cache_get_value_name_float(i, "pos_y", BoardInfo[i][bCY]);
-		cache_get_value_name_float(i, "pos_z", BoardInfo[i][bCZ]);
-		cache_get_value_name_float(i, "rot_x", BoardInfo[i][bCRX]);
-		cache_get_value_name_float(i, "rot_y", BoardInfo[i][bCRY]);
-		cache_get_value_name_float(i, "rot_z", BoardInfo[i][bCRZ]);
+	for(new i = 0; i < rows; i++){
+		cache_get_value_name_int(i, "id_papan", boardid);
+
+		cache_get_value_name_int(i, "id_model", BoardInfo[boardid][bModel]);
+		cache_get_value_name_int(i, "font_size", BoardInfo[boardid][bFontSiz]);
+
+		cache_get_value_name_float(i, "pos_x", BoardInfo[boardid][bCX]);
+		cache_get_value_name_float(i, "pos_y", BoardInfo[boardid][bCY]);
+		cache_get_value_name_float(i, "pos_z", BoardInfo[boardid][bCZ]);
+		cache_get_value_name_float(i, "rot_x", BoardInfo[boardid][bCRX]);
+		cache_get_value_name_float(i, "rot_y", BoardInfo[boardid][bCRY]);
+		cache_get_value_name_float(i, "rot_z", BoardInfo[boardid][bCRZ]);
 		
 		cache_get_value_name(i, "text", temp_text);
-		format(BoardInfo[i][bText], 1000, "%s", temp_text);
+		format(BoardInfo[boardid][bText], 1000, "%s", temp_text);
 
 		#if defined DEBUG_SERVER_LOAD
-			printf("Board ID(%d) berhasil di load", BoardInfo[i][boardID]);
+			printf("Board ID(%d) berhasil di load", boardid);
 		#endif
 
-		strreplace(BoardInfo[i][bText], "\\n", "\n");
+		strreplace(BoardInfo[boardid][bText], "\\n", "\n");
 		
-		BoardInfo[i][bBoard] = CreateDynamicObject(BoardInfo[i][bModel], BoardInfo[i][bCX], BoardInfo[i][bCY], BoardInfo[i][bCZ], BoardInfo[i][bCRX], BoardInfo[i][bCRY], BoardInfo[i][bCRZ]);
+		BoardInfo[boardid][bBoard] = CreateDynamicObject(BoardInfo[boardid][bModel], BoardInfo[boardid][bCX], BoardInfo[boardid][bCY], BoardInfo[boardid][bCZ], BoardInfo[boardid][bCRX], BoardInfo[boardid][bCRY], BoardInfo[boardid][bCRZ]);
 
-		SetDynamicObjectMaterialText(BoardInfo[i][bBoard], 0, BoardInfo[i][bText], OBJECT_MATERIAL_SIZE_256x128, "Arial", BoardInfo[i][bFontSiz], 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
-		BoardInfo[i][bStatus] = 1;
+		Iter_Add(BoardIterator, boardid);
+
+		SetDynamicObjectMaterialText(BoardInfo[boardid][bBoard], 0, BoardInfo[boardid][bText], OBJECT_MATERIAL_SIZE_256x128, "Arial", BoardInfo[boardid][bFontSiz], 1, 0x000000FF,0xFFFFFFFF, OBJECT_MATERIAL_TEXT_ALIGN_CENTER);
+		BoardInfo[boardid][bStatus] = 1;
 	}
 	cache_delete(result);
 }
 
 // Kosongkan board id untuk INSERT
 // isi argumen board id untuk UPDATE
-SaveBoard(modelid, Float:x, Float:y, Float:z, Float:rot_x, Float:rot_y, Float:rot_z, const text[], fontsize, boardid = -1)
+SaveBoard(modelid, Float:x, Float:y, Float:z, Float:rot_x, Float:rot_y, Float:rot_z, const text[], fontsize, boardid, bool:baru = false)
 {
-	if(boardid == -1){ // INSERT
+	if(baru){ // Insert
 		mysql_format(koneksi, sQuery, sizeSQuery, "INSERT INTO papan(id_model,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,text,font_size) VALUES('%d', '%f', '%f', '%f', '%f', '%f', '%f', '%e', '%d')", modelid, x, y, z, rot_x, rot_y, rot_z, text, fontsize);
 	}else{ // Update
 		mysql_format(koneksi, sQuery, sizeSQuery, "UPDATE papan SET id_model = '%d', pos_x = '%f', pos_y = '%f',pos_z = '%f', rot_x = '%f', rot_y = '%f', rot_z = '%f', text = '%e', font_size = '%d' WHERE id_papan = '%d'", modelid, x, y, z, rot_x, rot_y, rot_z, text, fontsize, boardid);

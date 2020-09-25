@@ -1332,3 +1332,17 @@ IsInvalidTargetId(target_id, playerid, type = TIPE_TARGET_AKTIF){
     }
     return 0;
 }
+
+publicFor: SpectatePlayer(playerid, idtujuan)
+{
+	if (IsPlayerInAnyVehicle(idtujuan)) {
+        SetPlayerInterior(playerid, GetPlayerInterior(idtujuan));
+        SetPlayerVirtualWorld(playerid, GetPlayerVirtualWorld(idtujuan));
+		PlayerSpectateVehicle(playerid, GetPlayerVehicleID(idtujuan));
+	} else {
+        SetPlayerInterior(playerid, GetPlayerInterior(idtujuan));
+        SetPlayerVirtualWorld(playerid, GetPlayerVirtualWorld(idtujuan));
+		PlayerSpectatePlayer(playerid, idtujuan);
+    }
+	return 1;
+}

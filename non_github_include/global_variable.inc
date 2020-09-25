@@ -117,6 +117,9 @@ enum pInfo
 	// 0 jika tidak memakai apapun
 	isOnMask, 
 
+	inSpectating, // ID player yang sedang di spec
+	bool:inSpectate, // Jika sedang dispectator
+
 	hungryStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 	thirstyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 
@@ -814,8 +817,9 @@ enum INFO_HARGA_VEHICLE_RENT {
 }
 
 new const HARGA_VEHICLE_RENT[][INFO_HARGA_VEHICLE_RENT] = {
-    {"Fagio", 462, 3},
-	{"Bike", 509, 1}
+    {"Fagio", 462, 4},
+	{"Bike", 509, 1},
+	{"Bobcat", 422,10}
 };
 
 enum RentVehicleInfo
@@ -866,7 +870,6 @@ new PlayerText:SpeedoTD_VehInfo[MAX_PLAYERS][2],
  */
 enum boardInfo
 {
-	boardID,
 	bBoard,
 	bModel,
 	Float:bCX,
@@ -880,7 +883,7 @@ enum boardInfo
 	bFontSiz
 }
 new BoardInfo[MAX_BOARDS][boardInfo];
-new jumlahBoard = 0; // Menyimpan jumlah Board
+new Iterator:BoardIterator<MAX_BOARDS>;
 
 new bEditID[MAX_PLAYERS];
 new Float:bCPos[MAX_PLAYERS][3];
