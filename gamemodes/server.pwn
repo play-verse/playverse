@@ -7752,55 +7752,134 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					// Umum
 					case 0:
 					{
-						new str_guide[1500];
-						strcat(str_guide, YELLOW"/infosaya /inventory (/inv) /settings /ask /report\n");
-						strcat(str_guide, YELLOW"/inforumah /rumah /beriuang /pm /r\n");
-						strcat(str_guide, YELLOW"/vehicle /v /batalsewakendaraan /lepashelm /lepastopeng\n");
-						strcat(str_guide, YELLOW"/anim /berdiri /duduk /periksainventory /ephone\n");
-						strcat(str_guide, YELLOW"/panggil /bc /keluar /skill /bunuhdiri\n");
+						new str_guide[2000];
+						SetPVarInt(playerid, "menu_help_page", 0);
+						SetPVarString(playerid, "menu_help_name", "umum");
+						format(str_guide, sizeof(str_guide), \
+							YELLOW"/infosaya "WHITE"- Melihat informasi akun\n"\
+							YELLOW"/inventory (/inv) "WHITE"- Melihat isi tas\n"\
+							YELLOW"/settings "WHITE"- Pengaturan tampilan dan akun\n"\
+							YELLOW"/clearchat "WHITE"- Menghapus histori chat\n"\
+							YELLOW"/ask "WHITE"- Tanya kepada admin\n"\
+							YELLOW"/report "WHITE"- Melaporkan pemain\n"\
+							YELLOW"/inforumah "WHITE"- Informasi dan akses pada rumah\n"\
+							YELLOW"/rumah "WHITE"- Mengakses menu rumah\n"\
+							YELLOW"/beriuang"WHITE"- Memberi uang kepada pemain lain\n"\
+							YELLOW"/pm "WHITE"- Chat kepada pemain lain\n"\
+							YELLOW"/r "WHITE"- Membalas chat dari pemain lain\n"\
+							YELLOW"/vehicle "WHITE"- Perintah kendaraan\n"\
+							YELLOW"/v "WHITE"- Perintah kendaraan\n"\
+							YELLOW"/batalsewakendaraan "WHITE"- Membatalkan sewa kendaraan\n"\
+							YELLOW"/lepashelm "WHITE"- Melepas helm\n"\
+							YELLOW"/lepastopeng "WHITE"- Melepas topeng\n"\
+							YELLOW"/anim "WHITE"- Daftar perintah animasi\n"\
+							YELLOW"/berdiri "WHITE"- Animasi berdiri\n"\
+							YELLOW"/duduk "WHITE"- Animasi duduk\n"\
+							YELLOW"/periksainventory "WHITE"- Memeriksa inventory pemain lain\n"\
+							YELLOW"/ephone "WHITE"- Akses ponsel pribadi\n"\
+							YELLOW"/panggil "WHITE"- Memanggil pemain atau organisasi\n"\
+							YELLOW"/bc "WHITE"- Iklan teks\n"\
+							YELLOW"/keluar "WHITE"- Aksi untuk keluar bangunan\n"\
+							YELLOW"/skill "WHITE"- Daftar kemampuan\n"\
+							YELLOW"/bunuhdiri "WHITE"- Akhiri hidup");
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Umum):", str_guide, "Ok", "");
 					}
 					// Pekerjaan
 					case 1:
 					{
-						new str_guide[1500];
-						strcat(str_guide, YELLOW"/masak /lumberjack /trashmaster /pizzaboy /gali\n");
-						strcat(str_guide, YELLOW"/farm /fishing\n");
+						new str_guide[2000];
+						SetPVarInt(playerid, "menu_help", 0);
+						SetPVarString(playerid, "menu_help_name", "kerja");
+						format(str_guide, sizeof(str_guide), \
+							YELLOW"/masak "WHITE"- Melakukan aksi masak\n"\
+							YELLOW"/lumberjack "WHITE"- Menu perintah pemotong kayu\n"\
+							YELLOW"/trashmaster "WHITE"- Menu perintah pengangkut sampah\n"\
+							YELLOW"/pizzaboy "WHITE"- Menu perintah pengantar pizza\n"\
+							YELLOW"/gali "WHITE"- Melakukan aksi gali\n"\
+							YELLOW"/farm "WHITE"- Menu perintah menanam\n"\
+							YELLOW"/fishing "WHITE"- Menu perintah memancing");
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Pekerjaan):", str_guide, "Ok", "");
 					}
 					// Admin
 					case 2:
 					{
-						new str_guide[1500];
+						new str_guide[2000];
+						SetPVarInt(playerid, "menu_help", 0);
+						SetPVarString(playerid, "menu_help_name", "admin");
+						format(str_guide, sizeof(str_guide), "");
 						if(GetLevelAdminPlayer(playerid) >= 1){
-							strcat(str_guide, YELLOW"Level 1 :\n");
-							strcat(str_guide, YELLOW"/kick /jetpack /spawn /pindahpos /ach\n");
-							strcat(str_guide, YELLOW"/slap /apapan /alumber /aatm /aactor\n");
-							strcat(str_guide, YELLOW"/unban /ban /setmedic /pecatmedic /setpolisi\n");
-							strcat(str_guide, YELLOW"/pecatpolisi /tele /tampilreport /get /pma\n");
+							strcatEx(str_guide, sizeof(str_guide), \
+							YELLOW"Level 1 :\n"\
+							YELLOW"/kick "WHITE"- Mengeluarkan pemain\n"\
+							YELLOW"/jetpack "WHITE"- Melakukan aksi jetpack\n"\
+							YELLOW"/spawn "WHITE"- Menghidupkan kembali pemain\n"\
+							YELLOW"/pindahpos "WHITE"- Berpindah sesuai kordinat\n"\
+							YELLOW"/ach "WHITE"- Admin chat\n"\
+							YELLOW"/slap "WHITE"- Menampar pemain\n"\
+							YELLOW"/apapan "WHITE"- Menu perintah papan\n"\
+							YELLOW"/alumber "WHITE"- Menu perintah lumber\n"\
+							YELLOW"/aatm "WHITE"- Menu perintah atm\n"\
+							YELLOW"/aactor "WHITE"- Menu perintah actor\n"\
+							YELLOW"/unban "WHITE"- Membuka blokir pemain\n"\
+							YELLOW"/ban "WHITE"- Memblokir pemain\n"\
+							YELLOW"/setmedic "WHITE"- Mengangkat pemain menjadi medis\n"\
+							YELLOW"/pecatmedic "WHITE"- Mencopot pemain dari medis\n"\
+							YELLOW"/setpolisi "WHITE"- Mengangkat pemain menjadi polisi\n"\
+							YELLOW"/pecatpolisi "WHITE"- Mencopot pemain dari polisi\n"\
+							YELLOW"/tele "WHITE"- Berpindah ke lokasi pemain\n"\
+							YELLOW"/tampilreport "WHITE"- Menampilkan daftar laporan\n"\
+							YELLOW"/get "WHITE"- Memindahkan pemain ke lokasi sekarang\n"\
+							YELLOW"/pma "WHITE"- Chat admin ke pemain\n");
 						}
 						if(GetLevelAdminPlayer(playerid) >= 2){
-							strcat(str_guide, YELLOW"Level 2 :\n");
-							strcat(str_guide, YELLOW"/aveh /giveitem /givemoney /arumah /arent\n");
-							strcat(str_guide, YELLOW"/setadmin\n");
+							strcatEx(str_guide, sizeof(str_guide), \
+							YELLOW"Level 2 :\n"\
+							YELLOW"/aveh "WHITE"- Menu perintah kendaraan\n"\
+							YELLOW"/giveitem "WHITE"- Beri pemain item\n"\
+							YELLOW"/givemoney "WHITE"- Beri pemain uang\n"\
+							YELLOW"/arumah "WHITE"- Menu perintah rumah\n"\
+							YELLOW"/arent "WHITE"- Menu perintah sewa\n"\
+							YELLOW"/setadmin "WHITE"- Mengangkat pemain menjadi admin");
 						}
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Admin):", str_guide, "Ok", "");
 					}
 					// Fraksi
 					case 3:
 					{
-						new str_guide[1500];
+						new str_guide[2000];
+						SetPVarInt(playerid, "menu_help", 0);
+						SetPVarString(playerid, "menu_help_name", "fraksi");
 						if(GetLevelAdminPlayer(playerid) >= 0 || IsPlayerOnDutyMedic(playerid)){
-							strcat(str_guide, YELLOW"/skill /tampillokasipasien\n");
+							format(str_guide, sizeof(str_guide), \
+							YELLOW"/skill "WHITE"- Menu perintah kemampuan\n"\
+							YELLOW"/tampillokasipasien "WHITE"- Menampilkan lokasi pasien");
 						}
 						if(GetLevelAdminPlayer(playerid) >= 0 || IsPlayerOnDutyPolice(playerid)){
-							strcat(str_guide, YELLOW"/skill /tampillokasibantuan /buka /tutup /penjarakan\n");
-							strcat(str_guide, YELLOW"/hapusmasapenjara /hancurkan /buat /ubah /borgol\n");
-							strcat(str_guide, YELLOW"/bukaborgol /cekmasatahanan\n");
+							format(str_guide, sizeof(str_guide), \
+							YELLOW"/skill "WHITE"- Menu perintah kemampuan\n"\
+							YELLOW"/tampillokasibantuan "WHITE"- Menampilkan lokasi peminta\n"\
+							YELLOW"/buka "WHITE"- Aksi untuk membuka sesuatu\n"\
+							YELLOW"/tutup "WHITE"- Aksi untuk menutup sesuatu\n"\
+							YELLOW"/penjarakan "WHITE"- Memenjarakan pemain\n"\
+							YELLOW"/hapusmasapenjara "WHITE"- Menghapus masa tahanan\n"\
+							YELLOW"/hancurkan "WHITE"- Aksi untuk menghapus sesuatu\n"\
+							YELLOW"/buat "WHITE"- Aksi untuk membuat sesuatu\n"\
+							YELLOW"/ubah "WHITE"- Aksi untuk mengubah sesuatu\n"\
+							YELLOW"/borgol "WHITE"- Memborgol pemain\n"\
+							YELLOW"/bukaborgol "WHITE"- Membuka borgol pemain\n"\
+							YELLOW"/cekmasatahanan "WHITE"- Mengecek masa tahanan\n");
 						}
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Fraksi):", str_guide, "Ok", "");
 					}
 				}
+			}
+			return 1;
+		}
+		case DIALOG_HELP_MENU_NEXT:
+		{
+			if(response){
+			}else{
+				DeletePVar(playerid, "menu_help");
 			}
 			return 1;
 		}
