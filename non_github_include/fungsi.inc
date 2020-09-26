@@ -3251,7 +3251,7 @@ loadAllHouseLevel(){
 		cache_get_value_name_int(idx, "spawn_in_interior", HouseLevel[id][intSpawnInterior]);
 		cache_get_value_name_int(idx, "limit_item", HouseLevel[id][houseItemCapacity]);
 
-		#if defined DEBUG_SERVER_LOAD
+		#if DEBUG_SERVER_LOAD == true
 		printf("House Level %s berhasil load.", temp_str);
 		#endif
 
@@ -3323,7 +3323,7 @@ loadHouseFurniture(house_id){
 
 				new objectid = CreateDynamicObject(id_object, data[fPosX], data[fPosY], data[fPosZ], data[fRotX], data[fRotY], data[fRotZ], house_id, interior);
 
-				#if defined DEBUG_SERVER_LOAD
+				#if DEBUG_SERVER_LOAD == true
 				printf("House furniture (%d) - House ID(%d) - Object", data[fID], house_id, objectid);
 				#endif
 
@@ -3691,7 +3691,7 @@ LoadBoards()
 		cache_get_value_name(i, "text", temp_text);
 		format(BoardInfo[boardid][bText], 1000, "%s", temp_text);
 
-		#if defined DEBUG_SERVER_LOAD
+		#if DEBUG_SERVER_LOAD == true
 			printf("Board ID(%d) berhasil di load", boardid);
 		#endif
 
@@ -3755,7 +3755,7 @@ LoadItemPlayer(playerid){
 				cache_get_value_name_int(idx, "jumlah", jumlah);
 				cache_get_value_name_int(idx, "kunci", kunci);
 
-				#if defined DEBUG_MODE_FOR_PLAYER
+				#if DEBUG_MODE_FOR_PLAYER == true
 				printf("loaded item for player %d (%d, %d)", playerid, id_item, jumlah);
 				#endif
 
@@ -3859,7 +3859,7 @@ LoadVehiclePlayer(playerid){
 					IDVehToPVeh[idveh] = idpv;
 					Iter_Add(IDVehToPVehIterator, idveh);
 
-					#if defined DEBUG_MODE_FOR_PLAYER
+					#if DEBUG_MODE_FOR_PLAYER == true
 					printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) load.",PlayerInfo[playerid][pPlayerName], PVeh[idpv][pVehID], idveh);
 					#endif
 
@@ -3955,7 +3955,7 @@ UnloadVehiclePlayer(playerid){
 			if(hancurkan == 0) continue;
 
 			new cur = i;
-			#if defined DEBUG_MODE_FOR_PLAYER
+			#if DEBUG_MODE_FOR_PLAYER == true
 			printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) unloaded.", temp_nama, PVeh[id][pVehID], i);
 			#endif
 			if(IsValidVehicle(PVeh[i][pVehicle]) && Iter_Contains(IDVehToPVehIterator, PVeh[i][pVehicle]))
@@ -4026,7 +4026,7 @@ LoadVehicleDealer(){
 			DVeh[id][dVehColor][1] = temp_color[1];
 			DVeh[id][dVehModel] = temp_model;
 
-			#if defined DEBUG_SERVER_LOAD
+			#if DEBUG_SERVER_LOAD == true
 			printf("Vehicle Dealer ID(%d) ig-ID(%d) load.", DVeh[id][dVehID], id);
 			#endif
 
@@ -4800,6 +4800,22 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_skillBlacksmith_Res = 0;
 		ACT_skillBlacksmith_Timer = -1;
+	}else if(actorid == ACT_pembeliTambang_1){
+		UpdateDynamic3DTextLabelText(ACT_pembeliTambang_1_Text, COLOR_WHITE, "");
+		if(ACT_pembeliTambang_1_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_pembeliTambang_1_User, "interaksi_actor", -1);
+			ACT_pembeliTambang_1_User = INVALID_PLAYER_ID;
+		}
+		ACT_pembeliTambang_1_Res = 0;
+		ACT_pembeliTambang_1_Timer = -1;
+	}else if(actorid == ACT_pembeliTambang_2){
+		UpdateDynamic3DTextLabelText(ACT_pembeliTambang_2_Text, COLOR_WHITE, "");
+		if(ACT_pembeliTambang_2_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_pembeliTambang_2_User, "interaksi_actor", -1);
+			ACT_pembeliTambang_2_User = INVALID_PLAYER_ID;
+		}
+		ACT_pembeliTambang_2_Res = 0;
+		ACT_pembeliTambang_2_Timer = -1;
 	}
 	return 1;
 }
@@ -4835,6 +4851,10 @@ TerminateInteraksi_Alt(actorid){
 		DeletePreciseTimer(ACT_marketPlace_4_Timer);
 	else if(actorid == ACT_skillBlacksmith && ACT_skillBlacksmith_Timer != -1)
 		DeletePreciseTimer(ACT_skillBlacksmith_Timer);
+	else if(actorid == ACT_pembeliTambang_1 && ACT_pembeliTambang_1_Timer != -1)
+		DeletePreciseTimer(ACT_pembeliTambang_1_Timer);
+	else if(actorid == ACT_pembeliTambang_2 && ACT_pembeliTambang_2_Timer != -1)
+		DeletePreciseTimer(ACT_pembeliTambang_2_Timer);
 	TerminateInteraksi(actorid);
 }
 

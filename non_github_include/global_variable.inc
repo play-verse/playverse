@@ -584,6 +584,8 @@ new
 	ACT_marketPlace_2,
 	ACT_marketPlace_3,
 	ACT_marketPlace_4,
+	ACT_pembeliTambang_1,
+	ACT_pembeliTambang_2, // Tambang Lobang
 
 	// Posisi
 	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
@@ -600,6 +602,8 @@ new
 	Float:ACT_marketPlace_2_Pos[4] = {-2662.8401, 1410.8647, 906.2734, 88.1685},
 	Float:ACT_marketPlace_3_Pos[4] = {-2659.6921, 1406.6693, 906.2734, 178.7227},
 	Float:ACT_marketPlace_4_Pos[4] = {-2655.5066, 1409.6869, 906.2734, 270.2169},
+	Float:ACT_pembeliTambang_1_Pos[4] = {-539.1688, -542.0021, 25.5234, 179.2752},
+	Float:ACT_pembeliTambang_2_Pos[4] = {816.6610, 856.9252, 12.7891, 200.5086},
 
 	// 3D Text (Chat Bubble)
 	Text3D:ACT_resepsionisPemerintah_Text,
@@ -617,6 +621,8 @@ new
 	Text3D:ACT_marketPlace_2_Text,
 	Text3D:ACT_marketPlace_3_Text,
 	Text3D:ACT_marketPlace_4_Text,
+	Text3D:ACT_pembeliTambang_1_Text,
+	Text3D:ACT_pembeliTambang_2_Text,
 
 	// Binding User
 	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
@@ -634,6 +640,8 @@ new
 	ACT_marketPlace_2_User = INVALID_PLAYER_ID,
 	ACT_marketPlace_3_User = INVALID_PLAYER_ID,
 	ACT_marketPlace_4_User = INVALID_PLAYER_ID,
+	ACT_pembeliTambang_1_User = INVALID_PLAYER_ID,
+	ACT_pembeliTambang_2_User = INVALID_PLAYER_ID,
 
 	// Response User
 	ACT_resepsionisPemerintah_Res = 0,
@@ -651,6 +659,8 @@ new
 	ACT_marketPlace_2_Res = 0,
 	ACT_marketPlace_3_Res = 0,
 	ACT_marketPlace_4_Res = 0,
+	ACT_pembeliTambang_1_Res = 0,
+	ACT_pembeliTambang_2_Res = 0,
 
 	// Timer (Lama Response)
 	ACT_resepsionisPemerintah_Timer = -1,
@@ -668,6 +678,8 @@ new
 	ACT_marketPlace_2_Timer = -1,
 	ACT_marketPlace_3_Timer = -1,
 	ACT_marketPlace_4_Timer = -1,
+	ACT_pembeliTambang_1_Timer = -1,
+	ACT_pembeliTambang_2_Timer = -1,
 
 	// Area Actor
 	ACT_resepsionisPemerintah_Area,
@@ -684,8 +696,9 @@ new
 	ACT_marketPlace_1_Area,
 	ACT_marketPlace_2_Area,
 	ACT_marketPlace_3_Area,
-	ACT_marketPlace_4_Area
-;
+	ACT_marketPlace_4_Area,
+	ACT_pembeliTambang_1_Area,
+	ACT_pembeliTambang_2_Area;
 
 /**
     Area
@@ -1615,4 +1628,26 @@ new const bahan_berlian_utuh[][2] = {
 
 new const bahan_aluminium_utuh[][2] = {
 	{ID_BIJIH_ALUMINIUM, 5} 
+};
+
+
+/**
+	Penjual Tambang
+ */
+enum INFO_BARANG_DENGAN_JUMLAH {
+	brgId,
+	brgJumlah, // Satuan jumlah per stack
+	// Harga jual ("harga asli" - 10%)
+	brgHarga
+};
+
+new const list_barang_tampung_tambang[][INFO_BARANG_DENGAN_JUMLAH] = {
+	{12, 2, 50},
+	{11, 1, 100},
+	{10, 1, 3000},
+	{11, 1, 1500}
+};
+
+new const item_beli_tambang[][INFO_BARANG_MARKET] = {
+	{ID_PALU_TAMBANG, 8}
 };

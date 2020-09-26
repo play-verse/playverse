@@ -557,3 +557,42 @@ showReportPlayer(playerid){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.*,b.nama FROM report_log a INNER JOIN `user` b ON b.id = a.id_user ORDER BY a.id DESC LIMIT %i, %i", BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
     return mysql_tquery(koneksi, pQuery[playerid], "tampilReportPlayer", "i", playerid);
 }
+
+showDialogJualItemTambang(playerid){
+    static str_daftar_jual_tambang[sizeof(list_barang_tampung_tambang) * 100 + 100], subString[100];
+    if(str_daftar_jual_tambang[0] == EOS){
+        new nama_item[50];
+        strcat(str_daftar_jual_tambang, WHITE"Nama\tJumlah Per Stack\tHarga Jual\n");
+        for(new i = 0; i < sizeof(list_barang_tampung_tambang); i++){
+            getNamaByIdItem(list_barang_tampung_tambang[i][brgId], nama_item);
+
+            format(subString, 100, 
+                WHITE"%s\t"YELLOW"%d\t"GREEN"$%d\n", 
+                nama_item, 
+                list_barang_tampung_tambang[i][brgJumlah],
+                list_barang_tampung_tambang[i][brgHarga] - floatround(float(list_barang_tampung_tambang[i][brgHarga]) * 0.1, floatround_floor)
+            );
+            strcat(str_daftar_jual_tambang, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_PENJUAL_TAMBANG_LIST_JUAL, DIALOG_STYLE_TABLIST_HEADERS, "Jual Hasil Tambang", str_daftar_jual_tambang, "Pilih", "Batal");
+}
+
+showDialogBeliItemTambang(playerid){
+    static str_daftar_beli_tambang[sizeof(item_beli_tambang) * 100 + 100], subString[100];
+    if(str_daftar_beli_tambang[0] == EOS){
+        new nama_item[50];
+        strcat(str_daftar_beli_tambang, WHITE"Nama\t"GREEN"Harga\n");
+        for(new i = 0; i < sizeof(item_beli_tambang); i++){
+            getNamaByIdItem(item_beli_tambang[i][idItemMarket], nama_item);
+
+            format(subString, 100, 
+                WHITE"%s\t"GREEN"$%d\n", 
+                nama_item,
+                item_beli_tambang[i][hargaItemMarket]
+            );
+            strcat(str_daftar_beli_tambang, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_TAMBANG_LIST, DIALOG_STYLE_TABLIST_HEADERS, "Beli Item Tambang", str_daftar_beli_tambang, "Pilih", "Batal");
+}

@@ -64,6 +64,16 @@ loadAllActor(){
     ACT_skillBlacksmith = CreateDynamicActor(151, ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2], ACT_skillBlacksmith_Pos[3], .worldid = 1, .interiorid = 1);
     // Bubble Chat Actor
     ACT_skillBlacksmith_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2] + 1.25, 10.0, .testlos = 1);
+
+    // Actor di pembeliTambang
+    ACT_pembeliTambang_1 = CreateDynamicActor(26, ACT_pembeliTambang_1_Pos[0], ACT_pembeliTambang_1_Pos[1], ACT_pembeliTambang_1_Pos[2], ACT_pembeliTambang_1_Pos[3], .worldid = 0, .interiorid = 0);
+    // Bubble Chat Actor
+    ACT_pembeliTambang_1_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_pembeliTambang_1_Pos[0], ACT_pembeliTambang_1_Pos[1], ACT_pembeliTambang_1_Pos[2] + 1.25, 10.0);
+
+    ACT_pembeliTambang_2 = CreateDynamicActor(27, ACT_pembeliTambang_2_Pos[0], ACT_pembeliTambang_2_Pos[1], ACT_pembeliTambang_2_Pos[2], ACT_pembeliTambang_2_Pos[3], .worldid = 0, .interiorid = 0);
+    // Bubble Chat Actor
+    ACT_pembeliTambang_2_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_pembeliTambang_2_Pos[0], ACT_pembeliTambang_2_Pos[1], ACT_pembeliTambang_2_Pos[2] + 1.25, 10.0);
+
 }
 
 re_loadAllActor(){
@@ -84,6 +94,8 @@ re_loadAllActor(){
         if(IsValidDynamicActor(ACT_marketPlace_3)) DestroyDynamicActor(ACT_marketPlace_3);
         if(IsValidDynamicActor(ACT_marketPlace_4)) DestroyDynamicActor(ACT_marketPlace_4);
         if(IsValidDynamicActor(ACT_skillBlacksmith)) DestroyDynamicActor(ACT_skillBlacksmith);
+        if(IsValidDynamicActor(ACT_pembeliTambang_1)) DestroyDynamicActor(ACT_pembeliTambang_1);
+        if(IsValidDynamicActor(ACT_pembeliTambang_2)) DestroyDynamicActor(ACT_pembeliTambang_2);
 
         ACT__reload = 0;
         // Actor di toko peraltan pancing
@@ -127,5 +139,10 @@ re_loadAllActor(){
     
         // Actor di pandai besi
         ACT_skillBlacksmith = CreateDynamicActor(151, ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2], ACT_skillBlacksmith_Pos[3], .worldid = 1, .interiorid = 1);
+
+        // Actor pembeli tambang
+        ACT_pembeliTambang_1 = CreateDynamicActor(26, ACT_pembeliTambang_1_Pos[0], ACT_pembeliTambang_1_Pos[1], ACT_pembeliTambang_1_Pos[2], ACT_pembeliTambang_1_Pos[3], .worldid = 0, .interiorid = 0);
+
+        ACT_pembeliTambang_2 = CreateDynamicActor(27, ACT_pembeliTambang_2_Pos[0], ACT_pembeliTambang_2_Pos[1], ACT_pembeliTambang_2_Pos[2], ACT_pembeliTambang_2_Pos[3], .worldid = 0, .interiorid = 0);
     }
 }

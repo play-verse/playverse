@@ -115,6 +115,9 @@ loadAllArea(){
     ACT_marketPlace_3_Area = CreateDynamicSphere(ACT_marketPlace_3_Pos[0], ACT_marketPlace_3_Pos[1], ACT_marketPlace_3_Pos[2], 3.0);
     ACT_marketPlace_4_Area = CreateDynamicSphere(ACT_marketPlace_4_Pos[0], ACT_marketPlace_4_Pos[1], ACT_marketPlace_4_Pos[2], 3.0);
 
+    ACT_pembeliTambang_1_Area = CreateDynamicSphere(ACT_pembeliTambang_1_Pos[0], ACT_pembeliTambang_1_Pos[1], ACT_pembeliTambang_1_Pos[2], 3.0);
+    ACT_pembeliTambang_2_Area = CreateDynamicSphere(ACT_pembeliTambang_2_Pos[0], ACT_pembeliTambang_2_Pos[1], ACT_pembeliTambang_2_Pos[2], 3.0);
+
     /* Dari Checkpoint */
     // Tempat foto
     AREA_tempatFoto = buatSPDanLabel(-201.7664,-25.4403,1002.2734, "Silahkan cetak foto\n"GREEN"Disini!", 1.0);

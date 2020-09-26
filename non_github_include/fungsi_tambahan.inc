@@ -1,7 +1,7 @@
 /**
     Macro Function 
  */
-#define PlayerTalking(%0)               ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 2000, 1)
+#define PlayerTalking(%0)               ApplyAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 1, 2000)
 #define ActorTalking(%0)                ApplyDynamicActorAnimation(%0, "PED", "IDLE_CHAT", 4.1, 0, 1, 1, 0, 0)
 #define PlayerGivesAnimation(%0)        ApplyAnimation(%0, "DEALER", "SHOP_PAY", 4.1, 0, 1, 1, 0, 2000, 1)
 #define PlayerTakesAnimation(%0)        ApplyAnimation(%0, "CASINO", "SLOT_PLYR", 4.1, 0, 1, 1, 0, 2000, 1)
@@ -1093,6 +1093,18 @@ ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_R
         // 15 detik batas interaksi
         ACT_skillBlacksmith_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
         UpdateDynamic3DTextLabelText(ACT_skillBlacksmith_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_pembeliTambang_1){
+        if(ACT_pembeliTambang_1_Timer != -1)
+            DeletePreciseTimer(ACT_pembeliTambang_1_Timer);
+        // 15 detik batas interaksi
+        ACT_pembeliTambang_1_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_pembeliTambang_1_Text, COLOR_WHITE, text);
+    }else if(actorid == ACT_pembeliTambang_2){
+        if(ACT_pembeliTambang_2_Timer != -1)
+            DeletePreciseTimer(ACT_pembeliTambang_2_Timer);
+        // 15 detik batas interaksi
+        ACT_pembeliTambang_2_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+        UpdateDynamic3DTextLabelText(ACT_pembeliTambang_2_Text, COLOR_WHITE, text);
     }
 }
 
@@ -1261,6 +1273,28 @@ ActorResetAndProses(actorid, playerid, const text[] = ""){
             ActorResponse(ACT_skillBlacksmith, pDialog[playerid], 5);
         }else
             ActorResponse(ACT_skillBlacksmith, text, 5);
+    }
+    else if(actorid == ACT_pembeliTambang_1){
+        ACT_pembeliTambang_1_User = INVALID_PLAYER_ID;
+        ACT_pembeliTambang_1_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_pembeliTambang_1, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_pembeliTambang_1, text, 5);
+    }
+    else if(actorid == ACT_pembeliTambang_2){
+        ACT_pembeliTambang_2_User = INVALID_PLAYER_ID;
+        ACT_pembeliTambang_2_Res = 0;
+
+        // 5 Detik
+        if(text[0] == '\0'){
+            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+            ActorResponse(ACT_pembeliTambang_2, pDialog[playerid], 5);
+        }else
+            ActorResponse(ACT_pembeliTambang_2, text, 5);
     }
 }
 

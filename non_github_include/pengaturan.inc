@@ -21,7 +21,7 @@
 							7. Harus menaati peraturan roleplay yang berlaku.\n\
 							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
 
-#define MAX_SERVER_ITEM 68 // Diatur sesuai dengan banyak data didatabase 
+#define MAX_SERVER_ITEM 70 // Diatur sesuai dengan banyak data didatabase 
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -452,6 +452,12 @@
 #define DIALOG_RENT_PLACE_FREE_KONFRIM 256
 #define DIALOG_TAMPIL_REPORT 257
 #define DIALOG_HELP_MENU 258
+#define DIALOG_PENJUAL_TAMBANG_LIST_JUAL 259
+#define DIALOG_PENJUAL_TAMBANG_LIST_JUAL_JUMLAH 260
+#define DIALOG_PENJUAL_TAMBANG_LIST_JUAL_KONFIRMASI 261
+#define DIALOG_BELI_ITEM_TAMBANG_LIST 262
+#define DIALOG_BELI_ITEM_TAMBANG_LIST_JUMLAH 263
+#define DIALOG_BELI_ITEM_TAMBANG_LIST_KONFIRMASI 264
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DI DALAM INTERIOR
@@ -465,7 +471,7 @@
 // Uncomment untuk mengaktifkan debug mode player
 // Comment untuk menonaktifkan
 #define DEBUG_MODE_FOR_PLAYER true
-#define DEBUG_SERVER_LOAD true
+#define DEBUG_SERVER_LOAD false
 
 /**********
 *	DEFINED FUNCTION
@@ -597,6 +603,7 @@
 #define TAG_REPORT 				"REPORT:"
 #define TAG_ASK 				"Ask:"
 #define TAG_SPEC				"Spec:"
+#define TAG_GAGAL				"Gagal:"
 
 /*
 	Job Define
@@ -630,6 +637,7 @@
 #define ID_JORAN_PANCING	35
 #define ID_TOMBAK_IKAN		36
 #define ID_TOMBAK_IKAN		36
+#define ID_PALU_TAMBANG		8
 
 #define ID_BIJIH_BESI		63
 #define ID_SERBUK_EMAS		65
@@ -653,21 +661,23 @@
 /**
 	Nama-nama Actor
  */
-#define NAMA_ACTOR_PEMERINTAH		"ayu"
-#define NAMA_ACTOR_SKILL_MEKANIK	"joe"
-#define NAMA_ACTOR_PENJUAL_PANCING 	"yuli"
-#define NAMA_ACTOR_PENJUAL_BIBIT 	"yuni"
-#define NAMA_ACTOR_PENJUAL_GADGET	"berta"
-#define NAMA_ACTOR_PENJUAL_DEALER	"erik"
-#define NAMA_ACTOR_TELLER_BANK_1	"luna"
-#define NAMA_ACTOR_TELLER_BANK_2	"yuna"
-#define NAMA_ACTOR_PENJUAL_NARKO	"puyeng"
-#define NAMA_ACTOR_RUMAH_SAKIT		"lucy"
-#define NAMA_ACTOR_MARKETPLACE_1	"sakura"
-#define NAMA_ACTOR_MARKETPLACE_2	"alexa"
-#define NAMA_ACTOR_MARKETPLACE_3	"ryu"
-#define NAMA_ACTOR_MARKETPLACE_4	"roxy"
-#define NAMA_ACTOR_SKILL_BLACKSMITH	"devi"
+#define NAMA_ACTOR_PEMERINTAH			"ayu"
+#define NAMA_ACTOR_SKILL_MEKANIK		"joe"
+#define NAMA_ACTOR_PENJUAL_PANCING 		"yuli"
+#define NAMA_ACTOR_PENJUAL_BIBIT 		"yuni"
+#define NAMA_ACTOR_PENJUAL_GADGET		"berta"
+#define NAMA_ACTOR_PENJUAL_DEALER		"erik"
+#define NAMA_ACTOR_TELLER_BANK_1		"luna"
+#define NAMA_ACTOR_TELLER_BANK_2		"yuna"
+#define NAMA_ACTOR_PENJUAL_NARKO		"puyeng"
+#define NAMA_ACTOR_RUMAH_SAKIT			"lucy"
+#define NAMA_ACTOR_MARKETPLACE_1		"sakura"
+#define NAMA_ACTOR_MARKETPLACE_2		"alexa"
+#define NAMA_ACTOR_MARKETPLACE_3		"ryu"
+#define NAMA_ACTOR_MARKETPLACE_4		"roxy"
+#define NAMA_ACTOR_SKILL_BLACKSMITH		"devi"
+#define NAMA_ACTOR_PEMBELI_TAMBANG_1	"max"
+#define NAMA_ACTOR_PEMBELI_TAMBANG_2	"jack"
 
 /**
 	Jenis Tagihan
