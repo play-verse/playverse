@@ -1652,3 +1652,13 @@ CMD:help(playerid, params[]){
     }
     return 1;
 }
+
+CMD:ooc(playerid, params[]){
+    new pesan[144];
+	if(sscanf(params, "s[144]", pesan)) 
+        return error_syntax(playerid, "/ooc [text]");
+
+    format(pesan, sizeof(pesan), "[OOC] "WHITE"%s: %s", PlayerInfo[playerid][pPlayerName], pesan);
+    ProxDetector(30.0, playerid, pesan, COLOR_YELLOW);
+    return 1;
+}
