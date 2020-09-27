@@ -1603,9 +1603,9 @@ CMD:batalsewakendaraan(playerid, params[]){
     if(placeid != -1){
         if(placeid != RentPlayerVeh[rentid][rentPlayerVehPlaceID]) return error_command(playerid, "Anda harus di sekitar penyewaan kendaraan yang anda sewa pertama kali.");
         if(Iter_Contains(RentPlayerVehIter, rentid)){
-			if(RentPlayerVehUser[playerid] != -1){
-				unloadRentPlayerVeh(vehid, 1);
-			}
+			if(RentPlayerVehUser[playerid] == vehid){
+                unloadRentPlayerVeh(playerid, 1);
+            }
 		}
         SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil membatalkan sewa kendaraan.");
     }else{
