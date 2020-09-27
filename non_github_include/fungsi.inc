@@ -5220,7 +5220,7 @@ unloadRentPlayerVeh(playerid, delete){
 	}
 
 	RentPlayerVehID[vehicleid] = -1;
-	RentPlayerVehUser[vehicleid] = -1;
+	RentPlayerVehUser[playerid] = -1;
 	RentPlayerVeh[rentid][rentPlayerVehID] = -1;
 	RentPlayerVeh[rentid][rentPlayerVehUser] = -1;
 	RentPlayerVeh[rentid][rentPlayerVehUserPid] = -1;
@@ -5275,4 +5275,4 @@ saveRentPlayerVeh(playerid){
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_rent_player SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', bensin = '%d' WHERE id = '%d'", spawn_x, spawn_y, spawn_z, z_angle, bensin, rentid);
 	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
-}
+}	

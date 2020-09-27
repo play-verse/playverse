@@ -7182,22 +7182,17 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									if(RentVeh[i][rentVehPlaceID] == placeid){
 										error_command(playerid, "Tidak menghapus tempat penyewaan kendaraan ketika terdapat kendaraan sewa.");
 										return 1;
-									}else{
-										goto label_hapus_rent_place;
 									}
 								}
 							}
 							foreach(new i : RentPlayerVehIter){
 								if(Iter_Contains(RentPlayerVehIter, i)){
-									if(RentPlayerVeh[i][rentVehPlaceID] == placeid){
+									if(RentPlayerVeh[i][rentPlayerVehPlaceID] == placeid){
 										error_command(playerid, "Tidak menghapus tempat penyewaan kendaraan ketika terdapat kendaraan yang disewa.");
 										return 1;
-									}else{
-										goto label_hapus_rent_place;
 									}
 								}
 							}
-							label_hapus_rent_place:
 							DestroyDynamicArea(RentPlace[placeid][rentPlaceID]);
 							DestroyDynamic3DTextLabel(RentPlace[placeid][rentPlaceLabel]);
 							RentPlaceID[RentPlace[placeid][rentPlaceID]] = -1;
