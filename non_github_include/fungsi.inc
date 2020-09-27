@@ -3711,7 +3711,7 @@ LoadBoards()
 SaveBoard(modelid, Float:x, Float:y, Float:z, Float:rot_x, Float:rot_y, Float:rot_z, const text[], fontsize, boardid, bool:baru = false)
 {
 	if(baru){ // Insert
-		mysql_format(koneksi, sQuery, sizeSQuery, "INSERT INTO papan(id_papan, id_model,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,text,font_size) VALUES('%d', '%f', '%f', '%f', '%f', '%f', '%f', '%e', '%d')", boardid, modelid, x, y, z, rot_x, rot_y, rot_z, text, fontsize);
+		mysql_format(koneksi, sQuery, sizeSQuery, "INSERT INTO papan(id_papan,id_model,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,text,font_size) VALUES('%d', '%d', '%f', '%f', '%f', '%f', '%f', '%f', '%e', '%d')", boardid, modelid, x, y, z, rot_x, rot_y, rot_z, text, fontsize);
 	}else{ // Update
 		mysql_format(koneksi, sQuery, sizeSQuery, "UPDATE papan SET id_model = '%d', pos_x = '%f', pos_y = '%f',pos_z = '%f', rot_x = '%f', rot_y = '%f', rot_z = '%f', text = '%e', font_size = '%d' WHERE id_papan = '%d'", modelid, x, y, z, rot_x, rot_y, rot_z, text, fontsize, boardid);
 	}
