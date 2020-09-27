@@ -4136,7 +4136,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						z -= 1.0;
 						inline responseQuery(){
 							new id = cache_insert_id(),
-								free = Iter_Free(RentPlaceIterator);
+								free = Iter_Free(TreeIterator);
 							new create = createTree(id, free, x, y, z, 0.0, 0.0, 0.0);
 							if(create){
 								treeEditID[playerid] = id;
@@ -4311,8 +4311,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										PlayerInfo[playerid][isOnAnimation] = true;						
 										PlayerInfo[playerid][isBusy] = true;
 									}
+								}else{
+									error_command(playerid, "Tidak terdapat pohon yang siap di tebang.");
 								}
+							}else{
+								error_command(playerid, "Anda tidak berada di sekitar pohon yang siap di tebang.");
 							}
+						}else{
+							error_command(playerid, "Anda tidak sedang menggunakan gergaji mesin.");
 						}
 					}
 					case 2:

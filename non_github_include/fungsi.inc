@@ -4212,7 +4212,7 @@ publicFor: SpeedoUpdate(playerid, vehid)
 }
 
 loadAllTree(){
-	new tree_Id, free, tX[32], tY[32], tZ[32], tRX[32], tRY[32], tRZ[32];
+	new tree_Id, free, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ;
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `lumber`");
 	cache_get_row_count(row);
@@ -4220,13 +4220,13 @@ loadAllTree(){
 		result = cache_save();
 		free = Iter_Free(TreeIterator);
 		cache_get_value_name_int(idx, "id", tree_Id);
-		cache_get_value_name(idx, "treeX", tX);
-		cache_get_value_name(idx, "treeY", tY);
-		cache_get_value_name(idx, "treeZ", tZ);
-		cache_get_value_name(idx, "treeRX", tRX);
-		cache_get_value_name(idx, "treeRY", tRY);
-		cache_get_value_name(idx, "treeRZ", tRZ);
-		createTree(tree_Id, free, floatstr(tX), floatstr(tY), floatstr(tZ), floatstr(tRX), floatstr(tRY), floatstr(tRZ));
+		cache_get_value_name_float(idx, "treeX", tX);
+		cache_get_value_name_float(idx, "treeY", tY);
+		cache_get_value_name_float(idx, "treeZ", tZ);
+		cache_get_value_name_float(idx, "treeRX", tRX);
+		cache_get_value_name_float(idx, "treeRY", tRY);
+		cache_get_value_name_float(idx, "treeRZ", tRZ);
+		createTree(tree_Id, free, tX, tY, tZ, tRX, tRY, tRZ);
 		cache_set_active(result);
 		
 		#if DEBUG_SERVER_LOAD == true
