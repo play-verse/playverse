@@ -4128,25 +4128,29 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
                         // Buat Pohon
-						new id = Iter_Free(TreeIterator);
-						if(id != -1){
-							new Float: x, Float: y, Float: z, Float: a;
-							GetPlayerPos(playerid, x, y, z);
-							GetPlayerFacingAngle(playerid, a);
-							x += (3.0 * floatsin(-a, degrees));
-							y += (3.0 * floatcos(-a, degrees));
-							z -= 1.0;
-							createTree(id, x, y, z, 0.0, 0.0, 0.0);
-							treeEditID[playerid] = id;
-							EditDynamicObject(playerid, DTree[id][treeObjID]);
-							SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil membuat pohon!");
-							SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda dapat mengedit pohon sekarang atau batal untuk mengedit lain kali.");
-
-							mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `lumber` (id, treeX, treeY, treeZ, treeRX, treeRY, treeRZ) VALUES ('%d', '%f', '%f', '%f', '0.0', '0.0', '0.0')", id, x, y, z);
-							mysql_tquery(koneksi, pQuery[playerid]);
-						}else{
-							error_command(playerid, "Tidak dapat membuat pohon lagi.");
+						new Float: x, Float: y, Float: z, Float: a;
+						GetPlayerPos(playerid, x, y, z);
+						GetPlayerFacingAngle(playerid, a);
+						x += (3.0 * floatsin(-a, degrees));
+						y += (3.0 * floatcos(-a, degrees));
+						z -= 1.0;
+						inline responseQuery(){
+							new id = cache_insert_id(),
+								free = Iter_Free(RentPlaceIterator);
+							new create = createTree(id, free, x, y, z, 0.0, 0.0, 0.0);
+							if(create){
+								treeEditID[playerid] = id;
+								EditDynamicObject(playerid, DTree[id][treeObjID]);
+								SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "YELLOW"Anda berhasil membuat pohon!");
+								SendClientMessage(playerid, COLOR_GREEN, "[LUMBERJACK] "WHITE"Anda dapat mengedit pohon sekarang atau batal untuk mengedit lain kali.");
+							}else{
+								treeEditID[playerid] = -1;
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `lumber` WHERE `id` = '%d'", id);
+								mysql_tquery(koneksi, pQuery[playerid]);
+								error_command(playerid, "Tidak dapat membuat pohon lagi.");
+							}
 						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `lumber` (treeX, treeY, treeZ, treeRX, treeRY, treeRZ) VALUES ('%f', '%f', '%f', '0.0', '0.0', '0.0')", x, y, z);
 					}
 					case 1:
 					{
@@ -7143,21 +7147,24 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					// Buat Rent Place
 					case 0:
 					{
-						new id = Iter_Free(RentPlaceIterator);
-						if(id != -1){
-							new closest = ClosestRentVehPlace(playerid);
+						new Float: x, Float: y, Float: z;
+						GetPlayerPos(playerid, x, y, z);
+						inline responseQuery(){
+							new id = cache_insert_id(),
+								free = Iter_Free(RentPlaceIterator),
+								closest = ClosestRentVehPlace(playerid);
 							if(closest != -1) return error_command(playerid, "Tidak dapat membuat di sekitar penyewaan kendaraan.");
-							new Float: x, Float: y, Float: z;
-							GetPlayerPos(playerid, x, y, z);
-							createRentVehPlace(id, 0, x, y, z);
-
-							mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `vehicle_rent_place` (id, pos_x, pos_y, pos_z) VALUES ('%d', '%f', '%f', '%f')", id, x, y, z);
-							mysql_tquery(koneksi, pQuery[playerid]);
-
-							SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil membuat tempat penyewaan kendaraan.");
-						}else{
-							error_command(playerid, "Tidak dapat membuat tempat Penyewaan Kendaraan lagi.");
+							new create = createRentVehPlace(id, free, 0, x, y, z);
+							if(create){
+								SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil membuat tempat penyewaan kendaraan.");
+							}else{
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `vehicle_rent_place` WHERE `id` = '%d'", id);
+								mysql_tquery(koneksi, pQuery[playerid]);
+								error_command(playerid, "Tidak dapat membuat penyewaan kendaraan lagi.");
+							}
 						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `vehicle_rent_place` (pos_x, pos_y, pos_z) VALUES ('%f', '%f', '%f')", x, y, z);
+					
 					}
 					// Hapus Rent Place
 					case 1:
@@ -7239,22 +7246,23 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new placeid = ClosestRentVehPlace(playerid);
 				if(placeid != -1){
-					new id = Iter_Free(RentVehIterator);
-					if(id != -1){
-						new Float: x, Float: y, Float: z, Float: a;
-						GetPlayerPos(playerid, x, y, z);
-						GetPlayerFacingAngle(playerid, a);
-						x += (3.0 * floatsin(-a, degrees));
-						y += (3.0 * floatcos(-a, degrees));
-						createRentVeh(id, listitem, placeid, x, y, z, a);
-						
-						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `vehicle_rent` (id, id_list, id_place, pos_x, pos_y, pos_z, pos_a) VALUES ('%d', '%d', '%d', '%f', '%f', '%f', '%f')", id, listitem, placeid, x, y, z, a);
-						mysql_tquery(koneksi, pQuery[playerid]);
-
-						SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil membuat kendaraan sewa.");
-					}else{
-						error_command(playerid, "Tidak dapat membuat Kendaraan Sewa lagi.");
+					new Float: x, Float: y, Float: z, Float: a;
+					GetPlayerPos(playerid, x, y, z);
+					GetPlayerFacingAngle(playerid, a);
+					x += (3.0 * floatsin(-a, degrees));
+					y += (3.0 * floatcos(-a, degrees));
+					inline responseQuery(){
+						new id = cache_insert_id(),
+							create = createRentVeh(id, listitem, placeid, x, y, z, a);
+						if(create){
+							SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil membuat kendaraan sewa.");
+						}else{
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `vehicle_rent` WHERE `id` = '%d'", id);
+							mysql_tquery(koneksi, pQuery[playerid]);
+							error_command(playerid, "Tidak dapat membuat vehicle rent lagi.");
+						}
 					}
+					MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `vehicle_rent` (id_list, id_place, pos_x, pos_y, pos_z, pos_a) VALUES ('%d', '%d', '%f', '%f', '%f', '%f')", listitem, placeid, x, y, z, a);
 				}else{
 					error_command(playerid, "Anda tidak berada di tempat penyewaan kendaraan.");
 				}
@@ -7396,15 +7404,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_RENT_VEHICLE_KONFIRMASI:
 		{
 			if(response){
-				new id = Iter_Free(RentPlayerVehIter);
-				if(id != -1){
-					new vehid = GetPVarInt(playerid, "id_vehicle_rent"),
-					listid = RentVeh[RentVehID[vehid]][rentVehList],
-					placeid = RentVeh[RentVehID[vehid]][rentVehPlaceID],
-					durasisewa = GetPVarInt(playerid, "durasi_vehicle_rent"),
-					hargasewa = GetPVarInt(playerid, "harga_vehicle_rent"),
-					hargatotal = durasisewa*hargasewa,
-					durasitotal = gettime()+(durasisewa*3600);
+				new vehid = GetPVarInt(playerid, "id_vehicle_rent"),
+				listid = RentVeh[RentVehID[vehid]][rentVehList],
+				placeid = RentVeh[RentVehID[vehid]][rentVehPlaceID],
+				durasisewa = GetPVarInt(playerid, "durasi_vehicle_rent"),
+				hargasewa = GetPVarInt(playerid, "harga_vehicle_rent"),
+				hargatotal = durasisewa*hargasewa,
+				durasitotal = gettime()+(durasisewa*3600);
+				inline responseQuery(){
+					new id = cache_insert_id();
 					if(getUangPlayer(playerid) < hargatotal){
 						DeletePVar(playerid, "id_vehicle_rent");
 						DeletePVar(playerid, "durasi_vehicle_rent");
@@ -7412,15 +7420,20 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SendClientMessage(playerid, COLOR_RED, "Uang: "WHITE"Anda tidak memiliki cukup uang.");
 						return 1;
 					}
-					createRentPlayerVeh(playerid, id, PlayerInfo[playerid][pID], listid, placeid, RentPlace[placeid][rentPlacePos][0], RentPlace[placeid][rentPlacePos][1], RentPlace[placeid][rentPlacePos][2], 0, durasitotal);
-					mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `vehicle_rent_player` (id, id_user, id_list, id_place, pos_x, pos_y, pos_z, pos_a, expired) VALUES ('%d', '%d', '%d', '%d', '%f', '%f', '%f', '%f', '%d')", id, PlayerInfo[playerid][pID], listid, placeid, RentPlace[placeid][rentPlacePos][0], RentPlace[placeid][rentPlacePos][1], RentPlace[placeid][rentPlacePos][2], 0, durasitotal);
-					mysql_tquery(koneksi, pQuery[playerid]);
-					SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil melakukan penyewaan kendaraan.");
-					SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Jika anda ingin membatalkan sewa, silahkan kembali ke sini dan ketik "GREEN"/batalsewakendaraan"WHITE".");
-					RemovePlayerFromVehicle(playerid);
-				}else{
-					error_command(playerid, "Mohon maaf saat ini tidak tersedia kendaraan sewa.");
+					new create = createRentPlayerVeh(playerid, id, PlayerInfo[playerid][pID], listid, placeid, RentPlace[placeid][rentPlacePos][0], RentPlace[placeid][rentPlacePos][1], RentPlace[placeid][rentPlacePos][2], 0, durasitotal);
+					if(create){
+						SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil melakukan penyewaan kendaraan.");
+						SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Jika anda ingin membatalkan sewa, silahkan kembali ke sini dan ketik "GREEN"/batalsewakendaraan"WHITE".");
+						RemovePlayerFromVehicle(playerid);
+					}else{
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `vehicle_rent_player` WHERE `id` = '%d'", id);
+						mysql_tquery(koneksi, pQuery[playerid]);
+						error_command(playerid, "Tidak dapat melakukan penyewaan kendaraan untuk saat ini.");
+						RemovePlayerFromVehicle(playerid);
+					}
 				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `vehicle_rent_player` (id_user, id_list, id_place, pos_x, pos_y, pos_z, pos_a, expired) VALUES ('%d', '%d', '%d', '%f', '%f', '%f', '%f', '%d')", PlayerInfo[playerid][pID], listid, placeid, RentPlace[placeid][rentPlacePos][0], RentPlace[placeid][rentPlacePos][1], RentPlace[placeid][rentPlacePos][2], 0, durasitotal);
+				
 			}else{
 				DeletePVar(playerid, "id_vehicle_rent");
 				DeletePVar(playerid, "durasi_vehicle_rent");

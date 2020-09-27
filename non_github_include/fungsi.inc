@@ -269,6 +269,8 @@ resetPlayerVariable(playerid, dari_callback){
 
 	PlayerInfo[playerid][sisaPalu] = 0;
 	PlayerInfo[playerid][sisaGergaji] = 0;
+	PlayerInfo[playerid][sisaTombak] = 0;
+	PlayerInfo[playerid][sisaJoran] = 0;
 
 	PlayerInfo[playerid][lamaBermain] = 0;
 	PlayerInfo[playerid][waktuSaatLogin] = 0;
@@ -4210,12 +4212,13 @@ publicFor: SpeedoUpdate(playerid, vehid)
 }
 
 loadAllTree(){
-	new tree_Id, tX[32], tY[32], tZ[32], tRX[32], tRY[32], tRZ[32];
+	new tree_Id, free, tX[32], tY[32], tZ[32], tRX[32], tRY[32], tRZ[32];
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `lumber`");
 	cache_get_row_count(row);
 	while(idx < row){
 		result = cache_save();
+		free = Iter_Free(TreeIterator);
 		cache_get_value_name_int(idx, "id", tree_Id);
 		cache_get_value_name(idx, "treeX", tX);
 		cache_get_value_name(idx, "treeY", tY);
@@ -4223,7 +4226,7 @@ loadAllTree(){
 		cache_get_value_name(idx, "treeRX", tRX);
 		cache_get_value_name(idx, "treeRY", tRY);
 		cache_get_value_name(idx, "treeRZ", tRZ);
-		createTree(tree_Id, floatstr(tX), floatstr(tY), floatstr(tZ), floatstr(tRX), floatstr(tRY), floatstr(tRZ));
+		createTree(tree_Id, free, floatstr(tX), floatstr(tY), floatstr(tZ), floatstr(tRX), floatstr(tRY), floatstr(tRZ));
 		cache_set_active(result);
 		
 		#if DEBUG_SERVER_LOAD == true
@@ -4235,9 +4238,9 @@ loadAllTree(){
 	cache_delete(result);
 }
 
-createTree(tree_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ)
+createTree(tree_Id, free, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ)
 {
-	if(tree_Id < MAX_TREES ){
+	if(free < MAX_TREES ){
 		DTree[tree_Id][treeX] = tX;
 		DTree[tree_Id][treeY] = tY;
 		DTree[tree_Id][treeZ] = tZ;
@@ -4254,9 +4257,11 @@ createTree(tree_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tR
 		DTree[tree_Id][treeTumbang] = false;
 		Iter_Add(TreeIterator, tree_Id);
 		reloadTreeLabel(tree_Id);
+		return 1;
 	}else{
 		print("Pohon mencapai limit!");
 	}
+	return 0;
 }
 
 reloadTreeLabel(tree_Id){
@@ -5013,17 +5018,18 @@ EncodeTires(tires1, tires2, tires3, tires4){
 
 loadAllRentVehPlace(){
 	new placeid, time_durasi, Float:spawn_x, Float:spawn_y, Float:spawn_z;
-	new Cache:result, row, idx = 0;
+	new Cache:result, row, idx = 0, free;
 	result = mysql_query(koneksi, "SELECT * FROM `vehicle_rent_place`");
 	cache_get_row_count(row);
 	while(idx < row){
 		result = cache_save();
+		free = Iter_Free(RentPlaceIterator);
 		cache_get_value_name_int(idx, "id", placeid);
 		cache_get_value_name_int(idx, "durasi_gratis", time_durasi);
 		cache_get_value_name_float(idx, "pos_x", spawn_x);
 		cache_get_value_name_float(idx, "pos_y", spawn_y);
 		cache_get_value_name_float(idx, "pos_z", spawn_z);
-		createRentVehPlace(placeid, time_durasi, spawn_x, spawn_y, spawn_z);
+		createRentVehPlace(placeid, free, time_durasi, spawn_x, spawn_y, spawn_z);
 		cache_set_active(result);
 		
 		#if DEBUG_SERVER_LOAD == true
@@ -5051,8 +5057,8 @@ unloadAllRentVehPlace(){
 	}
 }
 
-createRentVehPlace(placeid, time_durasi, Float:pX, Float:pY, Float:pZ){
-	if(placeid < MAX_PLACE_RENT_VEHICLES){
+createRentVehPlace(placeid, free, time_durasi, Float:pX, Float:pY, Float:pZ){
+	if(free < MAX_PLACE_RENT_VEHICLES){
 		new status_sewa[16],
 			id = CreateDynamicSphere(pX, pY, pZ, 10.0);
 		RentPlaceID[id] = placeid;
@@ -5149,9 +5155,9 @@ unloadAllRentVeh(){
 }
 
 createRentVeh(rentid, listid, placeid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle){
-	if(rentid < MAX_PLACE_RENT_VEHICLES){
-		new modelid = HARGA_VEHICLE_RENT[listid][idModel],
-			id = CreateVehicle(modelid, spawn_x, spawn_y, spawn_z, z_angle, 1, 1, -1);
+	new modelid = HARGA_VEHICLE_RENT[listid][idModel],
+		id = CreateVehicle(modelid, spawn_x, spawn_y, spawn_z, z_angle, 1, 1, -1);
+	if(id < MAX_VEHICLES){
 		RentVehID[id] = rentid;
 		RentVeh[rentid][rentVehID] = id;
 		RentVeh[rentid][rentVehList] = listid;
@@ -5165,6 +5171,7 @@ createRentVeh(rentid, listid, placeid, Float:spawn_x, Float:spawn_y, Float:spawn
 		SetVehicleToRespawn(id);
 		return 1;
 	}else{
+		DestroyVehicle(id);
 		print("Rent Vehicle mencapai limit!");
 	}
 	return 0;
@@ -5236,9 +5243,9 @@ unloadRentPlayerVeh(vehicleid, delete){
 }
 
 createRentPlayerVeh(playerid, rentid, userid, listid, placeid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle, rent_time){
-	if(rentid < MAX_PLACE_RENT_VEHICLES){
-		new modelid = HARGA_VEHICLE_RENT[listid][idModel],
-			id = CreateVehicle(modelid, spawn_x, spawn_y, spawn_z, z_angle, 1, 1, -1);
+	new modelid = HARGA_VEHICLE_RENT[listid][idModel],
+		id = CreateVehicle(modelid, spawn_x, spawn_y, spawn_z, z_angle, 1, 1, -1);
+	if(id < MAX_VEHICLES){
 		RentPlayerVehID[id] = rentid;
 		RentPlayerVehUser[playerid] = id;
 		RentPlayerVeh[rentid][rentPlayerVehID] = id;
@@ -5256,6 +5263,7 @@ createRentPlayerVeh(playerid, rentid, userid, listid, placeid, Float:spawn_x, Fl
 		SetVehicleToRespawn(id);
 		return 1;
 	}else{
+		DestroyVehicle(id);
 		print("Rent Player Vehicle mencapai limit!");
 	}
 	return 0;
