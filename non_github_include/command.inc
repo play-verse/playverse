@@ -574,6 +574,8 @@ CMD:specoff(playerid, const params[]) {
 
     PlayerInfo[playerid][inSpectating] = INVALID_PLAYER_ID;
 	TogglePlayerSpectating(playerid, 0);
+    PlayerInfo[playerid][sudahSpawn] = false;
+    spawnPemain(playerid);
 	return 1;
 }
 
