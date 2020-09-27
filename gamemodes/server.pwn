@@ -153,11 +153,6 @@ public OnPlayerDisconnect(playerid, reason){
 					UpdatePosisiDarahVehiclePlayer(vehicleid);
 				}
 			}
-			if(Iter_Contains(RentPlayerVehIter, RentPlayerVehID[vehicleid])){
-				if(RentPlayerVehUser[playerid] != -1){
-					unloadRentPlayerVeh(vehicleid, 0);
-				}
-			}
 		}
 	}else{
 		// Pastikan dia memiliki loginAttempt dan merupakan player terdaftar
@@ -192,6 +187,9 @@ public OnPlayerDisconnect(playerid, reason){
 	// hideTextDrawUang(playerid);
 	ResetPlayerMoney(playerid);
 	unloadTextDrawPemain(playerid);
+	if(RentPlayerVehUser[playerid] != -1){
+		unloadRentPlayerVeh(playerid, 0);		
+	}
 	return 1;
 }
 
@@ -8906,10 +8904,11 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 					error_command(playerid, "Anda tidak dapat menaiki kendaraan yang sedang disewa.");
 					RemovePlayerFromVehicle(playerid);
 				}else{
-					if(gettime() > RentPlayerVeh[RentPlayerVehID[vehid]][rentPlayerVehTime]){
-						if(Iter_Contains(RentPlayerVehIter, RentPlayerVehID[vehid])){
-							if(RentPlayerVehUser[playerid] != -1){
-								unloadRentPlayerVeh(vehid, 1);
+					new rentid = RentPlayerVehID[vehid];
+					if(gettime() > RentPlayerVeh[rentid][rentPlayerVehTime]){
+						if(Iter_Contains(RentPlayerVehIter, rentid)){
+							if(RentPlayerVehUser[playerid] == vehid){
+								unloadRentPlayerVeh(playerid, 1);
 							}
 						}
 					}
@@ -10293,12 +10292,7 @@ public OnVehicleDeath(vehicleid, killerid){
 		// Kenakan tagihan
 		format(pDialog[Pid], 50, "denda sewa kendaraaan");
 		addTagihanPemain(Pid, TAGIHAN_DENDA_SEWA_KENDARAAN, pDialog[Pid], JENIS_TAGIHAN_DENDA_SEWA_KENDARAAN);
-
-		if(Iter_Contains(RentPlayerVehIter, rentid)){
-			if(RentPlayerVehUser[Pid] != -1){
-				unloadRentPlayerVeh(vehicleid, 1);
-			}
-		}
+		unloadRentPlayerVeh(Pid, 1);
 	}
 	return 1;
 }

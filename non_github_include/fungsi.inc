@@ -5212,20 +5212,18 @@ loadRentPlayerVeh(playerid){
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM vehicle_rent_player WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 }
 
-unloadRentPlayerVeh(vehicleid, delete){
-	new temp_query[512],
-		rentid = RentPlayerVehID[vehicleid],
-		Pid = RentPlayerVeh[rentid][rentPlayerVehUserPid];
-
+unloadRentPlayerVeh(playerid, delete){
+	new vehicleid = RentPlayerVehUser[playerid],
+		rentid = RentPlayerVehID[vehicleid];
 	if(delete == 0){
-		saveRentPlayerVeh(vehicleid);
+		saveRentPlayerVeh(playerid);
 	}else if(delete == 1){
-		mysql_format(koneksi, temp_query, sizeof(temp_query), "DELETE FROM vehicle_rent_player WHERE id  = %d", rentid);
-		mysql_tquery(koneksi, temp_query);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM vehicle_rent_player WHERE id  = %d", rentid);
+		mysql_tquery(koneksi, pQuery[playerid]);
 	}
 
 	RentPlayerVehID[vehicleid] = -1;
-	RentPlayerVehUser[Pid] = -1;
+	RentPlayerVehUser[vehicleid] = -1;
 	RentPlayerVeh[rentid][rentPlayerVehID] = -1;
 	RentPlayerVeh[rentid][rentPlayerVehUser] = -1;
 	RentPlayerVeh[rentid][rentPlayerVehUserPid] = -1;
@@ -5269,14 +5267,15 @@ createRentPlayerVeh(playerid, rentid, userid, listid, placeid, Float:spawn_x, Fl
 	return 0;
 }
 
-saveRentPlayerVeh(vehicleid){
-	new temp_query[256], Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle,
+saveRentPlayerVeh(playerid){
+	new Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle,
+		vehicleid = RentPlayerVehUser[playerid],
 		bensin = GetVehicleFuel(vehicleid),
 		rentid = RentPlayerVehID[vehicleid];
 	GetVehiclePos(vehicleid, spawn_x, spawn_y, spawn_z);
 	GetVehicleZAngle(vehicleid, z_angle);
 
-	mysql_format(koneksi, temp_query, sizeof(temp_query), "UPDATE vehicle_rent_player SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', bensin = '%d' WHERE id = '%d'", spawn_x, spawn_y, spawn_z, z_angle, bensin, rentid);
-	mysql_tquery(koneksi, temp_query);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_rent_player SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', bensin = '%d' WHERE id = '%d'", spawn_x, spawn_y, spawn_z, z_angle, bensin, rentid);
+	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }
