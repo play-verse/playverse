@@ -383,19 +383,16 @@ loadPlayerSkill(playerid){
 					{
 						PlayerInfo[playerid][expMekanik] = exp_skill;
 						PlayerInfo[playerid][activeMekanik] = is_active;
-						break;
 					}
 					case 2: // Cheff
 					{
 						PlayerInfo[playerid][expMedic] = exp_skill;
 						PlayerInfo[playerid][activeMedic] = is_active;
-						break;
 					}
 					case 3: // Blacksmith
 					{
 						PlayerInfo[playerid][expBlacksmith] = exp_skill;
 						PlayerInfo[playerid][activeBlacksmith] = is_active;
-						break;
 					}
 				}
 				idx++;
