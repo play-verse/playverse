@@ -8549,7 +8549,7 @@ public OnPlayerDeath(playerid, killerid, reason)
 			GetVehicleHealth(vehicleid, darah);
 			if(darah > 300.0)
 			{
-				saveRentPlayerVeh(vehicleid);
+				saveRentPlayerVeh(playerid);
 			}
 		}
 	}
@@ -8962,7 +8962,7 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 			GetVehicleHealth(vehicleid, darah);
 			if(!IsVehicleFlipped(vehicleid) && darah > 251) // kendaraan tidak terbalik dan kendaraan tidak berasap parah
 			{
-				saveRentPlayerVeh(vehicleid);
+				saveRentPlayerVeh(playerid);
 			}
 		}
 	}
