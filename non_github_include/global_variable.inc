@@ -1642,10 +1642,13 @@ enum INFO_BARANG_DENGAN_JUMLAH {
 };
 
 new const list_barang_tampung_tambang[][INFO_BARANG_DENGAN_JUMLAH] = {
-	{12, 2, 50},
-	{11, 1, 100},
-	{10, 1, 3000},
-	{11, 1, 1500}
+	{12, 2, 100},
+	{11, 1, 200},
+	{10, 1, 5000},
+	{11, 1, 2500},
+	{ID_KAYU, 10, 200},
+	{ID_BATU_BATA, 10, 50},
+	{ID_BATU_BARA, 10, 50}
 };
 
 new const item_beli_tambang[][INFO_BARANG_MARKET] = {

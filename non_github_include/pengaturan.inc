@@ -645,6 +645,7 @@
 #define ID_SERBUK_BERLIAN	67
 #define ID_BIJIH_PERAK		66
 #define ID_BIJIH_ALUMINIUM	68
+#define ID_KAYU				25
 
 #define ID_PERAK			12
 #define ID_EMAS				9
