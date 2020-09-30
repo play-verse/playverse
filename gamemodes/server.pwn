@@ -3755,7 +3755,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT COUNT(*) AS total FROM vehicle WHERE id_pemilik = '%d'", PlayerInfo[playerid][pID]);
 			}else{
-				if(!IsPlayerAdmin(playerid)) RemovePlayerFromVehicle(playerid);
+				if(GetLevelAdminPlayer(playerid) >= 2)
+					RemovePlayerFromVehicle(playerid);
 			}
 			return 1;
 		}
@@ -8069,6 +8070,165 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_PENJUAL_KAYU_LIST_JUAL:
+		{
+			if(response){
+				SetPVarInt(playerid, "index_terpilih", listitem);
+				
+				new nama_item[50],
+					i = GetPVarInt(playerid, "index_terpilih");
+				getNamaByIdItem(list_barang_tampung_kayu[i][brgId], nama_item);
+				
+				format(pDialog[playerid], sizePDialog, 
+					WHITE"Anda akan menjual "PURPLE"%s "WHITE"dengan harga satuan "GREEN"$%d "WHITE"per %d item.\n\
+					"WHITE"Berapa stack yang anda akan jual?\n\n\
+					"YELLOW"Note: "WHITE"1 stack = %d item = "GREEN"$%d", 
+					nama_item,
+					list_barang_tampung_kayu[i][brgHarga] - floatround(float(list_barang_tampung_kayu[i][brgHarga]) * 0.1, floatround_floor),
+					list_barang_tampung_kayu[i][brgJumlah],
+					list_barang_tampung_kayu[i][brgJumlah],
+					list_barang_tampung_kayu[i][brgHarga] - floatround(float(list_barang_tampung_kayu[i][brgHarga]) * 0.1, floatround_floor)
+					);
+				ShowPlayerDialog(playerid, DIALOG_PENJUAL_KAYU_LIST_JUAL_JUMLAH, DIALOG_STYLE_INPUT, "Banyak stack yang ingin dijual", pDialog[playerid], "Jual", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_PENJUAL_KAYU_LIST_JUAL_JUMLAH:
+		{
+			if(response){				
+				new input_jumlah;
+				new nama_item[50],
+					i = GetPVarInt(playerid, "index_terpilih");
+				getNamaByIdItem(list_barang_tampung_kayu[i][brgId], nama_item);
+				
+				if(sscanf(inputtext, "i", input_jumlah)) {
+					new str_temp[500];
+					format(str_temp, 500, 
+						RED"Jumlah stack invalidb.\n%s", 
+						pDialog[playerid]);
+					return ShowPlayerDialog(playerid, DIALOG_PENJUAL_KAYU_LIST_JUAL_JUMLAH, DIALOG_STYLE_INPUT, "Banyak stack yang ingin dijual", str_temp, "Jual", "Batal");
+				}
+				if(input_jumlah < 1 || input_jumlah > 100){
+					new str_temp[500];
+					format(str_temp, 500, 
+						RED"Hanya dapat menjual 1 hingga 100 stack dalam sekali penjualan.\n%s", 
+						pDialog[playerid]);
+					return ShowPlayerDialog(playerid, DIALOG_PENJUAL_KAYU_LIST_JUAL_JUMLAH, DIALOG_STYLE_INPUT, "Banyak stack yang ingin dijual", str_temp, "Jual", "Batal");
+				}	
+				if(input_jumlah * list_barang_tampung_kayu[i][brgJumlah] > GetJumlahItemPlayer(playerid, list_barang_tampung_kayu[i][brgId])){
+					new str_temp[500];
+					format(str_temp, 500, 
+						RED"Jumlah item anda tidak mencukupi, %d stack = %d item.\nJumlah saat ini %d.\n%s", 
+						input_jumlah, 
+						input_jumlah * list_barang_tampung_kayu[i][brgJumlah],
+						GetJumlahItemPlayer(playerid, list_barang_tampung_kayu[i][brgId]),
+						pDialog[playerid]);
+					return ShowPlayerDialog(playerid, DIALOG_PENJUAL_KAYU_LIST_JUAL_JUMLAH, DIALOG_STYLE_INPUT, "Banyak stack yang ingin dijual", str_temp, "Jual", "Batal");
+				}
+
+				SetPVarInt(playerid, "jumlah_stack", input_jumlah);
+
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan menjual %s dengan spesifikasi:\n\
+					"WHITE"Jumlah stack\t\t: "YELLOW"%d\n\
+					"WHITE"Jumlah per stack\t: "YELLOW"%d\n\
+					"WHITE"Jumlah total\t\t: "YELLOW"%d\n\
+					"WHITE"Harga jual per stack\t: "GREEN"$%d\n\
+					"WHITE"Harga Jual Total\t: "GREEN"$%d\n\n\
+					"WHITE"Apakah anda ingin menjual item ini?", 
+					nama_item,
+					input_jumlah,
+					list_barang_tampung_kayu[i][brgJumlah],
+					input_jumlah * list_barang_tampung_kayu[i][brgJumlah],
+					list_barang_tampung_kayu[i][brgHarga] - floatround(float(list_barang_tampung_kayu[i][brgHarga]) * 0.1, floatround_floor),
+					input_jumlah * (list_barang_tampung_kayu[i][brgHarga] - floatround(float(list_barang_tampung_kayu[i][brgHarga]) * 0.1, floatround_floor)));
+				ShowPlayerDialog(playerid, DIALOG_PENJUAL_KAYU_LIST_JUAL_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi penjualan", pDialog[playerid], "Jual", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_PENJUAL_KAYU_LIST_JUAL_KONFIRMASI:
+		{
+			if(response){
+				new i = GetPVarInt(playerid, "index_terpilih"),
+					jumlah_stack = GetPVarInt(playerid, "jumlah_stack");
+				new id_item = list_barang_tampung_kayu[i][brgId];
+				givePlayerUang(playerid, jumlah_stack * (list_barang_tampung_kayu[i][brgHarga] - floatround(float(list_barang_tampung_kayu[i][brgHarga]) * 0.1, floatround_floor)));
+				tambahItemPlayer(playerid, id_item, -(jumlah_stack * list_barang_tampung_kayu[i][brgJumlah]));
+
+				PlayerTakesAnimation(playerid);
+
+				new nama_item[50];
+				getNamaByIdItem(id_item, nama_item);
+				sendPesan(playerid, COLOR_GREEN, TAG_INFO" "WHITE"Berhasil menjual %s sebanyak "ORANGE"%d "WHITE"dengan total harga "GREEN"$%d", nama_item, jumlah_stack * list_barang_tampung_kayu[i][brgJumlah], jumlah_stack * (list_barang_tampung_kayu[i][brgHarga] - floatround(float(list_barang_tampung_kayu[i][brgHarga]) * 0.1, floatround_floor)));
+			}
+			return 1;
+		}
+		case DIALOG_BELI_ITEM_KAYU_LIST:
+		{
+			if(response){
+				SetPVarInt(playerid, "index_terpilih", listitem);
+				ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_KAYU_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_BELI_ITEM_KAYU_LIST_JUMLAH:
+		{
+			if(response){
+				new banyak_barang;
+				if(sscanf(inputtext, "i", banyak_barang)) 
+					return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_KAYU_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Jumlah tidak valid.\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+
+				if(banyak_barang < 1 || banyak_barang > 1000) 
+					return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_KAYU_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Jumlah yang dibeli harus antara 1 hingga 1000.\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+
+				new idx = GetPVarInt(playerid, "index_terpilih");
+
+				if(!CekJikaInventoryPlayerMuat(playerid, item_beli_kayu[idx][idItemMarket], banyak_barang)){
+					return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_KAYU_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Inventory tidak muat untuk membeli item sebanyak itu.\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+				}
+
+				new nama_item[50];
+				getNamaByIdItem(item_beli_kayu[idx][idItemMarket], nama_item);
+				
+				SetPVarInt(playerid, "banyak_barang", banyak_barang);
+
+				format(pDialog[playerid], 
+					sizePDialog, 
+					WHITE"Anda akan membeli "YELLOW"%s "WHITE"sebanyak "YELLOW"%d\n\
+					"WHITE"Dengan total harga "GREEN"$%d"WHITE".\n\
+					Apakah anda yakin?", 
+					nama_item, 
+					banyak_barang, 
+					item_beli_kayu[idx][hargaItemMarket] * banyak_barang);
+				
+				ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_KAYU_LIST_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", pDialog[playerid], "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_BELI_ITEM_KAYU_LIST_KONFIRMASI:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "index_terpilih"),
+					banyak_barang = GetPVarInt(playerid, "banyak_barang"),
+					nama_item[50];
+
+				if(getUangPlayer(playerid) < item_beli_kayu[idx][hargaItemMarket] * banyak_barang)
+					return SendClientMessage(playerid, COLOR_RED, TAG_GAGAL" "WHITE"Uang anda tidak mencukupi untuk membayar.");
+
+				givePlayerUang(playerid, -(item_beli_kayu[idx][hargaItemMarket] * banyak_barang));
+				tambahItemPlayer(playerid, item_beli_kayu[idx][idItemMarket], banyak_barang);
+
+				getNamaByIdItem(item_beli_kayu[idx][idItemMarket], nama_item);
+
+				format(pDialog[playerid], sizePDialog, 
+					WHITE"Anda telah berhasil membeli "GREEN"%s"WHITE" sebanyak %dx.\n\
+					Dengan harga "GREEN"$%d\n\
+					"YELLOW"Silahkan cek inventory kamu.", 
+					nama_item, 
+					banyak_barang, 
+					item_beli_kayu[idx][hargaItemMarket] * banyak_barang);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli item", pDialog[playerid], "Ok", "");
+			}
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -9851,6 +10011,46 @@ public OnPlayerText(playerid, text[]){
 
 							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
 							ActorResponse(ACT_pembeliTambang_2, pDialog[playerid], 5);
+						}
+					}
+				}
+			}
+			else if(areaid == ACT_pembeliKayu_1_Area){
+				if(ACT_pembeliKayu_1_User == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_PEMBELI_KAYU_1".*")){
+						ACT_pembeliKayu_1_User = playerid;
+						ACT_pembeliKayu_1_Res = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_pembeliKayu_1);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_pembeliKayu_1, pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PEMBELI_KAYU_1, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_pembeliKayu_1, playerid, pDialog[playerid]);
+					}
+				}else if(ACT_pembeliKayu_1_User == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_pembeliKayu_1_Res == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\sitem.*")){
+							showDialogBeliItemKayu(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_pembeliKayu_1, playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(menjual|jual)\\sitem.*")){
+							showDialogJualItemKayu(playerid);
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_pembeliKayu_1, playerid);
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_pembeliKayu_1_User = INVALID_PLAYER_ID;
+							ACT_pembeliKayu_1_Res = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_pembeliKayu_1, pDialog[playerid], 5);
 						}
 					}
 				}

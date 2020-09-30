@@ -335,7 +335,7 @@ new const POSISI_BELI_PERABOT[][COORD_OBJ] = {
 };
 
 new const POSISI_PEMOTONGAN_KAYU[][COORD_OBJ] = {
-	{-755.1526, -126.1716,	65.8156, 0, 0},
+	// {-755.1526, -126.1716,	65.8156, 0, 0},
 	{2351.5806, -659.4711, 128.1192, 0, 0}
 };
 
@@ -395,8 +395,6 @@ enum INFO_BARANG_MARKET {
 
 new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
     {6, 5}, // Materai
-    {8, 10}, // Palu Tambang
-    {26, 10}, // Gergaji Mesin
 	{44, 8}, // Bensin 20 Liter
 	{45, 15}, // Bensin 50 Liter
 	{46, 23} // Bensin 100 Liter
@@ -586,6 +584,7 @@ new
 	ACT_marketPlace_4,
 	ACT_pembeliTambang_1,
 	ACT_pembeliTambang_2, // Tambang Lobang
+	ACT_pembeliKayu_1,
 
 	// Posisi
 	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
@@ -604,6 +603,7 @@ new
 	Float:ACT_marketPlace_4_Pos[4] = {-2655.5066, 1409.6869, 906.2734, 270.2169},
 	Float:ACT_pembeliTambang_1_Pos[4] = {-539.1688, -542.0021, 25.5234, 179.2752},
 	Float:ACT_pembeliTambang_2_Pos[4] = {816.6610, 856.9252, 12.7891, 200.5086},
+	Float:ACT_pembeliKayu_1_Pos[4] = {-752.8927, -133.0457, 65.8281, 17.1701},
 
 	// 3D Text (Chat Bubble)
 	Text3D:ACT_resepsionisPemerintah_Text,
@@ -623,6 +623,7 @@ new
 	Text3D:ACT_marketPlace_4_Text,
 	Text3D:ACT_pembeliTambang_1_Text,
 	Text3D:ACT_pembeliTambang_2_Text,
+	Text3D:ACT_pembeliKayu_1_Text,
 
 	// Binding User
 	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
@@ -642,6 +643,7 @@ new
 	ACT_marketPlace_4_User = INVALID_PLAYER_ID,
 	ACT_pembeliTambang_1_User = INVALID_PLAYER_ID,
 	ACT_pembeliTambang_2_User = INVALID_PLAYER_ID,
+	ACT_pembeliKayu_1_User = INVALID_PLAYER_ID,
 
 	// Response User
 	ACT_resepsionisPemerintah_Res = 0,
@@ -661,6 +663,7 @@ new
 	ACT_marketPlace_4_Res = 0,
 	ACT_pembeliTambang_1_Res = 0,
 	ACT_pembeliTambang_2_Res = 0,
+	ACT_pembeliKayu_1_Res = 0,
 
 	// Timer (Lama Response)
 	ACT_resepsionisPemerintah_Timer = -1,
@@ -680,6 +683,7 @@ new
 	ACT_marketPlace_4_Timer = -1,
 	ACT_pembeliTambang_1_Timer = -1,
 	ACT_pembeliTambang_2_Timer = -1,
+	ACT_pembeliKayu_1_Timer = -1,
 
 	// Area Actor
 	ACT_resepsionisPemerintah_Area,
@@ -698,7 +702,8 @@ new
 	ACT_marketPlace_3_Area,
 	ACT_marketPlace_4_Area,
 	ACT_pembeliTambang_1_Area,
-	ACT_pembeliTambang_2_Area;
+	ACT_pembeliTambang_2_Area,
+	ACT_pembeliKayu_1_Area;
 
 /**
     Area
@@ -1646,7 +1651,6 @@ new const list_barang_tampung_tambang[][INFO_BARANG_DENGAN_JUMLAH] = {
 	{11, 1, 200},
 	{10, 1, 5000},
 	{11, 1, 2500},
-	{ID_KAYU, 10, 200},
 	{ID_BESI, 5, 100},
 	{ID_BATU_BATA, 10, 50},
 	{ID_BATU_BARA, 10, 50}
@@ -1654,4 +1658,12 @@ new const list_barang_tampung_tambang[][INFO_BARANG_DENGAN_JUMLAH] = {
 
 new const item_beli_tambang[][INFO_BARANG_MARKET] = {
 	{ID_PALU_TAMBANG, 8}
+};
+
+new const list_barang_tampung_kayu[][INFO_BARANG_DENGAN_JUMLAH] = {
+	{ID_KAYU, 10, 200}
+};
+
+new const item_beli_kayu[][INFO_BARANG_MARKET] = {
+	{ID_GERGAJI_MESIN, 10}
 };

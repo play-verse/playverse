@@ -74,6 +74,10 @@ loadAllActor(){
     // Bubble Chat Actor
     ACT_pembeliTambang_2_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_pembeliTambang_2_Pos[0], ACT_pembeliTambang_2_Pos[1], ACT_pembeliTambang_2_Pos[2] + 1.25, 10.0);
 
+    // Actor di pembeli Kayu
+    ACT_pembeliKayu_1 = CreateDynamicActor(26, ACT_pembeliKayu_1_Pos[0], ACT_pembeliKayu_1_Pos[1], ACT_pembeliKayu_1_Pos[2], ACT_pembeliKayu_1_Pos[3], .worldid = 0, .interiorid = 0);
+    // Bubble Chat Actor
+    ACT_pembeliKayu_1_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_pembeliKayu_1_Pos[0], ACT_pembeliKayu_1_Pos[1], ACT_pembeliKayu_1_Pos[2] + 1.25, 10.0);
 }
 
 re_loadAllActor(){
@@ -96,6 +100,7 @@ re_loadAllActor(){
         if(IsValidDynamicActor(ACT_skillBlacksmith)) DestroyDynamicActor(ACT_skillBlacksmith);
         if(IsValidDynamicActor(ACT_pembeliTambang_1)) DestroyDynamicActor(ACT_pembeliTambang_1);
         if(IsValidDynamicActor(ACT_pembeliTambang_2)) DestroyDynamicActor(ACT_pembeliTambang_2);
+        if(IsValidDynamicActor(ACT_pembeliKayu_1)) DestroyDynamicActor(ACT_pembeliKayu_1);
 
         ACT__reload = 0;
         // Actor di toko peraltan pancing
@@ -144,5 +149,8 @@ re_loadAllActor(){
         ACT_pembeliTambang_1 = CreateDynamicActor(26, ACT_pembeliTambang_1_Pos[0], ACT_pembeliTambang_1_Pos[1], ACT_pembeliTambang_1_Pos[2], ACT_pembeliTambang_1_Pos[3], .worldid = 0, .interiorid = 0);
 
         ACT_pembeliTambang_2 = CreateDynamicActor(27, ACT_pembeliTambang_2_Pos[0], ACT_pembeliTambang_2_Pos[1], ACT_pembeliTambang_2_Pos[2], ACT_pembeliTambang_2_Pos[3], .worldid = 0, .interiorid = 0);
+
+        // Actor pembeli kayu
+        ACT_pembeliKayu_1 = CreateDynamicActor(26, ACT_pembeliKayu_1_Pos[0], ACT_pembeliKayu_1_Pos[1], ACT_pembeliKayu_1_Pos[2], ACT_pembeliKayu_1_Pos[3], .worldid = 0, .interiorid = 0);
     }
 }

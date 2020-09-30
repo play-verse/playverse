@@ -4830,6 +4830,14 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_pembeliTambang_2_Res = 0;
 		ACT_pembeliTambang_2_Timer = -1;
+	}else if(actorid == ACT_pembeliKayu_1){
+		UpdateDynamic3DTextLabelText(ACT_pembeliKayu_1_Text, COLOR_WHITE, "");
+		if(ACT_pembeliKayu_1_User != INVALID_PLAYER_ID){
+			SetPVarInt(ACT_pembeliKayu_1_User, "interaksi_actor", -1);
+			ACT_pembeliKayu_1_User = INVALID_PLAYER_ID;
+		}
+		ACT_pembeliKayu_1_Res = 0;
+		ACT_pembeliKayu_1_Timer = -1;
 	}
 	return 1;
 }
@@ -4869,6 +4877,8 @@ TerminateInteraksi_Alt(actorid){
 		DeletePreciseTimer(ACT_pembeliTambang_1_Timer);
 	else if(actorid == ACT_pembeliTambang_2 && ACT_pembeliTambang_2_Timer != -1)
 		DeletePreciseTimer(ACT_pembeliTambang_2_Timer);
+	else if(actorid == ACT_pembeliKayu_1 && ACT_pembeliKayu_1_Timer != -1)
+		DeletePreciseTimer(ACT_pembeliKayu_1_Timer);
 	TerminateInteraksi(actorid);
 }
 

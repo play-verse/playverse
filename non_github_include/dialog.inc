@@ -596,3 +596,42 @@ showDialogBeliItemTambang(playerid){
     }
     return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_TAMBANG_LIST, DIALOG_STYLE_TABLIST_HEADERS, "Beli Item Tambang", str_daftar_beli_tambang, "Pilih", "Batal");
 }
+
+showDialogJualItemKayu(playerid){
+    static str_daftar_jual_kayu[sizeof(list_barang_tampung_kayu) * 100 + 100], subString[100];
+    if(str_daftar_jual_kayu[0] == EOS){
+        new nama_item[50];
+        strcat(str_daftar_jual_kayu, WHITE"Nama\tJumlah Per Stack\tHarga Jual\n");
+        for(new i = 0; i < sizeof(list_barang_tampung_kayu); i++){
+            getNamaByIdItem(list_barang_tampung_kayu[i][brgId], nama_item);
+
+            format(subString, 100, 
+                WHITE"%s\t"YELLOW"%d\t"GREEN"$%d\n", 
+                nama_item, 
+                list_barang_tampung_kayu[i][brgJumlah],
+                list_barang_tampung_kayu[i][brgHarga] - floatround(float(list_barang_tampung_kayu[i][brgHarga]) * 0.1, floatround_floor)
+            );
+            strcat(str_daftar_jual_kayu, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_PENJUAL_KAYU_LIST_JUAL, DIALOG_STYLE_TABLIST_HEADERS, "Jual Kayu", str_daftar_jual_kayu, "Pilih", "Batal");
+}
+
+showDialogBeliItemKayu(playerid){
+    static str_daftar_beli_kayu[sizeof(item_beli_kayu) * 100 + 100], subString[100];
+    if(str_daftar_beli_kayu[0] == EOS){
+        new nama_item[50];
+        strcat(str_daftar_beli_kayu, WHITE"Nama\t"GREEN"Harga\n");
+        for(new i = 0; i < sizeof(item_beli_kayu); i++){
+            getNamaByIdItem(item_beli_kayu[i][idItemMarket], nama_item);
+
+            format(subString, 100, 
+                WHITE"%s\t"GREEN"$%d\n", 
+                nama_item,
+                item_beli_kayu[i][hargaItemMarket]
+            );
+            strcat(str_daftar_beli_kayu, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_KAYU_LIST, DIALOG_STYLE_TABLIST_HEADERS, "Beli Item Kayu", str_daftar_beli_kayu, "Pilih", "Batal");
+}
