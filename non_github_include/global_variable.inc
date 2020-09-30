@@ -1647,6 +1647,7 @@ new const list_barang_tampung_tambang[][INFO_BARANG_DENGAN_JUMLAH] = {
 	{10, 1, 5000},
 	{11, 1, 2500},
 	{ID_KAYU, 10, 200},
+	{ID_BESI, 5, 100},
 	{ID_BATU_BATA, 10, 50},
 	{ID_BATU_BARA, 10, 50}
 };

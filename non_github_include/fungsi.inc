@@ -3923,12 +3923,24 @@ LoadModifVehiclePlayer(vehicleid){
 		keterangan_atm = keterangan atm
 	```
  */
-dialogMetodeBayar(playerid, nominal, const fungsi_callback_success[], const keterangan_atm[], langsung_potong = 1){
+dialogMetodeBayar(playerid, nominal, const fungsi_callback_success[], const keterangan_atm[], langsung_potong = 1, const fungsi_callback_gagal[] = "callbackGagalMetodeBayar"){
 	SetPVarString(playerid, "metode_callback_sukses", fungsi_callback_success);
+	SetPVarString(playerid, "metode_callback_gagal", fungsi_callback_gagal);
 	SetPVarInt(playerid, "metode_langsung_potong", langsung_potong);
 	SetPVarString(playerid, "metode_keterangan_atm", keterangan_atm);
 	SetPVarInt(playerid, "metode_nominal", nominal);
 	ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR, DIALOG_STYLE_LIST, YELLOW"Silahkan pilih metode pembayaran", GREEN"Uang Cash\n"ORANGE"E-Banking", "Pilih", "Batal");
+}
+
+// Hanya lewat jangan dihapus
+publicFor: callbackGagalMetodeBayar(playerid){
+	return 1;
+}
+
+publicFor: gagalBeliKendaraan(playerid){
+	if(IsPlayerInAnyVehicle(playerid) && Iter_Contains(DVehIterator, GetPlayerVehicleID(playerid)))
+		RemovePlayerFromVehicle(playerid);
+	return 1;
 }
 
 UnloadVehiclePlayer(playerid){

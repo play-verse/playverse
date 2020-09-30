@@ -2747,6 +2747,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		}
 		case DIALOG_METODE_BAYAR:
 		{
+			new fungsi_callback_gagal[50];
+			GetPVarString(playerid, "metode_callback_gagal", fungsi_callback_gagal, sizeof(fungsi_callback_gagal));
 			if(response){
 				switch(listitem){
 					case 0: // Uang cash
@@ -2760,13 +2762,17 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(isnull(PlayerInfo[playerid][nomorRekening])) {
 							DeletePVar(playerid, "metode_nominal");
 							DeletePVar(playerid, "metode_callback_sukses");
+							DeletePVar(playerid, "metode_callback_gagal");
 							DeletePVar(playerid, "metode_keterangan_atm");
+							CallRemoteFunction(fungsi_callback_gagal, "i", playerid);
 							return showDialogPesan(playerid, RED"Tidak memiliki ATM", WHITE"Anda tidak memiliki ATM.\nSilahkan buat ATM terlebih dahulu untuk menggunakan metode ini.");
 						}
 						if(PlayerInfo[playerid][ePhone] < 2) {
 							DeletePVar(playerid, "metode_nominal");
 							DeletePVar(playerid, "metode_callback_sukses");
+							DeletePVar(playerid, "metode_callback_gagal");
 							DeletePVar(playerid, "metode_keterangan_atm");
+							CallRemoteFunction(fungsi_callback_gagal, "i", playerid);
 							return showDialogPesan(playerid, RED"Tidak memiliki ePhone", WHITE"Anda tidak memiliki ePhone.\nSilahkan beli dan gunakan ePhone terlebih dahulu (minimal ePhone 2) untuk menggunakan metode ini.");
 						}
 						format(pDialog[playerid], sizePDialog, WHITE"Silahkan konfirmasi pembayaran Via E-Banking.\n\n"ORANGE"Harga yang akan dikenakan adalah "GREEN"$%d\n\n"YELLOW"Untuk mengkonfirmasi pembayaran silahkan ketikan nomor rekening anda.\n"GREY"** Pastikan bahwa anda memiliki cukup saldo untuk melakukan pembayaran.", GetPVarInt(playerid, "metode_nominal"));
@@ -2778,22 +2784,28 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				DeletePVar(playerid, "metode_nominal");
 				DeletePVar(playerid, "metode_callback_sukses");
 				DeletePVar(playerid, "metode_keterangan_atm");
+				CallRemoteFunction(fungsi_callback_gagal, "i", playerid);
 			}
 			return 1;
 		}
 		case DIALOG_KONFIRMASI_BAYAR_CASH:
 		{
 			if(response){
-				new nominal = GetPVarInt(playerid, "metode_nominal"), fungsi_callback_sukses[50];
+				new nominal = GetPVarInt(playerid, "metode_nominal"), fungsi_callback_sukses[50], fungsi_callback_gagal[50];
 				GetPVarString(playerid, "metode_callback_sukses", fungsi_callback_sukses, 50);
+				GetPVarString(playerid, "metode_callback_gagal", fungsi_callback_gagal, 50);
 				new langsung_potong = GetPVarInt(playerid, "metode_langsung_potong");
 
 				
 				DeletePVar(playerid, "metode_langsung_potong");
 				DeletePVar(playerid, "metode_nominal");
+				DeletePVar(playerid, "metode_callback_gagal");
 				DeletePVar(playerid, "metode_callback_sukses");
 				DeletePVar(playerid, "metode_keterangan_atm");
-				if(nominal > getUangPlayer(playerid)) return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.\nSelalu pastikan untuk mempunyai uang yang cukup sebelum melakukan pembelian.");
+				if(nominal > getUangPlayer(playerid)){
+					CallRemoteFunction(fungsi_callback_gagal, "i", playerid);
+					return showDialogPesan(playerid, RED"Uang tidak mencukupi", WHITE"Uang anda tidak mencukupi untuk melakukan pembelian ini.\nSelalu pastikan untuk mempunyai uang yang cukup sebelum melakukan pembelian.");
+				}
 
 				if(langsung_potong)
 					givePlayerUang(playerid, -nominal);
@@ -2801,8 +2813,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(fungsi_callback_sukses[0] != EOS)
 					// Keterangan ATM dikasih dummy text untuk formalitas saja
 					CallRemoteFunction(fungsi_callback_sukses, "iiis", playerid, METODE_BAYAR_CASH, nominal, "a");
-				else
+				else{
+					CallRemoteFunction(fungsi_callback_gagal, "i", playerid);
 					printf("[ERROR] #009-A Callback Error di metode pembayaran cash.");
+				}
 			}else
 				ShowPlayerDialog(playerid, DIALOG_METODE_BAYAR, DIALOG_STYLE_LIST, YELLOW"Silahkan pilih metode pembayaran", GREEN"Uang Cash\n"ORANGE"E-Banking", "Pilih", "Batal");
 			return 1;
@@ -2815,8 +2829,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BAYAR_EBANKING, DIALOG_STYLE_INPUT, YELLOW"Konfirmasi pembayaran via E-Banking", pDialog[playerid], "Bayar", "Kembali");
 				}
 				inline responseCekSaldo(){
-					new nominal = GetPVarInt(playerid, "metode_nominal"), fungsi_callback_sukses[50], keterangan_atm[50], saldo;
+					new nominal = GetPVarInt(playerid, "metode_nominal"), fungsi_callback_sukses[50], keterangan_atm[50], saldo, fungsi_callback_gagal[50];
 					GetPVarString(playerid, "metode_callback_sukses", fungsi_callback_sukses, sizeof(fungsi_callback_sukses));
+					GetPVarString(playerid, "metode_callback_gagal", fungsi_callback_gagal, sizeof(fungsi_callback_gagal));
 					GetPVarString(playerid, "metode_keterangan_atm", keterangan_atm, sizeof(keterangan_atm));
 					new langsung_potong = GetPVarInt(playerid, "metode_langsung_potong");
 
@@ -2830,11 +2845,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					if(saldo > nominal){
 						if(langsung_potong)
 							addTransaksiTabungan(PlayerInfo[playerid][nomorRekening], -nominal, keterangan_atm);
+
 						if(fungsi_callback_sukses[0] != EOS)
 							CallRemoteFunction(fungsi_callback_sukses, "iiis", playerid, METODE_BAYAR_EBANKING, nominal, keterangan_atm);
-						else
+						else{
+							CallRemoteFunction(fungsi_callback_gagal, "i", playerid);
 							printf("[ERROR] #009-B Callback Error di metode pembayaran atm.");
+						}
 					}else{
+						CallRemoteFunction(fungsi_callback_gagal, "i", playerid);
 						format(pDialog[playerid], sizePDialog, WHITE"Maaf saldo yang terdapat pada ATM anda tidak mencukupi.\n\n"ORANGE"Saldo rekening pada saat ini adalah "GREEN"$%d. \n"WHITE"Selalu pastikan bahwa saldo anda mencukupi untuk menggunakan metode E-Banking.\nSilahkan gunakan metode pembayaran lain.", nominal);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Saldo anda tidak mencukupi", pDialog[playerid], "Ok", "");
 					}
@@ -3730,7 +3749,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						
 						new temp[50];
 						format(temp, 50, "membeli %s dari dealer", GetVehicleModelName(DVeh[vehid][dVehModel]));
-						dialogMetodeBayar(playerid, DVeh[vehid][dVehHarga], "selesaiBeliKendaraan", temp, 0);
+						dialogMetodeBayar(playerid, DVeh[vehid][dVehHarga], "selesaiBeliKendaraan", temp, 0, "gagalBeliKendaraan");
 					}
 				}	
 
