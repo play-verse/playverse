@@ -1397,3 +1397,41 @@ publicFor: SpectatePlayer(playerid, idtujuan)
     }
 	return 1;
 }
+
+/*
+    Vehicle Item
+*/
+/**
+    Params:
+        %0 = vehicleid
+        %1 = id item
+        %2 = jumlah 
+ */
+#define SetJumlahItemVehicle(%0,%1,%2) \
+    VehicleItem[%0][%1] = %2
+
+#define bersihkanVariabelItemVehicle(%0) \
+    LoopingItem(_i) VehicleItem[%0][_i] = 0
+
+#define GetVehicleLimitItemByModel(%0) \
+    VehicleItemLimit[%0 - 400]
+
+#define GetJumlahItemVehicle(%0,%1) \
+    VehicleItem[%0][%1]
+
+GetSlotInventoryVehicle(vehid){
+    new kapasitas = 0;
+    LoopingItem(i){
+        if(GetJumlahItemVehicle(vehid, i) < 1) continue;
+        kapasitas += GetJumlahItemVehicle(vehid, i) * getKapasitasByIdItem(i);
+    }
+    return kapasitas;
+}
+
+/**
+    %0 = vehicleid
+    %1 = id item yang akan masuk
+    %2 = jumlah item yang akan masuk
+ */
+#define CekJikaInventoryVehicleMuat(%0,%1,%2) \
+    ((GetSlotInventoryVehicle(%0) + GetSlotItemTerpakai(%1,%2)) <= GetVehicleLimitItemByModel(GetVehicleModel(%0)))

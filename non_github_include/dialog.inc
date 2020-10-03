@@ -635,3 +635,48 @@ showDialogBeliItemKayu(playerid){
     }
     return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_KAYU_LIST, DIALOG_STYLE_TABLIST_HEADERS, "Beli Item Kayu", str_daftar_beli_kayu, "Pilih", "Batal");
 }
+
+showDialogListItemVehicle(playerid, vehicleid, dialogid = DIALOG_AMBIL_ITEM_VEHICLE){
+	format(pDialog[playerid], sizePDialog, "Nama\tJumlah\tKapasitas per Item\tKapasitas Terpakai\n");
+	
+    new subString[64], 
+        jumlah, 
+        nama_item[100], 
+        kapasitas, 
+        idx_temp = 0
+    ;
+    
+    LoopingItem(id_item){
+        jumlah = GetJumlahItemVehicle(vehicleid, id_item);
+        if(jumlah < 1) continue;
+
+        // Cek jika item yang sedang di looping adalah item yang ada pada halaman
+        if(floatround(idx_temp / BANYAK_DATA_PER_PAGE, floatround_floor) == GetPVarInt(playerid, "halaman")){
+            getNamaByIdItem(id_item, nama_item);
+            kapasitas = getKapasitasByIdItem(id_item);
+
+            strcatEx(pDialog[playerid], sizePDialog, "%s%s\t"WHITE"%i\t%i\t%i\n", GetColorRarity(getRarityByIdItem(id_item)), nama_item, jumlah, kapasitas, kapasitas * jumlah);
+
+            // Gunakan konsep Antrian
+            TempPlayerDialog[playerid][idx_temp % BANYAK_DATA_PER_PAGE] = id_item;
+        }
+        idx_temp++;
+
+        // Cek jika item yang terlooping sudah melebihi halaman
+        if(floatround(idx_temp / BANYAK_DATA_PER_PAGE, floatround_floor) > GetPVarInt(playerid, "halaman")) break;
+    }
+
+    if(idx_temp == 0){
+        return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory item "RED"kosong", WHITE"Maaf saat ini inventory item kendaraan tidak berisi apapun!", "Ok", "");
+    }else if(floatround(idx_temp / BANYAK_DATA_PER_PAGE, floatround_floor) < GetPVarInt(playerid, "halaman")){
+        if(GetPVarInt(playerid, "halaman") < 1) return 0; // Keluar dari fungsi jika kondisi aneh?
+        SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+        return showDialogListItem(playerid, vehicleid, dialogid);
+    }
+
+    strcat(pDialog[playerid], ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+    format(subString, 64, WHITE"Item Bagasi %s : "GREEN"(page : %d)", GetVehicleModelName(GetVehicleModel(vehicleid)), GetPVarInt(playerid, "halaman") + 1);
+
+    return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
+}
