@@ -1127,7 +1127,7 @@ CMD:close(playerid, params[]){
     if(sscanf(params, "s[50]", text)) 
         return error_syntax(playerid, "/close [object]");
 
-    if(sama(text, "prison") && IsPlayerOnDutyPolice(playerid)){
+    if(sama(text, "prison", true) && IsPlayerOnDutyPolice(playerid)){
         if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 78.43640, 1001.26233)){
             tutupPintuPenjara(pintuPenjara[0]);
         }else if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 82.96240, 1001.26233)){
@@ -1135,6 +1135,28 @@ CMD:close(playerid, params[]){
         }else if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 87.48840, 1001.26233)){
             tutupPintuPenjara(pintuPenjara[2]);
         }
+    }else if(sama(text, "trunk", true)){
+        new vehid = INVALID_VEHICLE_ID;
+        new Float:vpos[3];
+
+        foreach(new vid : Vehicle){
+            if(!IsValidVehicle(vid)) continue;
+            if(GetVehicleBoot(vid, vpos[0], vpos[1], vpos[2])){
+                if(IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+                    vehid = vid;
+                    break;
+                }
+            }
+        }
+        
+        if(vehid == INVALID_VEHICLE_ID) 
+            return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda harus berada pada bagian belakang kendaraan yang ingin dibuka bagasinya.");
+		
+        if(!GetVehicleParams(vehid, VEHICLE_TYPE_BOOT)) 
+            return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Bagasi tidak dalam keadaan terbuka.");
+		
+        SetVehicleParams(vehid, VEHICLE_TYPE_BOOT, 0);
+        SendClientMessage(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil menutup bagasi kendaraan ini.");
     }else
         return 0;
     return 1;
