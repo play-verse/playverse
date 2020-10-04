@@ -45,6 +45,7 @@
 
 #include <core>
 #include <float>
+#include <sampvoice>
 #include <PreviewModelDialog>
 
 /*
@@ -65,6 +66,14 @@
 #include <dialog> // Function Dialog Loader
 
 #include <../include/gl_common.inc>
+
+public SV_VOID:OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid){
+	if(keyid == 0x42 && lstream[playerid]) SvAttachSpeakerToStream(lstream[playerid], playerid);
+}
+
+public SV_VOID:OnPlayerActivationKeyRelease(SV_UINT:playerid, SV_UINT:keyid){
+	if(keyid == 0x42 && lstream[playerid]) SvDetachSpeakerFromStream(lstream[playerid], playerid);
+}
 
 public OnPlayerConnect(playerid)
 {
@@ -190,6 +199,11 @@ public OnPlayerDisconnect(playerid, reason){
 	if(RentPlayerVehUser[playerid] != -1){
 		unloadRentPlayerVeh(playerid, 0);		
 	}
+	// Voice Chat
+	if(lstream[playerid]){
+		SvDeleteStream(lstream[playerid]);
+		lstream[playerid] = SV_NULL;
+	}
 	return 1;
 }
 
@@ -266,6 +280,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 					format(msg, sizeof(msg), "~w~Selamat datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %i ~w~!", PlayerInfo[playerid][loginKe]);
 					GameTextForPlayer(playerid, msg, 4000, 3);
+
+					// Voice Chat
+					if(!SvGetVersion(playerid)) error_command(playerid, "Anda tidak memiliki versi yang valid!");
+					else if(!SvHasMicro(playerid)) error_command(playerid, "Anda tidak memiliki mikrofon obrolan suara!");
+					else if(lstream[playerid] = SvCreateDLStreamAtPlayer(40.0, SV_INFINITY, playerid, 0xff0000ff, "L")){
+						SendClientMessage(playerid, COLOR_WHITE, TAG_SERVER" "YELLOW"Voicechat berhasil dimuat!");
+						SvAddKey(playerid, 0x42);
+					}
 					return 1;
 				}
 				else
@@ -8062,14 +8084,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli item", pDialog[playerid], "Ok", "");
 			}
 		}
-		case DIALOG_HELP_MENU_NEXT:
-		{
-			if(response){
-			}else{
-				DeletePVar(playerid, "menu_help");
-			}
-			return 1;
-		}
 		case DIALOG_PENJUAL_KAYU_LIST_JUAL:
 		{
 			if(response){
@@ -8228,6 +8242,257 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					item_beli_kayu[idx][hargaItemMarket] * banyak_barang);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli item", pDialog[playerid], "Ok", "");
 			}
+		}
+		case DIALOG_TUTORIAL:
+		{
+			if(response){
+				new temp_panduan[24];
+				GetPVarString(playerid, "panduan_bermain", temp_panduan, sizeof(temp_panduan));
+
+				// Masuk panduan bermain 1
+				if(sama(temp_panduan, "panduan_bermain_1")){
+					// Set variabel panduan bermain 1 -> 2
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_2");
+					format(pDialog[playerid], sizePDialog, 
+					WHITE"Saat awal bermain anda akan berada di tempat yang sudah di pilih,\n\
+					kamu akan di beri sejumlah uang, untuk digunakan sebagai modal awal,\n\
+					tentukan tujuan awalmu dengan bekerja, bertransaksi atau berinvestasi.\n\
+					Ada beberapa fitur dan tempat yang harus kamu ketahui.\n\
+					Disarankan menggunakan perintah "GREEN"/help"WHITE" untuk menu bantuan.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Awal) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 2
+				if(sama(temp_panduan, "panduan_bermain_2")){
+					// Set variabel panduan bermain 2 -> 3
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_3");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Kantor Pemerintah (Los Santos)\n\n"\
+					WHITE"Terdapat kantor pemerintah salah satunya yang terdapat di daerah\n\
+					Los Santos, kamu dapat melakukan pembuatan ktp, pendaftaran nomor hp\n\
+					dan lainnya disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 3
+				if(sama(temp_panduan, "panduan_bermain_3")){
+					// Set variabel panduan bermain 3 -> 4
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_4");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Polisi Metro (Los Santos)\n\n"\
+					WHITE"Terdapat kantor polisi metro salah satunya yang terdapat di daerah\n\
+					Los Santos, kamu dapat melakukan pembuatan sim, membuat laporan dan\n\
+					lainnya disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 4
+				if(sama(temp_panduan, "panduan_bermain_4")){
+					// Set variabel panduan bermain 4 -> 5
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_5");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Bank (Los Santos)\n\n"\
+					WHITE"Terdapat bank salah satunya yang terdapat di daerah Los Santos,\n\
+					kamu dapat melakukan buka rekening, terima gaji atau keperluan\n\
+					keuangan lainnya disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 5
+				if(sama(temp_panduan, "panduan_bermain_5")){
+					// Set variabel panduan bermain 5 -> 6
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_6");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Rumah Sakit (Los Santos)\n\n"\
+					WHITE"Terdapat rumah sakit salah satunya yang terdapat di daerah\n\
+					Los Santos, kamu dapat melakukan cek kesehatan, membeli obat atau\n\
+					keperluan kesehatan lainnya disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 6
+				if(sama(temp_panduan, "panduan_bermain_6")){
+					// Set variabel panduan bermain 6 -> 7
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_7");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Minimarket\n\n"\
+					WHITE"Terdapat minimarket yang tersebar di beberapa titik, kamu\n\
+					dapat membeli kebutuhan sehari-hari yang tersedia disini, bayar\n\
+					bisa via Uang Cash atau E-Banking.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 7
+				if(sama(temp_panduan, "panduan_bermain_7")){
+					// Set variabel panduan bermain 7 -> 8
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_8");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Restoran Makanan\n\n"\
+					WHITE"Terdapat restoran makanan yang tersebar di beberapa titik,\n\
+					kamu dapat membeli makanan dan minuman yang tersedia disini,\n\
+					bayar bisa via Uang Cash atau E-Banking.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 8
+				if(sama(temp_panduan, "panduan_bermain_8")){
+					// Set variabel panduan bermain 8 -> 9
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_9");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Marketplace\n\n"\
+					WHITE"Terdapat marketplace yang tersebar di beberapa titik utama\n\
+					perkotaan, kamu dapat melakukan jual-beli barang, kendaraan,\n\
+					rumah dan lainnya disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 9
+				if(sama(temp_panduan, "panduan_bermain_9")){
+					// Set variabel panduan bermain 9 -> 10
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_10");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Cetak Foto\n\n"\
+					WHITE"Terdapat cetak foto yang tersebar di beberapa titik, kamu\n\
+					dapat melakukan cetak foto untuk keperluan persyaratan disini,\n\
+					bayar bisa via Uang Cash atau E-Banking.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 10
+				if(sama(temp_panduan, "panduan_bermain_10")){
+					// Set variabel panduan bermain 10 -> 11
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_11");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Toko Gadget\n\n"\
+					WHITE"Terdapat toko gadget yang tersebar di beberapa titik, kamu\n\
+					dapat membeli berbagai alat elektronik yang tersedia seperti Phone,\n\
+					bayar bisa via Uang Cash atau E-Banking.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 11
+				if(sama(temp_panduan, "panduan_bermain_11")){
+					// Set variabel panduan bermain 11 -> 12
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_12");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Toko Baju\n\n"\
+					WHITE"Terdapat toko baju yang tersebar di beberapa titik, kamu dapat\n\
+					membeli skin atau tampilan yang kamu suka yang tersedia disini, bayar\n\
+					bisa via Uang Cash atau E-Banking.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 12
+				if(sama(temp_panduan, "panduan_bermain_12")){
+					// Set variabel panduan bermain 12 -> 13
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_13");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Toko Bibit\n\n"\
+					WHITE"Terdapat kantor polisi metro salah satunya yang terdapat di daerah\n\
+					Los Santos, kamu dapat melakukan pembuatan sim, membuat laporan dan\n\
+					lainnya disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 13
+				if(sama(temp_panduan, "panduan_bermain_13")){
+					// Set variabel panduan bermain 13 -> 14
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_14");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Toko Peralatan Pancing\n\n"\
+					WHITE"Terdapat peralatan pancing yang terdapat di beberapa titik daerah\n\
+					pantai, kamu dapat membeli peralatan pancing seperti umpan, alat pancing\n\
+					dan lainnya disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 14
+				if(sama(temp_panduan, "panduan_bermain_14")){
+					// Set variabel panduan bermain 14 -> 15
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_15");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Blacksmith\n\n"\
+					WHITE"Terdapat pusat keahlian blacksmith salah satunya yang terdapat di\n\
+					daerah Los Santos, kamu dapat mengaktifkan keahlian blacksmith lainnya\n\
+					disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 15
+				if(sama(temp_panduan, "panduan_bermain_15")){
+					// Set variabel panduan bermain 15 -> 16
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_16");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Mekanik\n\n"\
+					WHITE"Terdapat pusat keahlian mekanik salah satunya yang terdapat di\n\
+					daerah Los Santos, kamu dapat mengaktifkan keahlian mekanik dan\n\
+					lainnya disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 16
+				if(sama(temp_panduan, "panduan_bermain_16")){
+					// Set variabel panduan bermain 16 -> 17
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_17");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Pusat Tambang\n\n"\
+					WHITE"Terdapat pusat tambang yang terdapat di daerah perbukitan atau\n\
+					pegunungan, kamu dapat melakukan pembuatan sim, membuat laporan dan\n\
+					lainnya disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 17
+				if(sama(temp_panduan, "panduan_bermain_17")){
+					// Set variabel panduan bermain 17 -> 18
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_18");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Pemotong Kayu (Lumberjack)\n\n"\
+					WHITE"Terdapat pemotong kayu yang tersebar di beberapa titik, kamu\n\
+					dapat melakukan pemotongan kayu disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 18
+				if(sama(temp_panduan, "panduan_bermain_18")){
+					// Set variabel panduan bermain 18 -> 19
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_19");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Penadah Besi\n\n"\
+					WHITE"Terdapat penadah besi yang tersebar di beberapa titik, kamu dapat\n\
+					melakukan transaksi jual hasil tambang kamu seperti besi disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 19
+				if(sama(temp_panduan, "panduan_bermain_19")){
+					// Set variabel panduan bermain 19 -> 20
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_20");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Penadah Kayu\n\n"\
+					WHITE"Terdapat penadah kayu yang tersebar di beberapa titik, kamu dapat\n\
+					melakukan transaksi jual kayu kamu disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 20
+				if(sama(temp_panduan, "panduan_bermain_20")){
+					// Set variabel panduan bermain 20 -> 21
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_21");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Dealer Kendaraan\n\n"\
+					WHITE"Terdapat dealer kendaraan yang tersebar di beberapa titik, kamu\n\
+					dapat melakukan pembelian kendaraan yang kamu sukai disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 21
+				if(sama(temp_panduan, "panduan_bermain_21")){
+					// Set variabel panduan bermain 21 -> 22
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_22");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Penjual Dealer\n\n"\
+					WHITE"Terdapat penjual dealer salah satunya yang terdapat di daerah Los\n\
+					Santos, kamu dapat melakukan transaksi jual kendaraaan disini.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 22
+				if(sama(temp_panduan, "panduan_bermain_22")){
+					// Set variabel panduan bermain 22 -> 23
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_23");
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Penyewaan Kendaraan\n\n"\
+					WHITE"Terdapat penyewaan kendaraan yang tersebar di beberapa titik, kamu\n\
+					dapat memilih dan menyewa kendaraan, bayar sewa kendaraan sesuai jam yang\n\
+					kamu tentukan.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Akhir panduan bermain 23
+				if(sama(temp_panduan, "panduan_bermain_23")) DeletePVar(playerid, "panduan_bermain");
+			}else{
+				DeletePVar(playerid, "panduan_bermain");
+			}
+			return 1;
 		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0

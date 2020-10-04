@@ -1662,3 +1662,15 @@ CMD:ooc(playerid, params[]){
     ProxDetector(30.0, playerid, pesan, COLOR_YELLOW);
     return 1;
 }
+
+CMD:tutorial(playerid, params[]){
+    // Set variabel panduan umum 1
+    SetPVarString(playerid, "panduan_bermain", "panduan_bermain_1");
+    format(pDialog[playerid], sizePDialog, 
+    WHITE"Dalam sesi tutorial ini, kamu akan diberi panduan bermain secara singkat.\n\
+    Ada beberapa fitur dan tempat dalam server ini yang perlu kamu ketahui.\n\
+    Anda akan diberi beberapa penjelasan, jika anda ingin paham tentang server ini,\n\
+    jangan tutup panduan ini atau anda harus mengulang sesi dari awal.");
+    ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Awal) :", pDialog[playerid], "Lanjut", "Tutup");
+    return 1;
+}

@@ -1667,3 +1667,6 @@ new const list_barang_tampung_kayu[][INFO_BARANG_DENGAN_JUMLAH] = {
 new const item_beli_kayu[][INFO_BARANG_MARKET] = {
 	{ID_GERGAJI_MESIN, 10}
 };
+
+// Voice Chat
+new SV_LSTREAM:lstream[MAX_PLAYERS] = {SV_NULL,...}; // Local
