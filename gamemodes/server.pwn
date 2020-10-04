@@ -2386,7 +2386,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}else{
 								if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
 									pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
-									SendClientMessage(playerid, COLOR_YELLOW, "Rumah: "WHITE"Ketik "YELLOW"/rumah "WHITE"untuk mengelola inventory & furniture rumah.");
+									SendClientMessage(playerid, COLOR_YELLOW, "Rumah: "WHITE"Ketik "YELLOW"/house "WHITE"untuk mengelola inventory & furniture rumah.");
 								}else{
 									SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf rumah terkunci dan tidak dapat masuk!");
 								}
@@ -2473,7 +2473,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_TENTANG_RUMAH:
 		{
 			if(response){
-				cmd_inforumah(playerid, "");
+				cmd_houseinfo(playerid, "");
 			}
 			return 1;
 		}
@@ -3798,6 +3798,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							PVeh[idpv][pVehicle] = idveh;
 							IDVehToPVeh[idveh] = idpv;
 							Iter_Add(IDVehToPVehIterator, idveh);
+		
+							// Kita tidak mengambil ke database karena asumsinya, 
+							// barang ikut hilang saat masuk ke reparasi.
+							bersihkanVariabelItemVehicle(idveh);
 
 							#if DEBUG_SERVER_LOAD == true
 							printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) load.",PlayerInfo[playerid][pPlayerName], PVeh[idpv][pVehID], idveh);
@@ -3854,8 +3858,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(kendaraan_berpemilik && PVeh[idpv][pVehPemilik] != PlayerInfo[playerid][pID] && !( Iter_Contains(PVehKeys[playerid], idpv) && PVehKeysTime[playerid][idpv] > gettime()))
 							return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda tidak memiliki kunci kendaraan untuk membuka kap.");
 
-						SetVehicleParams(vehid, VEHICLE_TYPE_BONNET, ((GetVehicleParams(vehid, VEHICLE_TYPE_BONNET) + 1) % 2));						
-						SendClientMessage(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil membuka kap kendaraan ini.");
+						SetVehicleParams(vehid, VEHICLE_TYPE_BONNET, ((GetVehicleParams(vehid, VEHICLE_TYPE_BONNET) + 1) % 2));					
+						if(GetVehicleParams(vehid, VEHICLE_TYPE_BONNET))
+							SendClientMessage(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil membuka kap kendaraan ini.");
+						else
+							SendClientMessage(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil menutup kap kendaraan ini.");
 						return 1;
 					}
 					case 2: // Tutup atau buka bagasi
@@ -3865,7 +3872,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda tidak memiliki kunci kendaraan untuk membuka bagasi.");
 
 						SetVehicleParams(vehid, VEHICLE_TYPE_BOOT, ((GetVehicleParams(vehid, VEHICLE_TYPE_BOOT) + 1) % 2));
-						SendClientMessage(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil membuka bagasi kendaraan ini.");
+
+						if(GetVehicleParams(vehid, VEHICLE_TYPE_BOOT))
+							SendClientMessage(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil membuka bagasi kendaraan ini.");
+						else
+							SendClientMessage(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil menutup bagasi kendaraan ini.");
 						return 1;
 					}
 				}
@@ -7147,7 +7158,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							return error_command(playerid, "Anda tidak sedang sekarat.");
 
 						new pesan[144];
-						format(pesan, sizeof(pesan), TAG_MEDIC" "WHITE"%s(%d) sedang sekarat dan membutuhkan bantuan. Ketik /tampillokasipasien %d untuk menandai marker.", PlayerInfo[playerid][pPlayerName], playerid);
+						format(pesan, sizeof(pesan), TAG_MEDIC" "WHITE"%s(%d) sedang sekarat dan membutuhkan bantuan. Ketik /showpatientlocation %d untuk menandai marker.", PlayerInfo[playerid][pPlayerName], playerid);
 						new online_medic = SendMessageToDutyMedic(COLOR_RED, pesan);
 
 						if(!online_medic)
@@ -7162,7 +7173,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							return error_command(playerid, "Anda sedang sekarat dan perlu bantuan medis.");
 
 						new pesan[144];
-						format(pesan, sizeof(pesan), TAG_POLICE" "WHITE"%s(%d) sedang membutuhkan bantuan. Ketik /tampillokasibantuan %d untuk menandai marker.", PlayerInfo[playerid][pPlayerName], playerid);
+						format(pesan, sizeof(pesan), TAG_POLICE" "WHITE"%s(%d) sedang membutuhkan bantuan. Ketik /showvictimlocation %d untuk menandai marker.", PlayerInfo[playerid][pPlayerName], playerid);
 						new online_polisi = SendMessageToDutyPolice(COLOR_RED, pesan);
 
 						if(!online_polisi)
@@ -7466,7 +7477,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					new create = createRentPlayerVeh(playerid, id, PlayerInfo[playerid][pID], listid, placeid, RentPlace[placeid][rentPlacePos][0], RentPlace[placeid][rentPlacePos][1], RentPlace[placeid][rentPlacePos][2], 0, durasitotal);
 					if(create){
 						SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Anda telah berhasil melakukan penyewaan kendaraan.");
-						SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Jika anda ingin membatalkan sewa, silahkan kembali ke sini dan ketik "GREEN"/batalsewakendaraan"WHITE".");
+						SendClientMessage(playerid, COLOR_WHITE, GREEN"[KENDARAAN SEWA] "WHITE"Jika anda ingin membatalkan sewa, silahkan kembali ke sini dan ketik "GREEN"/cancelrentvehicle"WHITE".");
 						RemovePlayerFromVehicle(playerid);
 					}else{
 						mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `vehicle_rent_player` WHERE `id` = '%d'", id);
@@ -7806,32 +7817,32 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SetPVarInt(playerid, "menu_help_page", 0);
 						SetPVarString(playerid, "menu_help_name", "umum");
 						format(str_guide, sizeof(str_guide), \
-							YELLOW"/infosaya "WHITE"- Melihat informasi akun\n"\
+							YELLOW"/stats "WHITE"- Melihat informasi akun\n"\
 							YELLOW"/inventory (/inv) "WHITE"- Melihat isi tas\n"\
 							YELLOW"/settings "WHITE"- Pengaturan tampilan dan akun\n"\
 							YELLOW"/clearchat "WHITE"- Menghapus histori chat\n"\
 							YELLOW"/ask "WHITE"- Tanya kepada admin\n"\
 							YELLOW"/report "WHITE"- Melaporkan pemain\n"\
-							YELLOW"/inforumah "WHITE"- Informasi dan akses pada rumah\n"\
-							YELLOW"/rumah "WHITE"- Mengakses menu rumah\n"\
-							YELLOW"/beriuang"WHITE"- Memberi uang kepada pemain lain\n"\
+							YELLOW"/houseinfo "WHITE"- Informasi dan akses pada rumah\n"\
+							YELLOW"/house "WHITE"- Mengakses menu rumah\n"\
+							YELLOW"/givemoney"WHITE"- Memberi uang kepada pemain lain\n"\
 							YELLOW"/pm "WHITE"- Chat kepada pemain lain\n"\
 							YELLOW"/r "WHITE"- Membalas chat dari pemain lain\n"\
 							YELLOW"/vehicle "WHITE"- Perintah kendaraan\n"\
 							YELLOW"/v "WHITE"- Perintah kendaraan\n"\
-							YELLOW"/batalsewakendaraan "WHITE"- Membatalkan sewa kendaraan\n"\
-							YELLOW"/lepashelm "WHITE"- Melepas helm\n"\
-							YELLOW"/lepastopeng "WHITE"- Melepas topeng\n"\
+							YELLOW"/cancelrentvehicle "WHITE"- Membatalkan sewa kendaraan\n"\
+							YELLOW"/removehelmet "WHITE"- Melepas helm\n"\
+							YELLOW"/removemask "WHITE"- Melepas topeng\n"\
 							YELLOW"/anim "WHITE"- Daftar perintah animasi\n"\
-							YELLOW"/berdiri "WHITE"- Animasi berdiri\n"\
-							YELLOW"/duduk "WHITE"- Animasi duduk\n"\
-							YELLOW"/periksainventory "WHITE"- Memeriksa inventory pemain lain\n"\
+							YELLOW"/stand "WHITE"- Animasi berdiri\n"\
+							YELLOW"/sit "WHITE"- Animasi duduk\n"\
+							YELLOW"/checkinventory "WHITE"- Memeriksa inventory pemain lain\n"\
 							YELLOW"/ephone "WHITE"- Akses ponsel pribadi\n"\
-							YELLOW"/panggil "WHITE"- Memanggil pemain atau organisasi\n"\
+							YELLOW"/call "WHITE"- Memanggil pemain atau organisasi\n"\
 							YELLOW"/bc "WHITE"- Iklan teks\n"\
-							YELLOW"/keluar "WHITE"- Aksi untuk keluar bangunan\n"\
+							YELLOW"/exit "WHITE"- Aksi untuk keluar bangunan\n"\
 							YELLOW"/skill "WHITE"- Daftar kemampuan\n"\
-							YELLOW"/bunuhdiri "WHITE"- Akhiri hidup");
+							YELLOW"/suicide "WHITE"- Akhiri hidup");
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Umum):", str_guide, "Ok", "");
 					}
 					// Pekerjaan
@@ -7841,11 +7852,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SetPVarInt(playerid, "menu_help", 0);
 						SetPVarString(playerid, "menu_help_name", "kerja");
 						format(str_guide, sizeof(str_guide), \
-							YELLOW"/masak "WHITE"- Melakukan aksi masak\n"\
+							YELLOW"/cook "WHITE"- Melakukan aksi masak\n"\
 							YELLOW"/lumberjack "WHITE"- Menu perintah pemotong kayu\n"\
 							YELLOW"/trashmaster "WHITE"- Menu perintah pengangkut sampah\n"\
 							YELLOW"/pizzaboy "WHITE"- Menu perintah pengantar pizza\n"\
-							YELLOW"/gali "WHITE"- Melakukan aksi gali\n"\
+							YELLOW"/dig "WHITE"- Melakukan aksi gali\n"\
 							YELLOW"/farm "WHITE"- Menu perintah menanam\n"\
 							YELLOW"/fishing "WHITE"- Menu perintah memancing");
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Pekerjaan):", str_guide, "Ok", "");
@@ -7873,11 +7884,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/unban "WHITE"- Membuka blokir pemain\n"\
 							YELLOW"/ban "WHITE"- Memblokir pemain\n"\
 							YELLOW"/setmedic "WHITE"- Mengangkat pemain menjadi medis\n"\
-							YELLOW"/pecatmedic "WHITE"- Mencopot pemain dari medis\n"\
-							YELLOW"/setpolisi "WHITE"- Mengangkat pemain menjadi polisi\n"\
-							YELLOW"/pecatpolisi "WHITE"- Mencopot pemain dari polisi\n"\
+							YELLOW"/removemedic "WHITE"- Mencopot pemain dari medis\n"\
+							YELLOW"/setpolice "WHITE"- Mengangkat pemain menjadi polisi\n"\
+							YELLOW"/removepolice "WHITE"- Mencopot pemain dari polisi\n"\
 							YELLOW"/tele "WHITE"- Berpindah ke lokasi pemain\n"\
-							YELLOW"/tampilreport "WHITE"- Menampilkan daftar laporan\n"\
+							YELLOW"/showreport "WHITE"- Menampilkan daftar laporan\n"\
 							YELLOW"/get "WHITE"- Memindahkan pemain ke lokasi sekarang\n"\
 							YELLOW"/pma "WHITE"- Chat admin ke pemain\n");
 						}
@@ -7885,8 +7896,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							strcatEx(str_guide, sizeof(str_guide), \
 							YELLOW"Level 2 :\n"\
 							YELLOW"/aveh "WHITE"- Menu perintah kendaraan\n"\
-							YELLOW"/giveitem "WHITE"- Beri pemain item\n"\
-							YELLOW"/givemoney "WHITE"- Beri pemain uang\n"\
+							YELLOW"/agiveitem "WHITE"- Beri pemain item\n"\
+							YELLOW"/agivemoney "WHITE"- Beri pemain uang\n"\
 							YELLOW"/arumah "WHITE"- Menu perintah rumah\n"\
 							YELLOW"/arent "WHITE"- Menu perintah sewa\n"\
 							YELLOW"/setadmin "WHITE"- Mengangkat pemain menjadi admin");
@@ -7902,22 +7913,22 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(GetLevelAdminPlayer(playerid) >= 0 || IsPlayerOnDutyMedic(playerid)){
 							format(str_guide, sizeof(str_guide), \
 							YELLOW"/skill "WHITE"- Menu perintah kemampuan\n"\
-							YELLOW"/tampillokasipasien "WHITE"- Menampilkan lokasi pasien");
+							YELLOW"/showpatientlocation "WHITE"- Menampilkan lokasi pasien");
 						}
 						if(GetLevelAdminPlayer(playerid) >= 0 || IsPlayerOnDutyPolice(playerid)){
 							format(str_guide, sizeof(str_guide), \
 							YELLOW"/skill "WHITE"- Menu perintah kemampuan\n"\
-							YELLOW"/tampillokasibantuan "WHITE"- Menampilkan lokasi peminta\n"\
-							YELLOW"/buka "WHITE"- Aksi untuk membuka sesuatu\n"\
-							YELLOW"/tutup "WHITE"- Aksi untuk menutup sesuatu\n"\
-							YELLOW"/penjarakan "WHITE"- Memenjarakan pemain\n"\
-							YELLOW"/hapusmasapenjara "WHITE"- Menghapus masa tahanan\n"\
-							YELLOW"/hancurkan "WHITE"- Aksi untuk menghapus sesuatu\n"\
-							YELLOW"/buat "WHITE"- Aksi untuk membuat sesuatu\n"\
-							YELLOW"/ubah "WHITE"- Aksi untuk mengubah sesuatu\n"\
-							YELLOW"/borgol "WHITE"- Memborgol pemain\n"\
-							YELLOW"/bukaborgol "WHITE"- Membuka borgol pemain\n"\
-							YELLOW"/cekmasatahanan "WHITE"- Mengecek masa tahanan\n");
+							YELLOW"/showvictimlocation "WHITE"- Menampilkan lokasi peminta\n"\
+							YELLOW"/open "WHITE"- Aksi untuk membuka sesuatu\n"\
+							YELLOW"/close "WHITE"- Aksi untuk menutup sesuatu\n"\
+							YELLOW"/jail "WHITE"- Memenjarakan pemain\n"\
+							YELLOW"/removejail "WHITE"- Menghapus masa tahanan\n"\
+							YELLOW"/destroy "WHITE"- Aksi untuk menghapus sesuatu\n"\
+							YELLOW"/create "WHITE"- Aksi untuk membuat sesuatu\n"\
+							YELLOW"/adjust "WHITE"- Aksi untuk mengubah sesuatu\n"\
+							YELLOW"/cuff "WHITE"- Memborgol pemain\n"\
+							YELLOW"/uncuff "WHITE"- Membuka borgol pemain\n"\
+							YELLOW"/checksuspect "WHITE"- Mengecek masa tahanan\n");
 						}
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Fraksi):", str_guide, "Ok", "");
 					}
@@ -8242,6 +8253,244 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					item_beli_kayu[idx][hargaItemMarket] * banyak_barang);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli item", pDialog[playerid], "Ok", "");
 			}
+			return 1;
+		}
+		case DIALOG_OPTION_INVENTORY_VEHICLE:
+		{
+			if(response){
+				new vehicleid = GetPVarInt(playerid, "inventory_vehicle");
+
+				switch(listitem){
+					case 0: // Ambil Item
+					{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListItemVehicle(playerid, vehicleid);
+					}
+					case 1: // Simpan Item
+					{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListItem(playerid, .dialogid = DIALOG_SIMPAN_ITEM_VEHICLE);
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_AMBIL_ITEM_VEHICLE:
+		{
+			if(response){
+				new vehicleid = GetPVarInt(playerid, "inventory_vehicle"),
+					Float:vpos[3];
+
+				GetVehicleBoot(vehicleid, vpos[0], vpos[1], vpos[2]);
+				if(!IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan berada menjauh dari anda.");
+				}else if(!GetVehicleParams(vehicleid, VEHICLE_TYPE_BOOT)){
+					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Bagasi kendaraan tertutup.");
+				}
+				
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					showDialogListItemVehicle(playerid, vehicleid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						showDialogListItemVehicle(playerid, vehicleid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListItemVehicle(playerid, vehicleid);
+					}
+					return 1;
+				}
+
+				new nama_item[50];
+				SetPVarInt(playerid, "bagasi_id_item", TempPlayerDialog[playerid][listitem]);
+				getNamaByIdItem(TempPlayerDialog[playerid][listitem], nama_item);
+
+				format(pDialog[playerid], sizePDialog, 
+					WHITE"Anda akan mengambil item "GREEN"%s "WHITE"dari bagasi.\n\
+					"WHITE"Banyak item yang tersedia "GREEN"%d\n\
+					"WHITE"Silahkan masukan jumlah yang ingin diambil :", 
+					nama_item, 
+					GetJumlahItemVehicle(vehicleid, GetPVarInt(playerid, "bagasi_id_item"))
+				);
+				ShowPlayerDialog(playerid, DIALOG_AMBIL_ITEM_VEHICLE_JUMLAH, DIALOG_STYLE_INPUT, "Ambil Item", pDialog[playerid], "Ambil", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_AMBIL_ITEM_VEHICLE_JUMLAH:
+		{
+			if(response){
+				new vehicleid = GetPVarInt(playerid, "inventory_vehicle"),
+					Float:vpos[3];
+
+				GetVehicleBoot(vehicleid, vpos[0], vpos[1], vpos[2]);
+				if(!IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan berada menjauh dari anda.");
+				}else if(!GetVehicleParams(vehicleid, VEHICLE_TYPE_BOOT)){
+					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Bagasi kendaraan tertutup.");
+				}
+
+				new nama_item[50], id_item = GetPVarInt(playerid, "bagasi_id_item");
+				new jumlah = GetJumlahItemVehicle(vehicleid, id_item);
+				getNamaByIdItem(id_item, nama_item);
+
+				new input_jumlah;
+				if(sscanf(inputtext, "i", input_jumlah)) {
+					format(pDialog[playerid], sizePDialog, 
+						RED"Inputan tidak valid.\n\
+						"WHITE"Anda akan mengambil item "GREEN"%s "WHITE"dari bagasi.\n\
+						"WHITE"Banyak item yang tersedia "GREEN"%d\n\
+						"WHITE"Silahkan masukan jumlah yang ingin diambil :", 
+						nama_item, 
+						jumlah
+					);
+					return ShowPlayerDialog(playerid, DIALOG_AMBIL_ITEM_VEHICLE_JUMLAH, DIALOG_STYLE_INPUT, "Ambil Item", pDialog[playerid], "Ambil", "Batal");
+				}
+				if(input_jumlah < 1 || input_jumlah > jumlah){
+					format(pDialog[playerid], sizePDialog, 
+						RED"Jumlah yang dimasukan tidak tepat.\n\
+						"WHITE"Anda akan mengambil item "GREEN"%s "WHITE"dari bagasi.\n\
+						"WHITE"Banyak item yang tersedia "GREEN"%d\n\
+						"WHITE"Silahkan masukan jumlah yang ingin diambil :", 
+						nama_item, 
+						jumlah
+					);
+					return ShowPlayerDialog(playerid, DIALOG_AMBIL_ITEM_VEHICLE_JUMLAH, DIALOG_STYLE_INPUT, "Ambil Item", pDialog[playerid], "Ambil", "Batal");
+				}
+				if(!CekJikaInventoryPlayerMuat(playerid, id_item, input_jumlah)){
+					format(pDialog[playerid], sizePDialog, 
+						RED"Inventory anda tidak muat.\n\
+						"WHITE"Anda akan mengambil item "GREEN"%s "WHITE"dari bagasi.\n\
+						"WHITE"Banyak item yang tersedia "GREEN"%d\n\
+						"WHITE"Silahkan masukan jumlah yang ingin diambil :", 
+						nama_item, 
+						jumlah
+					);
+					return ShowPlayerDialog(playerid, DIALOG_AMBIL_ITEM_VEHICLE_JUMLAH, DIALOG_STYLE_INPUT, "Ambil Item", pDialog[playerid], "Ambil", "Batal");
+				}
+				tambahItemPlayer(playerid, id_item, input_jumlah);
+				tambahItemVehicle(vehicleid, id_item, -input_jumlah);
+				
+				sendPesan(playerid, COLOR_GREEN, TAG_KENDARAAN" "WHITE"Anda mengambil "YELLOW"%s "WHITE"sebanyak "GREEN"%d "WHITE"dari bagasi %s.", nama_item, input_jumlah, GetVehicleModelName(GetVehicleModel(vehicleid)));
+			}
+			return 1;
+		}
+		case DIALOG_SIMPAN_ITEM_VEHICLE:
+		{
+			if(response){
+				new vehicleid = GetPVarInt(playerid, "inventory_vehicle"),
+					Float:vpos[3];
+
+				GetVehicleBoot(vehicleid, vpos[0], vpos[1], vpos[2]);
+				if(!IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan berada menjauh dari anda.");
+				}else if(!GetVehicleParams(vehicleid, VEHICLE_TYPE_BOOT)){
+					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Bagasi kendaraan tertutup.");
+				}
+
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					showDialogListItem(playerid, .dialogid = DIALOG_SIMPAN_ITEM_VEHICLE);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						showDialogListItem(playerid, .dialogid = DIALOG_SIMPAN_ITEM_VEHICLE);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListItem(playerid, .dialogid = DIALOG_SIMPAN_ITEM_VEHICLE);
+					}
+					return 1;
+				}
+
+				new 
+					id_item = TempPlayerDialog[playerid][listitem],
+					nama_item[50]
+				;
+				SetPVarInt(playerid, "bagasi_id_item", id_item);
+				getNamaByIdItem(id_item, nama_item);
+
+				if(GetStatusKunciItemPlayer(playerid, id_item)){
+					resetPVarInventory(playerid);
+
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, ORANGE"Item tidak dapat dibuang", WHITE"Item ini "RED"dikunci.\n\n"YELLOW"Note : Item yang dikunci tidak dapat dibuang/dijual/diberi kepada orang lain.\nJika tetap ingin melakukan hal tersebut silahkan buka item terlebih dahulu.", "Ok", "");
+					return 1;
+				}
+
+				format(pDialog[playerid], 
+					sizePDialog, 
+					WHITE"Silahkan masukan jumlah item yang ingin disimpan.\n\n\
+					"WHITE"Nama Item : "PINK"%s\n\
+					"WHITE"Jumlah Item : "GREEN"%d", 
+					nama_item, 
+					GetJumlahItemPlayer(playerid, id_item)
+				);
+				ShowPlayerDialog(playerid, DIALOG_SIMPAN_ITEM_VEHICLE_JUMLAH, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin disimpan", pDialog[playerid], "Simpan", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_SIMPAN_ITEM_VEHICLE_JUMLAH:
+		{
+			if(response){
+				new vehicleid = GetPVarInt(playerid, "inventory_vehicle"),
+					Float:vpos[3];
+
+				GetVehicleBoot(vehicleid, vpos[0], vpos[1], vpos[2]);
+				if(!IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan berada menjauh dari anda.");
+				}else if(!GetVehicleParams(vehicleid, VEHICLE_TYPE_BOOT)){
+					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Bagasi kendaraan tertutup.");
+				}
+
+				new nama_item[50], 
+					id_item = GetPVarInt(playerid, "bagasi_id_item");
+				new jumlah = GetJumlahItemPlayer(playerid, id_item);
+				getNamaByIdItem(id_item, nama_item);
+
+				new input_jumlah;
+				if(sscanf(inputtext, "i", input_jumlah)) {
+					format(pDialog[playerid], 
+						sizePDialog, 
+						RED"Inputan tidak valid.\n\
+						"WHITE"Silahkan masukan jumlah item yang ingin disimpan.\n\n\
+						"WHITE"Nama Item : "PINK"%s\n\
+						"WHITE"Jumlah Item : "GREEN"%d", 
+						nama_item, 
+						GetJumlahItemPlayer(playerid, id_item)
+					);
+					return ShowPlayerDialog(playerid, DIALOG_SIMPAN_ITEM_VEHICLE_JUMLAH, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin disimpan", pDialog[playerid], "Simpan", "Batal");
+				}
+				if(input_jumlah < 1 || input_jumlah > jumlah){
+					format(pDialog[playerid], 
+						sizePDialog, 
+						RED"Jumlah yang dimasukan tidak tepat.\n\
+						"WHITE"Silahkan masukan jumlah item yang ingin disimpan.\n\n\
+						"WHITE"Nama Item : "PINK"%s\n\
+						"WHITE"Jumlah Item : "GREEN"%d", 
+						nama_item, 
+						GetJumlahItemPlayer(playerid, id_item)
+					);
+					return ShowPlayerDialog(playerid, DIALOG_SIMPAN_ITEM_VEHICLE_JUMLAH, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin disimpan", pDialog[playerid], "Simpan", "Batal");
+				}
+				if(!CekJikaInventoryVehicleMuat(vehicleid, id_item, input_jumlah)){
+					format(pDialog[playerid], 
+						sizePDialog, 
+						RED"Bagasi kendaraan tidak muat.\n\
+						"WHITE"Silahkan masukan jumlah item yang ingin disimpan.\n\n\
+						"WHITE"Nama Item : "PINK"%s\n\
+						"WHITE"Jumlah Item : "GREEN"%d", 
+						nama_item, 
+						GetJumlahItemPlayer(playerid, id_item)
+					);
+					return ShowPlayerDialog(playerid, DIALOG_SIMPAN_ITEM_VEHICLE_JUMLAH, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin disimpan", pDialog[playerid], "Simpan", "Batal");
+				}
+				tambahItemPlayer(playerid, id_item, -input_jumlah);
+				tambahItemVehicle(vehicleid, id_item, input_jumlah);
+				
+				sendPesan(playerid, COLOR_GREEN, TAG_KENDARAAN" "WHITE"Anda menyimpan "YELLOW"%s "WHITE"sebanyak "GREEN"%d "WHITE"ke bagasi %s.", nama_item, input_jumlah, GetVehicleModelName(GetVehicleModel(vehicleid)));
+			}
+			return 1;
 		}
 		case DIALOG_TUTORIAL:
 		{
@@ -8831,7 +9080,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
 					PlayerInfo[playerid][inHouse] = id;
 					pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
-					SendClientMessage(playerid, COLOR_YELLOW, "Rumah: "WHITE"Ketik "YELLOW"/rumah "WHITE"untuk mengelola inventory & furniture rumah.");
+					SendClientMessage(playerid, COLOR_YELLOW, "Rumah: "WHITE"Ketik "YELLOW"/house "WHITE"untuk mengelola inventory & furniture rumah.");
 				}else{
 					SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf rumah terkunci dan tidak dapat masuk!");
 				}
@@ -9123,12 +9372,21 @@ public OnGameModeInit()
 	printf("[VEHICLE RENT] Sukses load kendaraan sewa!");
 
 	// Setting up Game mode
-	SetGameModeText("VRP v0.7 Alpha");
+	SetGameModeText("VRP v0.7.3 Alpha");
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
 	ShowNameTags(1);
 	SetNameTagDrawDistance(40.0);
 	EnableStuntBonusForAll(0);
 	DisableInteriorEnterExits();
+
+	for(new i = 0; i < sizeof(VehicleItemLimit); i++){
+		VehicleItemLimit[i] = 0;
+	}
+
+	// Load Vehicle Limit
+	for(new i = 0; i < sizeof(VehicleLuggageLimit); i++){
+		VehicleItemLimit[VehicleLuggageLimit[i][lvModel] - 400] = VehicleLuggageLimit[i][lvLimit];
+	}
 	
 	BlockGarages(.text="DITUTUP");
 
@@ -10407,7 +10665,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		lastHousePickup[playerid] = pickupid;
 		if(houseNotif[playerid] != id){
 			houseNotif[playerid] = id;
-			format(msg, 256, TAG_RUMAH""WHITE" Ketik "GREEN"/inforumah"WHITE" untuk melihat info tentang rumah.");
+			format(msg, 256, TAG_RUMAH""WHITE" Ketik "GREEN"/houseinfo"WHITE" untuk melihat info tentang rumah.");
 			SendClientMessage(playerid, COLOR_GREEN, msg);
 		}
 	}else if(pickupid == PU_cityHallMasuk[0] || pickupid == PU_cityHallMasuk[1] || pickupid == PU_cityHallMasuk[2]){
@@ -10754,10 +11012,19 @@ public OnVehicleDeath(vehicleid, killerid){
 				new temp_msg[128];
 				format(temp_msg, 128,TAG_KENDARAAN" "WHITE"Kendaraan "ORANGE"%s "WHITE"milik anda telah rusak total dan masuk pusat reparasi.", GetVehicleModelName(PVeh[IDVehToPVeh[vehicleid]][pVehModel]));
 				SendClientMessage(i, COLOR_RED, temp_msg);
+				format(temp_msg, 128,TAG_KENDARAAN" "WHITE"Anda juga kehilangan item didalamnya.");
+				SendClientMessage(i, COLOR_RED, temp_msg);
 				break;
 			}
 		}
 
+		bersihkanVariabelItemVehicle(vehicleid);
+		new str_temp[200];
+		
+		// Hapus semua item
+		mysql_format(koneksi, str_temp, 200, "DELETE FROM vehicle_item WHERE id_vehicle = %d", PVeh[IDVehToPVeh[vehicleid]][pVehID]);
+		mysql_tquery(koneksi, str_temp);
+		
 		DestroyVehicle(vehicleid);
 		IDVehToPVeh[vehicleid] = 0;
 		Iter_Remove(IDVehToPVehIterator, vehicleid);
@@ -10831,10 +11098,10 @@ public OnPlayerCommandReceived(playerid, cmdtext[]){
 		KickEx(playerid);
 		return 0;
 	}
-	if(PlayerInfo[playerid][inDie] && !sama(cmdtext, "/panggil 911") && !sama(cmdtext, "/bunuhdiri")){
+	if(PlayerInfo[playerid][inDie] && !sama(cmdtext, "/call 911") && !sama(cmdtext, "/suicide")){
 		error_command(playerid, "Anda sedang sekarat tidak dapat menggunakan command ini.");
-		SendClientMessage(playerid, COLOR_ORANGE, TAG_NOTE" "WHITE"Gunakan "GREEN"/panggil 911"WHITE" dan pilih Medis, untuk memanggil medis.");
-		SendClientMessage(playerid, COLOR_ORANGE, TAG_NOTE" "WHITE"Atau gunakan /bunuhdiri untuk langsung spawn dirumah sakit.");
+		SendClientMessage(playerid, COLOR_ORANGE, TAG_NOTE" "WHITE"Gunakan "GREEN"/call 911"WHITE" dan pilih Medis, untuk memanggil medis.");
+		SendClientMessage(playerid, COLOR_ORANGE, TAG_NOTE" "WHITE"Atau gunakan /suicide untuk langsung spawn dirumah sakit.");
 		return 0;
 	}
 	return 1;

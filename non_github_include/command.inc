@@ -71,7 +71,7 @@ CMD:ach(playerid, params[]){
     return 1;
 }
 
-CMD:giveitem(playerid, params[]){
+CMD:agiveitem(playerid, params[]){
     // Jika bukan admin level 2
     if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
@@ -100,13 +100,13 @@ CMD:giveitem(playerid, params[]){
     return 1;
 }
 
-CMD:givemoney(playerid, params[]){
+CMD:agivemoney(playerid, params[]){
     // Jika bukan admin level 2
     if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     new amount, target_id;
     if(sscanf(params, "ud", target_id, amount)) 
-        return error_syntax(playerid, "/givemoney [id] [jumlah]");
+        return error_syntax(playerid, "/agivemoney [id] [jumlah]");
     if(!IsPlayerConnected(target_id) || !PlayerInfo[target_id][sudahLogin])
         return error_command(playerid, "Player yang dimaksud tidak terkoneksi/belum login.");
 
@@ -311,13 +311,13 @@ CMD:setmedic(playerid, params[]){
     return 1;
 }
 
-CMD:pecatmedic(playerid, params[]){
+CMD:removemedic(playerid, params[]){
     // Jika bukan admin level 1 (bukan admin)
     if(GetLevelAdminPlayer(playerid) < 1) return 0;
 
     new target_id;
     if(sscanf(params, "u", target_id)) 
-        return error_syntax(playerid, "/pecatmedic [id]");
+        return error_syntax(playerid, "/removemedic [id]");
 
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Player tidak ada");
@@ -345,12 +345,12 @@ CMD:pecatmedic(playerid, params[]){
     return 1;
 }
 
-CMD:setpolisi(playerid, params[]){
+CMD:setpolice(playerid, params[]){
     // Jika bukan admin level 1 (bukan admin)
     if(GetLevelAdminPlayer(playerid) < 1) return 0;
 
     new target_id, text_temporary[10], masa_aktif, level, status_temp = 0;
-    if(sscanf(params, "us[10]iI(1)", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setpolisi [id] [permanent/expired] [level] [masa aktif (hari)]");
+    if(sscanf(params, "us[10]iI(1)", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setpolice [id] [permanent/expired] [level] [masa aktif (hari)]");
 
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Player tidak ada");
@@ -391,13 +391,13 @@ CMD:setpolisi(playerid, params[]){
     return 1;
 }
 
-CMD:pecatpolisi(playerid, params[]){
+CMD:removepolice(playerid, params[]){
     // Jika bukan admin level 1 (bukan admin)
     if(GetLevelAdminPlayer(playerid) < 1) return 0;
 
     new target_id;
     if(sscanf(params, "u", target_id)) 
-        return error_syntax(playerid, "/pecatpolisi [id]");
+        return error_syntax(playerid, "/removepolice [id]");
 
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Player tidak ada");
@@ -447,7 +447,7 @@ CMD:tele(playerid, params[]){
     return 1;
 }
 
-CMD:tampilreport(playerid, params[]){
+CMD:showreport(playerid, params[]){
     // Jika bukan admin level 1 (bukan admin)
     if(GetLevelAdminPlayer(playerid) < 1) return 0;
 
@@ -634,7 +634,7 @@ CMD:ask(playerid, params[]){
     return 1;
 }
 
-CMD:masak(playerid, params[]){
+CMD:cook(playerid, params[]){
     if(PlayerInfo[playerid][isBusy]) 
         return error_command(playerid, "Anda sedang melakukan hal lain sekarang.");
 
@@ -684,7 +684,7 @@ CMD:inv(playerid, params[]){
     return cmd_inventory(playerid, "");
 }
 
-CMD:infosaya(playerid, params[]){
+CMD:stats(playerid, params[]){
     ShowPlayerDialog(playerid, DIALOG_INFO_SAYA, DIALOG_STYLE_LIST, "Pilihan Info : ", "Skill\nInformasi Pribadi", "Pilih", "Batal");
     return 1;
 }
@@ -775,19 +775,19 @@ CMD:ephone(playerid, const params[]){
     return 1;
 }
 
-CMD:bunuhdiri(playerid, params[]){
+CMD:suicide(playerid, params[]){
     SetPlayerHealth(playerid, 0.0);
     return 1;
 }
 
-CMD:rumah(playerid, params[]){
+CMD:house(playerid, params[]){
     if(GetPlayerInterior(playerid) == 0) return error_command(playerid, "Anda tidak di dalam rumah manapun.");
     if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] != PlayerInfo[playerid][pID]) return error_command(playerid, "Anda bukan pemilik rumah.");
     ShowPlayerDialog(playerid, DIALOG_MENU_RUMAH, DIALOG_STYLE_LIST, "Menu Rumah : ", "Inventory Rumah\nSemua Furniture", "Pilih", "Tutup");
     return 1;
 }
 
-CMD:inforumah(playerid, const params[]){
+CMD:houseinfo(playerid, const params[]){
     if(lastHousePickup[playerid] == -1) return error_command(playerid, "Maaf anda tidak berada di ikon rumah!");
     new string[256], id, Float:x, Float:y, Float:z;
     id = houseId[lastHousePickup[playerid]];
@@ -898,7 +898,7 @@ CMD:pizzaboy(playerid, const params[]){
     return 1;
 }
 
-CMD:gali(playerid, params[]){
+CMD:dig(playerid, params[]){
     if(!IsPlayerInAnyDynamicArea(playerid) || !GetPVarType(playerid, "last_area"))
         return error_command(playerid, "Hanya dapat menggali/menambang pada area pertambangan.");
 
@@ -955,9 +955,9 @@ CMD:fishing(playerid, params[]){
     return 1;
 }
 
-CMD:beriuang(playerid, params[]){
+CMD:givemoney(playerid, params[]){
     new target_id, nominal;
-    if(sscanf(params, "ii", target_id, nominal)) return error_syntax(playerid, "/beriuang [id pemain] [nominal]");
+    if(sscanf(params, "ii", target_id, nominal)) return error_syntax(playerid, "/givemoney [id pemain] [nominal]");
     if(!IsPlayerConnected(target_id) || target_id == INVALID_PLAYER_ID || target_id == playerid) return server_message(playerid, "ID pemain yang anda masukan tidak valid.");
 
     // Cek jarak pemain
@@ -990,7 +990,7 @@ CMD:beriuang(playerid, params[]){
 /*
  * Lepas Helm Dan Mask
  */
-CMD:lepashelm(playerid, params[]){
+CMD:removehelmet(playerid, params[]){
     if(!PlayerInfo[playerid][isOnMask]) return server_message(playerid, "Anda tidak sedang menggunakan helm.");
     if(!IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
         /* Reset Jika iditem tidak valid */
@@ -1016,7 +1016,7 @@ CMD:lepashelm(playerid, params[]){
     return 1;
 }
 
-CMD:lepastopeng(playerid, params[]){
+CMD:removemask(playerid, params[]){
     if(!PlayerInfo[playerid][isOnMask]) return server_message(playerid, "Anda tidak sedang menggunakan topeng.");
     if(!IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
         /* Reset Jika iditem tidak valid */
@@ -1045,11 +1045,11 @@ CMD:lepastopeng(playerid, params[]){
  * End Lepas Helm dan Mask
  */
 
-CMD:panggil(playerid, params[])
+CMD:call(playerid, params[])
 {
 	new number;
     if(sscanf(params, "i", number)) 
-        return error_syntax(playerid, "/panggil [nomor]");
+        return error_syntax(playerid, "/call [nomor]");
     // if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
     // if(!IsPemainPunyaNomorAktif(playerid)) return error_command(playerid, "Maaf anda harus memiliki nomor hp yang aktif untuk dapat menggunakan fitur ini.");
 	// if(number == PlayerInfo[playerid][nomorHP]) return error_command(playerid, "Tidak dapat melakukan panggilan ke nomor hp pribadi.");
@@ -1071,7 +1071,7 @@ CMD:panggil(playerid, params[])
 //         return error_command(playerid, "Anda tidak sedang sekarat.");
 
 //     new pesan[144];
-//     format(pesan, sizeof(pesan), TAG_MEDIC" "WHITE"%s(%d) sedang sekarat dan membutuhkan bantuan. Ketik /tampillokasipasien %d untuk menandai marker.", PlayerInfo[playerid][pPlayerName], playerid);
+//     format(pesan, sizeof(pesan), TAG_MEDIC" "WHITE"%s(%d) sedang sekarat dan membutuhkan bantuan. Ketik /showpatientlocation %d untuk menandai marker.", PlayerInfo[playerid][pPlayerName], playerid);
 //     new online_medic = SendMessageToDutyMedic(COLOR_RED, pesan);
 
 //     if(!online_medic)
@@ -1080,13 +1080,13 @@ CMD:panggil(playerid, params[])
 //     return SendClientMessage(playerid, COLOR_MEDIC, TAG_MEDIC" "WHITE"Berhasil mengirim pesan ke medis, tunggu beberapa saat..");
 // }
 
-CMD:tampillokasipasien(playerid, params[]){
+CMD:showpatientlocation(playerid, params[]){
     if(!IsPlayerOnDutyMedic(playerid)) 
         return error_command(playerid, "Anda tidak sedang bertugas sebagai medis.");
     
     new target_id;
     if(sscanf(params, "u", target_id)) 
-        return error_syntax(playerid, "/tampillokasipasien [id pemain]");
+        return error_syntax(playerid, "/showpatientlocation [id pemain]");
 
     if(IsInvalidTargetId(target_id, playerid, TIPE_TARGET_ALLOW_SEKARAT))
         return error_command(playerid, "Id pemain tujuan tidak valid.");
@@ -1101,13 +1101,13 @@ CMD:tampillokasipasien(playerid, params[]){
     return 1;
 }
 
-CMD:tampillokasibantuan(playerid, params[]){
+CMD:showvictimlocation(playerid, params[]){
     if(!IsPlayerOnDutyPolice(playerid)) 
-        return error_command(playerid, "Anda tidak sedang bertugas sebagaipolisi.");
+        return error_command(playerid, "Anda tidak sedang bertugas sebagai polisi.");
     
     new target_id;
     if(sscanf(params, "u", target_id)) 
-        return error_syntax(playerid, "/tampillokasibantuan [id pemain]");
+        return error_syntax(playerid, "/showvictimlocation [id pemain]");
 
     if(IsInvalidTargetId(target_id, playerid))
         return error_command(playerid, "Id pemain tujuan tidak valid.");
@@ -1122,12 +1122,12 @@ CMD:tampillokasibantuan(playerid, params[]){
     return 1;
 }
 
-CMD:tutup(playerid, params[]){
+CMD:close(playerid, params[]){
     new text[50];
     if(sscanf(params, "s[50]", text)) 
-        return error_syntax(playerid, "/tutup [objek]");
+        return error_syntax(playerid, "/close [object]");
 
-    if(sama(text, "pintupenjara") && IsPlayerOnDutyPolice(playerid)){
+    if(sama(text, "prison", true) && IsPlayerOnDutyPolice(playerid)){
         if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 78.43640, 1001.26233)){
             tutupPintuPenjara(pintuPenjara[0]);
         }else if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 82.96240, 1001.26233)){
@@ -1135,17 +1135,39 @@ CMD:tutup(playerid, params[]){
         }else if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 87.48840, 1001.26233)){
             tutupPintuPenjara(pintuPenjara[2]);
         }
+    }else if(sama(text, "trunk", true)){
+        new vehid = INVALID_VEHICLE_ID;
+        new Float:vpos[3];
+
+        foreach(new vid : Vehicle){
+            if(!IsValidVehicle(vid)) continue;
+            if(GetVehicleBoot(vid, vpos[0], vpos[1], vpos[2])){
+                if(IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+                    vehid = vid;
+                    break;
+                }
+            }
+        }
+        
+        if(vehid == INVALID_VEHICLE_ID) 
+            return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda harus berada pada bagian belakang kendaraan yang ingin dibuka bagasinya.");
+		
+        if(!GetVehicleParams(vehid, VEHICLE_TYPE_BOOT)) 
+            return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Bagasi tidak dalam keadaan terbuka.");
+		
+        SetVehicleParams(vehid, VEHICLE_TYPE_BOOT, 0);
+        SendClientMessage(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil menutup bagasi kendaraan ini.");
     }else
         return 0;
     return 1;
 }
 
-CMD:buka(playerid, params[]){
+CMD:open(playerid, params[]){
     new text[50];
     if(sscanf(params, "s[50]", text))
-        return error_syntax(playerid, "/buka [objek]");
+        return error_syntax(playerid, "/open [object]");
 
-    if(sama(text, "pintupenjara") && IsPlayerOnDutyPolice(playerid)){
+    if(sama(text, "prison", true) && IsPlayerOnDutyPolice(playerid)){
         if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 78.43640, 1001.26233)){
             bukaPintuPenjara(pintuPenjara[0]);
         }else if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 82.96240, 1001.26233)){
@@ -1153,12 +1175,48 @@ CMD:buka(playerid, params[]){
         }else if(IsPlayerInRangeOfPoint(playerid, 2.0, 266.31070, 87.48840, 1001.26233)){
             bukaPintuPenjara(pintuPenjara[2]);
         }
+    }else if(sama(text, "trunk", true)){
+        new vehid = INVALID_VEHICLE_ID;
+        new Float:vpos[3];
+
+        foreach(new vid : Vehicle){
+            if(!IsValidVehicle(vid)) continue;
+            if(GetVehicleBoot(vid, vpos[0], vpos[1], vpos[2])){
+                if(IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+                    vehid = vid;
+                    break;
+                }
+            }
+        }
+        
+        if(vehid == INVALID_VEHICLE_ID) 
+            return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda harus berada pada bagian belakang kendaraan yang ingin dibuka bagasinya.");
+
+        if(GetVehicleLimitItemByModel(GetVehicleModel(vehid)) == 0)
+            return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan jenis ini tidak memiliki bagasi.");
+		
+        if(!Iter_Contains(IDVehToPVehIterator, vehid)) 
+            return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan tidak mempunyai bagasi, karena tidak berpemilik.");
+
+        if(!GetVehicleParams(vehid, VEHICLE_TYPE_BOOT)) 
+            return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Buka bagasi kendaraan terlebih dahulu.");
+        
+        SetPVarInt(playerid, "inventory_vehicle", vehid);
+        new slot_terpakai = GetSlotInventoryVehicle(vehid),
+            kapasitas = GetVehicleLimitItemByModel(GetVehicleModel(vehid));
+
+        if(slot_terpakai >= kapasitas)
+            format(pDialog[playerid], sizePDialog, WHITE"Ambil Item\n"WHITE"Simpan Item "RED"(%d/%d)", slot_terpakai, kapasitas);
+        else
+            format(pDialog[playerid], sizePDialog, WHITE"Ambil Item\n"WHITE"Simpan Item "GREEN"(%d/%d)", slot_terpakai, kapasitas);
+
+        ShowPlayerDialog(playerid, DIALOG_OPTION_INVENTORY_VEHICLE, DIALOG_STYLE_LIST, "Option Inventory Vehicle.", pDialog[playerid], "Ok", "Batal");
     }else
         return error_command(playerid, "Aksi tidak ditemukan.");
     return 1;
 }
 
-CMD:penjarakan(playerid, params[]){
+CMD:jail(playerid, params[]){
     if(!IsPlayerOnDutyPolice(playerid))
         return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak memiliki otoritas.");
 
@@ -1167,7 +1225,7 @@ CMD:penjarakan(playerid, params[]){
         alasan[50],
         Float:pos[3];
     if(sscanf(params, "uis[50]", target_id, lama_penjara, alasan))
-        return error_syntax(playerid, "/penjarakan [id target] [lama detik] [alasan]");
+        return error_syntax(playerid, "/jail [id target] [lama detik] [alasan]");
     
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Pemain yang dimaksud tidak ada.");
@@ -1187,7 +1245,7 @@ CMD:penjarakan(playerid, params[]){
     return 1;
 }
 
-CMD:hapusmasapenjara(playerid, params[]){
+CMD:removejail(playerid, params[]){
     if(!IsPlayerOnDutyPolice(playerid))
         return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak memiliki otoritas.");
 
@@ -1195,7 +1253,7 @@ CMD:hapusmasapenjara(playerid, params[]){
         alasan[50],
         Float:pos[3];
     if(sscanf(params, "us[50]", target_id, alasan))
-        return error_syntax(playerid, "/hapusmasapenjara [id target] [alasan]");
+        return error_syntax(playerid, "/removejail [id target] [alasan]");
     
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Pemain yang dimaksud tidak ada.");
@@ -1213,11 +1271,11 @@ CMD:hapusmasapenjara(playerid, params[]){
     return 1;
 }
 
-CMD:keluar(playerid, params[]){
+CMD:exit(playerid, params[]){
     new text[50];
     if(sscanf(params, "s[50]", text))
-        return error_syntax(playerid, "/keluar [aksi]");
-    if(sama(text, "penjara") && IsPlayerInAnyAreaPenjara(playerid) && !PlayerInfo[playerid][inPenjara]){
+        return error_syntax(playerid, "/exit [aksi]");
+    if(sama(text, "prison") && IsPlayerInAnyAreaPenjara(playerid) && !PlayerInfo[playerid][inPenjara]){
         pindahkanPemain(playerid, 256.1987, 84.2868, 1002.4453, 59.2438, 6, 1);
         SendClientMessage(playerid, COLOR_PINK, "* berhasil keluar penjara.");
     }else
@@ -1225,10 +1283,10 @@ CMD:keluar(playerid, params[]){
     return 1;
 }
 
-CMD:hancurkan(playerid, params[]){
+CMD:destroy(playerid, params[]){
     new text[50], number;
     if(sscanf(params, "s[50]", text) || sscanf(params, "s[50]I(-1)", text, number))
-        return error_syntax(playerid, "/hancurkan [aksi]");
+        return error_syntax(playerid, "/destroy [aksi]");
 
     if(sama(text, "ganja", true) && IsPlayerOnDutyPolice(playerid)){
         // Hancurkan Ganja
@@ -1332,10 +1390,10 @@ CMD:hancurkan(playerid, params[]){
     return 1;
 }
 
-CMD:buat(playerid, params[]){
+CMD:create(playerid, params[]){
     new text[50], number;
     if(sscanf(params, "s[50]", text) || sscanf(params, "s[50]I(-1)", text, number))
-        return error_syntax(playerid, "/buat [aksi]");
+        return error_syntax(playerid, "/create [aksi]");
 
     if(sama(text, "ranjau", true) && IsPlayerOnDutyPolice(playerid)){
         new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
@@ -1398,7 +1456,7 @@ CMD:buat(playerid, params[]){
             SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Tidak dapat membuat garis polisi lagi.");
         }
     }else if(sama(text, "speedcam", true) && IsPlayerOnDutyPolice(playerid)){
-        if(number == -1) return error_syntax(playerid, "/buat speedcam [limit]");
+        if(number == -1) return error_syntax(playerid, "/create speedcam [limit]");
         if(number >= MIN_SPEEDLIMIT && number <= MAX_SPEEDLIMIT){
             new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
             if(id != -1){
@@ -1421,14 +1479,14 @@ CMD:buat(playerid, params[]){
     return 1;
 }
 
-CMD:ubah(playerid, params[]){
+CMD:adjust(playerid, params[]){
     new text[50], number;
     if(sscanf(params, "s[50]", text) || sscanf(params, "s[50]I(-1)", text, number))
-        return error_syntax(playerid, "/ubah [aksi]");
+        return error_syntax(playerid, "/adjust [aksi]");
 
     if(sama(text, "ranjau", true) && IsPlayerOnDutyPolice(playerid)){
         if(number == -1){
-            return error_syntax(playerid, "/ubah ranjau [id]");
+            return error_syntax(playerid, "/adjust ranjau [id]");
         }else{
             new id = ClosestObjPolice(playerid);
             if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_RANJAU){
@@ -1440,7 +1498,7 @@ CMD:ubah(playerid, params[]){
         }
     }else if(sama(text, "barikade", true) && IsPlayerOnDutyPolice(playerid)){
         if(number == -1){
-            return error_syntax(playerid, "/ubah barikade [id]");
+            return error_syntax(playerid, "/adjust barikade [id]");
         }else{
             new id = ClosestObjPolice(playerid);
             if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_BARIKADE){
@@ -1452,7 +1510,7 @@ CMD:ubah(playerid, params[]){
         }
     }else if(sama(text, "sign", true) && IsPlayerOnDutyPolice(playerid)){
         if(number == -1){
-            return error_syntax(playerid, "/ubah sign [id]");
+            return error_syntax(playerid, "/adjust sign [id]");
         }else{
             new id = ClosestObjPolice(playerid);
             if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_SIGN){
@@ -1464,7 +1522,7 @@ CMD:ubah(playerid, params[]){
         }
     }else if(sama(text, "garis", true) && IsPlayerOnDutyPolice(playerid)){
         if(number == -1){
-            return error_syntax(playerid, "/ubah garis [id]");
+            return error_syntax(playerid, "/adjust garis [id]");
         }else{
             new id = ClosestObjPolice(playerid);
             if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_GARIS){
@@ -1476,7 +1534,7 @@ CMD:ubah(playerid, params[]){
         }
     }else if(sama(text, "speedcam", true) && IsPlayerOnDutyPolice(playerid)){
         if(number == -1){
-            return error_syntax(playerid, "/ubah speedcam [id]");
+            return error_syntax(playerid, "/adjust speedcam [id]");
         }else{
             new id = ClosestObjPolice(playerid);
             if(id == number && OBJECT_POLICE[number][objType] == OBJECT_TYPE_SPEEDCAM){
@@ -1491,14 +1549,14 @@ CMD:ubah(playerid, params[]){
     return 1;
 }
 
-CMD:borgol(playerid, params[]){
+CMD:cuff(playerid, params[]){
     if(!IsPlayerOnDutyPolice(playerid))
         return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak memiliki otoritas.");
 
     new target_id,
         Float:pos[3];
     if(sscanf(params, "u", target_id))
-        return error_syntax(playerid, "/borgol [id target]");
+        return error_syntax(playerid, "/cuff [id target]");
     
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Pemain yang dimaksud tidak ada.");
@@ -1520,14 +1578,14 @@ CMD:borgol(playerid, params[]){
     return 1;
 }
 
-CMD:bukaborgol(playerid, params[]){
+CMD:uncuff(playerid, params[]){
     if(!IsPlayerOnDutyPolice(playerid))
         return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak memiliki otoritas.");
 
     new target_id,
         Float:pos[3];
     if(sscanf(params, "u", target_id))
-        return error_syntax(playerid, "/bukaborgol [id target]");
+        return error_syntax(playerid, "/uncuff [id target]");
     
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Pemain yang dimaksud tidak ada.");
@@ -1548,14 +1606,14 @@ CMD:bukaborgol(playerid, params[]){
     return 1;
 }
 
-CMD:cekmasatahanan(playerid, params[]){
+CMD:checksuspect(playerid, params[]){
     if(!IsPlayerOnDutyPolice(playerid))
         return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak memiliki otoritas.");
 
     new target_id,
         Float:pos[3];
     if(sscanf(params, "u", target_id))
-        return error_syntax(playerid, "/cekmasatahanan [id target]");
+        return error_syntax(playerid, "/checksuspect [id target]");
     
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Pemain yang dimaksud tidak ada.");
@@ -1572,12 +1630,12 @@ CMD:cekmasatahanan(playerid, params[]){
 }
 
 // Ini dapat dilakukan semua orang
-CMD:periksainventory(playerid, params[]){
+CMD:checkinventory(playerid, params[]){
 
     new target_id,
         Float:pos[3];
     if(sscanf(params, "u", target_id))
-        return error_syntax(playerid, "/periksainventory [id pemain]");
+        return error_syntax(playerid, "/checkinventory [id pemain]");
     
     if(!IsPlayerConnected(target_id) || playerid == target_id)
         return error_command(playerid, "Pemain yang dimaksud tidak ada.");
@@ -1595,7 +1653,7 @@ CMD:periksainventory(playerid, params[]){
     return 1;
 }
 
-CMD:batalsewakendaraan(playerid, params[]){
+CMD:cancelrentvehicle(playerid, params[]){
     if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus berada di dalam kendaraan sewa.");
     new vehid = GetPlayerVehicleID(playerid), rentid = RentPlayerVehID[vehid];
     if(!Iter_Contains(RentPlayerVehIter, rentid)) return error_command(playerid, "Kendaraan bukan kendaraan sewa, dnda harus berada di dalam kendaraan sewa.");
@@ -1617,14 +1675,14 @@ CMD:batalsewakendaraan(playerid, params[]){
 /**
     Animations
  */
-CMD:duduk(playerid, params[]){
+CMD:sit(playerid, params[]){
     if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy])
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
     ApplyAnimation(playerid, "PED", "SEAT_DOWN", 4.1, 0, 0, 0, 1, 0, 1);
     return 1;
 }
 
-CMD:berdiri(playerid, params[]){
+CMD:stand(playerid, params[]){
     if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy])
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
 

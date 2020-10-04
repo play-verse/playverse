@@ -1001,6 +1001,16 @@ publicFor: tambahItemPlayer(playerid, itemid, jumlah){
 	return 1;
 }
 
+publicFor: tambahItemVehicle(vehicleid, itemid, jumlah){
+	SetJumlahItemVehicle(vehicleid, itemid, GetJumlahItemVehicle(vehicleid, itemid) + jumlah);
+
+	new temp_query[100];
+	// Pakai trigger procedure
+	mysql_format(koneksi, temp_query, 100, "CALL tambah_item_vehicle(%d, %d, %d)", PVeh[IDVehToPVeh[vehicleid]][pVehID], itemid, jumlah);
+	mysql_tquery(koneksi, temp_query);
+	return 1;
+}
+
 publicFor: tambahFurniturePlayer(playerid, furnitureid, jumlah){
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "CALL tambah_furniture(%d, %d, %d)", PlayerInfo[playerid][pID], furnitureid, jumlah);
 	mysql_tquery(koneksi, pQuery[playerid]);
@@ -3767,6 +3777,27 @@ LoadItemPlayer(playerid){
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM user_item WHERE id_user = '%d'", PlayerInfo[playerid][pID]);
 }
 
+LoadItemVehiclePlayer(idveh){
+	inline responseQuery(){
+		new rows;
+		cache_get_row_count(rows);
+		if(rows){			
+			new idx = 0,
+				id_item,
+				jumlah;
+
+			while(idx < rows){
+				cache_get_value_name_int(idx, "id_item", id_item);
+				cache_get_value_name_int(idx, "jumlah", jumlah);
+
+				SetJumlahItemVehicle(idveh, id_item, jumlah);
+				idx++;
+			}
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM vehicle_item WHERE id_vehicle = '%d'", PVeh[IDVehToPVeh[idveh]][pVehID]);
+}
+
 LoadVehiclePlayer(playerid){
 	inline responseLoadVehicle(){
 		new rows;
@@ -3857,6 +3888,9 @@ LoadVehiclePlayer(playerid){
 
 					IDVehToPVeh[idveh] = idpv;
 					Iter_Add(IDVehToPVehIterator, idveh);
+
+					bersihkanVariabelItemVehicle(idveh);
+					LoadItemVehiclePlayer(idveh);
 
 					#if DEBUG_MODE_FOR_PLAYER == true
 					printf("Vehicle Player %s Vehicle-ID(%d) ig-ID(%d) load.",PlayerInfo[playerid][pPlayerName], PVeh[idpv][pVehID], idveh);
@@ -3971,6 +4005,7 @@ UnloadVehiclePlayer(playerid){
 			#endif
 			if(IsValidVehicle(PVeh[i][pVehicle]) && Iter_Contains(IDVehToPVehIterator, PVeh[i][pVehicle]))
 			{
+				bersihkanVariabelItemVehicle(PVeh[i][pVehicle]);
 				Iter_Remove(IDVehToPVehIterator, PVeh[i][pVehicle]);
 				IDVehToPVeh[PVeh[i][pVehicle]] = 0;
 				DestroyVehicle(PVeh[i][pVehicle]);
@@ -4930,7 +4965,7 @@ publicFor: pemainUpdate(playerid){
 		new str_temp[70];
 		if(PlayerInfo[playerid][inPenjara] == 1){
 			format(str_temp, 70, "~g~Masa tahanan anda selesai");
-			sendPesan(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda dapat menggunakan "YELLOW"/keluar penjara "WHITE"untuk keluar secara instant.");
+			sendPesan(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda dapat menggunakan "YELLOW"/exit prison "WHITE"untuk keluar secara instant.");
 			format(pDialog[playerid], 114, TAG_POLICE" "WHITE"Tahanan %s telah menyelesaikan masa tahannya.", PlayerInfo[playerid][pPlayerName]);
 			SendMessageToDutyPolice(COLOR_POLISI, pDialog[playerid]);
 			SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);

@@ -19,7 +19,6 @@
 		"sampvoice"
 	],
 	"rcon_password": "kodokhijau99",
-	"bind": "192.168.43.237",
 	"port": 7777,
 	"hostname": "Playverse - Alpha Version",
 	"maxplayers": 32

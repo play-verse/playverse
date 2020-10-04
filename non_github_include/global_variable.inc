@@ -1670,3 +1670,98 @@ new const item_beli_kayu[][INFO_BARANG_MARKET] = {
 
 // Voice Chat
 new SV_LSTREAM:lstream[MAX_PLAYERS] = {SV_NULL,...}; // Local
+
+/*
+	Bagasi Item
+**/
+/**
+	Index 0 pada ID_ITEM akan dikosongkan sebagai INVALID_ID_ITEM
+ */
+new VehicleItem[MAX_VEHICLES][MAX_SERVER_ITEM + 1];
+
+enum VEHICLE_LUGGAGE_INFO {
+	lvModel,
+	lvLimit
+};
+new const VehicleLuggageLimit[][VEHICLE_LUGGAGE_INFO] = {
+	// 2-Door cars
+	{602, 50},
+	{496, 50},
+	{401, 50},
+	{518, 50},
+	{527, 50},
+	{589, 50},
+	{419, 50},
+	{587, 50},
+	{533, 50},
+	{474, 50},
+	{545, 50},
+	{517, 50},
+	{410, 50},
+	{600, 50},
+	{436, 50},
+	{439, 50},
+	{549, 50},
+	{491, 50},
+
+	// 4-Door cars
+	{445, 50},
+	{604, 50},
+	{507, 50},
+	{585, 50},
+	{466, 50},
+	{492, 50},
+	{546, 50},
+	{551, 50},
+	{516, 50},
+	{467, 50},
+	{426, 50},
+	{547, 50},
+	{405, 50},
+	{580, 50},
+	{409, 50},
+	{550, 50},
+	{566, 50},
+	{540, 50},
+	{421, 50},
+	{529, 50},
+	{546, 50},
+
+	// Low riders
+	{536, 50},
+	{575, 50},
+	{534, 50},
+	{567, 50},
+	{535, 50},
+	{576, 50},
+	{412, 50},
+
+	// Muscle Cars
+	{402, 50},
+	{542, 50},
+	{603, 50},
+	{475, 50},
+	
+	// Street racers
+	{429, 50},
+	{541, 50},
+	{415, 50},
+	{480, 50},
+	{562, 50},
+	{565, 50},
+	{434, 50},
+	{494, 50},
+	{502, 50},
+	{503, 50},
+	{411, 50},
+	{559, 50},
+	{561, 50},
+	{560, 50},
+	{506, 50},
+	{451, 50},
+	{558, 50},
+	{555, 50},
+	{477, 50}
+};
+// Penampung Limit
+new VehicleItemLimit[MAX_VEHICLE_MODELS];
