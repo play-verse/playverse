@@ -7948,7 +7948,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sscanf(inputtext, "i", input_jumlah)) {
 					new str_temp[500];
 					format(str_temp, 500, 
-						RED"Jumlah stack invalidb.\n%s", 
+						RED"Jumlah stack invalid.\n%s", 
 						pDialog[playerid]);
 					return ShowPlayerDialog(playerid, DIALOG_PENJUAL_TAMBANG_LIST_JUAL_JUMLAH, DIALOG_STYLE_INPUT, "Banyak stack yang ingin dijual", str_temp, "Jual", "Batal");
 				}
@@ -8115,7 +8115,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sscanf(inputtext, "i", input_jumlah)) {
 					new str_temp[500];
 					format(str_temp, 500, 
-						RED"Jumlah stack invalidb.\n%s", 
+						RED"Jumlah stack invalid.\n%s", 
 						pDialog[playerid]);
 					return ShowPlayerDialog(playerid, DIALOG_PENJUAL_KAYU_LIST_JUAL_JUMLAH, DIALOG_STYLE_INPUT, "Banyak stack yang ingin dijual", str_temp, "Jual", "Batal");
 				}

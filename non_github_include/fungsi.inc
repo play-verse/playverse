@@ -2463,29 +2463,29 @@ publicFor: progressNambang(playerid, dari_tambang){
 				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"besi.");
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Besi sangat berguna untuk banyak hal, kerja bagus.");
 				tambahItemPlayer(playerid, ID_BESI, 1);
-			}else if(angka >= 100001 && angka <= 400000){ // Kemungkinan 30%
+			}else if(angka >= 100001 && angka <= 350000){ // Kemungkinan 25%
 				new const rand = random(1000) + 1;
-				if(rand >= 1 && rand <= 30){
+				if(rand >= 1 && rand <= 50){
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
 					tambahItemPlayer(playerid, ID_PERAK, 1);
-				}else if(rand >= 31 && rand <= 40){
+				}else if(rand >= 51 && rand <= 90){
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"aluminium.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Aluminium sangat berguna untuk banyak hal, kerja bagus.");
 					tambahItemPlayer(playerid, ID_ALUMINIUM, 1);
-				}else if(rand >= 41 && rand <= 100){
+				}else if(rand >= 91 && rand <= 190){
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"bijih aluminium.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih aluminium merupakan bahan dasar aluminium.");
 					tambahItemPlayer(playerid, ID_BIJIH_ALUMINIUM, 1);
-				}else if(rand >= 101 && rand <= 200){
+				}else if(rand >= 191 && rand <= 340){
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"bijih perak.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih perak merupakan bahan dasar perak.");
 					tambahItemPlayer(playerid, ID_BIJIH_PERAK, 1);
-				}else if(rand >= 201 && rand <= 204){
+				}else if(rand >= 341 && rand <= 360){
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"serbuk berlian.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk berlian merupakan bahan dasar berlian.");
 					tambahItemPlayer(playerid, ID_SERBUK_BERLIAN, 1);
-				}else if(rand >= 205 && rand <= 2010){
+				}else if(rand >= 361 && rand <= 400){
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"serbuk emas.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk emas merupakan bahan dasar emas.");
 					tambahItemPlayer(playerid, ID_SERBUK_EMAS, 1);
