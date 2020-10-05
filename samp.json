@@ -15,8 +15,7 @@
 		"maddinat0r/sscanf:v2.8.3",
 		"samp-incognito/samp-streamer-plugin:v2.9.4",
 		"urShadow/Pawn.Regex:1.1.3",
-		"ColAndreas",
-		"sampvoice"
+		"ColAndreas"
 	],
 	"rcon_password": "kodokhijau99",
 	"port": 7777,

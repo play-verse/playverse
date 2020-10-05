@@ -1722,6 +1722,14 @@ CMD:ooc(playerid, params[]){
 }
 
 CMD:tutorial(playerid, params[]){
+    // Ambil sebelum set camera
+    new Float:temp_pos[4];
+    GetPlayerPos(playerid, temp_pos[0], temp_pos[1], temp_pos[2]);
+    GetPlayerFacingAngle(playerid, temp_pos[3]);
+    SetPVarFloat(playerid, "panduan_bermain_x", temp_pos[0]);
+    SetPVarFloat(playerid, "panduan_bermain_y", temp_pos[1]);
+    SetPVarFloat(playerid, "panduan_bermain_z", temp_pos[2]);
+    SetPVarFloat(playerid, "panduan_bermain_a", temp_pos[3]);
     // Set variabel panduan umum 1
     SetPVarString(playerid, "panduan_bermain", "panduan_bermain_1");
     format(pDialog[playerid], sizePDialog, 

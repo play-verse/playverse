@@ -1239,6 +1239,36 @@ publicFor: pakaiBibitJeruk(playerid){
 	return 1;
 }
 
+publicFor: pakaiBibitJahe(playerid){
+	pakaiBibit(playerid, "Jahe", 71, 77);
+	return 1;
+}
+
+publicFor: pakaiBibitTemulawak(playerid){
+	pakaiBibit(playerid, "Temulawak", 72, 78);
+	return 1;
+}
+
+publicFor: pakaiBibitAlpukat(playerid){
+	pakaiBibit(playerid, "Alpukat", 73, 79);
+	return 1;
+}
+
+publicFor: pakaiBibitPepaya(playerid){
+	pakaiBibit(playerid, "Pepaya", 74, 80);
+	return 1;
+}
+
+publicFor: pakaiBibitBelimbing(playerid){
+	pakaiBibit(playerid, "Belimbing", 75, 81);
+	return 1;
+}
+
+publicFor: pakaiBibitSrikaya(playerid){
+	pakaiBibit(playerid, "Srikaya", 76, 82);
+	return 1;
+}
+
 publicFor: pakaiBibitGanja(playerid){
 	pakaiBibit(playerid, "Ganja", 33, 34);
 	return 1;
@@ -5332,4 +5362,38 @@ saveRentPlayerVeh(playerid){
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_rent_player SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f', bensin = '%d' WHERE id = '%d'", spawn_x, spawn_y, spawn_z, z_angle, bensin, rentid);
 	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
-}	
+}
+
+publicFor: tungguPanduanDialog(playerid, cara){
+	if(cara == 1){
+		new Float:panduan_x = GetPVarFloat(playerid, "panduan_bermain_x"),
+			Float:panduan_y = GetPVarFloat(playerid, "panduan_bermain_y"),
+			Float:panduan_z = GetPVarFloat(playerid, "panduan_bermain_z"),
+			Float:panduan_a = GetPVarFloat(playerid, "panduan_bermain_a");
+		DeletePreciseTimer(timerPanduanStream[playerid]);
+		Streamer_UpdateEx(playerid, panduan_x, panduan_y, panduan_z, -1, -1, -1, 2000, 1);
+		SetPlayerPos(playerid, panduan_x, panduan_y, panduan_z);
+		SetPlayerFacingAngle(playerid, panduan_a);
+		SetCameraBehindPlayer(playerid);
+		TogglePlayerControllable(playerid, 1);
+	}else if(cara == 2){
+		new Float:panduan_x = GetPVarFloat(playerid, "panduan_bermain_x"),
+			Float:panduan_y = GetPVarFloat(playerid, "panduan_bermain_y"),
+			Float:panduan_z = GetPVarFloat(playerid, "panduan_bermain_z"),
+			Float:panduan_a = GetPVarFloat(playerid, "panduan_bermain_a");
+		DeletePreciseTimer(timerPanduanStream[playerid]);
+		Streamer_UpdateEx(playerid, panduan_x, panduan_y, panduan_z, -1, -1, -1, 2000, 1);
+		SetPlayerPos(playerid, panduan_x, panduan_y, panduan_z);
+		SetPlayerFacingAngle(playerid, panduan_a);
+		SetCameraBehindPlayer(playerid);
+		TogglePlayerControllable(playerid, 1);
+		ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain :", 
+		WHITE"Apakah kamu masih berada di sana?\n\
+		Kamu terlalu lama sehingga sesi panduan bermain habis.\n\
+		Jika kamu ingin melanjutkannya silahkan klik "GREEN"Lanjut"WHITE" dan jika\n\
+		tidak silahkan klik "GREEN"Tutup"WHITE".", "Lanjut", "Tutup");
+	}else{
+		DeletePreciseTimer(timerPanduanStream[playerid]);
+	}
+	return 1;
+}

@@ -484,7 +484,13 @@ enum INFO_MENU_BIBIT {
 
 new const MENU_BIBIT[][INFO_MENU_BIBIT] = {
 // Bibit
-    {31, "Bibit Jeruk", 10, 9}
+    {31, "Bibit Jeruk", 10, 9},
+	{71, "Bibit Jahe", 12, 9},
+	{72, "Bibit Temulawak", 10, 9},
+	{73, "Bibit Alpukat", 12, 9},
+	{74, "Bibit Pepaya", 11, 9},
+	{75, "Bibit Belimbing", 13, 9},
+	{76, "Bibit Srikaya", 15, 9}
 
 };
 
@@ -1635,7 +1641,6 @@ new const bahan_aluminium_utuh[][2] = {
 	{ID_BIJIH_ALUMINIUM, 5} 
 };
 
-
 /**
 	Penjual Tambang
  */
@@ -1667,9 +1672,6 @@ new const list_barang_tampung_kayu[][INFO_BARANG_DENGAN_JUMLAH] = {
 new const item_beli_kayu[][INFO_BARANG_MARKET] = {
 	{ID_GERGAJI_MESIN, 10}
 };
-
-// Voice Chat
-new SV_LSTREAM:lstream[MAX_PLAYERS] = {SV_NULL,...}; // Local
 
 /*
 	Bagasi Item
@@ -1765,3 +1767,6 @@ new const VehicleLuggageLimit[][VEHICLE_LUGGAGE_INFO] = {
 };
 // Penampung Limit
 new VehicleItemLimit[MAX_VEHICLE_MODELS];
+
+// Panduan Bermain
+new timerPanduanStream[MAX_PLAYERS];

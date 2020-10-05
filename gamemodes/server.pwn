@@ -45,7 +45,6 @@
 
 #include <core>
 #include <float>
-#include <sampvoice>
 #include <PreviewModelDialog>
 
 /*
@@ -66,14 +65,6 @@
 #include <dialog> // Function Dialog Loader
 
 #include <../include/gl_common.inc>
-
-public SV_VOID:OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid){
-	if(keyid == 0x42 && lstream[playerid]) SvAttachSpeakerToStream(lstream[playerid], playerid);
-}
-
-public SV_VOID:OnPlayerActivationKeyRelease(SV_UINT:playerid, SV_UINT:keyid){
-	if(keyid == 0x42 && lstream[playerid]) SvDetachSpeakerFromStream(lstream[playerid], playerid);
-}
 
 public OnPlayerConnect(playerid)
 {
@@ -199,11 +190,6 @@ public OnPlayerDisconnect(playerid, reason){
 	if(RentPlayerVehUser[playerid] != -1){
 		unloadRentPlayerVeh(playerid, 0);		
 	}
-	// Voice Chat
-	if(lstream[playerid]){
-		SvDeleteStream(lstream[playerid]);
-		lstream[playerid] = SV_NULL;
-	}
 	return 1;
 }
 
@@ -280,14 +266,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 					format(msg, sizeof(msg), "~w~Selamat datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %i ~w~!", PlayerInfo[playerid][loginKe]);
 					GameTextForPlayer(playerid, msg, 4000, 3);
-
-					// Voice Chat
-					if(!SvGetVersion(playerid)) error_command(playerid, "Anda tidak memiliki versi yang valid!");
-					else if(!SvHasMicro(playerid)) error_command(playerid, "Anda tidak memiliki mikrofon obrolan suara!");
-					else if(lstream[playerid] = SvCreateDLStreamAtPlayer(40.0, SV_INFINITY, playerid, 0xff0000ff, "L")){
-						SendClientMessage(playerid, COLOR_WHITE, TAG_SERVER" "YELLOW"Voicechat berhasil dimuat!");
-						SvAddKey(playerid, 0x42);
-					}
 					return 1;
 				}
 				else
@@ -7817,6 +7795,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SetPVarInt(playerid, "menu_help_page", 0);
 						SetPVarString(playerid, "menu_help_name", "umum");
 						format(str_guide, sizeof(str_guide), \
+							YELLOW"/tutorial "WHITE"- Panduan bermain secara singkat\n"\
 							YELLOW"/stats "WHITE"- Melihat informasi akun\n"\
 							YELLOW"/inventory (/inv) "WHITE"- Melihat isi tas\n"\
 							YELLOW"/settings "WHITE"- Pengaturan tampilan dan akun\n"\
@@ -8497,7 +8476,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new temp_panduan[24];
 				GetPVarString(playerid, "panduan_bermain", temp_panduan, sizeof(temp_panduan));
-
+				
 				// Masuk panduan bermain 1
 				if(sama(temp_panduan, "panduan_bermain_1")){
 					// Set variabel panduan bermain 1 -> 2
@@ -8514,6 +8493,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_2")){
 					// Set variabel panduan bermain 2 -> 3
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_3");
+					// Preload object
+					Streamer_UpdateEx(playerid, 1478.335205, -1730.107177, 44.398784, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1478.335205, -1730.107177, 44.398784, 1479.400512, -1775.524169, 18.056886, 5000);
+					InterpolateCameraLookAt(playerid, 1478.424682, -1734.859375, 42.846801, 1479.493041, -1780.440795, 17.152063, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Kantor Pemerintah (Los Santos)\n\n"\
 					WHITE"Terdapat kantor pemerintah salah satunya yang terdapat di daerah\n\
@@ -8525,6 +8511,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_3")){
 					// Set variabel panduan bermain 3 -> 4
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_4");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1500.841186, -1677.795166, 45.571907, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1500.841186, -1677.795166, 45.571907, 1548.980468, -1675.600952, 17.869146, 5000);
+					InterpolateCameraLookAt(playerid, 1505.678344, -1677.619262, 44.318572, 1553.855102, -1675.565429, 16.756946, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Polisi Metro (Los Santos)\n\n"\
 					WHITE"Terdapat kantor polisi metro salah satunya yang terdapat di daerah\n\
@@ -8536,6 +8530,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_4")){
 					// Set variabel panduan bermain 4 -> 5
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_5");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1462.544067, -1038.169189, 79.659347, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1518.877441, -1081.966308, 67.912002, 1465.668334, -1017.780212, 27.675041, 5000);
+					InterpolateCameraLookAt(playerid, 1516.185058, -1078.150024, 66.126831, 1465.415771, -1012.810546, 27.186794, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Bank (Los Santos)\n\n"\
 					WHITE"Terdapat bank salah satunya yang terdapat di daerah Los Santos,\n\
@@ -8547,6 +8549,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_5")){
 					// Set variabel panduan bermain 5 -> 6
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_6");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1224.142333, -1324.592285, 51.018974, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1224.142333, -1324.592285, 51.018974, 1179.968505, -1323.868164, 16.555538, 5000);
+					InterpolateCameraLookAt(playerid, 1219.928710, -1324.618530, 48.327301, 1175.025024, -1323.812866, 15.807853, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Rumah Sakit (Los Santos)\n\n"\
 					WHITE"Terdapat rumah sakit salah satunya yang terdapat di daerah\n\
@@ -8558,6 +8568,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_6")){
 					// Set variabel panduan bermain 6 -> 7
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_7");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1350.927734, -1729.150390, 38.162387, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1350.927734, -1729.150390, 38.162387, 1352.030883, -1752.793457, 14.466343, 5000);
+					InterpolateCameraLookAt(playerid, 1350.838989, -1732.702270, 34.644378, 1352.022216, -1757.790771, 14.631426, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Minimarket\n\n"\
 					WHITE"Terdapat minimarket yang tersebar di beberapa titik, kamu\n\
@@ -8569,6 +8587,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_7")){
 					// Set variabel panduan bermain 7 -> 8
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_8");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 889.065734, -1338.378051, 30.718097, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 889.065734, -1338.378051, 30.718097, 920.687255, -1353.059082, 15.314036, 5000);
+					InterpolateCameraLookAt(playerid, 893.465332, -1340.159545, 29.146455, 925.683288, -1352.861938, 15.342244, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Restoran Makanan\n\n"\
 					WHITE"Terdapat restoran makanan yang tersebar di beberapa titik,\n\
@@ -8580,6 +8606,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_8")){
 					// Set variabel panduan bermain 8 -> 9
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_9");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1478.033569, -1684.874023, 48.674427, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1478.033569, -1684.874023, 48.674427, 1477.369995, -1646.051391, 16.643753, 5000);
+					InterpolateCameraLookAt(playerid, 1477.936523, -1680.814941, 45.756477, 1477.105957, -1641.071044, 16.288347, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Marketplace\n\n"\
 					WHITE"Terdapat marketplace yang tersebar di beberapa titik utama\n\
@@ -8591,6 +8625,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_9")){
 					// Set variabel panduan bermain 9 -> 10
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_10");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1113.098876, -1402.881103, 38.305709, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1113.098876, -1402.881103, 38.305709, 1112.288940, -1375.725463, 15.041452, 5000);
+					InterpolateCameraLookAt(playerid, 1113.090942, -1399.252563, 34.865707, 1112.162475, -1370.750244, 14.560559, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Cetak Foto\n\n"\
 					WHITE"Terdapat cetak foto yang tersebar di beberapa titik, kamu\n\
@@ -8602,6 +8644,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_10")){
 					// Set variabel panduan bermain 10 -> 11
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_11");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1097.264770, -1406.969970, 39.328311, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1097.264770, -1406.969970, 39.328311, 1097.696899, -1375.371582, 14.874300, 5000);
+					InterpolateCameraLookAt(playerid, 1097.217285, -1402.964111, 36.336597, 1097.666870, -1370.386840, 14.485650, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Toko Gadget\n\n"\
 					WHITE"Terdapat toko gadget yang tersebar di beberapa titik, kamu\n\
@@ -8613,6 +8663,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_11")){
 					// Set variabel panduan bermain 11 -> 12
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_12");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 511.693481, -1326.749511, 41.180870, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 511.693481, -1326.749511, 41.180870, 502.465393, -1353.963012, 16.287780, 5000);
+					InterpolateCameraLookAt(playerid, 510.081542, -1330.454345, 38.235466, 500.324554, -1358.449218, 16.826824, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Toko Baju\n\n"\
 					WHITE"Terdapat toko baju yang tersebar di beberapa titik, kamu dapat\n\
@@ -8624,6 +8682,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_12")){
 					// Set variabel panduan bermain 12 -> 13
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_13");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1494.063598, -1640.976562, 26.910634, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1494.063598, -1640.976562, 26.910634, 1494.217529, -1655.772216, 14.339630, 5000);
+					InterpolateCameraLookAt(playerid, 1494.089355, -1644.998046, 23.939535, 1494.026123, -1660.546142, 12.865449, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Toko Bibit\n\n"\
 					WHITE"Terdapat kantor polisi metro salah satunya yang terdapat di daerah\n\
@@ -8635,6 +8701,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_13")){
 					// Set variabel panduan bermain 13 -> 14
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_14");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1049.365844, -1891.333618, 34.265365, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1049.365844, -1891.333618, 34.265365, 1026.764526, -1892.213745, 13.816367, 5000);
+					InterpolateCameraLookAt(playerid, 1045.736083, -1891.353149, 30.826658, 1021.824462, -1892.297729, 13.049029, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Toko Peralatan Pancing\n\n"\
 					WHITE"Terdapat peralatan pancing yang terdapat di beberapa titik daerah\n\
@@ -8646,6 +8720,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_14")){
 					// Set variabel panduan bermain 14 -> 15
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_15");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1720.815429, -1699.454345, 35.159568, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1720.815429, -1699.454345, 35.159568, 1720.038208, -1735.628051, 14.701961, 5000);
+					InterpolateCameraLookAt(playerid, 1720.764892, -1704.017089, 33.115386, 1720.069946, -1740.626953, 14.600712, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Blacksmith\n\n"\
 					WHITE"Terdapat pusat keahlian blacksmith salah satunya yang terdapat di\n\
@@ -8657,6 +8739,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_15")){
 					// Set variabel panduan bermain 15 -> 16
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_16");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1065.145874, -1596.411865, 76.654823, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1065.145874, -1596.411865, 76.654823, 1018.630371, -1648.135986, 17.464708, 5000);
+					InterpolateCameraLookAt(playerid, 1062.830932, -1599.725219, 73.711608, 1014.563110, -1650.957641, 16.760589, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Mekanik\n\n"\
 					WHITE"Terdapat pusat keahlian mekanik salah satunya yang terdapat di\n\
@@ -8668,17 +8758,33 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_16")){
 					// Set variabel panduan bermain 16 -> 17
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_17");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, -760.148620, 2412.814697, 182.083770, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, -760.148620, 2412.814697, 182.083770, -695.408020, 2372.162841, 131.952316, 5000);
+					InterpolateCameraLookAt(playerid, -756.505187, 2410.497802, 179.562500, -690.479614, 2372.063232, 131.114959, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Pusat Tambang\n\n"\
 					WHITE"Terdapat pusat tambang yang terdapat di daerah perbukitan atau\n\
-					pegunungan, kamu dapat melakukan pembuatan sim, membuat laporan dan\n\
-					lainnya disini.");
+					pegunungan, kamu dapat melakukan penambangan untuk mendapat besi,\n\
+					perak hingga berlian disini.");
 					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
 				}
 				// Masuk panduan bermain 17
 				if(sama(temp_panduan, "panduan_bermain_17")){
 					// Set variabel panduan bermain 17 -> 18
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_18");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 2426.137939, -712.909851, 170.045761, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 2426.137939, -712.909851, 170.045761, 2353.179199, -664.940917, 130.071197, 5000);
+					InterpolateCameraLookAt(playerid, 2422.548339, -709.992492, 168.147247, 2351.868164, -660.351196, 128.582534, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Pemotong Kayu (Lumberjack)\n\n"\
 					WHITE"Terdapat pemotong kayu yang tersebar di beberapa titik, kamu\n\
@@ -8689,6 +8795,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_18")){
 					// Set variabel panduan bermain 18 -> 19
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_19");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, -574.269836, -610.014770, 86.486259, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, -574.269836, -610.014770, 86.486259, -538.679077, -546.212341, 26.071489, 5000);
+					InterpolateCameraLookAt(playerid, -572.335083, -606.385192, 83.643241, -539.133056, -541.254882, 25.604776, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Penadah Besi\n\n"\
 					WHITE"Terdapat penadah besi yang tersebar di beberapa titik, kamu dapat\n\
@@ -8699,6 +8813,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_19")){
 					// Set variabel panduan bermain 19 -> 20
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_20");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, -727.737487, -29.341276, 128.404617, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, -727.737487, -29.341276, 128.404617, -763.137512, -125.981948, 67.885345, 5000);
+					InterpolateCameraLookAt(playerid, -729.086364, -33.520061, 126.013336, -759.313232, -128.896392, 66.513816, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Penadah Kayu\n\n"\
 					WHITE"Terdapat penadah kayu yang tersebar di beberapa titik, kamu dapat\n\
@@ -8709,6 +8831,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_20")){
 					// Set variabel panduan bermain 20 -> 21
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_21");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 578.765502, -1212.911865, 59.076316, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 578.765502, -1212.911865, 59.076316, 544.736389, -1268.873046, 27.509140, 5000);
+					InterpolateCameraLookAt(playerid, 576.182006, -1216.255737, 56.403537, 544.194519, -1273.466430, 25.609746, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Dealer Kendaraan\n\n"\
 					WHITE"Terdapat dealer kendaraan yang tersebar di beberapa titik, kamu\n\
@@ -8719,6 +8849,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_21")){
 					// Set variabel panduan bermain 21 -> 22
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_22");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1051.402954, -1812.562866, 68.486885, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1051.402954, -1812.562866, 68.486885, 1002.576843, -1744.829101, 14.272160, 5000);
+					InterpolateCameraLookAt(playerid, 1048.593261, -1809.252807, 66.007125, 1005.750061, -1741.035156, 13.539529, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Penjual Dealer\n\n"\
 					WHITE"Terdapat penjual dealer salah satunya yang terdapat di daerah Los\n\
@@ -8729,6 +8867,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sama(temp_panduan, "panduan_bermain_22")){
 					// Set variabel panduan bermain 22 -> 23
 					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_23");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 321.235260, -1884.306884, 56.054317, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 321.235260, -1884.306884, 56.054317, 320.550689, -1806.583129, 7.684374, 5000);
+					InterpolateCameraLookAt(playerid, 321.281768, -1880.024291, 53.474117, 320.489227, -1801.618286, 7.095487, 2000);
+					// Dialog
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Penyewaan Kendaraan\n\n"\
 					WHITE"Terdapat penyewaan kendaraan yang tersebar di beberapa titik, kamu\n\
@@ -8736,10 +8882,137 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					kamu tentukan.");
 					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Tempat) :", pDialog[playerid], "Lanjut", "Tutup");
 				}
-				// Akhir panduan bermain 23
-				if(sama(temp_panduan, "panduan_bermain_23")) DeletePVar(playerid, "panduan_bermain");
+				// Masuk panduan bermain 23
+				if(sama(temp_panduan, "panduan_bermain_23")){
+					// Set variabel panduan bermain 23 -> 24
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_24");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1011.859069, -1729.953613, 14.682651, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1011.859069, -1729.953613, 14.682651, 1024.166381, -1892.424438, 13.399143, 5000);
+					InterpolateCameraLookAt(playerid, 1012.823486, -1734.738525, 13.598794, 1019.169860, -1892.295654, 13.265370, 2000);
+					// Dialog
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Actor\n\n"\
+					WHITE"Terdapat actor yang tersebar di beberapa titik, kamu dapat\n\
+					berinteraksi untuk melakukan transaksi atau hal lainnya dengan\n\
+					mengawali atau menyapa actor tersebut, seperti:\n\
+					"YELLOW"Siapa nama kamu\n"\
+					WHITE"actor tersebut akan membalas dan kamu dapat melanjutkan\n\
+					dengan beberapa sapaan, beberapa panduan actor tersedia di\n\
+					titik actor tersebut atau kamu dapat mengunjungi wiki kami\n\
+					"GREEN"wiki.playverse.org"WHITE" untuk lebih lanjutnya.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Fitur) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 24
+				if(sama(temp_panduan, "panduan_bermain_24")){
+					// Set variabel panduan bermain 24 -> 25
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_25");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1109.572631, -1455.740478, 47.453723, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1109.572631, -1455.740478, 47.453723, 1150.003173, -1449.080932, 17.992271, 5000);
+					InterpolateCameraLookAt(playerid, 1113.656005, -1455.769531, 44.568454, 1154.212036, -1448.890625, 15.299870, 2000);
+					// Dialog
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"ATM\n\n"\
+					WHITE"Terdapat atm yang tersebar di beberapa titik, kamu dapat melakukan\n\
+					transaksi, cek rekening atau lainnya dengan menggunakan ATM.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Fitur) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 25
+				if(sama(temp_panduan, "panduan_bermain_25")){
+					// Set variabel panduan bermain 25 -> 26
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_26");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 654.655090, -1146.930053, 45.391319, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 654.655090, -1146.930053, 45.391319, 679.027954, -1176.712280, 17.457517, 5000);
+					InterpolateCameraLookAt(playerid, 657.653076, -1150.161376, 43.031127, 682.978942, -1179.742919, 17.004770, 2000);
+					// Dialog
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Sweeper\n\n"\
+					WHITE"Kamu akan bekerja sebagai Pembersih Jalan (Sweeper), tugas kamu\n\
+					adalah mengikuti setiap checkpoint yang ada, ikuti aturan lalu lintas\n\
+					agar kamu selamat dan tidak di tilang.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Pekerjaan) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 26
+				if(sama(temp_panduan, "panduan_bermain_26")){
+					// Set variabel panduan bermain 26 -> 27
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_27");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 1693.901855, -1502.005493, 54.984382, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 1693.901855, -1502.005493, 54.984382, 1643.594848, -1537.513549, 17.273342, 5000);
+					InterpolateCameraLookAt(playerid, 1690.491821, -1504.008544, 51.924995, 1639.298461, -1540.037231, 16.857881, 2000);
+					// Dialog
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Trashmaster\n\n"\
+					WHITE"Kamu akan bekerja sebagai Pengangkut Sampah (Trashmaster), tugas kamu\n\
+					adalah mengikuti setiap checkpoint yang ada, ikuti aturan lalu lintas\n\
+					agar kamu selamat dan tidak di tilang.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Pekerjaan) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 27
+				if(sama(temp_panduan, "panduan_bermain_27")){
+					// Set variabel panduan bermain 27 -> 28
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_28");
+					// Preload object
+					tungguPanduanDialog(playerid, 0);
+					Streamer_UpdateEx(playerid, 2070.390625, -1852.886962, 41.899188, -1, -1, -1, 2700000, 1);
+					timerPanduanStream[playerid] = SetPreciseTimer("tungguPanduanDialog", 1800000, false, "ii", playerid, 2);
+					// Set camera
+					InterpolateCameraPos(playerid, 2070.390625, -1852.886962, 41.899188, 2136.613281, -1821.368774, 21.421680, 5000);
+					InterpolateCameraLookAt(playerid, 2073.250732, -1849.787719, 39.213085, 2132.467529, -1821.113159, 18.638294, 2000);
+					// Dialog
+					format(pDialog[playerid], sizePDialog, 
+					GREEN"Pizzaboy\n\n"\
+					WHITE"Kamu akan bekerja sebagai Pengantar Pizza (Pizzaboy), tugas kamu\n\
+					adalah mengikuti setiap checkpoint yang ada, ikuti aturan lalu lintas\n\
+					agar kamu selamat dan tidak di tilang.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Pekerjaan) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Masuk panduan bermain 28
+				if(sama(temp_panduan, "panduan_bermain_28")){
+					// Set variabel panduan bermain 28 -> 29
+					SetPVarString(playerid, "panduan_bermain", "panduan_bermain_29");
+					// Reset
+					tungguPanduanDialog(playerid, 1);
+					// Dialog
+					format(pDialog[playerid], sizePDialog, 
+					WHITE"Anda sudah membaca penjelasa singkat yang perlu di ketahui, fitur\n\
+					dan tempat akan terus bertambah dengan berjalannya waktu, untuk itu anda\n\
+					perlu mengunjungi wiki kami di "GREEN"wiki.playverse.org"WHITE" untuk panduan\n\
+					lebih lengkapnya dan untuk menu bantuan anda dapat mengakses perintah "GREEN"/help"WHITE".\n\n\
+					Jika anda memiliki pertanyaan atau saran anda dapat mengunjungi forum kami\n\
+					"GREEN"forum.playverse.org"WHITE", jangan sungkan untuk berdiskusi bersama kami,\n\
+					terima kasih.");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Akhir) :", pDialog[playerid], "Lanjut", "Tutup");
+				}
+				// Akhir panduan bermain 29
+				if(sama(temp_panduan, "panduan_bermain_29")){
+					DeletePVar(playerid, "panduan_bermain");
+					DeletePVar(playerid, "panduan_bermain_x");
+					DeletePVar(playerid, "panduan_bermain_y");
+					DeletePVar(playerid, "panduan_bermain_z");
+					DeletePVar(playerid, "panduan_bermain_a");
+				}
 			}else{
+				tungguPanduanDialog(playerid, 1);
 				DeletePVar(playerid, "panduan_bermain");
+				DeletePVar(playerid, "panduan_bermain_x");
+				DeletePVar(playerid, "panduan_bermain_y");
+				DeletePVar(playerid, "panduan_bermain_z");
+				DeletePVar(playerid, "panduan_bermain_a");
 			}
 			return 1;
 		}
