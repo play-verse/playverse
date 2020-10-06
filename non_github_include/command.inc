@@ -531,7 +531,10 @@ CMD:spec(playerid, params[]) {
         GetPlayerArmour(playerid, PlayerInfo[playerid][lastArmour]);
         GetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
         GetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
-		
+
+        PlayerInfo[playerid][last_vw] = GetPlayerVirtualWorld(playerid);
+		PlayerInfo[playerid][last_int] = GetPlayerInterior(playerid);
+        
         TogglePlayerSpectating(playerid, 1);
 
 		SpectatePlayer(playerid, idtujuan);
