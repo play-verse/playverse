@@ -397,7 +397,10 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
     {6, 5}, // Materai
 	{44, 8}, // Bensin 20 Liter
 	{45, 15}, // Bensin 50 Liter
-	{46, 23} // Bensin 100 Liter
+	{46, 23}, // Bensin 100 Liter
+	{ID_PALU_TAMBANG, 10},
+	{ID_GERGAJI_MESIN, 12},
+	{ID_GPS, 50}
 };
 
 enum INFO_JUAL_PERABOT {
@@ -1763,3 +1766,24 @@ new const VehicleLuggageLimit[][VEHICLE_LUGGAGE_INFO] = {
 };
 // Penampung Limit
 new VehicleItemLimit[MAX_VEHICLE_MODELS];
+
+enum GPS_INFO_ENUM {
+	gpsNama[50],
+	Float:gpsPos[3]
+};
+
+new GPS_LOCATION[][GPS_INFO_ENUM] = {
+	{"Tempat Cetak foto "nama_A, {1111.9841, -1370.0327, 13.9844}},
+	{"Tempat Cetak foto "nama_B, {1553.9622, -1450.5079, 13.5469}},
+	{"Minimarket "nama_A, {1352.3239, -1759.2528, 13.507}},
+	{"Tempat baju "nama_A, {499.5623, -1360.6381, 16.3685}},
+	{"Kantor Pemerintah Los Santos", {1479.5580, -1786.4991, 15.4566}},
+	{"Bank Los Santos", {1464.5782, -1009.9889, 26.8438}},
+	{"Restoran Makanan "nama_A, {928.9155, -1352.9557, 13.3438}},
+	{"Polisi Metro Los Santos", {1555.4991, -1675.5791, 16.1953}},
+	{"Marketplace", {1477.3682, -1638.5536, 14.1786}},
+	{"Rumah Sakit Los Santos", {1172.2648, -1323.4558, 15.4032}},
+	{"Toko Gadget "nama_A, {1097.6610, -1370.0361, 13.9844}},
+	{"Pusat Tambang", {-685.2260, 2372.3379, 129.8383}},
+	{"Pusat Blacksmith", {1720.2994, -1741.1611, 13.5469}}
+};

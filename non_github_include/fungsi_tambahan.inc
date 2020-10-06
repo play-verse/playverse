@@ -46,8 +46,8 @@ SetPlayerMoney(playerid, jumlah){
 
 // Link YSI Secret - https://forum.sa-mp.com/showthread.php?t=570949
 sendPesan(playerid, warna, const pesan[], {Float,_}:...){ // Bisa juga menggunakan GLOBAL_TAG_TYPES:... dari YSI
-    new temp_string[128];
-    format(temp_string, 128, pesan, ___(3));
+    new temp_string[255];
+    format(temp_string, 255, pesan, ___(3));
     return SendClientMessage(playerid, warna, temp_string);
 }
 

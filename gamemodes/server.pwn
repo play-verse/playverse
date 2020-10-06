@@ -8478,6 +8478,17 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_PILIH_LOKASI_GPS:
+		{
+			if(response){
+				SetPlayerCheckpoint(playerid, GPS_LOCATION[listitem][gpsPos][0], GPS_LOCATION[listitem][gpsPos][1], GPS_LOCATION[listitem][gpsPos][2], 4.0);
+				PlayerInfo[playerid][activeMarker] = true;
+
+				SendClientMessage(playerid, COLOR_PINK, "[GPS] "WHITE"Lokasi yang anda maksud telah ditandai pada peta menggunakan marker merah.");
+				SendClientMessage(playerid, COLOR_PINK, "[GPS] "YELLOW"Penggunaan gps ini akan menggantikan marker yang sebelumnya ada.");
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;

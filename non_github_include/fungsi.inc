@@ -1080,6 +1080,20 @@ publicFor: pakaiHpFromInven(playerid, itemid){
 	return 1;
 }
 
+publicFor: pakaiGps(playerid, itemid){
+	if(pizza_Job[playerid] || trashM_Job[playerid] || sweeperJob[playerid])
+		return SendClientMessage(playerid, COLOR_RED, TAG_JOB" "WHITE"Saat ini anda sedang bekerja, tidak dapat menggunakan GPS.");
+
+	static str_gps[1000];
+	if(str_gps[0] == EOS){
+		format(str_gps, sizeof(str_gps), PURPLE"Nama Lokasi\t"ORANGE"Jarak\n"WHITE);
+		for(new i=0; i < sizeof(GPS_LOCATION); i++)
+			strcatEx(str_gps, sizeof(str_gps), "%s\t%.2fm\n", GPS_LOCATION[i][gpsNama], GetPlayerDistanceFromPoint(playerid, GPS_LOCATION[i][gpsPos][0], GPS_LOCATION[i][gpsPos][1], GPS_LOCATION[i][gpsPos][2]));
+	}
+	ShowPlayerDialog(playerid, DIALOG_PILIH_LOKASI_GPS, DIALOG_STYLE_TABLIST_HEADERS, "Pilih lokasi yang ingin ditandai:", str_gps, "Pilih", "Batal");
+	return 1;
+}
+
 publicFor: pakaiHelm(playerid, itemid){
 	if(PlayerInfo[playerid][isOnMask])
 		return server_message(playerid, "Anda telah menggunakan masker/helm silahkan lepas terlebih dahulu.");
@@ -4950,13 +4964,13 @@ publicFor: pemainUpdate(playerid){
 		return 1;
 	}
 
-	// Setiap 90 detik sekali kurangi status makan sebanyak constanta STATUS_MAKAN_BERKURANG_PER_WAKTU
-	if(++PlayerInfo[playerid][hungryStackedTime] >= 90){
+	// Setiap 180 detik sekali kurangi status makan sebanyak constanta STATUS_MAKAN_BERKURANG_PER_WAKTU
+	if(++PlayerInfo[playerid][hungryStackedTime] >= 180){
 		PlayerInfo[playerid][hungryStackedTime] = 0;
 		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - STATUS_MAKAN_BERKURANG_PER_WAKTU);
 	}
 
-	if(++PlayerInfo[playerid][thirstyStackedTime] >= 60){
+	if(++PlayerInfo[playerid][thirstyStackedTime] >= 90){
 		PlayerInfo[playerid][thirstyStackedTime] = 0;
 		setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - STATUS_MINUM_BERKURANG_PER_WAKTU);
 	}
