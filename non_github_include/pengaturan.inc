@@ -483,6 +483,13 @@
 #define nama_C "Cherry"
 #define nama_D "Durian"
 
+new const NAMA_ABJAD[][] = {
+	"Apple",
+	"Blueberry",
+	"Cherry",
+	"Durian"
+};
+
 
 // Uncomment untuk mengaktifkan debug mode player
 // Comment untuk menonaktifkan

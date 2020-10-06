@@ -10888,12 +10888,14 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		pindahkanPemain(playerid, 160.7758, 1770.8013, 10000.0225 - MAPPINGAN_RUMAH_SAKIT_TURUNKAN, 269.8320, 1, 1, true);
 		return 1;
 	}
-	else if(pickupid == PU_miniMarket[0][ENTER_PICKUP]){
-		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, 1, false);
+	else if(pickupid >= PU_market[0] && pickupid <= PU_market[sizeof(PU_market) - 1]){
+		pindahkanPemain(playerid, -25.884498, -185.868988, 1003.546875, 0.0, 17, pickupid - PU_market[0], false);
 		return 1;
 	}
-	else if(pickupid == PU_miniMarket[0][EXIT_PICKUP]){
-		pindahkanPemain(playerid, 1353.8392, -1757.3990, 13.5078, 269.0087, 0, 0, false);
+	else if(pickupid == PU_keluarMarket){
+		// Jika terjadi virtual world yang lebih dari maximize size, maka akan di random tempatnya dengan modulo
+		new idx = GetPlayerVirtualWorld(playerid) % sizeof(ENTRANCE_MARKET);
+		pindahkanPemain(playerid, ENTRANCE_MARKET[idx][emPosOut][0], ENTRANCE_MARKET[idx][emPosOut][1], ENTRANCE_MARKET[idx][emPosOut][2], ENTRANCE_MARKET[idx][emPosOut][3], 0, 0, true);
 		return 1;
 	}
 	else if(pickupid == PU_tempatBaju[0][ENTER_PICKUP]){

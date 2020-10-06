@@ -405,6 +405,16 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
 	{ID_CAT_KENDARAAN, 500}
 };
 
+enum INFO_ENTRANCE_MARKET {
+	Float:emPosPickup[3],
+	Float:emPosOut[4]
+};
+new const ENTRANCE_MARKET[][INFO_ENTRANCE_MARKET] = {
+	{{1352.3239, -1759.2528, 13.5078}, {1353.8392, -1757.3990, 13.5078, 269.0087}},
+	{{1011.8785, -1668.0076, 14.8007}, {1013.8829, -1667.9923, 14.5905, 278.0317}},
+	{{2368.1611, -1547.9805, 24.0093}, {2369.3091, -1545.4869, 24.0075, 354.1191}}
+};
+
 enum INFO_JUAL_PERABOT {
 	IDPerabotDijual,
 	NamaPerabotDijual[100],
@@ -555,7 +565,8 @@ new CP_tempatFoto,
  */
 new PU_tempatFoto_in[2],
     PU_tempatFoto_out,
-    PU_miniMarket[1][2],
+    PU_market[sizeof(ENTRANCE_MARKET)],
+	PU_keluarMarket,
     PU_tempatBaju[1][2],
     PU_cityHallMasuk[3],
     PU_cityHallKeluar,

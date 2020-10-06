@@ -3,9 +3,19 @@ loadAllPickup(){
     PU_tempatFoto_in[1] = buatPickupDanLabel(1318, 1553.9622,-1450.5079,13.5469, "Tempat Cetak foto "nama_B"\n"GREEN"Pintu Masuk");
     PU_tempatFoto_out = buatPickupDanLabel(1318, -204.3725, -27.3480, 1002.2734, "Tempat Cetak foto\n"GREEN"Pintu Keluar");
 
+    new tempLabel[244];
+    for(new i = 0; i < sizeof(ENTRANCE_MARKET); i++){
+        // Gunakan modulo untuk menghindari index berlebih
+        format(tempLabel, sizeof(tempLabel), "Minimarket "ORANGE"%s\n"GREEN"Pintu masuk", NAMA_ABJAD[i % sizeof(NAMA_ABJAD)]);
+        PU_market[i] = buatPickupDanLabel(1318, ENTRANCE_MARKET[i][emPosPickup][0], ENTRANCE_MARKET[i][emPosPickup][1], ENTRANCE_MARKET[i][emPosPickup][2], tempLabel);
+    }
+    if(PU_market[0] + sizeof(ENTRANCE_MARKET) - 1 != PU_market[sizeof(ENTRANCE_MARKET) - 1]){
+        printf("[ERROR] #05 Pickup Entrance Market tidak memiliki ID yang simetris.");
+        SendRconCommand("exit");
+    }
+
     // minimarket yang ada mappingan
-    PU_miniMarket[0][ENTER_PICKUP] = buatPickupDanLabel(1318, 1352.3239, -1759.2528, 13.5078, "Minimarket "nama_A"\n"GREEN"Pintu Masuk");
-    PU_miniMarket[0][EXIT_PICKUP] = buatPickupDanLabel(1318, -25.8201, -188.2510, 1003.5469, "Minimarket "nama_A"\n"GREEN"Pintu Keluar");
+    PU_keluarMarket = buatPickupDanLabel(1318, -25.8201, -188.2510, 1003.5469, "Minimarket\n"GREEN"Pintu Keluar");
 
     PU_tempatBaju[0][ENTER_PICKUP] = buatPickupDanLabel(1318, 499.5623, -1360.6381, 16.3685, "Tempat baju "nama_A"\n"GREEN"Pintu Masuk");
     PU_tempatBaju[0][EXIT_PICKUP] = buatPickupDanLabel(1318, 161.3459,-97.1099,1001.8047, "Tempat baju "nama_A"\n"GREEN"Pintu Keluar");
@@ -35,7 +45,6 @@ loadAllPickup(){
     PU_marketPlace[EXIT_PICKUP] = buatPickupDanLabel(1318, -2635.8884, 1402.4646, 906.4609, "Marketplace\n"GREEN"Pintu Keluar");
 
     // Lumberjack
-    new tempLabel[128];
     for(new i = 0; i < sizeof(POSISI_PEMOTONGAN_KAYU); i++){
         format(tempLabel, 128, "Lumberjack "ORANGE"%s\n"GREEN"Tempat Pemotongan Kayu #%d", GetZoneName(POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z]), i + 1);
         buatPickupDanLabel(1239, POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z], tempLabel);
