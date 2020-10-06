@@ -400,7 +400,9 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
 	{46, 23}, // Bensin 100 Liter
 	{ID_PALU_TAMBANG, 10},
 	{ID_GERGAJI_MESIN, 12},
-	{ID_GPS, 50}
+	{ID_GPS, 50},
+	{ID_ALAT_PERBAIKAN_KENDARAAN, 50},
+	{ID_CAT_KENDARAAN, 500}
 };
 
 enum INFO_JUAL_PERABOT {
@@ -449,10 +451,10 @@ enum INFO_MENU_ALAT {
 };
 
 new const MENU_ALAT_MEKANIK[][INFO_MENU_ALAT] = {
-    {27, 100}, // Alat perbaikan kendaraan
-    {28, 1000}, // Cat kendaraan
-    {29, 2500}, // Sparepart Kendaraan
-    {30, 7500}, // Paint job
+    {ID_ALAT_PERBAIKAN_KENDARAAN, 45}, // Alat perbaikan kendaraan
+    {ID_CAT_KENDARAAN, 480}, // Cat kendaraan
+    {29, 500}, // Sparepart Kendaraan
+    {30, 5000}, // Paint job
     {51, 10000} // Ultimate Parts
 };
 
