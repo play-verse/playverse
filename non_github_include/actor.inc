@@ -1,156 +1,26 @@
 loadAllActor(){
-    // Actor di toko peralatan pancing
-    ACT_peralatanPancing = CreateDynamicActor(65, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2], ACT_peralatanPancing_Pos[3], .worldid = 0, .interiorid = 0);
-    // Bubble Chat Actor
-    ACT_peralatanPancing_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2] + 1.25, 10.0, .testlos = 1);
+    for(new i = 0; i < sizeof(ACT_NPC); i++){
+        ACT_NPC[i][actConst] = ACT_POSITION[i][ACT__Id];
 
-    // Actor di toko bibit
-    ACT_tokoBibit = CreateDynamicActor(130, ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2], ACT_tokoBibit_Pos[3], .worldid = 0, .interiorid = 0);
-    // Bubble Chat Actor
-    ACT_tokoBibit_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2] + 1.25, 10.0, .testlos = 1);
+        // Harus satu-satu tidak bisa sekali semua
+        for(new j = 0; j < 4; j++)
+            ACT_NPC[i][actPos][j] = ACT_POSITION[i][ACT__Pos][j];
 
-    // Actor di bengkel (ahli mekanik)
-    ACT_skillMekanik = CreateDynamicActor(50, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2], ACT_skillMekanik_Pos[3], .worldid = 0, .interiorid = 0);
-    // Bubble Chat Actor
-    ACT_skillMekanik_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2] + 1.25, 10.0, .testlos = 1);
-
-    // Actor di dealer
-    ACT_penjualDealer = CreateDynamicActor(17, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], ACT_penjualDealer_Pos[3], .worldid = 0, .interiorid = 0);
-    // Bubble Chat Actor
-    ACT_penjualDealer_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2] + 1.25, 10.0, .testlos = 1);
-
-    // Actor di pusat pemerintahan
-    ACT_resepsionisPemerintah = CreateDynamicActor(76, ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], ACT_resepsionisPemerintah_Pos[3], .worldid = 1, .interiorid = 1);
-    // Bubble Chat Actor
-    ACT_resepsionisPemerintah_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2] + 1.25, 10.0, .testlos = 1);
-
-    // Actor di Bank LS
-    ACT_tellerBankLS_1 = CreateDynamicActor(141, ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1], ACT_tellerBankLS_1_Pos[2], ACT_tellerBankLS_1_Pos[3], .worldid = 1, .interiorid = 1);
-    // Bubble Chat Actor
-    ACT_tellerBankLS_1_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1], ACT_tellerBankLS_1_Pos[2] + 1.25, 10.0, .testlos = 1);
-
-    ACT_tellerBankLS_2 = CreateDynamicActor(141, ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1], ACT_tellerBankLS_2_Pos[2], ACT_tellerBankLS_2_Pos[3], .worldid = 1, .interiorid = 1);
-    // Bubble Chat Actor
-    ACT_tellerBankLS_2_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1], ACT_tellerBankLS_2_Pos[2] + 1.25, 10.0, .testlos = 1);
-
-    // Actor di toko gadget
-    ACT_tokoGadget = CreateDynamicActor(141, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], ACT_tokoGadget_Pos[3], .worldid = 1, .interiorid = 1);
-    // Bubble Chat Actor
-    ACT_tokoGadget_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2] + 1.25, 10.0, .testlos = 1);
-
-    // Actor di kasir rumah sakit
-    ACT_rumahSakit = CreateDynamicActor(141, ACT_rumahSakit_Pos[0], ACT_rumahSakit_Pos[1], ACT_rumahSakit_Pos[2], ACT_rumahSakit_Pos[3], .worldid = 1, .interiorid = 1);
-    // Bubble Chat Actor
-    ACT_rumahSakit_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_rumahSakit_Pos[0], ACT_rumahSakit_Pos[1], ACT_rumahSakit_Pos[2] + 1.25, 10.0);
-
-    // Actor di marketplace
-    ACT_marketPlace_1 = CreateDynamicActor(141, ACT_marketPlace_1_Pos[0], ACT_marketPlace_1_Pos[1], ACT_marketPlace_1_Pos[2], ACT_marketPlace_1_Pos[3], .worldid = 1, .interiorid = 3);
-    // Bubble Chat Actor
-    ACT_marketPlace_1_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_marketPlace_1_Pos[0], ACT_marketPlace_1_Pos[1], ACT_marketPlace_1_Pos[2] + 1.25, 10.0);
-
-    ACT_marketPlace_2 = CreateDynamicActor(141, ACT_marketPlace_2_Pos[0], ACT_marketPlace_2_Pos[1], ACT_marketPlace_2_Pos[2], ACT_marketPlace_2_Pos[3], .worldid = 1, .interiorid = 3);
-    // Bubble Chat Actor
-    ACT_marketPlace_2_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_marketPlace_2_Pos[0], ACT_marketPlace_2_Pos[1], ACT_marketPlace_2_Pos[2] + 1.25, 10.0);
-
-    ACT_marketPlace_3 = CreateDynamicActor(141, ACT_marketPlace_3_Pos[0], ACT_marketPlace_3_Pos[1], ACT_marketPlace_3_Pos[2], ACT_marketPlace_3_Pos[3], .worldid = 1, .interiorid = 3);
-    // Bubble Chat Actor
-    ACT_marketPlace_3_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_marketPlace_3_Pos[0], ACT_marketPlace_3_Pos[1], ACT_marketPlace_3_Pos[2] + 1.25, 10.0);
-
-    ACT_marketPlace_4 = CreateDynamicActor(141, ACT_marketPlace_4_Pos[0], ACT_marketPlace_4_Pos[1], ACT_marketPlace_4_Pos[2], ACT_marketPlace_4_Pos[3], .worldid = 1, .interiorid = 3);
-    // Bubble Chat Actor
-    ACT_marketPlace_4_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_marketPlace_4_Pos[0], ACT_marketPlace_4_Pos[1], ACT_marketPlace_4_Pos[2] + 1.25, 10.0);
-
-    // Actor di pandai besi
-    ACT_skillBlacksmith = CreateDynamicActor(151, ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2], ACT_skillBlacksmith_Pos[3], .worldid = 1, .interiorid = 1);
-    // Bubble Chat Actor
-    ACT_skillBlacksmith_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2] + 1.25, 10.0, .testlos = 1);
-
-    // Actor di pembeliTambang
-    ACT_pembeliTambang_1 = CreateDynamicActor(26, ACT_pembeliTambang_1_Pos[0], ACT_pembeliTambang_1_Pos[1], ACT_pembeliTambang_1_Pos[2], ACT_pembeliTambang_1_Pos[3], .worldid = 0, .interiorid = 0);
-    // Bubble Chat Actor
-    ACT_pembeliTambang_1_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_pembeliTambang_1_Pos[0], ACT_pembeliTambang_1_Pos[1], ACT_pembeliTambang_1_Pos[2] + 1.25, 10.0);
-
-    ACT_pembeliTambang_2 = CreateDynamicActor(27, ACT_pembeliTambang_2_Pos[0], ACT_pembeliTambang_2_Pos[1], ACT_pembeliTambang_2_Pos[2], ACT_pembeliTambang_2_Pos[3], .worldid = 0, .interiorid = 0);
-    // Bubble Chat Actor
-    ACT_pembeliTambang_2_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_pembeliTambang_2_Pos[0], ACT_pembeliTambang_2_Pos[1], ACT_pembeliTambang_2_Pos[2] + 1.25, 10.0);
-
-    // Actor di pembeli Kayu
-    ACT_pembeliKayu_1 = CreateDynamicActor(26, ACT_pembeliKayu_1_Pos[0], ACT_pembeliKayu_1_Pos[1], ACT_pembeliKayu_1_Pos[2], ACT_pembeliKayu_1_Pos[3], .worldid = 0, .interiorid = 0);
-    // Bubble Chat Actor
-    ACT_pembeliKayu_1_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_pembeliKayu_1_Pos[0], ACT_pembeliKayu_1_Pos[1], ACT_pembeliKayu_1_Pos[2] + 1.25, 10.0);
+        ACT_NPC[i][actID] = CreateDynamicActor(ACT_POSITION[i][ACT__Skin], ACT_NPC[i][actPos][0], ACT_NPC[i][actPos][1], ACT_NPC[i][actPos][2], ACT_NPC[i][actPos][3]);
+        ACT_NPC[i][actText] = CreateDynamic3DTextLabel("", COLOR_WHITE, ACT_NPC[i][actPos][0], ACT_NPC[i][actPos][1], ACT_NPC[i][actPos][2] + 1.25, 10.0);
+        ACT_NPC[i][actUser] = INVALID_PLAYER_ID;
+        ACT_NPC[i][actRes] = 0;
+        ACT_NPC[i][actTimer] = -1;
+        ACT_NPC[i][actArea] = CreateDynamicSphere(ACT_NPC[i][actPos][0], ACT_NPC[i][actPos][1], ACT_NPC[i][actPos][2], 3.0);
+    }
 }
 
 re_loadAllActor(){
     if(ACT__reload == 1){
-        // Hapus actor
-        if(IsValidDynamicActor(ACT_skillMekanik)) DestroyDynamicActor(ACT_skillMekanik);
-        if(IsValidDynamicActor(ACT_penjualDealer)) DestroyDynamicActor(ACT_penjualDealer);
-        if(IsValidDynamicActor(ACT_peralatanPancing)) DestroyDynamicActor(ACT_peralatanPancing);
-        if(IsValidDynamicActor(ACT_tokoBibit)) DestroyDynamicActor(ACT_tokoBibit);
-        if(IsValidDynamicActor(ACT_tokoNarko)) DestroyDynamicActor(ACT_tokoNarko);
-        if(IsValidDynamicActor(ACT_tokoGadget)) DestroyDynamicActor(ACT_tokoGadget);
-        if(IsValidDynamicActor(ACT_resepsionisPemerintah)) DestroyDynamicActor(ACT_resepsionisPemerintah);
-        if(IsValidDynamicActor(ACT_rumahSakit)) DestroyDynamicActor(ACT_rumahSakit);
-        if(IsValidDynamicActor(ACT_tellerBankLS_1)) DestroyDynamicActor(ACT_tellerBankLS_1);
-        if(IsValidDynamicActor(ACT_tellerBankLS_2)) DestroyDynamicActor(ACT_tellerBankLS_2);
-        if(IsValidDynamicActor(ACT_marketPlace_1)) DestroyDynamicActor(ACT_marketPlace_1);
-        if(IsValidDynamicActor(ACT_marketPlace_2)) DestroyDynamicActor(ACT_marketPlace_2);
-        if(IsValidDynamicActor(ACT_marketPlace_3)) DestroyDynamicActor(ACT_marketPlace_3);
-        if(IsValidDynamicActor(ACT_marketPlace_4)) DestroyDynamicActor(ACT_marketPlace_4);
-        if(IsValidDynamicActor(ACT_skillBlacksmith)) DestroyDynamicActor(ACT_skillBlacksmith);
-        if(IsValidDynamicActor(ACT_pembeliTambang_1)) DestroyDynamicActor(ACT_pembeliTambang_1);
-        if(IsValidDynamicActor(ACT_pembeliTambang_2)) DestroyDynamicActor(ACT_pembeliTambang_2);
-        if(IsValidDynamicActor(ACT_pembeliKayu_1)) DestroyDynamicActor(ACT_pembeliKayu_1);
-
-        ACT__reload = 0;
-        // Actor di toko peraltan pancing
-        ACT_peralatanPancing = CreateDynamicActor(65, ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2], ACT_peralatanPancing_Pos[3], .worldid = 0, .interiorid = 0);
-
-        // Actor di toko bibit
-        ACT_tokoBibit = CreateDynamicActor(130, ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2], ACT_tokoBibit_Pos[3], .worldid = 0, .interiorid = 0);
-
-        //Actor di toko bibit narko
-        ACT_tokoNarko = CreateDynamicActor(272, POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_A], .worldid = 0, .interiorid = 0);
-
-        // Actor di pusat keahlian
-        ACT_skillMekanik = CreateDynamicActor(50, ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2], ACT_skillMekanik_Pos[3], .worldid = 0, .interiorid = 0);
-
-        // Actor di dealer
-        ACT_penjualDealer = CreateDynamicActor(17, ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], ACT_penjualDealer_Pos[3], .worldid = 0, .interiorid = 0);
-
-        // Actor di pusat pemerintahan
-        ACT_resepsionisPemerintah = CreateDynamicActor(76, ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], ACT_resepsionisPemerintah_Pos[3], .worldid = 1, .interiorid = 1);
-
-        // Actor di bank
-        ACT_tellerBankLS_1 = CreateDynamicActor(141, ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1], ACT_tellerBankLS_1_Pos[2], ACT_tellerBankLS_1_Pos[3], .worldid = 1, .interiorid = 1);
-
-        // Actor di bank
-        ACT_tellerBankLS_2 = CreateDynamicActor(141, ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1], ACT_tellerBankLS_2_Pos[2], ACT_tellerBankLS_2_Pos[3], .worldid = 1, .interiorid = 1);
-
-        // Actor di toko gadget
-        ACT_tokoGadget = CreateDynamicActor(141, ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], ACT_tokoGadget_Pos[3], .worldid = 1, .interiorid = 1);
-
-        // Actor di kasir rumah sakit
-        ACT_rumahSakit = CreateDynamicActor(141, ACT_rumahSakit_Pos[0], ACT_rumahSakit_Pos[1], ACT_rumahSakit_Pos[2], ACT_rumahSakit_Pos[3], .worldid = 1, .interiorid = 1);
-
-        // Actor di marketplace
-        ACT_marketPlace_1 = CreateDynamicActor(141, ACT_marketPlace_1_Pos[0], ACT_marketPlace_1_Pos[1], ACT_marketPlace_1_Pos[2], ACT_marketPlace_1_Pos[3], .worldid = 1, .interiorid = 3);
-
-        ACT_marketPlace_2 = CreateDynamicActor(141, ACT_marketPlace_2_Pos[0], ACT_marketPlace_2_Pos[1], ACT_marketPlace_2_Pos[2], ACT_marketPlace_2_Pos[3], .worldid = 1, .interiorid = 3);
-
-        ACT_marketPlace_3 = CreateDynamicActor(141, ACT_marketPlace_3_Pos[0], ACT_marketPlace_3_Pos[1], ACT_marketPlace_3_Pos[2], ACT_marketPlace_3_Pos[3], .worldid = 1, .interiorid = 3);
-
-        ACT_marketPlace_4 = CreateDynamicActor(141, ACT_marketPlace_4_Pos[0], ACT_marketPlace_4_Pos[1], ACT_marketPlace_4_Pos[2], ACT_marketPlace_4_Pos[3], .worldid = 1, .interiorid = 3);
-    
-        // Actor di pandai besi
-        ACT_skillBlacksmith = CreateDynamicActor(151, ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2], ACT_skillBlacksmith_Pos[3], .worldid = 1, .interiorid = 1);
-
-        // Actor pembeli tambang
-        ACT_pembeliTambang_1 = CreateDynamicActor(26, ACT_pembeliTambang_1_Pos[0], ACT_pembeliTambang_1_Pos[1], ACT_pembeliTambang_1_Pos[2], ACT_pembeliTambang_1_Pos[3], .worldid = 0, .interiorid = 0);
-
-        ACT_pembeliTambang_2 = CreateDynamicActor(27, ACT_pembeliTambang_2_Pos[0], ACT_pembeliTambang_2_Pos[1], ACT_pembeliTambang_2_Pos[2], ACT_pembeliTambang_2_Pos[3], .worldid = 0, .interiorid = 0);
-
-        // Actor pembeli kayu
-        ACT_pembeliKayu_1 = CreateDynamicActor(26, ACT_pembeliKayu_1_Pos[0], ACT_pembeliKayu_1_Pos[1], ACT_pembeliKayu_1_Pos[2], ACT_pembeliKayu_1_Pos[3], .worldid = 0, .interiorid = 0);
+        for(new i = 0; i < sizeof(ACT_NPC); i++){
+            if(IsValidDynamicActor(ACT_NPC[i][actID]))
+                DestroyDynamicActor(ACT_NPC[i][actID]);
+            ACT_NPC[i][actID] = CreateDynamicActor(ACT_POSITION[i][ACT__Skin], ACT_NPC[i][actPos][0], ACT_NPC[i][actPos][1], ACT_NPC[i][actPos][2], ACT_NPC[i][actPos][3]);
+        }
     }
 }

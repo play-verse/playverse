@@ -1002,208 +1002,48 @@ GetSlotInventoryPlayer(playerid){
  */
 ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_RESEPSIONIS){    
     ActorTalking(actorid);
-    
-    if(actorid == ACT_resepsionisPemerintah){
-        if(ACT_resepsionisPemerintah_Timer != -1)
-            DeletePreciseTimer(ACT_resepsionisPemerintah_Timer);
-        // 15 detik batas interaksi
-        ACT_resepsionisPemerintah_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_resepsionisPemerintah_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_skillMekanik){
-        if(ACT_skillMekanik_Timer != -1)
-            DeletePreciseTimer(ACT_skillMekanik_Timer);
-        // 15 detik batas interaksi
-        ACT_skillMekanik_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_skillMekanik_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_peralatanPancing){
-        if(ACT_peralatanPancing_Timer != -1)
-            DeletePreciseTimer(ACT_peralatanPancing_Timer);
-        // 15 detik batas interaksi
-        ACT_peralatanPancing_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_peralatanPancing_Text, COLOR_WHITE, text);
-    }    else if(actorid == ACT_tokoBibit){
-        if(ACT_tokoBibit_Timer != -1)
-            DeletePreciseTimer(ACT_tokoBibit_Timer);
-        // 15 detik batas interaksi
-        ACT_tokoBibit_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_tokoBibit_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_tokoGadget){
-        if(ACT_tokoGadget_Timer != -1)
-            DeletePreciseTimer(ACT_tokoGadget_Timer);
-        // 15 detik batas interaksi
-        ACT_tokoGadget_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_tokoGadget_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_penjualDealer){
-        if(ACT_penjualDealer_Timer != -1)
-            DeletePreciseTimer(ACT_penjualDealer_Timer);
-        // 15 detik batas interaksi
-        ACT_penjualDealer_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_penjualDealer_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_tellerBankLS_1){
-        if(ACT_tellerBankLS_1_Timer != -1)
-            DeletePreciseTimer(ACT_tellerBankLS_1_Timer);
-        // 15 detik batas interaksi
-        ACT_tellerBankLS_1_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_tellerBankLS_1_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_tellerBankLS_2){
-        if(ACT_tellerBankLS_2_Timer != -1)
-            DeletePreciseTimer(ACT_tellerBankLS_2_Timer);
-        // 15 detik batas interaksi
-        ACT_tellerBankLS_2_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_tellerBankLS_2_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_tokoNarko){
+
+    for(new i = 0; i < sizeof(ACT_NPC); i++){
+        if(ACT_NPC[i][actID] == actorid){
+            if(ACT_NPC[i][actTimer] != -1)
+                DeletePreciseTimer(ACT_NPC[i][actTimer]);
+            // 15 detik batas interaksi
+            ACT_NPC[i][actTimer] = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
+            UpdateDynamic3DTextLabelText(ACT_NPC[i][actText], COLOR_WHITE, text);
+            break;
+        }
+    }
+
+    // case khusus
+    if(actorid == ACT_tokoNarko){
         if(ACT_tokoNarko_Timer != -1)
             DeletePreciseTimer(ACT_tokoNarko_Timer);
         // 15 detik batas interaksi
         ACT_tokoNarko_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
         UpdateDynamic3DTextLabelText(ACT_tokoNarko_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_rumahSakit){
-        if(ACT_rumahSakit_Timer != -1)
-            DeletePreciseTimer(ACT_rumahSakit_Timer);
-        // 15 detik batas interaksi
-        ACT_rumahSakit_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_rumahSakit_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_marketPlace_1){
-        if(ACT_marketPlace_1_Timer != -1)
-            DeletePreciseTimer(ACT_marketPlace_1_Timer);
-        // 15 detik batas interaksi
-        ACT_marketPlace_1_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_marketPlace_1_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_marketPlace_2){
-        if(ACT_marketPlace_2_Timer != -1)
-            DeletePreciseTimer(ACT_marketPlace_2_Timer);
-        // 15 detik batas interaksi
-        ACT_marketPlace_2_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_marketPlace_2_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_marketPlace_3){
-        if(ACT_marketPlace_3_Timer != -1)
-            DeletePreciseTimer(ACT_marketPlace_3_Timer);
-        // 15 detik batas interaksi
-        ACT_marketPlace_3_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_marketPlace_3_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_marketPlace_4){
-        if(ACT_marketPlace_4_Timer != -1)
-            DeletePreciseTimer(ACT_marketPlace_4_Timer);
-        // 15 detik batas interaksi
-        ACT_marketPlace_4_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_marketPlace_4_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_skillBlacksmith){
-        if(ACT_skillBlacksmith_Timer != -1)
-            DeletePreciseTimer(ACT_skillBlacksmith_Timer);
-        // 15 detik batas interaksi
-        ACT_skillBlacksmith_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_skillBlacksmith_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_pembeliTambang_1){
-        if(ACT_pembeliTambang_1_Timer != -1)
-            DeletePreciseTimer(ACT_pembeliTambang_1_Timer);
-        // 15 detik batas interaksi
-        ACT_pembeliTambang_1_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_pembeliTambang_1_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_pembeliTambang_2){
-        if(ACT_pembeliTambang_2_Timer != -1)
-            DeletePreciseTimer(ACT_pembeliTambang_2_Timer);
-        // 15 detik batas interaksi
-        ACT_pembeliTambang_2_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_pembeliTambang_2_Text, COLOR_WHITE, text);
-    }else if(actorid == ACT_pembeliKayu_1){
-        if(ACT_pembeliKayu_1_Timer != -1)
-            DeletePreciseTimer(ACT_pembeliKayu_1_Timer);
-        // 15 detik batas interaksi
-        ACT_pembeliKayu_1_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
-        UpdateDynamic3DTextLabelText(ACT_pembeliKayu_1_Text, COLOR_WHITE, text);
     }
 }
 
 ActorResetAndProses(actorid, playerid, const text[] = ""){
     SetPVarInt(playerid, "interaksi_actor", -1);
 
-    if(actorid == ACT_resepsionisPemerintah){
-        ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID;
-        ACT_resepsionisPemerintah_Res = 0;
+    for(new i = 0; i < sizeof(ACT_NPC); i++){
+        if(actorid == ACT_NPC[i][actID]){
+            ACT_NPC[i][actUser] = INVALID_PLAYER_ID;
+            ACT_NPC[i][actRes] = 0;
 
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_resepsionisPemerintah, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_resepsionisPemerintah, text, 5);
+            // 5 Detik
+            if(text[0] == '\0'){
+                format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
+                ActorResponse(actorid, pDialog[playerid], 5);
+            }else
+                ActorResponse(actorid, text, 5);            
+            break;
+        }
     }
-    else if(actorid == ACT_skillMekanik){
-        ACT_skillMekanik_User = INVALID_PLAYER_ID;
-        ACT_skillMekanik_Res = 0;
 
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_skillMekanik, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_skillMekanik, text, 5);
-    }
-    else if(actorid == ACT_peralatanPancing){
-        ACT_peralatanPancing_User = INVALID_PLAYER_ID;
-        ACT_peralatanPancing_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_peralatanPancing, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_peralatanPancing, text, 5);
-    }
-    else if(actorid == ACT_tokoBibit){
-        ACT_tokoBibit_User = INVALID_PLAYER_ID;
-        ACT_tokoBibit_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_tokoBibit, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_tokoBibit, text, 5);
-    }
-    else if(actorid == ACT_tokoGadget){
-        ACT_tokoGadget_User = INVALID_PLAYER_ID;
-        ACT_tokoGadget_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_tokoGadget, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_tokoGadget, text, 5);
-    }
-    else if(actorid == ACT_penjualDealer){
-        ACT_penjualDealer_User = INVALID_PLAYER_ID;
-        ACT_penjualDealer_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_penjualDealer, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_penjualDealer, text, 5);
-    }else if(actorid == ACT_tellerBankLS_1){
-        ACT_tellerBankLS_1_User = INVALID_PLAYER_ID;
-        ACT_tellerBankLS_1_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_tellerBankLS_1, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_tellerBankLS_1, text, 5);
-    }else if(actorid == ACT_tellerBankLS_2){
-        ACT_tellerBankLS_2_User = INVALID_PLAYER_ID;
-        ACT_tellerBankLS_2_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_tellerBankLS_2, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_tellerBankLS_2, text, 5);
-    }
-    else if(actorid == ACT_tokoNarko){
+    // Case khusus
+    if(actorid == ACT_tokoNarko){
         ACT_tokoNarko_User = INVALID_PLAYER_ID;
         ACT_tokoNarko_Res = 0;
 
@@ -1213,105 +1053,6 @@ ActorResetAndProses(actorid, playerid, const text[] = ""){
             ActorResponse(ACT_tokoNarko, pDialog[playerid], 5);
         }else
             ActorResponse(ACT_tokoNarko, text, 5);
-    }
-    else if(actorid == ACT_rumahSakit){
-        ACT_rumahSakit_User = INVALID_PLAYER_ID;
-        ACT_rumahSakit_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_rumahSakit, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_rumahSakit, text, 5);
-    }
-    else if(actorid == ACT_marketPlace_1){
-        ACT_marketPlace_1_User = INVALID_PLAYER_ID;
-        ACT_marketPlace_1_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_marketPlace_1, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_marketPlace_1, text, 5);
-    }
-    else if(actorid == ACT_marketPlace_2){
-        ACT_marketPlace_2_User = INVALID_PLAYER_ID;
-        ACT_marketPlace_2_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_marketPlace_2, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_marketPlace_2, text, 5);
-    }
-    else if(actorid == ACT_marketPlace_3){
-        ACT_marketPlace_3_User = INVALID_PLAYER_ID;
-        ACT_marketPlace_3_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_marketPlace_3, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_marketPlace_3, text, 5);
-    }
-    else if(actorid == ACT_marketPlace_4){
-        ACT_marketPlace_4_User = INVALID_PLAYER_ID;
-        ACT_marketPlace_4_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_marketPlace_4, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_marketPlace_4, text, 5);
-    }
-    else if(actorid == ACT_skillBlacksmith){
-        ACT_skillBlacksmith_User = INVALID_PLAYER_ID;
-        ACT_skillBlacksmith_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_skillBlacksmith, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_skillBlacksmith, text, 5);
-    }
-    else if(actorid == ACT_pembeliTambang_1){
-        ACT_pembeliTambang_1_User = INVALID_PLAYER_ID;
-        ACT_pembeliTambang_1_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_pembeliTambang_1, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_pembeliTambang_1, text, 5);
-    }
-    else if(actorid == ACT_pembeliTambang_2){
-        ACT_pembeliTambang_2_User = INVALID_PLAYER_ID;
-        ACT_pembeliTambang_2_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_pembeliTambang_2, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_pembeliTambang_2, text, 5);
-    }
-    else if(actorid == ACT_pembeliKayu_1){
-        ACT_pembeliKayu_1_User = INVALID_PLAYER_ID;
-        ACT_pembeliKayu_1_Res = 0;
-
-        // 5 Detik
-        if(text[0] == '\0'){
-            format(pDialog[playerid], sizePDialog, "Oke %s, silahkan lanjutkan prosesnya.", PlayerInfo[playerid][pPlayerName]);
-            ActorResponse(ACT_pembeliKayu_1, pDialog[playerid], 5);
-        }else
-            ActorResponse(ACT_pembeliKayu_1, text, 5);
     }
 }
 

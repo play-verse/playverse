@@ -92,34 +92,6 @@ loadAllArea(){
     CreateDynamic3DTextLabel("Bekerja sebagai Medic\n\
         "WHITE"Tekan "GREEN"N"WHITE" untuk mulai/selesai.", COLOR_PINK, 175.8122, 1753.5443, 10003.3818 - MAPPINGAN_RUMAH_SAKIT_TURUNKAN, 5.0, .testlos = 1);
 
-    /**
-        Actor Area 
-
-        IMPORTANT: Jangan sampai areanya saling ngena atau dempet
-     */
-    ACT_resepsionisPemerintah_Area = CreateDynamicSphere(ACT_resepsionisPemerintah_Pos[0], ACT_resepsionisPemerintah_Pos[1], ACT_resepsionisPemerintah_Pos[2], 3.0);
-    ACT_skillMekanik_Area = CreateDynamicSphere(ACT_skillMekanik_Pos[0], ACT_skillMekanik_Pos[1], ACT_skillMekanik_Pos[2], 3.0);
-    ACT_skillBlacksmith_Area = CreateDynamicSphere(ACT_skillBlacksmith_Pos[0], ACT_skillBlacksmith_Pos[1], ACT_skillBlacksmith_Pos[2], 3.0);
-    ACT_peralatanPancing_Area = CreateDynamicSphere(ACT_peralatanPancing_Pos[0], ACT_peralatanPancing_Pos[1], ACT_peralatanPancing_Pos[2], 3.0);
-    ACT_tokoBibit_Area = CreateDynamicSphere(ACT_tokoBibit_Pos[0], ACT_tokoBibit_Pos[1], ACT_tokoBibit_Pos[2], 3.0);
-    ACT_tokoGadget_Area = CreateDynamicSphere(ACT_tokoGadget_Pos[0], ACT_tokoGadget_Pos[1], ACT_tokoGadget_Pos[2], 3.0);
-    ACT_penjualDealer_Area = CreateDynamicSphere(ACT_penjualDealer_Pos[0], ACT_penjualDealer_Pos[1], ACT_penjualDealer_Pos[2], 3.0);
-
-    ACT_tellerBankLS_1_Area = CreateDynamicSphere(ACT_tellerBankLS_1_Pos[0], ACT_tellerBankLS_1_Pos[1], ACT_tellerBankLS_1_Pos[2], 3.0);
-    ACT_tellerBankLS_2_Area = CreateDynamicSphere(ACT_tellerBankLS_2_Pos[0], ACT_tellerBankLS_2_Pos[1], ACT_tellerBankLS_2_Pos[2], 3.0);
-
-    ACT_rumahSakit_Area = CreateDynamicSphere(ACT_rumahSakit_Pos[0], ACT_rumahSakit_Pos[1], ACT_rumahSakit_Pos[2], 3.0);
-
-    ACT_marketPlace_1_Area = CreateDynamicSphere(ACT_marketPlace_1_Pos[0], ACT_marketPlace_1_Pos[1], ACT_marketPlace_1_Pos[2], 3.0);
-    ACT_marketPlace_2_Area = CreateDynamicSphere(ACT_marketPlace_2_Pos[0], ACT_marketPlace_2_Pos[1], ACT_marketPlace_2_Pos[2], 3.0);
-    ACT_marketPlace_3_Area = CreateDynamicSphere(ACT_marketPlace_3_Pos[0], ACT_marketPlace_3_Pos[1], ACT_marketPlace_3_Pos[2], 3.0);
-    ACT_marketPlace_4_Area = CreateDynamicSphere(ACT_marketPlace_4_Pos[0], ACT_marketPlace_4_Pos[1], ACT_marketPlace_4_Pos[2], 3.0);
-
-    ACT_pembeliTambang_1_Area = CreateDynamicSphere(ACT_pembeliTambang_1_Pos[0], ACT_pembeliTambang_1_Pos[1], ACT_pembeliTambang_1_Pos[2], 3.0);
-    ACT_pembeliTambang_2_Area = CreateDynamicSphere(ACT_pembeliTambang_2_Pos[0], ACT_pembeliTambang_2_Pos[1], ACT_pembeliTambang_2_Pos[2], 3.0);
-
-    ACT_pembeliKayu_1_Area = CreateDynamicSphere(ACT_pembeliKayu_1_Pos[0], ACT_pembeliKayu_1_Pos[1], ACT_pembeliKayu_1_Pos[2], 3.0);
-
     /* Dari Checkpoint */
     // Tempat foto
     AREA_tempatFoto = buatSPDanLabel(-201.7664,-25.4403,1002.2734, "Silahkan cetak foto\n"GREEN"Disini!", 1.0);

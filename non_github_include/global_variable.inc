@@ -574,147 +574,82 @@ new PU_tempatFoto_in[2],
 /**
 	ACTOR VARIABEL
  */
+enum {
+	ACTOR_SKILL_MEKANIK,
+	ACTOR_SKILL_BLACKSMITH,
+	ACTOR_PENJUAL_DEALER,
+	ACTOR_PERALATAN_PANCING,
+	ACTOR_TOKO_BIBIT,
+	ACTOR_TOKO_GADGET,
+	ACTOR_RESEPSIONIS_PEMERINTAH,
+	ACTOR_TELLER_BANK_LS_1,
+	ACTOR_TELLER_BANK_LS_2,
+	ACTOR_RUMAH_SAKIT,
+	ACTOR_MARKETPLACE_1,
+	ACTOR_MARKETPLACE_2,
+	ACTOR_MARKETPLACE_3,
+	ACTOR_MARKETPLACE_4,
+	ACTOR_PEMBELI_TAMBANG_1,
+	ACTOR_PEMBELI_KAYU_1
+};
+
+enum ACT_POSITION_INFO {
+	ACT__Skin,
+	ACT__Id,
+	Float:ACT__Pos[4]
+};
+
+/**
+	IMPORTANT: LANGKAH MENAMBAHKAN ACTOR
+	1. TAMBAHKAN CONSTANT DIBAWAH INI SESUAI DENGAN IDENTITAS ACTOR
+	2. TAMBAHKAN PADA ONPLAYERTEXT
+
+	SELESAI..
+ */
+new const ACT_POSITION[][ACT_POSITION_INFO] = {
+	{50, ACTOR_SKILL_MEKANIK, {1003.1812, -1670.5426, 14.5905, 88.4179}},
+	{151, ACTOR_SKILL_BLACKSMITH, {699.5562, -454.6995, -25.6099, 0.8854}},
+	{17, ACTOR_PENJUAL_DEALER, {1012.9276, -1733.4741, 13.4834, 90.0930}},
+	{65, ACTOR_PERALATAN_PANCING, {1021.7353, -1892.2639, 12.7341, 273.1771}},
+	{130, ACTOR_TOKO_BIBIT, {1494.2061, -1659.1025, 13.2922, 358.1933}},
+	{141, ACTOR_TOKO_GADGET, {446.3421, 1238.8604, 1081.9045, 89.6002}},
+	{76, ACTOR_RESEPSIONIS_PEMERINTAH, {-501.2156, 296.5012, 2001.0950, 182.1136}},
+	{141, ACTOR_TELLER_BANK_LS_1, {1391.5345, -30.0384, 1000.8950, 175.7600}},
+	{141, ACTOR_TELLER_BANK_LS_2, {1386.0791, -30.0127, 1000.8950, 175.5193}},
+	{141, ACTOR_RUMAH_SAKIT, {180.7404, 1777.2717, 3500.0225, 89.0838}},
+	{141, ACTOR_MARKETPLACE_1, {-2658.6680, 1413.9584, 906.2734, 359.4943}},
+	{141, ACTOR_MARKETPLACE_2, {-2662.8401, 1410.8647, 906.2734, 88.1685}},
+	{141, ACTOR_MARKETPLACE_3, {-2659.6921, 1406.6693, 906.2734, 178.7227}},
+	{141, ACTOR_MARKETPLACE_4, {-2655.5066, 1409.6869, 906.2734, 270.2169}},
+	{26, ACTOR_PEMBELI_TAMBANG_1, {-539.1688, -542.0021, 25.5234, 179.2752}},
+	{26, ACTOR_PEMBELI_KAYU_1, {-752.8927, -133.0457, 65.8281, 17.1701}}
+};
+
+enum INFO_ACT_NPC {
+	actConst,
+	actID,
+	Float:actPos[4],
+	Text3D:actText,
+	actUser,
+	actRes,
+	actTimer,
+	actArea
+};
 new 
 	ACT__reload,
-
-	// ID Actor
-	ACT_skillMekanik,
-	ACT_skillBlacksmith,
-	ACT_penjualDealer, // Actor tempat player menjual mobil
-	ACT_peralatanPancing,
-	ACT_tokoBibit,
+	ACT_NPC[sizeof(ACT_POSITION)][INFO_ACT_NPC],
+	
+	/**
+		Khusus Narko, karena actor pindah"
+		Jadi dipisahkan dari actor umumnya
+	 */
 	ACT_tokoNarko,
-	ACT_tokoGadget,
-	ACT_resepsionisPemerintah,
-	ACT_tellerBankLS_1,
-	ACT_tellerBankLS_2,
-	ACT_rumahSakit,
-	ACT_marketPlace_1,
-	ACT_marketPlace_2,
-	ACT_marketPlace_3,
-	ACT_marketPlace_4,
-	ACT_pembeliTambang_1,
-	ACT_pembeliTambang_2, // Tambang Lobang
-	ACT_pembeliKayu_1,
-
-	// Posisi
-	Float:ACT_skillMekanik_Pos[4] = {1003.1812, -1670.5426, 14.5905, 88.4179},
-	Float:ACT_skillBlacksmith_Pos[4] = {699.5562, -454.6995, -25.6099, 0.8854},
-	Float:ACT_penjualDealer_Pos[4] = {1012.9276, -1733.4741, 13.4834, 90.0930},
-	Float:ACT_peralatanPancing_Pos[4] = {1021.7353, -1892.2639, 12.7341, 273.1771},
-	Float:ACT_tokoBibit_Pos[4] = {1494.2061, -1659.1025, 13.2922, 358.1933},
-	Float:ACT_tokoGadget_Pos[4] = {446.3421, 1238.8604, 1081.9045, 89.6002},
-	Float:ACT_resepsionisPemerintah_Pos[4] = {-501.2156, 296.5012, 2001.0950, 182.1136},
-	Float:ACT_tellerBankLS_1_Pos[4] = {1391.5345, -30.0384, 1000.8950, 175.7600},
-	Float:ACT_tellerBankLS_2_Pos[4] = {1386.0791, -30.0127, 1000.8950, 175.5193},
-	Float:ACT_rumahSakit_Pos[4] = {180.7404, 1777.2717, 3500.0225, 89.0838},
-	Float:ACT_marketPlace_1_Pos[4] = {-2658.6680, 1413.9584, 906.2734, 359.4943},
-	Float:ACT_marketPlace_2_Pos[4] = {-2662.8401, 1410.8647, 906.2734, 88.1685},
-	Float:ACT_marketPlace_3_Pos[4] = {-2659.6921, 1406.6693, 906.2734, 178.7227},
-	Float:ACT_marketPlace_4_Pos[4] = {-2655.5066, 1409.6869, 906.2734, 270.2169},
-	Float:ACT_pembeliTambang_1_Pos[4] = {-539.1688, -542.0021, 25.5234, 179.2752},
-	Float:ACT_pembeliTambang_2_Pos[4] = {816.6610, 856.9252, 12.7891, 200.5086},
-	Float:ACT_pembeliKayu_1_Pos[4] = {-752.8927, -133.0457, 65.8281, 17.1701},
-
-	// 3D Text (Chat Bubble)
-	Text3D:ACT_resepsionisPemerintah_Text,
-	Text3D:ACT_skillMekanik_Text,
-	Text3D:ACT_skillBlacksmith_Text,
-	Text3D:ACT_peralatanPancing_Text,
-	Text3D:ACT_tokoBibit_Text,
-	Text3D:ACT_tokoGadget_Text,
-	Text3D:ACT_penjualDealer_Text,
-	Text3D:ACT_tellerBankLS_1_Text,
-	Text3D:ACT_tellerBankLS_2_Text,
 	Text3D:ACT_tokoNarko_Text,
-	Text3D:ACT_rumahSakit_Text,
-	Text3D:ACT_marketPlace_1_Text,
-	Text3D:ACT_marketPlace_2_Text,
-	Text3D:ACT_marketPlace_3_Text,
-	Text3D:ACT_marketPlace_4_Text,
-	Text3D:ACT_pembeliTambang_1_Text,
-	Text3D:ACT_pembeliTambang_2_Text,
-	Text3D:ACT_pembeliKayu_1_Text,
-
-	// Binding User
-	ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID,
-	ACT_skillMekanik_User = INVALID_PLAYER_ID,
-	ACT_skillBlacksmith_User = INVALID_PLAYER_ID,
-	ACT_peralatanPancing_User = INVALID_PLAYER_ID,
-	ACT_tokoBibit_User = INVALID_PLAYER_ID,
-	ACT_tokoGadget_User = INVALID_PLAYER_ID,
-	ACT_penjualDealer_User = INVALID_PLAYER_ID,
-	ACT_tellerBankLS_1_User = INVALID_PLAYER_ID,
-	ACT_tellerBankLS_2_User = INVALID_PLAYER_ID,
 	ACT_tokoNarko_User = INVALID_PLAYER_ID,
-	ACT_rumahSakit_User = INVALID_PLAYER_ID,
-	ACT_marketPlace_1_User = INVALID_PLAYER_ID,
-	ACT_marketPlace_2_User = INVALID_PLAYER_ID,
-	ACT_marketPlace_3_User = INVALID_PLAYER_ID,
-	ACT_marketPlace_4_User = INVALID_PLAYER_ID,
-	ACT_pembeliTambang_1_User = INVALID_PLAYER_ID,
-	ACT_pembeliTambang_2_User = INVALID_PLAYER_ID,
-	ACT_pembeliKayu_1_User = INVALID_PLAYER_ID,
-
-	// Response User
-	ACT_resepsionisPemerintah_Res = 0,
-	ACT_skillMekanik_Res = 0,
-	ACT_skillBlacksmith_Res = 0,
-	ACT_peralatanPancing_Res = 0,
-	ACT_tokoBibit_Res = 0,
-	ACT_tokoGadget_Res = 0,
-	ACT_penjualDealer_Res = 0,
-	ACT_tellerBankLS_1_Res = 0,
-	ACT_tellerBankLS_2_Res = 0,
 	ACT_tokoNarko_Res = 0,
-	ACT_rumahSakit_Res = 0,
-	ACT_marketPlace_1_Res = 0,
-	ACT_marketPlace_2_Res = 0,
-	ACT_marketPlace_3_Res = 0,
-	ACT_marketPlace_4_Res = 0,
-	ACT_pembeliTambang_1_Res = 0,
-	ACT_pembeliTambang_2_Res = 0,
-	ACT_pembeliKayu_1_Res = 0,
-
-	// Timer (Lama Response)
-	ACT_resepsionisPemerintah_Timer = -1,
-	ACT_skillMekanik_Timer = -1,
-	ACT_skillBlacksmith_Timer = -1,
-	ACT_peralatanPancing_Timer = -1,
-	ACT_tokoBibit_Timer = -1,
-	ACT_tokoGadget_Timer = -1,
-	ACT_penjualDealer_Timer = -1,
-	ACT_tellerBankLS_1_Timer = -1,
-	ACT_tellerBankLS_2_Timer = -1,
 	ACT_tokoNarko_Timer = -1,
-	ACT_rumahSakit_Timer = -1,
-	ACT_marketPlace_1_Timer = -1,
-	ACT_marketPlace_2_Timer = -1,
-	ACT_marketPlace_3_Timer = -1,
-	ACT_marketPlace_4_Timer = -1,
-	ACT_pembeliTambang_1_Timer = -1,
-	ACT_pembeliTambang_2_Timer = -1,
-	ACT_pembeliKayu_1_Timer = -1,
-
-	// Area Actor
-	ACT_resepsionisPemerintah_Area,
-	ACT_skillMekanik_Area,
-	ACT_skillBlacksmith_Area,
-	ACT_peralatanPancing_Area,
-	ACT_tokoBibit_Area,
-	ACT_tokoGadget_Area,
-	ACT_penjualDealer_Area,
-	ACT_tellerBankLS_1_Area,
-	ACT_tellerBankLS_2_Area,
-	ACT_tokoNarko_Area,
-	ACT_rumahSakit_Area,
-	ACT_marketPlace_1_Area,
-	ACT_marketPlace_2_Area,
-	ACT_marketPlace_3_Area,
-	ACT_marketPlace_4_Area,
-	ACT_pembeliTambang_1_Area,
-	ACT_pembeliTambang_2_Area,
-	ACT_pembeliKayu_1_Area;
+	ACT_tokoNarko_Area
+	;
 
 /**
     Area

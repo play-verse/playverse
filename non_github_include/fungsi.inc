@@ -4773,71 +4773,21 @@ publicFor: delayNombak(playerid){
 
 publicFor: TerminateInteraksi(actorid){
 	ClearDynamicActorAnimations(actorid);
-    if(actorid == ACT_resepsionisPemerintah){
-		UpdateDynamic3DTextLabelText(ACT_resepsionisPemerintah_Text, COLOR_WHITE, "");
-		if(ACT_resepsionisPemerintah_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_resepsionisPemerintah_User, "interaksi_actor", -1);
-			ACT_resepsionisPemerintah_User = INVALID_PLAYER_ID;
+
+	for(new i = 0; i < sizeof(ACT_NPC); i++){
+        if(actorid == ACT_NPC[i][actID]){
+			UpdateDynamic3DTextLabelText(ACT_NPC[i][actText], COLOR_WHITE, "");
+			if(ACT_NPC[i][actUser] != INVALID_PLAYER_ID){
+				SetPVarInt(ACT_NPC[i][actUser], "interaksi_actor", -1);
+				ACT_NPC[i][actUser] = INVALID_PLAYER_ID;
+			}
+			ACT_NPC[i][actRes] = 0;
+			ACT_NPC[i][actTimer] = -1;
 		}
-		ACT_resepsionisPemerintah_Res = 0;
-		ACT_resepsionisPemerintah_Timer = -1;
-	}else if(actorid == ACT_skillMekanik){
-		UpdateDynamic3DTextLabelText(ACT_skillMekanik_Text, COLOR_WHITE, "");
-		if(ACT_skillMekanik_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_skillMekanik_User, "interaksi_actor", -1);
-			ACT_skillMekanik_User = INVALID_PLAYER_ID;
-		}
-		ACT_skillMekanik_Res = 0;
-		ACT_skillMekanik_Timer = -1;
-	}else if(actorid == ACT_peralatanPancing){
-		UpdateDynamic3DTextLabelText(ACT_peralatanPancing_Text, COLOR_WHITE, "");
-		if(ACT_peralatanPancing_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_peralatanPancing_User, "interaksi_actor", -1);
-			ACT_peralatanPancing_User = INVALID_PLAYER_ID;
-		}
-		ACT_peralatanPancing_Res = 0;
-		ACT_peralatanPancing_Timer = -1;
-	}else if(actorid == ACT_tokoBibit){
-		UpdateDynamic3DTextLabelText(ACT_tokoBibit_Text, COLOR_WHITE, "");
-		if(ACT_tokoBibit_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_tokoBibit_User, "interaksi_actor", -1);
-			ACT_tokoBibit_User = INVALID_PLAYER_ID;
-		}
-		ACT_tokoBibit_Res = 0;
-		ACT_tokoBibit_Timer = -1;
-	}else if(actorid == ACT_tokoGadget){
-		UpdateDynamic3DTextLabelText(ACT_tokoGadget_Text, COLOR_WHITE, "");
-		if(ACT_tokoGadget_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_tokoGadget_User, "interaksi_actor", -1);
-			ACT_tokoGadget_User = INVALID_PLAYER_ID;
-		}
-		ACT_tokoGadget_Res = 0;
-		ACT_tokoGadget_Timer = -1;
-	}else if(actorid == ACT_penjualDealer){
-		UpdateDynamic3DTextLabelText(ACT_penjualDealer_Text, COLOR_WHITE, "");
-		if(ACT_penjualDealer_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_penjualDealer_User, "interaksi_actor", -1);
-			ACT_penjualDealer_User = INVALID_PLAYER_ID;
-		}
-		ACT_penjualDealer_Res = 0;
-		ACT_penjualDealer_Timer = -1;
-	}else if(actorid == ACT_tellerBankLS_1){
-		UpdateDynamic3DTextLabelText(ACT_tellerBankLS_1_Text, COLOR_WHITE, "");
-		if(ACT_tellerBankLS_1_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_tellerBankLS_1_User, "interaksi_actor", -1);
-			ACT_tellerBankLS_1_User = INVALID_PLAYER_ID;
-		}
-		ACT_tellerBankLS_1_Res = 0;
-		ACT_tellerBankLS_1_Timer = -1;
-	}else if(actorid == ACT_tellerBankLS_2){
-		UpdateDynamic3DTextLabelText(ACT_tellerBankLS_2_Text, COLOR_WHITE, "");
-		if(ACT_tellerBankLS_2_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_tellerBankLS_2_User, "interaksi_actor", -1);
-			ACT_tellerBankLS_2_User = INVALID_PLAYER_ID;
-		}
-		ACT_tellerBankLS_2_Res = 0;
-		ACT_tellerBankLS_2_Timer = -1;
-	}else if(actorid == ACT_tokoNarko){
+	}
+
+	// Case khusus
+	if(actorid == ACT_tokoNarko){
 		UpdateDynamic3DTextLabelText(ACT_tokoNarko_Text, COLOR_WHITE, "");
 		if(ACT_tokoNarko_User != INVALID_PLAYER_ID){
 			SetPVarInt(ACT_tokoNarko_User, "interaksi_actor", -1);
@@ -4845,119 +4795,22 @@ publicFor: TerminateInteraksi(actorid){
 		}
 		ACT_tokoNarko_Res = 0;
 		ACT_tokoNarko_Timer = -1;
-	}else if(actorid == ACT_rumahSakit){
-		UpdateDynamic3DTextLabelText(ACT_rumahSakit_Text, COLOR_WHITE, "");
-		if(ACT_rumahSakit_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_rumahSakit_User, "interaksi_actor", -1);
-			ACT_rumahSakit_User = INVALID_PLAYER_ID;
-		}
-		ACT_rumahSakit_Res = 0;
-		ACT_rumahSakit_Timer = -1;
-	}else if(actorid == ACT_marketPlace_1){
-		UpdateDynamic3DTextLabelText(ACT_marketPlace_1_Text, COLOR_WHITE, "");
-		if(ACT_marketPlace_1_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_marketPlace_1_User, "interaksi_actor", -1);
-			ACT_marketPlace_1_User = INVALID_PLAYER_ID;
-		}
-		ACT_marketPlace_1_Res = 0;
-		ACT_marketPlace_1_Timer = -1;
-	}else if(actorid == ACT_marketPlace_2){
-		UpdateDynamic3DTextLabelText(ACT_marketPlace_2_Text, COLOR_WHITE, "");
-		if(ACT_marketPlace_2_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_marketPlace_2_User, "interaksi_actor", -1);
-			ACT_marketPlace_2_User = INVALID_PLAYER_ID;
-		}
-		ACT_marketPlace_2_Res = 0;
-		ACT_marketPlace_2_Timer = -1;
-	}else if(actorid == ACT_marketPlace_3){
-		UpdateDynamic3DTextLabelText(ACT_marketPlace_3_Text, COLOR_WHITE, "");
-		if(ACT_marketPlace_3_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_marketPlace_3_User, "interaksi_actor", -1);
-			ACT_marketPlace_3_User = INVALID_PLAYER_ID;
-		}
-		ACT_marketPlace_3_Res = 0;
-		ACT_marketPlace_3_Timer = -1;
-	}else if(actorid == ACT_marketPlace_4){
-		UpdateDynamic3DTextLabelText(ACT_marketPlace_4_Text, COLOR_WHITE, "");
-		if(ACT_marketPlace_4_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_marketPlace_4_User, "interaksi_actor", -1);
-			ACT_marketPlace_4_User = INVALID_PLAYER_ID;
-		}
-		ACT_marketPlace_4_Res = 0;
-		ACT_marketPlace_4_Timer = -1;
-	}else if(actorid == ACT_skillBlacksmith){
-		UpdateDynamic3DTextLabelText(ACT_skillBlacksmith_Text, COLOR_WHITE, "");
-		if(ACT_skillBlacksmith_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_skillBlacksmith_User, "interaksi_actor", -1);
-			ACT_skillBlacksmith_User = INVALID_PLAYER_ID;
-		}
-		ACT_skillBlacksmith_Res = 0;
-		ACT_skillBlacksmith_Timer = -1;
-	}else if(actorid == ACT_pembeliTambang_1){
-		UpdateDynamic3DTextLabelText(ACT_pembeliTambang_1_Text, COLOR_WHITE, "");
-		if(ACT_pembeliTambang_1_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_pembeliTambang_1_User, "interaksi_actor", -1);
-			ACT_pembeliTambang_1_User = INVALID_PLAYER_ID;
-		}
-		ACT_pembeliTambang_1_Res = 0;
-		ACT_pembeliTambang_1_Timer = -1;
-	}else if(actorid == ACT_pembeliTambang_2){
-		UpdateDynamic3DTextLabelText(ACT_pembeliTambang_2_Text, COLOR_WHITE, "");
-		if(ACT_pembeliTambang_2_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_pembeliTambang_2_User, "interaksi_actor", -1);
-			ACT_pembeliTambang_2_User = INVALID_PLAYER_ID;
-		}
-		ACT_pembeliTambang_2_Res = 0;
-		ACT_pembeliTambang_2_Timer = -1;
-	}else if(actorid == ACT_pembeliKayu_1){
-		UpdateDynamic3DTextLabelText(ACT_pembeliKayu_1_Text, COLOR_WHITE, "");
-		if(ACT_pembeliKayu_1_User != INVALID_PLAYER_ID){
-			SetPVarInt(ACT_pembeliKayu_1_User, "interaksi_actor", -1);
-			ACT_pembeliKayu_1_User = INVALID_PLAYER_ID;
-		}
-		ACT_pembeliKayu_1_Res = 0;
-		ACT_pembeliKayu_1_Timer = -1;
 	}
 	return 1;
 }
 
 TerminateInteraksi_Alt(actorid){
-    if(actorid == ACT_resepsionisPemerintah && ACT_resepsionisPemerintah_Timer != -1)
-		DeletePreciseTimer(ACT_resepsionisPemerintah_Timer);
-	else if(actorid == ACT_skillMekanik && ACT_skillMekanik_Timer != -1)
-		DeletePreciseTimer(ACT_skillMekanik_Timer);
-	else if(actorid == ACT_peralatanPancing && ACT_peralatanPancing_Timer != -1)
-		DeletePreciseTimer(ACT_peralatanPancing_Timer);
-	else if(actorid == ACT_tokoBibit && ACT_tokoBibit_Timer != -1)
-		DeletePreciseTimer(ACT_tokoBibit_Timer);
-	else if(actorid == ACT_tokoGadget && ACT_tokoGadget_Timer != -1)
-		DeletePreciseTimer(ACT_tokoGadget_Timer);
-	else if(actorid == ACT_penjualDealer && ACT_penjualDealer_Timer != -1)
-		DeletePreciseTimer(ACT_penjualDealer_Timer);
-	else if(actorid == ACT_tellerBankLS_1 && ACT_tellerBankLS_1_Timer != -1)
-		DeletePreciseTimer(ACT_tellerBankLS_1_Timer);
-	else if(actorid == ACT_tellerBankLS_2 && ACT_tellerBankLS_2_Timer != -1)
-		DeletePreciseTimer(ACT_tellerBankLS_2_Timer);
-	else if(actorid == ACT_tokoNarko && ACT_tokoNarko_Timer != -1)
+    for(new i = 0; i < sizeof(ACT_NPC); i++){
+        if(actorid == ACT_NPC[i][actID]){
+			if(ACT_NPC[i][actTimer] != -1)
+				DeletePreciseTimer(ACT_NPC[i][actTimer]);
+		}
+	}
+
+	// Case khusus
+	if(actorid == ACT_tokoNarko && ACT_tokoNarko_Timer != -1)
 		DeletePreciseTimer(ACT_tokoNarko_Timer);
-	else if(actorid == ACT_rumahSakit && ACT_rumahSakit_Timer != -1)
-		DeletePreciseTimer(ACT_rumahSakit_Timer);
-	else if(actorid == ACT_marketPlace_1 && ACT_marketPlace_1_Timer != -1)
-		DeletePreciseTimer(ACT_marketPlace_1_Timer);
-	else if(actorid == ACT_marketPlace_2 && ACT_marketPlace_2_Timer != -1)
-		DeletePreciseTimer(ACT_marketPlace_2_Timer);
-	else if(actorid == ACT_marketPlace_3 && ACT_marketPlace_3_Timer != -1)
-		DeletePreciseTimer(ACT_marketPlace_3_Timer);
-	else if(actorid == ACT_marketPlace_4 && ACT_marketPlace_4_Timer != -1)
-		DeletePreciseTimer(ACT_marketPlace_4_Timer);
-	else if(actorid == ACT_skillBlacksmith && ACT_skillBlacksmith_Timer != -1)
-		DeletePreciseTimer(ACT_skillBlacksmith_Timer);
-	else if(actorid == ACT_pembeliTambang_1 && ACT_pembeliTambang_1_Timer != -1)
-		DeletePreciseTimer(ACT_pembeliTambang_1_Timer);
-	else if(actorid == ACT_pembeliTambang_2 && ACT_pembeliTambang_2_Timer != -1)
-		DeletePreciseTimer(ACT_pembeliTambang_2_Timer);
-	else if(actorid == ACT_pembeliKayu_1 && ACT_pembeliKayu_1_Timer != -1)
-		DeletePreciseTimer(ACT_pembeliKayu_1_Timer);
+
 	TerminateInteraksi(actorid);
 }
 

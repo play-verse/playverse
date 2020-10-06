@@ -486,7 +486,7 @@
 
 // Uncomment untuk mengaktifkan debug mode player
 // Comment untuk menonaktifkan
-#define DEBUG_MODE_FOR_PLAYER true
+#define DEBUG_MODE_FOR_PLAYER false
 #define DEBUG_SERVER_LOAD false
 
 /**********
