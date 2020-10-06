@@ -1720,3 +1720,23 @@ CMD:ooc(playerid, params[]){
     ProxDetector(30.0, playerid, pesan, COLOR_YELLOW);
     return 1;
 }
+
+CMD:tutorial(playerid, params[]){
+    // Ambil sebelum set camera
+    new Float:temp_pos[4];
+    GetPlayerPos(playerid, temp_pos[0], temp_pos[1], temp_pos[2]);
+    GetPlayerFacingAngle(playerid, temp_pos[3]);
+    SetPVarFloat(playerid, "panduan_bermain_x", temp_pos[0]);
+    SetPVarFloat(playerid, "panduan_bermain_y", temp_pos[1]);
+    SetPVarFloat(playerid, "panduan_bermain_z", temp_pos[2]);
+    SetPVarFloat(playerid, "panduan_bermain_a", temp_pos[3]);
+    // Set variabel panduan umum 1
+    SetPVarString(playerid, "panduan_bermain", "panduan_bermain_1");
+    format(pDialog[playerid], sizePDialog, 
+    WHITE"Dalam sesi tutorial ini, kamu akan diberi panduan bermain secara singkat.\n\
+    Ada beberapa fitur dan tempat dalam server ini yang perlu kamu ketahui.\n\
+    Anda akan diberi beberapa penjelasan, jika anda ingin paham tentang server ini,\n\
+    jangan tutup panduan ini atau anda harus mengulang sesi dari awal.");
+    ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Awal) :", pDialog[playerid], "Lanjut", "Tutup");
+    return 1;
+}

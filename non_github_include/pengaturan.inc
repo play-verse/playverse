@@ -21,7 +21,7 @@
 							7. Harus menaati peraturan roleplay yang berlaku.\n\
 							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
 
-#define MAX_SERVER_ITEM 70 // Diatur sesuai dengan banyak data didatabase 
+#define MAX_SERVER_ITEM 83 // Diatur sesuai dengan banyak data didatabase 
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -458,6 +458,7 @@
 #define DIALOG_BELI_ITEM_TAMBANG_LIST 262
 #define DIALOG_BELI_ITEM_TAMBANG_LIST_JUMLAH 263
 #define DIALOG_BELI_ITEM_TAMBANG_LIST_KONFIRMASI 264
+
 #define DIALOG_HELP_MENU_NEXT 265
 #define DIALOG_PENJUAL_KAYU_LIST_JUAL 266
 #define DIALOG_PENJUAL_KAYU_LIST_JUAL_JUMLAH 267
@@ -471,6 +472,8 @@
 #define DIALOG_SIMPAN_ITEM_VEHICLE 275
 #define DIALOG_SIMPAN_ITEM_VEHICLE_JUMLAH 276
 #define DIALOG_PILIH_LOKASI_GPS 277
+#define DIALOG_TUTORIAL 278
+#define DIALOG_TUTORIAL_NEXT 279
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DI DALAM INTERIOR
@@ -652,7 +655,7 @@
 #define ID_TOMBAK_IKAN		36
 #define ID_PALU_TAMBANG		8
 #define ID_GERGAJI_MESIN	26
-#define ID_GPS				71
+#define ID_GPS				83
 
 #define ID_BIJIH_BESI		63
 #define ID_SERBUK_EMAS		65

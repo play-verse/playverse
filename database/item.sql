@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.1
+-- version 5.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 21, 2020 at 11:01 AM
--- Server version: 10.4.8-MariaDB
--- PHP Version: 7.3.10
+-- Generation Time: Oct 05, 2020 at 04:27 PM
+-- Server version: 10.4.11-MariaDB
+-- PHP Version: 7.4.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -110,7 +110,21 @@ INSERT INTO `item` (`id_item`, `nama_item`, `model_id`, `keterangan`, `fungsi`, 
 (65, 'Serbuk Emas', 19941, 'Serbuk emas merupakan material untuk membuat emas utuh.', NULL, 1, 3),
 (66, 'Bijih Perak', 16134, 'Bahan dasar pembuat perak.', NULL, 1, 2),
 (67, 'Serbuk Berlian', 1559, 'Bahan dasar pembuat berlian.', NULL, 1, 3),
-(68, 'Bijih Aluminium', 2936, 'Bahan dasar pembuat aluminium.', NULL, 1, 2);
+(68, 'Bijih Aluminium', 2936, 'Bahan dasar pembuat aluminium.', NULL, 1, 2),
+(69, 'Batu Bata', 11708, 'Bahan tambang yang berguna.', NULL, 1, 2),
+(70, 'Batu Bara', 11708, 'Bahan tambang yang berguna.', NULL, 1, 2),
+(71, 'Bibit Jahe', 756, 'Biji Jahe adalah item pertanian yang dapat ditanam dan tumbuh menjadi Jahe.', 'pakaiBibitJahe', 9, 1),
+(72, 'Bibit Temulawak', 756, 'Biji Temulawak adalah item pertanian yang dapat ditanam dan tumbuh menjadi Temulawak.', 'pakaiBibitTemulawak', 9, 1),
+(73, 'Bibit Alpukat', 756, 'Biji Alpukat adalah item pertanian yang dapat ditanam dan tumbuh menjadi Alpukat.', 'pakaiBibitAlpukat', 9, 1),
+(74, 'Bibit Pepaya', 756, 'Biji Pepaya adalah item pertanian yang dapat ditanam dan tumbuh menjadi Pepaya.', 'pakaiBibitPepaya', 9, 1),
+(75, 'Bibit Belimbing', 756, 'Biji Belimbing adalah item pertanian yang dapat ditanam dan tumbuh menjadi Belimbing.', 'pakaiBibitBelimbing', 9, 1),
+(76, 'Bibit Srikaya', 756, 'Biji Srikaya adalah item pertanian yang dapat ditanam dan tumbuh menjadi Srikaya.', 'pakaiBibitSrikaya', 9, 1),
+(77, 'Jahe', 18631, 'Jahe adalah adalah buah hasil panen dengan banyak manfaat bagi kesehatan.', NULL, 1, 2),
+(78, 'Temulawak', 18631, 'Temulawak adalah adalah buah hasil panen dengan banyak manfaat bagi kesehatan.', NULL, 1, 2),
+(79, 'Alpukat', 18631, 'Alpukat adalah adalah buah hasil panen dengan banyak manfaat bagi kesehatan.', NULL, 1, 2),
+(80, 'Pepaya', 18631, 'Pepaya adalah adalah buah hasil panen dengan banyak manfaat bagi kesehatan.', NULL, 1, 2),
+(81, 'Belimbing', 18631, 'Belimbing adalah adalah buah hasil panen dengan banyak manfaat bagi kesehatan.', NULL, 1, 2),
+(82, 'Srikaya', 18631, 'Srikaya adalah adalah buah hasil panen dengan banyak manfaat bagi kesehatan.', NULL, 1, 2);
 
 --
 -- Indexes for dumped tables
@@ -130,7 +144,7 @@ ALTER TABLE `item`
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `id_item` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
+  MODIFY `id_item` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
