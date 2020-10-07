@@ -7,7 +7,7 @@ loadAllPickup(){
     for(new i = 0; i < sizeof(ENTRANCE_MARKET); i++){
         // Gunakan modulo untuk menghindari index berlebih
         format(tempLabel, sizeof(tempLabel), "Minimarket "ORANGE"%s\n"GREEN"Pintu masuk", NAMA_ABJAD[i % sizeof(NAMA_ABJAD)]);
-        PU_market[i] = buatPickupDanLabel(1318, ENTRANCE_MARKET[i][emPosPickup][0], ENTRANCE_MARKET[i][emPosPickup][1], ENTRANCE_MARKET[i][emPosPickup][2], tempLabel);
+        PU_market[i] = buatPickupDanLabel(1318, ENTRANCE_MARKET[i][enPosPickup][0], ENTRANCE_MARKET[i][enPosPickup][1], ENTRANCE_MARKET[i][enPosPickup][2], tempLabel);
     }
     if(PU_market[0] + sizeof(ENTRANCE_MARKET) - 1 != PU_market[sizeof(ENTRANCE_MARKET) - 1]){
         printf("[ERROR] #05 Pickup Entrance Market tidak memiliki ID yang simetris.");
@@ -32,9 +32,17 @@ loadAllPickup(){
     PU_bankLS[EXIT_PICKUP][1] = buatPickupDanLabel(1318, 1402.5073, -36.1273, 1000.8950, "Bank Los Santos\n"GREEN"Pintu Keluar "nama_B);
 
     // Tempat Makan
-    PU_tempatMakan_in[0] = buatPickupDanLabel(1318, 928.9155,-1352.9557,13.3438, "Restoran Makanan "nama_A"\n"GREEN"Pintu Masuk");
-    PU_tempatMakan_in[1] = buatPickupDanLabel(1318, 810.4855,-1616.1713,13.5469, "Restoran Makanan "nama_B"\n"GREEN"Pintu Masuk");
-    PU_tempatMakan_out = buatPickupDanLabel(1318, 364.9624,-11.8307,1001.8516, "Restoran Makanan\n"GREEN"Pintu Keluar");
+    for(new i = 0; i < sizeof(ENTRANCE_RESTORAN); i++){
+        // Gunakan modulo untuk menghindari index berlebih
+        format(tempLabel, sizeof(tempLabel), "Restoran "ORANGE"%s\n"GREEN"Pintu masuk", NAMA_ABJAD[i % sizeof(NAMA_ABJAD)]);
+        PU_restoran[i] = buatPickupDanLabel(1318, ENTRANCE_RESTORAN[i][enPosPickup][0], ENTRANCE_RESTORAN[i][enPosPickup][1], ENTRANCE_RESTORAN[i][enPosPickup][2], tempLabel);
+    }
+    if(PU_restoran[0] + sizeof(ENTRANCE_RESTORAN) - 1 != PU_restoran[sizeof(ENTRANCE_RESTORAN) - 1]){
+        printf("[ERROR] #05 Pickup Entrance Restoran tidak memiliki ID yang simetris.");
+        SendRconCommand("exit");
+    }
+
+    PU_keluarRestoran = buatPickupDanLabel(1318, 364.9624,-11.8307,1001.8516, "Restoran Makanan\n"GREEN"Pintu Keluar");
 
     // Police Dept
     PU_policeDept_in[0] = buatPickupDanLabel(1318, 1555.4991,-1675.5791,16.1953, "Polisi Metro Los Santos\n"GREEN"Pintu Masuk");

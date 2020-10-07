@@ -405,14 +405,20 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
 	{ID_CAT_KENDARAAN, 500}
 };
 
-enum INFO_ENTRANCE_MARKET {
-	Float:emPosPickup[3],
-	Float:emPosOut[4]
+enum INFO_ENTRANCE {
+	Float:enPosPickup[3],
+	Float:enPosOut[4]
 };
-new const ENTRANCE_MARKET[][INFO_ENTRANCE_MARKET] = {
+
+new const ENTRANCE_MARKET[][INFO_ENTRANCE] = {
 	{{1352.3239, -1759.2528, 13.5078}, {1353.8392, -1757.3990, 13.5078, 269.0087}},
 	{{1011.8785, -1668.0076, 14.8007}, {1013.8829, -1667.9923, 14.5905, 278.0317}},
 	{{2368.1611, -1547.9805, 24.0093}, {2369.3091, -1545.4869, 24.0075, 354.1191}}
+};
+
+new const ENTRANCE_RESTORAN[][INFO_ENTRANCE] = {
+	{{928.9155, -1352.9557, 13.3438}, {924.8441, -1353.0880, 13.3768, 89.3053}},
+	{{810.4855, -1616.1713, 13.5469}, {814.8109, -1616.3394, 13.6281, 245.7708}}
 };
 
 enum INFO_JUAL_PERABOT {
@@ -566,13 +572,13 @@ new CP_tempatFoto,
 new PU_tempatFoto_in[2],
     PU_tempatFoto_out,
     PU_market[sizeof(ENTRANCE_MARKET)],
+    PU_restoran[sizeof(ENTRANCE_RESTORAN)],
 	PU_keluarMarket,
     PU_tempatBaju[1][2],
     PU_cityHallMasuk[3],
     PU_cityHallKeluar,
     PU_bankLS[2][2], // [ENTER/EXIT][0/1]
-    PU_tempatMakan_in[2],
-    PU_tempatMakan_out,
+    PU_keluarRestoran,
     PU_tempatKeluarRumah[2], // Hanya menyimpan ID terkecil dan Terbesar
     PU_policeDept_in[1],
     PU_policeDept_out[1],

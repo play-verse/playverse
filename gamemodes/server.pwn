@@ -10861,27 +10861,14 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		}
 		return 1;
 	}
-	else if(pickupid == PU_tempatMakan_in[0]){
-		pindahkanPemain(playerid, 365.5712,-8.7934,1001.8516,351.2707, 9, VW_tempatMakan_1, false);
+	else if(pickupid >= PU_restoran[0] && pickupid <= PU_restoran[sizeof(PU_restoran) - 1]){
+		pindahkanPemain(playerid, 365.5712, -8.7934, 1001.8516, 351.2707, 9, pickupid - PU_restoran[0], false);
 		return 1;
 	}
-	else if(pickupid == PU_tempatMakan_in[1]){
-		pindahkanPemain(playerid, 365.5712,-8.7934,1001.8516,351.2707, 9, VW_tempatMakan_2, false);
-		return 1;
-	}
-	else if(pickupid == PU_tempatMakan_out){
-		switch(GetPlayerVirtualWorld(playerid)){
-			case VW_tempatMakan_1:
-			{
-				pindahkanPemain(playerid, 924.8441, -1353.0880, 13.3768, 89.3053, 0, 0, true);
-				return 1;
-			}
-			case VW_tempatMakan_2:
-			{
-				pindahkanPemain(playerid, 814.8109,-1616.3394,13.6281, 245.7708, 0,0, true);
-				return 1;	
-			}
-		}
+	else if(pickupid == PU_keluarRestoran){
+		// Jika terjadi virtual world yang lebih dari maximize size, maka akan di random tempatnya dengan modulo
+		new idx = GetPlayerVirtualWorld(playerid) % sizeof(ENTRANCE_RESTORAN);
+		pindahkanPemain(playerid, ENTRANCE_RESTORAN[idx][enPosOut][0], ENTRANCE_RESTORAN[idx][enPosOut][1], ENTRANCE_RESTORAN[idx][enPosOut][2], ENTRANCE_RESTORAN[idx][enPosOut][3], 0, 0, true);
 		return 1;
 	}
 	else if(pickupid == PU_rumahSakit[0]){
@@ -10895,7 +10882,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	else if(pickupid == PU_keluarMarket){
 		// Jika terjadi virtual world yang lebih dari maximize size, maka akan di random tempatnya dengan modulo
 		new idx = GetPlayerVirtualWorld(playerid) % sizeof(ENTRANCE_MARKET);
-		pindahkanPemain(playerid, ENTRANCE_MARKET[idx][emPosOut][0], ENTRANCE_MARKET[idx][emPosOut][1], ENTRANCE_MARKET[idx][emPosOut][2], ENTRANCE_MARKET[idx][emPosOut][3], 0, 0, true);
+		pindahkanPemain(playerid, ENTRANCE_MARKET[idx][enPosOut][0], ENTRANCE_MARKET[idx][enPosOut][1], ENTRANCE_MARKET[idx][enPosOut][2], ENTRANCE_MARKET[idx][enPosOut][3], 0, 0, true);
 		return 1;
 	}
 	else if(pickupid == PU_tempatBaju[0][ENTER_PICKUP]){
