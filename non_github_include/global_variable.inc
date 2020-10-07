@@ -592,7 +592,8 @@ new PU_tempatFoto_in[2],
 	PU_rumahSakit[1], // Untuk pintu keluar pakai Dynamic Area karena pickup tidak muncul
 	PU_tokoGadget[1][2],
 	PU_tambangBesi[2],
-	PU_tempatBlacksmith[2];
+	PU_tempatBlacksmith[2],
+	PU_tempatIlegalBlacksmith[2];
 
 /**
 	ACTOR VARIABEL

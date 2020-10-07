@@ -10941,7 +10941,11 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	}else if(pickupid == PU_tempatBlacksmith[ENTER_PICKUP]){
 		pindahkanPemain(playerid, 699.5331, -448.1602, -25.6180, 180.3815, 1, 1, true);
 	}else if(pickupid == PU_tempatBlacksmith[EXIT_PICKUP]){
-		pindahkanPemain(playerid, 1720.2979, -1739.0155, 13.5469, 1.1047, 0, 0, true);
+		pindahkanPemain(playerid, 996.3550, -1251.7916, 19.3945, 180.5325, 0, 0, true);
+	}else if(pickupid == PU_tempatIlegalBlacksmith[ENTER_PICKUP]){
+		pindahkanPemain(playerid, 1072.0524, -764.2084, 1087.1460, 105.6685, 1, 1, true);
+	}else if(pickupid == PU_tempatIlegalBlacksmith[EXIT_PICKUP]){
+		pindahkanPemain(playerid, -1429.6885, -947.3187, 201.0938, 264.7964, 0, 0, true);
 	}
 	return 1;
 }
