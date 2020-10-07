@@ -4775,7 +4775,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0: // Buat obat
 					{
-						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_OBAT, DIALOG_STYLE_MSGBOX, "Konfirmasi buat obat", WHITE"Untuk dapat membuat obat (penyelamat sekarat)\nAnda akan membutuhkan "YELLOW"2 ganja dan 1 bubuk herbal\n"WHITE"Apakah anda memilikinya?", "Ok", "Batal");
+						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUAT_OBAT, DIALOG_STYLE_MSGBOX, "Konfirmasi buat obat", WHITE"Untuk dapat membuat obat (penyelamat sekarat)\nAnda akan membutuhkan "YELLOW"2 Kangkung Ijo dan 1 bubuk herbal\n"WHITE"Apakah anda memilikinya?", "Ok", "Batal");
 					}
 					case 1: // Revive
 					{
@@ -4828,7 +4828,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				// Cek jumlah item
 				if(GetJumlahItemPlayer(playerid, ID_GANJOS) < 2 || GetJumlahItemPlayer(playerid, ID_BUBUK_HERBAL) < 1){
-					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat obat.\n\n"YELLOW"Anda membutuhkan 2 ganja dan 1 bubuk herbal.", "Ok", "");
+					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Item tidak mencukupi", WHITE"Anda tidak memiliki cukup item yang diperlukan.\nAnda tidak dapat membuat obat.\n\n"YELLOW"Anda membutuhkan 2 Kangkung Ijo dan 1 bubuk herbal.", "Ok", "");
 				}
 				// Pinjam timer perbaiki
 				if(PerbaikiTimer[playerid] != -1)

@@ -484,10 +484,20 @@
 #define nama_D "Durian"
 
 new const NAMA_ABJAD[][] = {
-	"Apple",
-	"Blueberry",
-	"Cherry",
-	"Durian"
+	"Apples",
+	"Blueberries",
+	"Cherries",
+	"Durian",
+	"Elderberry",
+	"Feijoa",
+	"Guava",
+	"Honey",
+	"Jackfruit",
+	"Kiwifruit",
+	"Lemon",
+	"Mango",
+	"Oranges",
+	"Pineapple"
 };
 
 

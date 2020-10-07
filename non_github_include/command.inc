@@ -1291,23 +1291,23 @@ CMD:destroy(playerid, params[]){
     if(sscanf(params, "s[50]", text) || sscanf(params, "s[50]I(-1)", text, number))
         return error_syntax(playerid, "/destroy [aksi]");
 
-    if(sama(text, "ganja", true) && IsPlayerOnDutyPolice(playerid)){
+    if(sama(text, "kangkung ijo", true) && IsPlayerOnDutyPolice(playerid)){
         // Hancurkan Ganja
         new plant_Id = GetClosestPlant(playerid);
         if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat menghancurkan dalam keadaan sekarang.");
         if(plant_Id == -1) 
             return error_command(playerid, "Anda tidak berada disekitar tanaman.");
         if(DFarm[plant_Id][plantItemID] != ID_GANJOS)
-            return error_command(playerid, "Tanaman ini bukan, tanaman ganja.");
+            return error_command(playerid, "Tanaman ini bukan, tanaman kangkung ijo.");
 
         ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 1, 1, 0, 0, 1);
         DestroyTime(plant_Id);
 
         DFarm[plant_Id][plantItemID] = -1;
-        SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan tanaman ganja.");
+        SendClientMessage(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Berhasil menghancurkan tanaman Kangkung Ijo.");
         sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Anda mendapatkan bonus pekerjaan sebesar "GREEN"$%d", BONUS_MENGHANCURKAN_GANJA);
 
-        addGajiPemain(playerid, BONUS_MENGHANCURKAN_GANJA, "bonus menghancurkan ganja");
+        addGajiPemain(playerid, BONUS_MENGHANCURKAN_GANJA, "bonus menghancurkan Kangkung Ijo");
     }else if(sama(text, "ranjau", true) && IsPlayerOnDutyPolice(playerid)){
         if(number == -1){
             new id = ClosestObjPolice(playerid);
