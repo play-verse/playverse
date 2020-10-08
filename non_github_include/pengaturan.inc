@@ -45,7 +45,7 @@
 
 #define MAX_PLANTS 300
 #define MAX_PLAYER_PLANTS 3
-#define PLANT_HARVEST 300
+#define PLANT_HARVEST 1800
 
 #define VEH_TRASH_LIMIT 10
 
