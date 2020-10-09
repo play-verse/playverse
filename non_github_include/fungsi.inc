@@ -4659,7 +4659,16 @@ publicFor: buatTokoNarko(){
 
 publicFor: re_TokoNarko(){
 	DeletePreciseTimer(MrPuyengEnd);
-	if(IsValidDynamicActor(ACT_tokoNarko)) DestroyDynamicActor(ACT_tokoNarko);
+	if(IsValidDynamicActor(ACT_tokoNarko)) 
+		DestroyDynamicActor(ACT_tokoNarko);
+	if(IsValidDynamicArea(ACT_tokoNarko_Area))
+		DestroyDynamicArea(ACT_tokoNarko_Area);
+	if(IsValidDynamic3DTextLabel(ACT_tokoNarko_Text))
+		DestroyDynamic3DTextLabel(ACT_tokoNarko_Text);
+
+	ACT_tokoNarko_Area = -1;
+	ACT_tokoNarko = -1;
+
 	MrPuyengRand = -1;
 	MrPuyengEnd = -1;
 	MrPuyengStart = SetPreciseTimer("buatTokoNarko", 60000, false); // Cooldown toko
@@ -5267,4 +5276,74 @@ publicFor: tungguPanduanDialog(playerid, cara){
 		DeletePreciseTimer(timerPanduanStream[playerid]);
 	}
 	return 1;
+}
+
+publicFor: hujanDatang(){
+    for(new i = 0; i < sizeof(ACT_NPC); i++){
+		if(ACT_NPC[i][actConst] == ACTOR_PEMBELI_TAMBANG_1){
+			if(IsValidDynamicActor(ACT_NPC[i][actID]))
+				DestroyDynamicActor(ACT_NPC[i][actID]);
+
+			if(IsValidDynamicArea(ACT_NPC[i][actArea])){
+				DestroyDynamicArea(ACT_NPC[i][actArea]);
+			}
+			ACT_NPC[i][actArea] = -1;
+			break;
+		}
+	}
+}
+
+publicFor: hujanBerhenti(){
+    for(new i = 0; i < sizeof(ACT_NPC); i++){
+		if(ACT_NPC[i][actConst] == ACTOR_PEMBELI_TAMBANG_1){
+			ACT_NPC[i][actID] = CreateDynamicActor(ACT_POSITION[i][ACT__Skin], ACT_NPC[i][actPos][0], ACT_NPC[i][actPos][1], ACT_NPC[i][actPos][2], ACT_NPC[i][actPos][3], .interiorid = ACT_POSITION[i][ACT__Int], .worldid = ACT_POSITION[i][ACT__Vw]);
+			ACT_NPC[i][actArea] = CreateDynamicSphere(ACT_NPC[i][actPos][0], ACT_NPC[i][actPos][1], ACT_NPC[i][actPos][2], 3.0);
+			break;
+		}
+	}	
+}
+
+gantiCuaca(rate_berhasil = 70){
+	new rand = random(100) + 1;
+
+	// Jika rate berhasil, maka ganti cuaca
+	if(rand <= rate_berhasil){
+		new next_weather_id = seq_weather[curr_weather_seq];
+
+		// Jika hujan berhenti
+		if(curr_weather_id == ID_WEATHER_RAIN && next_weather_id != ID_WEATHER_RAIN)
+			hujanBerhenti();
+		// Jika hujan datang
+		else if(curr_weather_id != ID_WEATHER_RAIN && next_weather_id == ID_WEATHER_RAIN)
+			hujanDatang();
+
+		curr_weather_id = seq_weather[curr_weather_seq];
+		SetWeather(curr_weather_id);
+	}
+
+	rand = random(100) + 1;
+	if(rand <= 65)
+		seq_weather[curr_weather_seq] = fine_weather_ids[random(sizeof(fine_weather_ids))];
+	else if(rand <= 90)
+		seq_weather[curr_weather_seq] = ID_WEATHER_RAIN;
+	else
+		seq_weather[curr_weather_seq] = foggy_weather_ids[random(sizeof(foggy_weather_ids))];
+
+	new nama_cuaca[24];
+	format(weather_string, sizeof(weather_string), WHITE"..:: Lamaran Cuaca ::..\n\n");
+
+	GetWeatherName(curr_weather_id, nama_cuaca);
+	strcatEx(weather_string, sizeof(weather_string), "Cuaca saat ini : %s\n\n", nama_cuaca);
+
+	// Pindahkan cursor seq
+	curr_weather_seq = (curr_weather_seq + 1) % sizeof(seq_weather);
+
+	new temp_waktu[3];
+	gettime(temp_waktu[0], temp_waktu[1], temp_waktu[2]);
+
+	for(new i = 0; i < sizeof(seq_weather); i++){
+		GetWeatherName(seq_weather[(curr_weather_seq + i) % sizeof(seq_weather)], nama_cuaca);
+		strcatEx(weather_string, sizeof(weather_string), "Cuaca pada %02d:%02d : %s\n", (temp_waktu[0] + i + 1) % 24, temp_waktu[1], nama_cuaca);
+	}
+	strcat(weather_string, "\n\n"YELLOW"Kemungkinan ramalan cuaca benar dan berganti hanya 70 persen.\n");
 }

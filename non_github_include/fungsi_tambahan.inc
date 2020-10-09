@@ -1176,3 +1176,26 @@ GetSlotInventoryVehicle(vehid){
  */
 #define CekJikaInventoryVehicleMuat(%0,%1,%2) \
     ((GetSlotInventoryVehicle(%0) + GetSlotItemTerpakai(%1,%2)) <= GetVehicleLimitItemByModel(GetVehicleModel(%0)))
+
+
+// Weather
+GetWeatherName(weatherid, destinasi[], len = sizeof(destinasi)){
+    if(weatherid == ID_WEATHER_RAIN){
+        format(destinasi, len, "Hujan");
+        return 1;
+    }
+    for(new i = 0; i < sizeof(fine_weather_ids); i++){
+        if(fine_weather_ids[i] == weatherid){
+            format(destinasi, len, "Cerah atau Berawan");
+            return 1;
+        }
+    }
+    for(new i = 0; i < sizeof(foggy_weather_ids); i++){
+        if(foggy_weather_ids[i] == weatherid){
+            format(destinasi, len, "Kabut");
+            return 1;
+        }
+    }
+    format(destinasi, len, "Tidak diketahui");
+    return 1;
+}

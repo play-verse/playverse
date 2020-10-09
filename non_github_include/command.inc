@@ -1743,3 +1743,8 @@ CMD:tutorial(playerid, params[]){
     ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Awal) :", pDialog[playerid], "Lanjut", "Tutup");
     return 1;
 }
+
+CMD:ganticuaca(playerid, params[]){
+    weather_time = 3600;
+    return 1;
+}

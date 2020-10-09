@@ -3182,6 +3182,7 @@ interiorCityHall(){
     CreateDynamicObject(1726, -497.91599, 328.83401, 2003.59204,   0.00000, 0.00000, 270.00000);
     CreateDynamicObject(1726, -497.91000, 319.33401, 2003.59204,   0.00000, 0.00000, 270.00000);
     CreateDynamicObject(1500, -501.95380, 285.72791, 2000.11646,   0.00000, 0.00000, 0.00000);
+    CreateDynamicObject(19786, -516.79742, 293.25421, 2001.59863,   0.00000, 0.00000, 90.00000);
 }
 
 removeEksteriorCityHall(playerid){

@@ -500,6 +500,7 @@ new const NAMA_ABJAD[][] = {
 	"Pineapple"
 };
 
+#define ID_WEATHER_RAIN 8
 
 // Uncomment untuk mengaktifkan debug mode player
 // Comment untuk menonaktifkan

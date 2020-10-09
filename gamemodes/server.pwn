@@ -9080,15 +9080,17 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 {
 	if(PRESSED(KEY_JUMP) && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT){
 		new Float:pos[3];
-		if(getStatusMinumPemain(playerid) < 5 && !PlayerInfo[playerid][inDie]){
-			GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
-			SetPlayerPos(playerid, pos[0], pos[1], pos[2]);
-			ClearAnimations(playerid);
-			server_message(playerid, "Anda tidak memiliki cukup energi untuk melompat.");
+		if(getStatusMinumPemain(playerid) <= 5.0 && !PlayerInfo[playerid][inDie]){
+			if(random(2)){
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				SetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				ClearAnimations(playerid);
+				ApplyAnimation(playerid, "PED", "IDLE_TIRED", 4.1, 0, 0, 0, 0, 0);
+			}
 		}else if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_CUFFED){
 			ApplyAnimation(playerid, "GYMNASIUM", "gym_jog_falloff", 4.1, 0, 1, 1, 0, 0);
 		}else{
-			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - 0.5);
+			setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - 0.1);
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER && PRESSED(KEY_SUBMISSION)){
 		new vehid = GetPlayerVehicleID(playerid);
@@ -9343,6 +9345,10 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			}
 		}
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_NO)){
+		if(IsPlayerInRangeOfPoint(playerid, 2.0, -516.3520, 294.1110, 2001.0859)){
+			return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Ramalan cuaca", weather_string, "Tutup", "");
+		}
+
 		if(lastHousePickup[playerid] < 0 || lastHousePickup[playerid] >= MAX_HOUSES) return 1;
 		new id,
 			Float:x,
@@ -9678,6 +9684,21 @@ public OnGameModeInit()
     SetVehiclePassengerDamage(true);
     SetDisableSyncBugs(true);	
 	SetCbugAllowed(false);
+
+	/**
+		Weather Init
+	 */
+	new rand;
+	for(new i = 0; i < sizeof(seq_weather); i++){
+		rand = random(100) + 1;
+		if(rand <= 65)
+			seq_weather[i] = fine_weather_ids[random(sizeof(fine_weather_ids))];
+		else if(rand <= 90)
+			seq_weather[i] = ID_WEATHER_RAIN;
+		else
+			seq_weather[i] = foggy_weather_ids[random(sizeof(foggy_weather_ids))];
+	}
+	gantiCuaca(100);
 
 	worldTimer = SetPreciseTimer("updateWorldTime", 1000, true);
 
@@ -11365,6 +11386,12 @@ publicFor: updateWorldTime()
 
 	foreach(new i : Player){
 		SetPlayerTime(i, temp_jam, temp_menit);
+	}
+
+	// Setiap jamnya, random weather
+	if(++weather_time >= 3600){
+		gantiCuaca();
+		weather_time = 0;
 	}
 	return 1;
 }
