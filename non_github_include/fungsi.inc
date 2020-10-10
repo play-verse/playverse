@@ -44,6 +44,8 @@ publicFor: isRegistered(playerid)
 		// Equiped phone
 		cache_get_value_name_int(0, "use_phone", PlayerInfo[playerid][ePhone]);
 		cache_get_value_name_int(0, "save_house", PlayerInfo[playerid][sHouse]);
+		cache_get_value_name_int(0, "exp_score", PlayerInfo[playerid][expScore]);
+		cache_get_value_name_int(0, "score", PlayerInfo[playerid][pScore]);
 
 		// Limit Item
 		cache_get_value_name_int(0, "limit_item", PlayerInfo[playerid][limitItem]);
@@ -228,6 +230,8 @@ resetPlayerVariable(playerid, dari_callback){
     PlayerInfo[playerid][uang] = 0;
     PlayerInfo[playerid][jenisKelamin] = -1;
     PlayerInfo[playerid][sHouse] = 0;
+	PlayerInfo[playerid][expScore] = 0;
+	PlayerInfo[playerid][pScore] = 0;
 
 	if(PlayerInfo[playerid][tidak_dikenali] != 0)
 		Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
@@ -2084,6 +2088,8 @@ publicFor: progressPerbaikiKendaraan(playerid, vehicleid, alat_dibutuhkan){
 				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
 				sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"memperbaiki kendaraan", exp_didapat);
 				sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+				// Exp Score
+				TambahExpScore(playerid, EXP_TAMBAH_SKILL);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
@@ -2135,6 +2141,8 @@ publicFor: progressWarnainKendaraan(playerid, vehicleid, color1, color2){
 				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
 				sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"mewarnain kendaraan", exp_didapat);
 				sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+				// Exp Score
+				TambahExpScore(playerid, EXP_TAMBAH_SKILL);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
@@ -2185,6 +2193,8 @@ publicFor: progressPaintjobKendaraan(playerid, vehicleid, paintjobid){
 				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
 				sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"paintjob kendaraan", exp_didapat);
 				sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+				// Exp Score
+				TambahExpScore(playerid, EXP_TAMBAH_SKILL);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
@@ -2222,6 +2232,8 @@ publicFor: progressBuatObatHerbal(playerid){
 		tambahExpSkillPlayer(playerid, ID_SKILL_MEDIC, exp_didapat);
 		sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"buat obat herbal", exp_didapat);
 		sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill medic anda saat ini adalah %d.", PlayerInfo[playerid][expMedic]);
+		// Exp Score
+		TambahExpScore(playerid, EXP_TAMBAH_SKILL);
 	}else{
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 	}
@@ -2245,6 +2257,8 @@ publicFor: progressBuatItemMasak(playerid){
 		tambahItemPlayer(playerid, id_item, 1); // Beri item
 
 		sendPesan(playerid, COLOR_GREEN, TAG_CRAFT" "WHITE"Berhasil membuat "YELLOW"%s"WHITE" dengan cara memasak.", nama_item);
+		// Exp Score
+		TambahExpScore(playerid, EXP_TAMBAH_MASAK);
 	}else{
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 	}
@@ -2292,6 +2306,8 @@ publicFor: progressBuatItemBlacksmith(playerid){
 
 		sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"Craft Item", exp_didapat);
 		sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill blacksmith anda saat ini adalah %d.", PlayerInfo[playerid][expBlacksmith]);
+		// Exp Score
+		TambahExpScore(playerid, EXP_TAMBAH_SKILL);
 	}else{
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 	}
@@ -2341,6 +2357,8 @@ publicFor: progressModifKendaraan(playerid, vehicleid, componentid){
 				tambahExpSkillPlayer(playerid, ID_SKILL_MEKANIK, exp_didapat); // 1 adalah id skill mekanik
 				sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"modifikasi kendaraan", exp_didapat);
 				sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+				// Exp Score
+				TambahExpScore(playerid, EXP_TAMBAH_SKILL);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
@@ -2389,6 +2407,8 @@ publicFor: progressRevive(playerid){
 					addGajiPemain(playerid, BONUS_REVIVE, pDialog[playerid]);
 
 					sendPesan(target_id, COLOR_GREEN, TAG_MEDIC" "WHITE"Anda berhasil diselamatkan oleh %s petugas medis.", PlayerInfo[playerid][pPlayerName]);
+					//Exp Score
+					TambahExpScore(playerid, EXP_TAMBAH_FRAKSI);
 				}
 				else
 					sendPesan(target_id, COLOR_GREEN, TAG_REVIVE" "WHITE"Anda berhasil diselamatkan oleh %s.", PlayerInfo[playerid][pPlayerName]);
@@ -2417,6 +2437,8 @@ publicFor: progressRevive(playerid){
 				tambahExpSkillPlayer(playerid, ID_SKILL_MEDIC, exp_didapat);
 				sendPesan(playerid, COLOR_YELLOW, TAG_SKILL" "WHITE"Anda mendapatkan exp sebanyak %d, karena telah menggunakan skill "YELLOW"revive orang sekarat", exp_didapat);
 				sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill medic anda saat ini adalah %d.", PlayerInfo[playerid][expMedic]);
+				// Exp Score
+				TambahExpScore(playerid, EXP_TAMBAH_SKILL);
 			}else{
 				SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 			}
@@ -2558,6 +2580,8 @@ publicFor: progressNambang(playerid, dari_tambang){
 		}
 
 		reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
+		// Exp Score
+		TambahExpScore(playerid, EXP_TAMBAH_TAMBANG);
 	}else{
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 	}
@@ -4688,6 +4712,27 @@ publicFor: waktuPuyeng(playerid){
 	return 1;
 }
 
+cekMulaiMancing(playerid){
+	inline responseUmpan(){
+		new roti_umpan;
+		cache_get_value_name_int(0, "jumlah", roti_umpan);
+		if(roti_umpan <= 0){						
+			return error_command(playerid, "Anda tidak memiliki umpan untuk melakukan mancing.");
+		}else{
+			tambahItemPlayer(playerid, 43, -1);
+			TogglePlayerControllable(playerid , 0);
+			SetPlayerArmedWeapon(playerid, 0);
+			ApplyAnimation(playerid,"SWORD","sword_block", 50.0, 0, 1, 0, 1, 1);
+			SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
+			mancingSecs[playerid] = 30;
+			mancingAktif[playerid] = 1;
+			mancingTimer[playerid] = SetPreciseTimer("waktuMancing", 1000, true, "i", playerid);
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseUmpan, "SELECT * FROM user_item WHERE id_user = %d AND id_item = 43", PlayerInfo[playerid][pID]);
+	return 1;
+}
+
 randomIkan(playerid){
 	new angka;
 	if(mancingAktif[playerid] == 1){
@@ -4767,6 +4812,8 @@ publicFor: waktuMancing(playerid){
 			ClearAnimations(playerid);
 			ApplyAnimation(playerid, "CARRY", "crry_prtial", 4.0, 0, 0, 0, 0, 0);
 			randomIkan(playerid);
+			// Exp Score
+			TambahExpScore(playerid, EXP_TAMBAH_MANCING);
 		}
 	}
 	return 1;
@@ -5346,4 +5393,50 @@ gantiCuaca(rate_berhasil = 70){
 		strcatEx(weather_string, sizeof(weather_string), "Cuaca pada %02d:%02d : %s\n", (temp_waktu[0] + i + 1) % 24, temp_waktu[1], nama_cuaca);
 	}
 	strcat(weather_string, "\n\n"YELLOW"Kemungkinan ramalan cuaca benar dan berganti hanya 70 persen.\n");
+}
+
+NeedExpScore(playerid){
+	new p_Score, next_Score, exp_Need, exp_Default;
+	p_Score = PlayerInfo[playerid][pScore];
+	next_Score = p_Score+1;
+	exp_Default = EXP_SCORE_DEFAULT*next_Score;
+	if(next_Score >= 1){
+		new Float:exp_Float = exp_Default*0.25,
+		exp_Rand = floatround(exp_Float, floatround_round);
+		printf("%f", exp_Float);
+		exp_Need = exp_Default+exp_Rand;
+	}else{
+		exp_Need = exp_Default;
+	}
+	return exp_Need;
+}
+
+UpdateExpScore(playerid){
+	new exp_Score, exp_Need;
+	exp_Score = PlayerInfo[playerid][expScore];
+	exp_Need = NeedExpScore(playerid);
+	if(exp_Score >= exp_Need){
+		PlayerInfo[playerid][pScore] = PlayerInfo[playerid][pScore]+1;
+	}
+	SetPlayerScore(playerid, PlayerInfo[playerid][pScore]);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET exp_score = '%d', score = '%d' WHERE id = '%d'", exp_Score, PlayerInfo[playerid][pScore], PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
+	return 1;
+}
+
+TambahExpScore(playerid, exp){
+	PlayerInfo[playerid][expScore] += exp;
+	UpdateExpScore(playerid);
+	return 1;
+}
+
+PlayerRankScore(playerid){
+	new p_rank[64], p_Score = PlayerInfo[playerid][pScore];
+	if(p_Score >= 1 && p_Score <= 25) format(p_rank, sizeof(p_rank), "%s", "Newbie");
+	else if(p_Score >= 26 && p_Score <= 50) format(p_rank, sizeof(p_rank), "%s", "Training");
+	else if(p_Score >= 51 && p_Score <= 100) format(p_rank, sizeof(p_rank), "%s", "Elite");
+	else if(p_Score >= 101 && p_Score <= 150) format(p_rank, sizeof(p_rank), "%s", "Master");
+	else if(p_Score >= 151 && p_Score <= 200) format(p_rank, sizeof(p_rank), "%s", "Pro");
+	else if(p_Score >= 201) format(p_rank, sizeof(p_rank), "%s", "Legend");
+	return p_rank;
 }

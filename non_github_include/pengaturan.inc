@@ -172,6 +172,15 @@
 #define BLACKSMITH_LEVEL_SKILL_LIMA 3000
 #define BLACKSMITH_LEVEL_SKILL_ENAM 5000
 
+#define EXP_SCORE_DEFAULT 		250
+#define EXP_TAMBAH_JOB			5
+#define EXP_TAMBAH_MANCING		2
+#define EXP_TAMBAH_TAMBANG		2
+#define EXP_TAMBAH_SKILL		3
+#define EXP_TAMBAH_FRAKSI		3
+#define EXP_TAMBAH_PANEN		3
+#define EXP_TAMBAH_MASAK		3
+
 #define EXP_GAGAL_CURR_SKILL 2 		// Digunakan untuk memberikan exp walaupun gagal
 #define EXP_SUKSES_CURR_SKILL 5   	// Exp yang diberikan saat sukses
 #define EXP_GAGAL_DOWN_SKILL 1		// Digunakan untuk memberikan exp walaupun gagal
@@ -669,7 +678,6 @@ new const NAMA_ABJAD[][] = {
 #define ID_OBAT_HERBAL    	53
 #define ID_FORGER_CASE		62
 #define ID_JORAN_PANCING	35
-#define ID_TOMBAK_IKAN		36
 #define ID_TOMBAK_IKAN		36
 #define ID_PALU_TAMBANG		8
 #define ID_GERGAJI_MESIN	26

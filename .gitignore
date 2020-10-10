@@ -1,8 +1,3 @@
-logs/
-mysql_log.txt
-server_log.txt
-pawno/settings.ini
-
 #
 # Package only files
 #
@@ -11,6 +6,7 @@ pawno/settings.ini
 *.amx
 *.lst
 *.asm
+*.zip
 
 # Vendor directory for dependencies
 dependencies/
@@ -18,10 +14,10 @@ dependencies/
 # Dependency versions lockfile
 pawn.lock
 
-
 #
 # Server/gamemode related files
 #
+pawno/settings.ini
 
 # compiled settings file
 # keep `samp.json` file on version control
@@ -42,8 +38,10 @@ samp-npc
 
 # logs
 logs/
+mysql_log.txt
 server_log.txt
 crashinfo.txt
+svlog.txt
 
 # Ban list
 samp.ban

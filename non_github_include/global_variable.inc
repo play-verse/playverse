@@ -27,6 +27,8 @@ enum pInfo
     uang,
     jenisKelamin, // 0 - Laki , 1 - Perempuan
     limitItem, // Menyimpan limit dari inventory
+	expScore,
+	pScore,
 
 	levelAdmin,
 
@@ -223,7 +225,7 @@ new EditingObject[MAX_PLAYERS] = {EDITING_NONE, ...};
     Textdraw Variable For Player
 */
 new PlayerText:showItem[MAX_PLAYERS][6];
-new PlayerText:myInfo[MAX_PLAYERS][8];
+new PlayerText:myInfo[MAX_PLAYERS][9];
 // new PlayerText:RadarUang[MAX_PLAYERS][2];
 
 new Text:HUD_Stats_PB[5];

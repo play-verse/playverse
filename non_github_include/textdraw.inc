@@ -36,7 +36,11 @@ tampilkanTextDrawMyInfo(playerid){
 
     // Jenis HP
 	format(string, sizeof(string), "Jenis HP : %s", str_ephone);
-	PlayerTextDrawSetString(playerid, myInfo[playerid][6], string);	
+	PlayerTextDrawSetString(playerid, myInfo[playerid][6], string);
+
+	//Score
+	format(string, sizeof(string), "Exp Score: %d/%d (%s)", PlayerInfo[playerid][expScore], NeedExpScore(playerid), PlayerRankScore(playerid));
+	PlayerTextDrawSetString(playerid, myInfo[playerid][7], string);	
 
 	// Tampilkan
 	PlayerTextDrawShow(playerid, myInfo[playerid][0]);
@@ -47,6 +51,7 @@ tampilkanTextDrawMyInfo(playerid){
 	PlayerTextDrawShow(playerid, myInfo[playerid][5]);
 	PlayerTextDrawShow(playerid, myInfo[playerid][6]);
 	PlayerTextDrawShow(playerid, myInfo[playerid][7]);
+	PlayerTextDrawShow(playerid, myInfo[playerid][8]);
 
 	SelectTextDraw(playerid, COLOR_RED);
 	PlayerInfo[playerid][onSelectedTextdraw] = true;
@@ -62,6 +67,7 @@ hideTextDrawMyInfo(playerid){
 	PlayerTextDrawHide(playerid, myInfo[playerid][5]);
 	PlayerTextDrawHide(playerid, myInfo[playerid][6]);
 	PlayerTextDrawHide(playerid, myInfo[playerid][7]);
+	PlayerTextDrawHide(playerid, myInfo[playerid][8]);
 	return 1;
 }
 // End My Info Textdraw
@@ -535,19 +541,19 @@ loadTextDrawPemain(playerid){
 	// End Show Item
 
     // My Info
-    myInfo[playerid][7] = CreatePlayerTextDraw(playerid, 329.000000, 334.000000, "Tutup");
-    PlayerTextDrawFont(playerid, myInfo[playerid][7], 2);
-    PlayerTextDrawLetterSize(playerid, myInfo[playerid][7], 0.258332, 1.750000);
-    PlayerTextDrawTextSize(playerid, myInfo[playerid][7], 16.500000, 90.500000);
-    PlayerTextDrawSetOutline(playerid, myInfo[playerid][7], 1);
-    PlayerTextDrawSetShadow(playerid, myInfo[playerid][7], 0);
-    PlayerTextDrawAlignment(playerid, myInfo[playerid][7], 2);
-    PlayerTextDrawColor(playerid, myInfo[playerid][7], -1);
-    PlayerTextDrawBackgroundColor(playerid, myInfo[playerid][7], 255);
-    PlayerTextDrawBoxColor(playerid, myInfo[playerid][7], 200);
-    PlayerTextDrawUseBox(playerid, myInfo[playerid][7], 1);
-    PlayerTextDrawSetProportional(playerid, myInfo[playerid][7], 1);
-    PlayerTextDrawSetSelectable(playerid, myInfo[playerid][7], 1);
+    myInfo[playerid][8] = CreatePlayerTextDraw(playerid, 329.000000, 334.000000, "Tutup");
+    PlayerTextDrawFont(playerid, myInfo[playerid][8], 2);
+    PlayerTextDrawLetterSize(playerid, myInfo[playerid][8], 0.258332, 1.750000);
+    PlayerTextDrawTextSize(playerid, myInfo[playerid][8], 16.500000, 90.500000);
+    PlayerTextDrawSetOutline(playerid, myInfo[playerid][8], 1);
+    PlayerTextDrawSetShadow(playerid, myInfo[playerid][8], 0);
+    PlayerTextDrawAlignment(playerid, myInfo[playerid][8], 2);
+    PlayerTextDrawColor(playerid, myInfo[playerid][8], -1);
+    PlayerTextDrawBackgroundColor(playerid, myInfo[playerid][8], 255);
+    PlayerTextDrawBoxColor(playerid, myInfo[playerid][8], 200);
+    PlayerTextDrawUseBox(playerid, myInfo[playerid][8], 1);
+    PlayerTextDrawSetProportional(playerid, myInfo[playerid][8], 1);
+    PlayerTextDrawSetSelectable(playerid, myInfo[playerid][8], 1);
 
     myInfo[playerid][0] = CreatePlayerTextDraw(playerid, 327.000000, 76.000000, "_");
     PlayerTextDrawFont(playerid, myInfo[playerid][0], 1);
@@ -649,6 +655,20 @@ loadTextDrawPemain(playerid){
     PlayerTextDrawUseBox(playerid, myInfo[playerid][6], 1);
     PlayerTextDrawSetProportional(playerid, myInfo[playerid][6], 1);
     PlayerTextDrawSetSelectable(playerid, myInfo[playerid][6], 0);
+
+	myInfo[playerid][7] = CreatePlayerTextDraw(playerid, 144.000000, 196.000000, "Exp Score : 0/0");
+    PlayerTextDrawFont(playerid, myInfo[playerid][7], 1);
+    PlayerTextDrawLetterSize(playerid, myInfo[playerid][7], 0.354166, 1.500000);
+    PlayerTextDrawTextSize(playerid, myInfo[playerid][7], 325.000000, 17.000000);
+    PlayerTextDrawSetOutline(playerid, myInfo[playerid][7], 1);
+    PlayerTextDrawSetShadow(playerid, myInfo[playerid][7], 0);
+    PlayerTextDrawAlignment(playerid, myInfo[playerid][7], 1);
+    PlayerTextDrawColor(playerid, myInfo[playerid][7], -1);
+    PlayerTextDrawBackgroundColor(playerid, myInfo[playerid][7], 255);
+    PlayerTextDrawBoxColor(playerid, myInfo[playerid][7], 50);
+    PlayerTextDrawUseBox(playerid, myInfo[playerid][7], 1);
+    PlayerTextDrawSetProportional(playerid, myInfo[playerid][7], 1);
+    PlayerTextDrawSetSelectable(playerid, myInfo[playerid][7], 0);
     // End My Info
 
 	// Radar Uang
@@ -774,6 +794,7 @@ unloadTextDrawPemain(playerid){
 	PlayerTextDrawDestroy(playerid, myInfo[playerid][5]);
 	PlayerTextDrawDestroy(playerid, myInfo[playerid][6]);
 	PlayerTextDrawDestroy(playerid, myInfo[playerid][7]);
+	PlayerTextDrawDestroy(playerid, myInfo[playerid][8]);
 
 	// Show Item
 	PlayerTextDrawDestroy(playerid, showItem[playerid][0]);

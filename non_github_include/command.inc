@@ -1308,6 +1308,8 @@ CMD:destroy(playerid, params[]){
         sendPesan(playerid, COLOR_POLISI, TAG_POLICE" "WHITE"Anda mendapatkan bonus pekerjaan sebesar "GREEN"$%d", BONUS_MENGHANCURKAN_GANJA);
 
         addGajiPemain(playerid, BONUS_MENGHANCURKAN_GANJA, "bonus menghancurkan Kangkung Ijo");
+        // Exp Score
+        TambahExpScore(playerid, EXP_TAMBAH_FRAKSI);
     }else if(sama(text, "ranjau", true) && IsPlayerOnDutyPolice(playerid)){
         if(number == -1){
             new id = ClosestObjPolice(playerid);

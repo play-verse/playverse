@@ -261,6 +261,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					// Set player uang tanpa menambahkan di database - maka diset false untuk parameter terakhir
 					setUangPlayer(playerid, PlayerInfo[playerid][uang], false);
 
+					UpdateExpScore(playerid);
+
 					PlayerInfo[playerid][tampilHUDStats] = true;
 					spawnPemain(playerid);
 
@@ -5063,6 +5065,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						DFarm[plant_Id][plantItemID] = -1;
 						format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil memanen Tanaman %s (id:"YELLOW"%d"WHITE") dan mendapatkan %s sebanyak %d.", DFarm[plant_Id][plantName], plant_Id, DFarm[plant_Id][plantName], randomDrop);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Farm System", pDialog[playerid], "Ok", "");
+						// Exp Score
+						TambahExpScore(playerid, EXP_TAMBAH_PANEN);
 					}
 					case 1:
 					{
@@ -5440,6 +5444,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat alat perbaikan", pDialog[playerid], "Ok", "");
 
 					sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+					// Exp Score
+					TambahExpScore(playerid, EXP_TAMBAH_SKILL);
 					return 1;
 				}else{
 					if(PlayerInfo[playerid][expMekanik] < LEVEL_SKILL_DUA) // Jika level exp player adalah lvl 1
@@ -5451,6 +5457,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					
 					format(pDialog[playerid], sizePDialog, WHITE"Gagal membuat alat perbaikan kendaraan.\n\n"YELLOW"Anda mendapatkan %d exp mekanik.", exp_didapat);
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat alat perbaikan", pDialog[playerid], "Ok", "");
+					// Exp Score
+					TambahExpScore(playerid, EXP_TAMBAH_SKILL);
 					return 1;
 				}						
 			}
@@ -5645,7 +5653,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
 						// Mancing Ikan
-						inline responseQuery(){
+						inline responseTotal(){
 							new total_item;
 							cache_get_value_name_int(0, "total_item", total_item);
 							if((total_item + 1) > PlayerInfo[playerid][limitItem]){						
@@ -5660,17 +5668,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
 								if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memancing dalam keadaan sekarang.");
 								if(obj != 20000) return error_command(playerid, "Anda harus berada di pinggir perairan untuk dapat memancing.");
-								tambahItemPlayer(playerid, 43, -1);
-								TogglePlayerControllable(playerid , 0);
-								SetPlayerArmedWeapon(playerid, 0);
-								ApplyAnimation(playerid,"SWORD","sword_block", 50.0, 0, 1, 0, 1, 1);
-								SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
-								mancingSecs[playerid] = 30;
-								mancingAktif[playerid] = 1;
-								mancingTimer[playerid] = SetPreciseTimer("waktuMancing", 1000, true, "i", playerid);
+								cekMulaiMancing(playerid);
 							}
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+						MySQL_TQueryInline(koneksi, using inline responseTotal, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
 					}
 					case 1:
 					{
@@ -9067,7 +9068,7 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 		hideTextDrawShowItem(playerid);
 		PlayerInfo[playerid][onSelectedTextdraw] = false;
         return 1;
-    }else if(playertextid == myInfo[playerid][7]){
+    }else if(playertextid == myInfo[playerid][8]){
 		if(PlayerInfo[playerid][onSelectedTextdraw]) CancelSelectTextDraw(playerid);
 		hideTextDrawMyInfo(playerid);
 		PlayerInfo[playerid][onSelectedTextdraw] = false;
@@ -11087,6 +11088,8 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 			GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
 			format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", GAJI_SWEEPER);
 			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+			// Exp Score
+			TambahExpScore(playerid, EXP_TAMBAH_JOB);
 		}
 	}
 	if(Iter_Contains(vehicleSIM, vehid) && testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehid){
@@ -11329,6 +11332,8 @@ public OnPlayerEnterCheckpoint(playerid){
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+				// Exp Score
+				TambahExpScore(playerid, EXP_TAMBAH_JOB);
 			}
 		}
 	}
@@ -11343,6 +11348,8 @@ public OnPlayerEnterCheckpoint(playerid){
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+				// Exp Score
+				TambahExpScore(playerid, EXP_TAMBAH_JOB);
 			}
 		}
 	}
