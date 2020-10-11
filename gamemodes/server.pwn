@@ -9856,7 +9856,7 @@ public OnGameModeInit()
 	printf("[VEHICLE RENT] Sukses load kendaraan sewa!");
 
 	// Setting up Game mode
-	SetGameModeText("VRP v0.7.3b Alpha");
+	SetGameModeText(NAMA_GAMEMODE);
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
 	ShowNameTags(1);
 	SetNameTagDrawDistance(40.0);

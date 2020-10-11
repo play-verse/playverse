@@ -11,6 +11,7 @@
 #define UCP_URL			"https://ucp.playverse.org/"
 
 #define NAMA_SERVER			"Playverse"
+#define NAMA_GAMEMODE 		"VRP v0.7.3c Alpha"
 #define RULES_SERVER		"\n\
 							1. Dilarang menggunakan cheat apapun.\n\
 							2. Dilarang menggunakan modifikasi (mod) yang dapat merugikan player lain.\n\
