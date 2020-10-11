@@ -513,14 +513,13 @@ enum INFO_MENU_BIBIT {
 
 new const MENU_BIBIT[][INFO_MENU_BIBIT] = {
 // Bibit
-    {31, "Bibit Jeruk", 10, 9},
-	{71, "Bibit Jahe", 12, 9},
-	{72, "Bibit Temulawak", 10, 9},
-	{73, "Bibit Alpukat", 12, 9},
-	{74, "Bibit Pepaya", 11, 9},
-	{75, "Bibit Belimbing", 13, 9},
-	{76, "Bibit Srikaya", 15, 9}
-
+    {ID_BIBIT_JERUK, "Bibit Jeruk", 15, 9},
+	{ID_BIBIT_JAHE, "Bibit Jahe", 10, 9},
+	{ID_BIBIT_TEMULAWAK, "Bibit Temulawak", 10, 9},
+	{ID_BIBIT_ALPUKAT, "Bibit Alpukat", 15, 9},
+	{ID_BIBIT_PEPAYA, "Bibit Pepaya", 15, 9},
+	{ID_BIBIT_BELIMBING, "Bibit Belimbing", 15, 9},
+	{ID_BIBIT_SRIKAYA, "Bibit Srikaya", 10, 9}
 };
 
 new const MENU_BIBIT_NARKO[][INFO_MENU_BIBIT] = {
@@ -616,7 +615,9 @@ enum {
 	ACTOR_MARKETPLACE_3,
 	ACTOR_MARKETPLACE_4,
 	ACTOR_PEMBELI_TAMBANG_1,
-	ACTOR_PEMBELI_KAYU_1
+	ACTOR_PEMBELI_KAYU_1,
+	ACTOR_PEMBELI_IKAN,
+	ACTOR_PEMBELI_BUAH
 };
 
 enum ACT_POSITION_INFO {
@@ -650,7 +651,9 @@ new const ACT_POSITION[][ACT_POSITION_INFO] = {
 	{141, ACTOR_MARKETPLACE_3, {-2659.6921, 1406.6693, 906.2734, 178.7227}, 3, 1},
 	{141, ACTOR_MARKETPLACE_4, {-2655.5066, 1409.6869, 906.2734, 270.2169}, 3, 1},
 	{26, ACTOR_PEMBELI_TAMBANG_1, {-539.1688, -542.0021, 25.5234, 179.2752}, 0, 0},
-	{26, ACTOR_PEMBELI_KAYU_1, {-752.8927, -133.0457, 65.8281, 17.1701}, 0, 0}
+	{26, ACTOR_PEMBELI_KAYU_1, {-752.8927, -133.0457, 65.8281, 17.1701}, 0, 0},
+	{158, ACTOR_PEMBELI_IKAN, {403.8720, -2088.7983, 7.8359, 181.5444}, 0, 0},
+	{161, ACTOR_PEMBELI_BUAH, {-1061.4474, -1195.5634, 129.8281, 265.0136}, 0, 0}
 };
 
 enum INFO_ACT_NPC {
@@ -1627,6 +1630,25 @@ new const list_barang_tampung_tambang[][INFO_BARANG_DENGAN_JUMLAH] = {
 	{ID_BESI, 5, 100},
 	{ID_BATU_BATA, 10, 50},
 	{ID_BATU_BARA, 10, 50}
+};
+
+new const list_barang_tampung_ikan[][INFO_BARANG_DENGAN_JUMLAH] = {
+	{ID_IKAN_ARWANA, 1, 500},
+	{ID_IKAN_KAKAP, 1, 300},
+	{ID_IKAN_MAS, 2, 200},
+	{ID_IKAN_MUJAIR, 2, 100},
+	{ID_UBUR_UBUR, 4, 150},
+	{ID_BINTANG_LAUT, 4, 100}
+};
+
+new const list_barang_tampung_buah[][INFO_BARANG_DENGAN_JUMLAH] = {
+	{ID_JERUK, 9, 23},
+	{ID_JAHE, 9, 15},
+	{ID_TEMULAWAK, 9, 15},
+	{ID_ALPUKAT, 9, 23},
+	{ID_PEPAYA, 9, 23},
+	{ID_BELIMBING, 9, 23},
+	{ID_SRIKAYA, 9, 15}
 };
 
 new const item_beli_tambang[][INFO_BARANG_MARKET] = {

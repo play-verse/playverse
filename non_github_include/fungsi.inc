@@ -1253,37 +1253,37 @@ pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 }
 
 publicFor: pakaiBibitJeruk(playerid){
-	pakaiBibit(playerid, "Jeruk", 31, 32);
+	pakaiBibit(playerid, "Jeruk", ID_BIBIT_JERUK, ID_JERUK);
 	return 1;
 }
 
 publicFor: pakaiBibitJahe(playerid){
-	pakaiBibit(playerid, "Jahe", 71, 77);
+	pakaiBibit(playerid, "Jahe", ID_BIBIT_JAHE, ID_JAHE);
 	return 1;
 }
 
 publicFor: pakaiBibitTemulawak(playerid){
-	pakaiBibit(playerid, "Temulawak", 72, 78);
+	pakaiBibit(playerid, "Temulawak", ID_BIBIT_TEMULAWAK, ID_TEMULAWAK);
 	return 1;
 }
 
 publicFor: pakaiBibitAlpukat(playerid){
-	pakaiBibit(playerid, "Alpukat", 73, 79);
+	pakaiBibit(playerid, "Alpukat", ID_BIBIT_ALPUKAT, ID_ALPUKAT);
 	return 1;
 }
 
 publicFor: pakaiBibitPepaya(playerid){
-	pakaiBibit(playerid, "Pepaya", 74, 80);
+	pakaiBibit(playerid, "Pepaya", ID_BIBIT_PEPAYA, ID_PEPAYA);
 	return 1;
 }
 
 publicFor: pakaiBibitBelimbing(playerid){
-	pakaiBibit(playerid, "Belimbing", 75, 81);
+	pakaiBibit(playerid, "Belimbing", ID_BIBIT_BELIMBING, ID_BELIMBING);
 	return 1;
 }
 
 publicFor: pakaiBibitSrikaya(playerid){
-	pakaiBibit(playerid, "Srikaya", 76, 82);
+	pakaiBibit(playerid, "Srikaya", ID_BIBIT_SRIKAYA, ID_SRIKAYA);
 	return 1;
 }
 
@@ -4753,7 +4753,7 @@ randomIkan(playerid){
 		case 34:{ // 1.4%
 			if(nombakDepth[playerid] > 10.0){ // Ikan Arwana kedalaman > 10
 				showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "SILVER"Ikan Arwana"WHITE".\nIkan Arwana adalah hasil mancing nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
-				tambahItemPlayer(playerid, 35, 1);
+				tambahItemPlayer(playerid, ID_IKAN_ARWANA, 1);
 			}else{
 				angka = angka+1;
 				goto re_switch;
@@ -4763,7 +4763,7 @@ randomIkan(playerid){
 		{ // 4.3%
 			if(nombakDepth[playerid] > 5.0 || nombakDepth[playerid] < 10.0){ // Ikan Kakap kedalaman > 5-10
 				showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "YELLOW"Ikan Kakap"WHITE".\nIkan Kakap adalah hasil mancing yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
-				tambahItemPlayer(playerid, 36, 1);
+				tambahItemPlayer(playerid, ID_IKAN_KAKAP, 1);
 			}else{
 				angka = angka+1;
 				goto re_switch;
@@ -4772,22 +4772,22 @@ randomIkan(playerid){
 		case 27..30,57,58:
 		{ // 10%
 			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Ikan Mas"WHITE".\nIkan Mas adalah hasil mancing yang mirip dengan "BLUE"Ikan Mujair"WHITE" tapi lebih bagus. Keren sekali!");
-			tambahItemPlayer(playerid, 37, 1);
+			tambahItemPlayer(playerid, ID_IKAN_MAS, 1);
 		}
 		case 11..14,41..44,56,59:
 		{ // 14.3%
 			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "ORANGE"Ikan Mujair"WHITE".\nIkan Mujair adalah hasil mancing yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
-			tambahItemPlayer(playerid, 38, 1);
+			tambahItemPlayer(playerid, ID_IKAN_MUJAIR, 1);
 		}
 		case 6..10,21..25,36..40:
 		{ // 21.4%
 			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "ORANGE"Ubur-ubur"WHITE".\nUbur-ubur adalah hasil mancing bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
-			tambahItemPlayer(playerid, 39, 1);
+			tambahItemPlayer(playerid, ID_UBUR_UBUR, 1);
 		}
 		case 1..5,16..20,46..50,61..65,66..70:
 		{ // 35.7%
 			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "ORANGE"Bintang Laut"WHITE".\nBintang Laut adalah hasil mancing bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
-			tambahItemPlayer(playerid, 40, 1);
+			tambahItemPlayer(playerid, ID_BINTANG_LAUT, 1);
 		}
 		default:
 		{ // 12.8%
@@ -5403,7 +5403,6 @@ NeedExpScore(playerid){
 	if(next_Score >= 1){
 		new Float:exp_Float = exp_Default*0.25,
 		exp_Rand = floatround(exp_Float, floatround_round);
-		printf("%f", exp_Float);
 		exp_Need = exp_Default+exp_Rand;
 	}else{
 		exp_Need = exp_Default;

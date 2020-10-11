@@ -680,3 +680,43 @@ showDialogListItemVehicle(playerid, vehicleid, dialogid = DIALOG_AMBIL_ITEM_VEHI
 
     return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
 }
+
+showDialogJualItemIkan(playerid){
+    static str_daftar_jual_ikan[sizeof(list_barang_tampung_ikan) * 100 + 100], subString[100];
+    if(str_daftar_jual_ikan[0] == EOS){
+        new nama_item[50];
+        strcat(str_daftar_jual_ikan, WHITE"Nama\tJumlah Per Stack\tHarga Jual\n");
+        for(new i = 0; i < sizeof(list_barang_tampung_ikan); i++){
+            getNamaByIdItem(list_barang_tampung_ikan[i][brgId], nama_item);
+
+            format(subString, 100, 
+                WHITE"%s\t"YELLOW"%d\t"GREEN"$%d\n", 
+                nama_item, 
+                list_barang_tampung_ikan[i][brgJumlah],
+                list_barang_tampung_ikan[i][brgHarga] - floatround(float(list_barang_tampung_ikan[i][brgHarga]) * 0.1, floatround_floor)
+            );
+            strcat(str_daftar_jual_ikan, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_PENJUAL_IKAN_LIST_JUAL, DIALOG_STYLE_TABLIST_HEADERS, "Jual Hasil Mancing", str_daftar_jual_ikan, "Pilih", "Batal");
+}
+
+showDialogJualItemBuah(playerid){
+    static str_daftar_jual_buah[sizeof(list_barang_tampung_buah) * 100 + 100], subString[100];
+    if(str_daftar_jual_buah[0] == EOS){
+        new nama_item[50];
+        strcat(str_daftar_jual_buah, WHITE"Nama\tJumlah Per Stack\tHarga Jual\n");
+        for(new i = 0; i < sizeof(list_barang_tampung_buah); i++){
+            getNamaByIdItem(list_barang_tampung_buah[i][brgId], nama_item);
+
+            format(subString, 100, 
+                WHITE"%s\t"YELLOW"%d\t"GREEN"$%d\n", 
+                nama_item, 
+                list_barang_tampung_buah[i][brgJumlah],
+                list_barang_tampung_buah[i][brgHarga] - floatround(float(list_barang_tampung_buah[i][brgHarga]) * 0.1, floatround_floor)
+            );
+            strcat(str_daftar_jual_buah, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_PENJUAL_BUAH_LIST_JUAL, DIALOG_STYLE_TABLIST_HEADERS, "Jual Hasil Panen", str_daftar_jual_buah, "Pilih", "Batal");
+}
