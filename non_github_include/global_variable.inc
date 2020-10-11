@@ -446,27 +446,27 @@ enum INFO_MENU_MAKANAN {
 }
 
 /*  
-    $1 Minuman = 5%
-    $1 Food = 2.5% 
+    $1 Minuman = 20%
+    $1 Food = 10% 
 
 	IMPORTANT: Definisikan Semua Makanan & Minuman Disini
 		KARENA ENERGI AMBIL DARI SINI
 */
 new const MENU_MAKANAN[][INFO_MENU_MAKANAN] = {
 // Makanan
-    {14, 20, 50.0}, // Steak
-    {16, 15, 37.5}, // Nasi Bungkus
-    {17, 12, 30.0}, // Sate
-    {23, 10, 25.0}, // Roti
-    {24, 5, 12.5}, // Telur Dadar
+    {14, 10, 100.0}, // Steak
+    {16, 7, 70.0}, // Nasi Bungkus
+    {17, 4, 40.0}, // Sate
+    {23, 3, 30.0}, // Roti
+    {24, 1, 10.0}, // Telur Dadar
 
 // Minuman
-    {13, 1, 5.0}, // Air Mineral
-    {18, 5, 25.0}, // Jus Jeruk
-    {19, 4, 20.0}, // Es teh manis
-    {20, 7, 35.0}, // Kopi Panas
-    {21, 7, 35.0}, // Kopi Dingin
-    {22, 6, 30.0} // Minuman Soda
+    {13, 1, 20.0}, // Air Mineral
+    {18, 5, 100.0}, // Jus Jeruk
+    {19, 3, 60.0}, // Es teh manis
+    {20, 2, 40.0}, // Kopi Panas
+    {21, 2, 40.0}, // Kopi Dingin
+    {22, 4, 80.0} // Minuman Soda
 };
 
 enum INFO_MENU_ALAT {
