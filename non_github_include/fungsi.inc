@@ -3877,7 +3877,7 @@ LoadVehiclePlayer(playerid){
 		if(rows){
 			new idx = 0, idveh, idpv, temp_id, already_loaded, temp_time,
 				panels, doors, lights, tires, engine, alarm, bonnet, boot, objective,
-				bensin;
+				p_doors, bensin;
 
 			while(idx < rows){
 				already_loaded = -1; // Bakal menyimpan idpv kendaraan
@@ -3938,6 +3938,8 @@ LoadVehiclePlayer(playerid){
 				cache_get_value_name_int(idx, "status_lights", lights);
 				cache_get_value_name_int(idx, "status_tires", tires);
 
+				cache_get_value_name_int(idx, "params_doors", p_doors);
+
 				cache_get_value_name_int(idx, "bensin", bensin);
 
 				format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
@@ -3977,7 +3979,7 @@ LoadVehiclePlayer(playerid){
 
 					// Memakai variable yang sama dengan UpdateVehicleDamageStatus maka di terakhirkan saja, agar tidak ditimpa value nya oleh fungsi getter VehicleParamsEx
 					GetVehicleParamsEx(idveh, engine, lights, alarm, doors, bonnet, boot, objective);
-					SetVehicleParamsEx(idveh, 0, 0, alarm, doors, bonnet, boot, objective);
+					SetVehicleParamsEx(idveh, 0, 0, alarm, p_doors, bonnet, boot, objective);
 				}
 
 				Iter_Add(PVehIterator, idpv);
@@ -5430,12 +5432,27 @@ TambahExpScore(playerid, exp){
 }
 
 PlayerRankScore(playerid){
-	new p_rank[64], p_Score = PlayerInfo[playerid][pScore];
-	if(p_Score >= 1 && p_Score <= 25) format(p_rank, sizeof(p_rank), "%s", "Newbie");
-	else if(p_Score >= 26 && p_Score <= 50) format(p_rank, sizeof(p_rank), "%s", "Training");
-	else if(p_Score >= 51 && p_Score <= 100) format(p_rank, sizeof(p_rank), "%s", "Elite");
-	else if(p_Score >= 101 && p_Score <= 150) format(p_rank, sizeof(p_rank), "%s", "Master");
-	else if(p_Score >= 151 && p_Score <= 200) format(p_rank, sizeof(p_rank), "%s", "Pro");
-	else if(p_Score >= 201) format(p_rank, sizeof(p_rank), "%s", "Legend");
-	return p_rank;
+	new p_Rank[64], p_Score = PlayerInfo[playerid][pScore];
+	if(p_Score >= 0 && p_Score <= 25) format(p_Rank, sizeof(p_Rank), "%s", "Newbie");
+	else if(p_Score >= 26 && p_Score <= 50) format(p_Rank, sizeof(p_Rank), "%s", "Training");
+	else if(p_Score >= 51 && p_Score <= 100) format(p_Rank, sizeof(p_Rank), "%s", "Elite");
+	else if(p_Score >= 101 && p_Score <= 150) format(p_Rank, sizeof(p_Rank), "%s", "Master");
+	else if(p_Score >= 151 && p_Score <= 200) format(p_Rank, sizeof(p_Rank), "%s", "Pro");
+	else if(p_Score >= 201) format(p_Rank, sizeof(p_Rank), "%s", "Legend");
+	return p_Rank;
+}
+
+ClosestVehiclePlayer(playerid, Float: range = 5.0){
+    new id = -1, Float: dist = range, Float: tempdist;
+    foreach(new i : PVehIterator){
+		if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], i)) {
+			tempdist = GetPlayerDistanceFromPoint(playerid, PVeh[i][pVehCoord][0], PVeh[i][pVehCoord][1], PVeh[i][pVehCoord][2]);
+			if(tempdist > range) continue;
+			if(tempdist <= dist){
+				dist = tempdist;
+				id = PVeh[i][pVehicle];
+			}
+		}
+    }
+    return id;
 }

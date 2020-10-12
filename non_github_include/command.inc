@@ -1745,3 +1745,67 @@ CMD:tutorial(playerid, params[]){
     ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Awal) :", pDialog[playerid], "Lanjut", "Tutup");
     return 1;
 }
+
+CMD:lock(playerid, params[]){
+    new vehid = ClosestVehiclePlayer(playerid);
+    if(vehid == -1){
+        if(IsPlayerInAnyVehicle(playerid)){
+            vehid = GetPlayerVehicleID(playerid);
+            if(PVeh[IDVehToPVeh[vehid]][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], IDVehToPVeh[vehid])){
+                goto label_lock_vehicle_player;
+            }
+        }
+        return error_command(playerid, "Anda tidak disekitar kendaraan yang anda miliki atau pinjaman.");
+    }
+    label_lock_vehicle_player:
+    new idpv = IDVehToPVeh[vehid];
+    if(Iter_Contains(IDVehToPVehIterator, vehid)){
+        if(PVeh[idpv][pVehPemilik] != PlayerInfo[playerid][pID] && !( Iter_Contains(PVehKeys[playerid], idpv) && PVehKeysTime[playerid][idpv] > gettime() )){
+            server_message(playerid, "Anda tidak memiliki kunci kendaraan ini.");
+            return 1;
+        }
+    }
+    new engine, lights, alarm,doors, bonnet, boot, objective;
+    GetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
+    if(doors == VEHICLE_PARAMS_ON){
+        SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan sudah dalam keadaan terkunci.");
+    }else{
+        SetVehicleParamsEx(vehid, engine, lights, alarm, VEHICLE_PARAMS_ON, bonnet, boot, objective);
+        SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda berhasil mengunci kendaraan.");
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle SET params_doors = '%d' WHERE id = '%d'", VEHICLE_PARAMS_ON, PVeh[idpv][pVehID]);
+	    mysql_tquery(koneksi, pQuery[playerid]);
+    }
+    return 1;
+}
+
+CMD:unlock(playerid, params[]){
+    new vehid = ClosestVehiclePlayer(playerid);
+    if(vehid == -1){
+        if(IsPlayerInAnyVehicle(playerid)){
+            vehid = GetPlayerVehicleID(playerid);
+            if(PVeh[IDVehToPVeh[vehid]][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], IDVehToPVeh[vehid])){
+                goto label_unlock_vehicle_player;
+            }
+        }
+        return error_command(playerid, "Anda tidak disekitar kendaraan yang anda miliki atau pinjaman.");
+    }
+    label_unlock_vehicle_player:
+    new idpv = IDVehToPVeh[vehid];
+    if(Iter_Contains(IDVehToPVehIterator, vehid)){
+        if(PVeh[idpv][pVehPemilik] != PlayerInfo[playerid][pID] && !( Iter_Contains(PVehKeys[playerid], idpv) && PVehKeysTime[playerid][idpv] > gettime() )){
+            server_message(playerid, "Anda tidak memiliki kunci kendaraan ini.");
+            return 1;
+        }
+    }
+    new engine, lights, alarm, doors, bonnet, boot, objective;
+    GetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
+    if(doors == VEHICLE_PARAMS_ON){
+        SetVehicleParamsEx(vehid, engine, lights, alarm, VEHICLE_PARAMS_OFF, bonnet, boot, objective);
+        SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda berhasil membuka kunci kendaraan.");
+        mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle SET params_doors = '%d' WHERE id = '%d'", VEHICLE_PARAMS_OFF, PVeh[idpv][pVehID]);
+	    mysql_tquery(koneksi, pQuery[playerid]);
+    }else{
+        SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan sudah dalam keadaan tidak terkunci.");
+    }
+    return 1;
+}
