@@ -754,7 +754,6 @@ new const NAMA_ABJAD[][] = {
 #define NAMA_ACTOR_MARKETPLACE_4		"roxy"
 #define NAMA_ACTOR_SKILL_BLACKSMITH		"devi"
 #define NAMA_ACTOR_PEMBELI_TAMBANG_1	"max"
-#define NAMA_ACTOR_PEMBELI_TAMBANG_2	"jack"
 #define NAMA_ACTOR_PEMBELI_KAYU_1		"alex"
 #define NAMA_ACTOR_PEMBELI_IKAN			"ipul"
 #define NAMA_ACTOR_PEMBELI_BUAH			"larry"

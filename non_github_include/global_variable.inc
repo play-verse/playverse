@@ -1453,8 +1453,6 @@ new const gVehicleColors[] =
 new mancingTimer[MAX_PLAYERS],
 	mancingSecs[MAX_PLAYERS],
 	mancingAktif[MAX_PLAYERS],
-	nombakTimer[MAX_PLAYERS],
-	nombakSecs[MAX_PLAYERS],
 	nombakDelay[MAX_PLAYERS],
 	Float:nombakDepth[MAX_PLAYERS];
 

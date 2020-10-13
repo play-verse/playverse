@@ -4821,18 +4821,6 @@ publicFor: waktuMancing(playerid){
 	return 1;
 }
 
-publicFor: delayNombak(playerid){
-	if(nombakSecs[playerid] >= 0){
-		nombakSecs[playerid]--;
-		if(nombakSecs[playerid] == 0){
-			nombakSecs[playerid] = -1;
-			nombakDelay[playerid] = 0;
-			DeletePreciseTimer(nombakTimer[playerid]);
-		}
-	}
-	return 1;
-}
-
 publicFor: TerminateInteraksi(actorid){
 	ClearDynamicActorAnimations(actorid);
 

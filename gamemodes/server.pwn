@@ -9574,26 +9574,18 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		new Float:depth, Float:depth2;
 		if(CA_IsPlayerInWater(playerid, depth, depth2)){
 			if(PlayerInfo[playerid][sisaTombak] > 0 && depth2 > 2.0){ // Minimal kedalaman > 2
-				inline responseQuery(){
-					new total_item;
-					cache_get_value_name_int(0, "total_item", total_item);
-					if((total_item + 1) > PlayerInfo[playerid][limitItem]){						
-						format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", 1, total_item, PlayerInfo[playerid][limitItem]);
-						return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
-					}else{
-						if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
-						if(nombakDelay[playerid] == 0){
-							nombakDelay[playerid] = 1;
-							nombakSecs[playerid] = 10;
-							nombakTimer[playerid] = SetPreciseTimer("delayNombak", 1000, true, "i", playerid);
-							nombakDepth[playerid] = depth2;
-							randomIkan(playerid);
-						}else{
-							error_command(playerid, "Tunggu beberapa detik untuk dapat menombak ikan.");
-						}
-					}
+				if(GetSlotInventoryPlayer(playerid) + 1 > PlayerInfo[playerid][limitItem]){
+					return showDialogPesan(playerid, RED"Inventory anda penuh", WHITE"Silahkan sisakan minimal 1 slot item anda terlebih dahulu.\nPengosongan berguna untuk menyisakan tempat untuk hasil yang didapat nantinya.");
 				}
-				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+
+				if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+				if(nombakDelay[playerid] < gettime()){
+					nombakDelay[playerid] = gettime() + 10;
+					nombakDepth[playerid] = depth2;
+					randomIkan(playerid);
+				}else{
+					error_command(playerid, "Tunggu beberapa detik untuk dapat menombak ikan.");
+				}
 			}
 		}
 	}
