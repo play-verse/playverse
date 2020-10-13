@@ -3757,7 +3757,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT COUNT(*) AS total FROM vehicle WHERE id_pemilik = '%d'", PlayerInfo[playerid][pID]);
 			}else{
-				if(GetLevelAdminPlayer(playerid) >= 2)
+				if(GetLevelAdminPlayer(playerid) < 1)
 					RemovePlayerFromVehicle(playerid);
 			}
 			return 1;
