@@ -5077,13 +5077,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						// Exp Score
 						TambahExpScore(playerid, EXP_TAMBAH_PANEN);
 					}
-					case 1:
-					{
-						// Tempat Beli Bibit
-						SetPlayerCheckpoint(playerid, 1494.2545, -1657.3724, 12.8556, 2.0); // Dibuat list jika lebih dari 1
-						PlayerInfo[playerid][activeMarker] = true;
-						SendClientMessage(playerid, COLOR_GREEN, "[Farm System] "WHITE"Anda telah berhasil menandai toko bibit.");
-					}
 				}
 			}
 			return 1;
