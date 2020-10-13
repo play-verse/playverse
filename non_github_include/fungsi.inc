@@ -4754,7 +4754,7 @@ randomIkan(playerid){
 	}
 
 	re_switch:
-	if((curr_weather_id == ID_WEATHER_RAIN && angka <= 3) || angka == 0){ // 1.4%
+	if((curr_weather_id == ID_WEATHER_RAIN && angka <= 3) || (curr_weather_id != ID_WEATHER_RAIN && angka == 0)){ // 1.4%
 		if(nombakDepth[playerid] > 10.0){ // Ikan Arwana kedalaman > 10
 			SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "PURPLE"Ikan arwana.");
 			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Tangkapan yang luar biasa, ini adalah ikan paling mahal yang pernah ada.");
@@ -4763,7 +4763,7 @@ randomIkan(playerid){
 			angka = angka + 1;
 			goto re_switch;
 		}
-	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 10) || angka <= 3){
+	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 10) || (curr_weather_id != ID_WEATHER_RAIN && angka <= 3)){
 		if(nombakDepth[playerid] > 5.0 || nombakDepth[playerid] < 10.0){ // Ikan Kakap kedalaman > 5-10
 			SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "YELLOW"Ikan Kakap.");
 			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Keberuntungan yang bagus, anda dapat menjualnya dengan harga yang sangat tinggi.");
@@ -4772,19 +4772,19 @@ randomIkan(playerid){
 			angka = angka + 1;
 			goto re_switch;
 		}
-	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 20) || angka <= 10){
+	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 20) || (curr_weather_id != ID_WEATHER_RAIN && angka <= 10)){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "ORANGE"Ikan Mas.");
 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Ikan ini sangat bagus dan mahal untuk dijual.");
 		tambahItemPlayer(playerid, ID_IKAN_MAS, 1);		
-	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 35) || angka <= 20){
+	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 35) || (curr_weather_id != ID_WEATHER_RAIN && angka <= 20)){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "PINK"Ikan Mujair.");
 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Ikan ini mempunyai harga yang bagus untuk dijual.");
 		tambahItemPlayer(playerid, ID_IKAN_MUJAIR, 1);
-	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 60) || angka <= 35){
+	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 60) || (curr_weather_id != ID_WEATHER_RAIN && angka <= 35)){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "SILVER"Ubur-ubur.");
 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Jika anda mengumpulkannya, anda dapat menjualnya dengan harga yang bagus.");
 		tambahItemPlayer(playerid, ID_UBUR_UBUR, 1);
-	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 80) || angka <= 60){
+	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 80) || (curr_weather_id != ID_WEATHER_RAIN && angka <= 60)){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "SILVER"Bintang laut.");
 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Jika anda mengumpulkannya, anda dapat menjualnya.");
 		tambahItemPlayer(playerid, ID_BINTANG_LAUT, 1);
