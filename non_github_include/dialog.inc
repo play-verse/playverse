@@ -440,10 +440,10 @@ showDialogGuideText(playerid){
             lama_respon_actor = LAMA_BATAS_RESPON_PENJUAL;
             format(tipe_actor, sizeof(tipe_actor), "Penjual");
             format(nama_penjual, sizeof(nama_penjual), "%s", NAMA_ACTOR_PENJUAL_PANCING);
-        }else if(areaid == AREA_Guide_tokoBibit){
-            lama_respon_actor = LAMA_BATAS_RESPON_PENJUAL;
-            format(tipe_actor, sizeof(tipe_actor), "Penjual");
-            format(nama_penjual, sizeof(nama_penjual), "%s", NAMA_ACTOR_PENJUAL_BIBIT);
+        // }else if(areaid == AREA_Guide_tokoBibit){
+        //     lama_respon_actor = LAMA_BATAS_RESPON_PENJUAL;
+        //     format(tipe_actor, sizeof(tipe_actor), "Penjual");
+        //     format(nama_penjual, sizeof(nama_penjual), "%s", NAMA_ACTOR_PENJUAL_BIBIT);
         }else if(areaid == AREA_Guide_tokoGadget){
             lama_respon_actor = LAMA_BATAS_RESPON_PENJUAL;
             format(tipe_actor, sizeof(tipe_actor), "Penjual");
@@ -469,8 +469,8 @@ showDialogGuideText(playerid){
         strcatEx(str_guide, 2000, WHITE"Beberapa hal yang dapat diurus disini melalui %s\nPastikan anda mengawali percakapan seperti yang dijelaskan diatas.\n", tipe_actor);
         if(areaid == AREA_Guide_peralatanPancing){
             strcat(str_guide, "1. Katakan "YELLOW"saya ingin beli peralatan pancing"WHITE" untuk membeli peralatan pancing.\n");
-        }else if(areaid == AREA_Guide_tokoBibit){
-            strcat(str_guide, "1. Katakan "YELLOW"saya ingin beli bibit"WHITE" untuk membeli bibit tumbuhan.\n");
+        // }else if(areaid == AREA_Guide_tokoBibit){
+        //     strcat(str_guide, "1. Katakan "YELLOW"saya ingin beli bibit"WHITE" untuk membeli bibit tumbuhan.\n");
         }else if(areaid == AREA_Guide_tokoGadget){
             strcat(str_guide, "1. Katakan "YELLOW"saya ingin beli phone"WHITE" untuk membeli phone.\n");
         }else if(areaid == AREA_Guide_penjualDealer){

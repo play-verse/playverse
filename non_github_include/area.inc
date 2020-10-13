@@ -38,10 +38,7 @@ loadAllArea(){
     AREA_Guide_peralatanPancing = CreateDynamicSphere(1012.23407, -1890.52246, 11.46645, 3.0);
 
     // Hint pada Toko Bibit
-    CreateDynamic3DTextLabel(\
-        "Guide interaksi toko bibit dan peraturan.\n\
-        "WHITE"Silahkan tekan "GREEN"N "WHITE"untuk membaca guide.\n", COLOR_YELLOW, 1481.11499, -1653.10498, 12.28867, 20.0);
-    AREA_Guide_tokoBibit = CreateDynamicSphere(1481.11499, -1653.10498, 12.28867, 3.0);
+    // AREA_Guide_tokoBibit = CreateDynamicSphere(1481.11499, -1653.10498, 12.28867, 3.0);
 
     // Hint pada Toko Gadget
     CreateDynamic3DTextLabel(\

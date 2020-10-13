@@ -9533,7 +9533,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				if(!IsPlayerInAnyVehicle(playerid)){
 					showDialogAmbilMobilReparasi(playerid);
 				}
-			}else if(areaid == AREA_Guide_peralatanPancing || areaid == AREA_Guide_tokoBibit ||
+			}else if(areaid == AREA_Guide_peralatanPancing || /*areaid == AREA_Guide_tokoBibit ||*/
 					areaid == AREA_Guide_tokoGadget || areaid == AREA_Guide_penjualDealer ||
 					areaid == AREA_GuideAhliBlacksmith){
 				showDialogGuideText(playerid);
