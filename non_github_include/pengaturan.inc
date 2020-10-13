@@ -653,6 +653,7 @@ new const NAMA_ABJAD[][] = {
 #define TAG_ASK 				"Ask:"
 #define TAG_SPEC				"Spec:"
 #define TAG_GAGAL				"Gagal:"
+#define TAG_MANCING				"Mancing:"
 
 /*
 	Job Define

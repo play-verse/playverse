@@ -4739,62 +4739,57 @@ randomIkan(playerid){
 	new angka;
 	if(mancingAktif[playerid] == 1){
 		mancingAktif[playerid] = 0;
-		if(IsPlayerAttachedObjectSlotUsed(playerid, PANCINGAN_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX);
-		angka = random(70);
+		if(IsPlayerAttachedObjectSlotUsed(playerid, PANCINGAN_ATTACH_INDEX)) 
+			RemovePlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX);
+		angka = random(110);
 	}else if(PlayerInfo[playerid][sisaTombak] > 0){ // Pakai tombak keberuntungan +14%
 		PlayerInfo[playerid][sisaTombak]--;
 		if(PlayerInfo[playerid][sisaTombak] == 0){
-			if(IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX);
+			if(IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) 
+				RemovePlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX);
 		}
-		angka = random(60);
+		angka = random(95);
 	}else{
 		angka = 0;
 	}
+
 	re_switch:
-	switch(angka){
-		case 34:{ // 1.4%
-			if(nombakDepth[playerid] > 10.0){ // Ikan Arwana kedalaman > 10
-				showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "SILVER"Ikan Arwana"WHITE".\nIkan Arwana adalah hasil mancing nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
-				tambahItemPlayer(playerid, ID_IKAN_ARWANA, 1);
-			}else{
-				angka = angka+1;
-				goto re_switch;
-			}
+	if(angka == 0){ // 1.4%
+		if(nombakDepth[playerid] > 10.0){ // Ikan Arwana kedalaman > 10
+			SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "PURPLE"Ikan arwana.");
+			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Tangkapan yang luar biasa, ini adalah ikan paling mahal yang pernah ada.");
+			tambahItemPlayer(playerid, ID_IKAN_ARWANA, 1);
+		}else{
+			angka = angka + 1;
+			goto re_switch;
 		}
-		case 15,26,45:
-		{ // 4.3%
-			if(nombakDepth[playerid] > 5.0 || nombakDepth[playerid] < 10.0){ // Ikan Kakap kedalaman > 5-10
-				showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "YELLOW"Ikan Kakap"WHITE".\nIkan Kakap adalah hasil mancing yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
-				tambahItemPlayer(playerid, ID_IKAN_KAKAP, 1);
-			}else{
-				angka = angka+1;
-				goto re_switch;
-			}
+	}else if(angka <= 3){
+		if(nombakDepth[playerid] > 5.0 || nombakDepth[playerid] < 10.0){ // Ikan Kakap kedalaman > 5-10
+			SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "YELLOW"Ikan Kakap.");
+			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Keberuntungan yang bagus, anda dapat menjualnya dengan harga yang sangat tinggi.");
+			tambahItemPlayer(playerid, ID_IKAN_KAKAP, 1);
+		}else{
+			angka = angka + 1;
+			goto re_switch;
 		}
-		case 27..30,57,58:
-		{ // 10%
-			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Ikan Mas"WHITE".\nIkan Mas adalah hasil mancing yang mirip dengan "BLUE"Ikan Mujair"WHITE" tapi lebih bagus. Keren sekali!");
-			tambahItemPlayer(playerid, ID_IKAN_MAS, 1);
-		}
-		case 11..14,41..44,56,59:
-		{ // 14.3%
-			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "ORANGE"Ikan Mujair"WHITE".\nIkan Mujair adalah hasil mancing yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
-			tambahItemPlayer(playerid, ID_IKAN_MUJAIR, 1);
-		}
-		case 6..10,21..25,36..40:
-		{ // 21.4%
-			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "ORANGE"Ubur-ubur"WHITE".\nUbur-ubur adalah hasil mancing bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
-			tambahItemPlayer(playerid, ID_UBUR_UBUR, 1);
-		}
-		case 1..5,16..20,46..50,61..65,66..70:
-		{ // 35.7%
-			showDialogPesan(playerid, "Hasil Mancing", GREEN"Selamat Anda mendapatkan "ORANGE"Bintang Laut"WHITE".\nBintang Laut adalah hasil mancing bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
-			tambahItemPlayer(playerid, ID_BINTANG_LAUT, 1);
-		}
-		default:
-		{ // 12.8%
-			SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
-		}
+	}else if(angka <= 10){
+		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "ORANGE"Ikan Mas.");
+		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Ikan ini sangat bagus dan mahal untuk dijual.");
+		tambahItemPlayer(playerid, ID_IKAN_MAS, 1);		
+	}else if(angka <= 20){
+		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "PINK"Ikan Mujair.");
+		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Ikan ini mempunyai harga yang bagus untuk dijual.");
+		tambahItemPlayer(playerid, ID_IKAN_MUJAIR, 1);
+	}else if(angka <= 35){
+		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "SILVER"Ubur-ubur.");
+		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Jika anda mengumpulkannya, anda dapat menjualnya dengan harga yang bagus.");
+		tambahItemPlayer(playerid, ID_UBUR_UBUR, 1);
+	}else if(angka <= 60){
+		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "SILVER"Bintang laut.");
+		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Jika anda mengumpulkannya, anda dapat menjualnya.");
+		tambahItemPlayer(playerid, ID_BINTANG_LAUT, 1);
+	}else{
+		SendClientMessage(playerid, COLOR_GREY, TAG_MANCING" Anda tidak mendapatkan apapun.");
 	}
 	nombakDepth[playerid] = 0.0;
 	return 1;
