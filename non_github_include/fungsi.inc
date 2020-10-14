@@ -280,6 +280,7 @@ resetPlayerVariable(playerid, dari_callback){
 	// User Achievement
 	PlayerInfo[playerid][ach_Berlaut] = 0;
 	PlayerInfo[playerid][ach_Bertambang] = 0;
+	PlayerInfo[playerid][ach_MotongPohon] = 0;
 
 	PlayerInfo[playerid][ach_IkanArwana] = 0;
 	PlayerInfo[playerid][ach_IkanKakap] = 0;
@@ -3226,6 +3227,7 @@ updateOnPlayerDisconnect(playerid){
 		SET \
 		berlaut=%d,\
 		bertambang=%d,\
+		motong_pohon=%d,\
 		ikan_arwana=%d,\
 		ikan_kakap=%d,\
 		ikan_mas=%d,\
@@ -3243,6 +3245,7 @@ updateOnPlayerDisconnect(playerid){
 		WHERE id_user = '%d'",
 		PlayerInfo[playerid][ach_Berlaut],
 		PlayerInfo[playerid][ach_Bertambang],
+		PlayerInfo[playerid][ach_MotongPohon],
 		PlayerInfo[playerid][ach_IkanArwana],
 		PlayerInfo[playerid][ach_IkanKakap],
 		PlayerInfo[playerid][ach_IkanMas],
@@ -4622,6 +4625,9 @@ TurunkanPohon(playerid){
 		}
 		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil melakukan pemotongan "GREEN"%d"WHITE" buah pohon, dan mendapatkan total kayu "GREEN"%d"WHITE" buah.", treeVeh, randomLog);
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Pemotongan Pohon", pDialog[playerid], "Ok", "");
+
+		// Achievement
+		PlayerInfo[playerid][ach_Kayu] += randomLog;
 		tambahItemPlayer(playerid, ID_KAYU, randomLog);
 		vehDTree[vehid][treeAngkut] = 0;
 	}
@@ -5477,6 +5483,7 @@ loadPlayerAchievement(playerid){
 		if(rows){
 			cache_get_value_name_int(0, "berlaut", PlayerInfo[playerid][ach_Berlaut]);
 			cache_get_value_name_int(0, "bertambang", PlayerInfo[playerid][ach_Bertambang]);
+			cache_get_value_name_int(0, "motong_pohon", PlayerInfo[playerid][ach_MotongPohon]);
 			cache_get_value_name_int(0, "ikan_arwana", PlayerInfo[playerid][ach_IkanArwana]);
 			cache_get_value_name_int(0, "ikan_kakap", PlayerInfo[playerid][ach_IkanKakap]);
 			cache_get_value_name_int(0, "ikan_mas", PlayerInfo[playerid][ach_IkanMas]);

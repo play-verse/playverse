@@ -4354,6 +4354,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										ApplyAnimation(playerid, "CHAINSAW", "WEAPON_csaw", 4.1, 1, 0, 0, 1, 0, 1);
 										DTree[tid][treeTumbang] = true;
 				
+										// Achievement
+										PlayerInfo[playerid][ach_MotongPohon]++;
+
 										PlayerInfo[playerid][isOnAnimation] = true;						
 										PlayerInfo[playerid][isBusy] = true;
 									}

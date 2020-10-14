@@ -145,7 +145,8 @@ enum pInfo
 	ach_BatuBara,
 	ach_BatuBata,
 	ach_Berlaut,
-	ach_Bertambang
+	ach_Bertambang,
+	ach_MotongPohon
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 
