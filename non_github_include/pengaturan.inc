@@ -706,6 +706,7 @@ new const NAMA_ABJAD[][] = {
 #define ID_ALUMINIUM		11
 #define ID_BESI				64
 
+#define ID_ROTI_UMPAN_IKAN	43
 #define ID_IKAN_ARWANA		37
 #define ID_IKAN_KAKAP		38
 #define ID_IKAN_MAS			39

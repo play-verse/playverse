@@ -105,6 +105,7 @@ publicFor: isRegistered(playerid)
 		// IMPORTANT: Pastikan untuk LoadPlayerSkill dan sebagainya setelah load semua cache di atas
 		// agar tidak terjadi hal yang tidak diinginkan (lebih dari satu cache active secara bersamaan)
 		loadPlayerSkill(playerid);
+		loadPlayerAchievement(playerid);
 
 		// Pindahkan player
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
@@ -275,6 +276,25 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][sisaGergaji] = 0;
 	PlayerInfo[playerid][sisaTombak] = 0;
 	PlayerInfo[playerid][sisaJoran] = 0;
+
+	// User Achievement
+	PlayerInfo[playerid][ach_Berlaut] = 0;
+	PlayerInfo[playerid][ach_Bertambang] = 0;
+
+	PlayerInfo[playerid][ach_IkanArwana] = 0;
+	PlayerInfo[playerid][ach_IkanKakap] = 0;
+	PlayerInfo[playerid][ach_IkanMas] = 0;
+	PlayerInfo[playerid][ach_IkanMujair] = 0;
+	PlayerInfo[playerid][ach_UburUbur] = 0;
+	PlayerInfo[playerid][ach_BintangLaut] = 0;
+	PlayerInfo[playerid][ach_Berlian] = 0;
+	PlayerInfo[playerid][ach_Emas] = 0;
+	PlayerInfo[playerid][ach_Aluminium] = 0;
+	PlayerInfo[playerid][ach_Perak] = 0;
+	PlayerInfo[playerid][ach_Besi] = 0;
+	PlayerInfo[playerid][ach_Kayu] = 0;
+	PlayerInfo[playerid][ach_BatuBara] = 0;
+	PlayerInfo[playerid][ach_BatuBata] = 0;
 
 	PlayerInfo[playerid][lamaBermain] = 0;
 	PlayerInfo[playerid][waktuSaatLogin] = 0;
@@ -2253,6 +2273,7 @@ publicFor: progressBuatItemMasak(playerid){
 		new nama_item[50];
 		getNamaByIdItem(id_item, nama_item);
 
+		// Memasak bukan bagian dari Mining
 		reset_PerbaikiKendaraan(playerid); // Pinjam fungsinya
 		tambahItemPlayer(playerid, id_item, 1); // Beri item
 
@@ -2525,24 +2546,34 @@ publicFor: progressNambang(playerid, dari_tambang){
 				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"berlian.");
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Berlian adalah hasil tambang terlangka dan tentunya sangat mahal, menakjubkan.");
 				tambahItemPlayer(playerid, ID_BERLIAN, 1);
+				// Achievement
+				PlayerInfo[playerid][ach_Berlian]++;
 			}else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
 				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
 				tambahItemPlayer(playerid, ID_EMAS, 1);
+				// Achievement
+				PlayerInfo[playerid][ach_Emas]++;
 			}else if(angka >= 20001 && angka <= 100000){ // Kemungkinan 8%
 				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"besi.");
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Besi sangat berguna untuk banyak hal, kerja bagus.");
 				tambahItemPlayer(playerid, ID_BESI, 1);
+				// Achievement
+				PlayerInfo[playerid][ach_Besi]++;
 			}else if(angka >= 100001 && angka <= 350000){ // Kemungkinan 25%
 				new const rand = random(1000) + 1;
 				if(rand >= 1 && rand <= 50){
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
 					tambahItemPlayer(playerid, ID_PERAK, 1);
+					// Achievement
+					PlayerInfo[playerid][ach_Perak]++;
 				}else if(rand >= 51 && rand <= 90){
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"aluminium.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Aluminium sangat berguna untuk banyak hal, kerja bagus.");
 					tambahItemPlayer(playerid, ID_ALUMINIUM, 1);
+					// Achievement
+					PlayerInfo[playerid][ach_Aluminium]++;
 				}else if(rand >= 91 && rand <= 190){
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"bijih aluminium.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Bijih aluminium merupakan bahan dasar aluminium.");
@@ -2572,9 +2603,13 @@ publicFor: progressNambang(playerid, dari_tambang){
 			if(angka < 150){ // Probabilitas 15%
 				sendPesan(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "GREY"batu bara"WHITE" sebanyak "GREEN"%d"WHITE", kerja bagus.", (angka % 3) + 1);
 				tambahItemPlayer(playerid, ID_BATU_BARA, (angka % 3) + 1);
+				// Achievement
+				PlayerInfo[playerid][ach_BatuBara]++;
 			}else if(angka >= 151 && angka <= 300){ // Kemungkinan 15%
 				sendPesan(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"batu bata"WHITE" sebanyak "GREEN"%d"WHITE", kerja bagus.", (angka % 3) + 1);
 				tambahItemPlayer(playerid, ID_BATU_BATA, (angka % 3) + 1);
+				// Achievement
+				PlayerInfo[playerid][ach_BatuBata]++;
 			}else
 				SendClientMessage(playerid, COLOR_GREY, TAG_NAMBANG" Anda tidak mendapatkan apapun.");
 		}
@@ -3184,6 +3219,45 @@ updateOnPlayerDisconnect(playerid){
 	new lama_bermain = getTotalLamaBermain(playerid);
 
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', playtime = '%d', in_house = '%d', in_die = %d WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][inDie], PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
+
+	// User Achievement
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE user_achievement \
+		SET \
+		berlaut=%d,\
+		bertambang=%d,\
+		ikan_arwana=%d,\
+		ikan_kakap=%d,\
+		ikan_mas=%d,\
+		ikan_mujair=%d,\
+		ubur_ubur=%d,\
+		bintang_laut=%d,\
+		berlian=%d,\
+		emas=%d,\
+		aluminium=%d,\
+		perak=%d,\
+		besi=%d,\
+		kayu=%d,\
+		batu_bara=%d,\
+		batu_bata=%d \
+		WHERE id_user = '%d'",
+		PlayerInfo[playerid][ach_Berlaut],
+		PlayerInfo[playerid][ach_Bertambang],
+		PlayerInfo[playerid][ach_IkanArwana],
+		PlayerInfo[playerid][ach_IkanKakap],
+		PlayerInfo[playerid][ach_IkanMas],
+		PlayerInfo[playerid][ach_IkanMujair],
+		PlayerInfo[playerid][ach_UburUbur],
+		PlayerInfo[playerid][ach_BintangLaut],
+		PlayerInfo[playerid][ach_Berlian],
+		PlayerInfo[playerid][ach_Emas],
+		PlayerInfo[playerid][ach_Aluminium],
+		PlayerInfo[playerid][ach_Perak],
+		PlayerInfo[playerid][ach_Besi],
+		PlayerInfo[playerid][ach_Kayu],
+		PlayerInfo[playerid][ach_BatuBara],
+		PlayerInfo[playerid][ach_BatuBata],
+		PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 	return 1;
 }
@@ -4195,31 +4269,6 @@ DeleteVehicleDealer(veh_primary){
 	mysql_tquery(koneksi, sQuery);
 }
 
-publicFor: CekSlotItemPemain(playerid, bedakan_callback){
-	new total_item;
-	cache_get_value_name_int(0, "total_item", total_item);
-	if(bedakan_callback == 1){
-		new jumlah = GetPVarInt(playerid, "beri_item_jumlah"), 
-			id_item = GetPVarInt(playerid, "beri_item_id_item"),
-			target_id = GetPVarInt(playerid, "beri_item_target_id");
-
-		if(total_item + getKapasitasByIdItem(id_item) * jumlah <= PlayerInfo[target_id][limitItem]){
-			new nama_item[50];
-			getNamaByIdItem(id_item, nama_item);
-
-			format(pDialog[playerid], sizePDialog, WHITE"Anda akan memberikan item dengan spesifikasi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item yang ingin diberi: "GREEN"%d\n"WHITE"Pemain yang ingin diberi : "ORANGE"%s\n", nama_item, jumlah, PlayerInfo[target_id][pPlayerName]);
-			strcat(pDialog[playerid], WHITE"\nApakah anda yakin ?");
-			strcat(pDialog[playerid], WHITE"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.\n* Pastikan orang yang diberikan adalah orang terpecaya, jika melakukan transaksi.");
-
-			return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BERI_ITEM, DIALOG_STYLE_MSGBOX, ORANGE"Konfirmasi pemberian", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
-		}else{
-			resetPVarInventory(playerid);
-			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Slot item tidak cukup", WHITE"Slot item pemain yang ingin diberi tidak muat.\n"YELLOW"Suruh pemain untuk menyisihkan ruang terlebih dahulu.", "Ok", "");
-		}
-	}
-	return 1;
-}
-
 publicFor: prosesBeliKendaraan(playerid, vehid, metode_bayar, nominal, const keterangan_atm[]){
 	if(!Iter_Contains(DVehIterator, vehid) || GetVehicleModel(vehid) != DVeh[vehid][dVehModel]){
 		// rare case
@@ -4548,38 +4597,34 @@ LoadSemuaATM()
 }
 
 TurunkanPohon(playerid){
-	inline responseQuery(){
-		new total_item, vehid = GetPlayerVehicleID(playerid), treeVeh = vehDTree[vehid][treeAngkut];
-		if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
-		if(!IsMobilPickup(vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan pick up.");
+	new vehid = GetPlayerVehicleID(playerid), treeVeh = vehDTree[vehid][treeAngkut];
+	if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
+	if(!IsMobilPickup(vehid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan pick up.");
 
-		// Filter apakah dia berada disekitar tempat pemotongan mana saja
-		for(new i = 0; i < sizeof(POSISI_PEMOTONGAN_KAYU); i++) {
-			// Jika dia benar-benar disekitar tempat pemotongan kayu maka langsung berhentikan looping
-			if(IsPlayerInRangeOfPoint(playerid, 3.0, POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z])) break;
-			
-			// Jika mencapai akhir looping dan ternyata tidak berada ditempat pemotongan manapun, maka return dan keluar dari fungsi
-			if(i == sizeof(POSISI_PEMOTONGAN_KAYU) - 1) return error_command(playerid, "Anda tidak berada di tempat pemotongan kayu.");
-		}
-
-		if(treeVeh <= 0) return error_command(playerid, "Anda tidak memiliki muatan pohon.");
-		cache_get_value_name_int(0, "total_item", total_item);
-		static const id_item_kayu = 25;
-		if((total_item + (4*treeVeh*getKapasitasByIdItem(id_item_kayu))) > PlayerInfo[playerid][limitItem]){
-			dialogInventoryItemTidakMuat(playerid, 4 * treeVeh, total_item, .kapasitas_unpredict = getKapasitasByIdItem(id_item_kayu));
-		}else{
-			new randomLog = 0, randomNo;
-			for(new i = 0; i < treeVeh; i++){
-				randomNo = random(4)+1;
-				randomLog += randomNo;
-			}
-			format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil melakukan pemotongan "GREEN"%d"WHITE" buah pohon, dan mendapatkan total kayu "GREEN"%d"WHITE" buah.", treeVeh, randomLog);
-			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Pemotongan Pohon", pDialog[playerid], "Ok", "");
-			tambahItemPlayer(playerid, id_item_kayu, randomLog);
-			vehDTree[vehid][treeAngkut] = 0;
-		}
+	// Filter apakah dia berada disekitar tempat pemotongan mana saja
+	for(new i = 0; i < sizeof(POSISI_PEMOTONGAN_KAYU); i++) {
+		// Jika dia benar-benar disekitar tempat pemotongan kayu maka langsung berhentikan looping
+		if(IsPlayerInRangeOfPoint(playerid, 3.0, POSISI_PEMOTONGAN_KAYU[i][POSISI_X], POSISI_PEMOTONGAN_KAYU[i][POSISI_Y], POSISI_PEMOTONGAN_KAYU[i][POSISI_Z])) break;
+		
+		// Jika mencapai akhir looping dan ternyata tidak berada ditempat pemotongan manapun, maka return dan keluar dari fungsi
+		if(i == sizeof(POSISI_PEMOTONGAN_KAYU) - 1) return error_command(playerid, "Anda tidak berada di tempat pemotongan kayu.");
 	}
-	MySQL_TQueryInline(koneksi, using inline responseQuery, QueryCekSlotItem(playerid));
+
+	if(treeVeh <= 0) return error_command(playerid, "Anda tidak memiliki muatan pohon.");
+	new const total_item = GetSlotInventoryPlayer(playerid);
+	if((total_item + ( 4 * treeVeh * getKapasitasByIdItem(ID_KAYU))) > PlayerInfo[playerid][limitItem]){
+		dialogInventoryItemTidakMuat(playerid, 4 * treeVeh, total_item, .kapasitas_unpredict = getKapasitasByIdItem(ID_KAYU));
+	}else{
+		new randomLog = 0, randomNo;
+		for(new i = 0; i < treeVeh; i++){
+			randomNo = random(4)+1;
+			randomLog += randomNo;
+		}
+		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil melakukan pemotongan "GREEN"%d"WHITE" buah pohon, dan mendapatkan total kayu "GREEN"%d"WHITE" buah.", treeVeh, randomLog);
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Pemotongan Pohon", pDialog[playerid], "Ok", "");
+		tambahItemPlayer(playerid, ID_KAYU, randomLog);
+		vehDTree[vehid][treeAngkut] = 0;
+	}
 	return 1;
 }
 
@@ -4714,27 +4759,6 @@ publicFor: waktuPuyeng(playerid){
 	return 1;
 }
 
-cekMulaiMancing(playerid){
-	inline responseUmpan(){
-		new roti_umpan;
-		cache_get_value_name_int(0, "jumlah", roti_umpan);
-		if(roti_umpan <= 0){						
-			return error_command(playerid, "Anda tidak memiliki umpan untuk melakukan mancing.");
-		}else{
-			tambahItemPlayer(playerid, 43, -1);
-			TogglePlayerControllable(playerid , 0);
-			SetPlayerArmedWeapon(playerid, 0);
-			ApplyAnimation(playerid,"SWORD","sword_block", 50.0, 0, 1, 0, 1, 1);
-			SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
-			mancingSecs[playerid] = 30;
-			mancingAktif[playerid] = 1;
-			mancingTimer[playerid] = SetPreciseTimer("waktuMancing", 1000, true, "i", playerid);
-		}
-	}
-	MySQL_TQueryInline(koneksi, using inline responseUmpan, "SELECT * FROM user_item WHERE id_user = %d AND id_item = 43", PlayerInfo[playerid][pID]);
-	return 1;
-}
-
 randomIkan(playerid){
 	new angka;
 	if(mancingAktif[playerid] == 1){
@@ -4759,6 +4783,7 @@ randomIkan(playerid){
 			SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "PURPLE"Ikan arwana.");
 			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Tangkapan yang luar biasa, ini adalah ikan paling mahal yang pernah ada.");
 			tambahItemPlayer(playerid, ID_IKAN_ARWANA, 1);
+			PlayerInfo[playerid][ach_IkanArwana]++;
 		}else{
 			angka = angka + 1;
 			goto re_switch;
@@ -4768,6 +4793,7 @@ randomIkan(playerid){
 			SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "YELLOW"Ikan Kakap.");
 			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Keberuntungan yang bagus, anda dapat menjualnya dengan harga yang sangat tinggi.");
 			tambahItemPlayer(playerid, ID_IKAN_KAKAP, 1);
+			PlayerInfo[playerid][ach_IkanKakap]++;
 		}else{
 			angka = angka + 1;
 			goto re_switch;
@@ -4776,18 +4802,22 @@ randomIkan(playerid){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "ORANGE"Ikan Mas.");
 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Ikan ini sangat bagus dan mahal untuk dijual.");
 		tambahItemPlayer(playerid, ID_IKAN_MAS, 1);		
+		PlayerInfo[playerid][ach_IkanMas]++;
 	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 35) || (curr_weather_id != ID_WEATHER_RAIN && angka <= 20)){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "PINK"Ikan Mujair.");
 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Ikan ini mempunyai harga yang bagus untuk dijual.");
 		tambahItemPlayer(playerid, ID_IKAN_MUJAIR, 1);
+		PlayerInfo[playerid][ach_IkanMujair]++;
 	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 60) || (curr_weather_id != ID_WEATHER_RAIN && angka <= 35)){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "SILVER"Ubur-ubur.");
 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Jika anda mengumpulkannya, anda dapat menjualnya dengan harga yang bagus.");
 		tambahItemPlayer(playerid, ID_UBUR_UBUR, 1);
+		PlayerInfo[playerid][ach_UburUbur]++;
 	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 80) || (curr_weather_id != ID_WEATHER_RAIN && angka <= 60)){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "SILVER"Bintang laut.");
 		SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Jika anda mengumpulkannya, anda dapat menjualnya.");
 		tambahItemPlayer(playerid, ID_BINTANG_LAUT, 1);
+		PlayerInfo[playerid][ach_BintangLaut]++;
 	}else{
 		SendClientMessage(playerid, COLOR_GREY, TAG_MANCING" Anda tidak mendapatkan apapun.");
 	}
@@ -5438,4 +5468,30 @@ ClosestVehiclePlayer(playerid, Float: range = 5.0){
 		}
     }
     return id;
+}
+
+loadPlayerAchievement(playerid){
+	inline responseQuery(){
+		new rows;
+		cache_get_row_count(rows);
+		if(rows){
+			cache_get_value_name_int(0, "berlaut", PlayerInfo[playerid][ach_Berlaut]);
+			cache_get_value_name_int(0, "bertambang", PlayerInfo[playerid][ach_Bertambang]);
+			cache_get_value_name_int(0, "ikan_arwana", PlayerInfo[playerid][ach_IkanArwana]);
+			cache_get_value_name_int(0, "ikan_kakap", PlayerInfo[playerid][ach_IkanKakap]);
+			cache_get_value_name_int(0, "ikan_mas", PlayerInfo[playerid][ach_IkanMas]);
+			cache_get_value_name_int(0, "ikan_mujair", PlayerInfo[playerid][ach_IkanMujair]);
+			cache_get_value_name_int(0, "ubur_ubur", PlayerInfo[playerid][ach_UburUbur]);
+			cache_get_value_name_int(0, "bintang_laut", PlayerInfo[playerid][ach_BintangLaut]);
+			cache_get_value_name_int(0, "berlian", PlayerInfo[playerid][ach_Berlian]);
+			cache_get_value_name_int(0, "emas", PlayerInfo[playerid][ach_Emas]);
+			cache_get_value_name_int(0, "aluminium", PlayerInfo[playerid][ach_Aluminium]);
+			cache_get_value_name_int(0, "perak", PlayerInfo[playerid][ach_Perak]);
+			cache_get_value_name_int(0, "besi", PlayerInfo[playerid][ach_Besi]);
+			cache_get_value_name_int(0, "kayu", PlayerInfo[playerid][ach_Kayu]);
+			cache_get_value_name_int(0, "batu_bara", PlayerInfo[playerid][ach_BatuBara]);
+			cache_get_value_name_int(0, "batu_bata", PlayerInfo[playerid][ach_BatuBata]);
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM user_achievement WHERE id_user = %d", PlayerInfo[playerid][pID]);
 }

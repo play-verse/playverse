@@ -127,7 +127,25 @@ enum pInfo
 
 	timerPemain,
 	timerDie, // countdown saat died
-	loginAttempt
+	loginAttempt,
+
+	// User Achievement
+	ach_IkanArwana,
+	ach_IkanKakap,
+	ach_IkanMas,
+	ach_IkanMujair,
+	ach_UburUbur,
+	ach_BintangLaut,
+	ach_Berlian,
+	ach_Emas,
+	ach_Aluminium,
+	ach_Perak,
+	ach_Besi,
+	ach_Kayu,
+	ach_BatuBara,
+	ach_BatuBata,
+	ach_Berlaut,
+	ach_Bertambang
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 

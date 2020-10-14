@@ -935,6 +935,8 @@ CMD:dig(playerid, params[]){
         DeletePreciseTimer(PerbaikiTimer[playerid]);
     PerbaikiTimer[playerid] = SetPreciseTimer("progressNambang", 1000, true, "ii", playerid, dari_tambang);
 
+    PlayerInfo[playerid][ach_Bertambang]++;
+
     // Pinjam progress bar dari potong pohon
     SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
     ShowPlayerProgressBar(playerid, CuttingBar[playerid]);

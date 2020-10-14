@@ -1526,9 +1526,22 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				SetPVarInt(playerid, "beri_item_target_id", target_id);
 
-				// Pada argumen ke 2
-				// Angka 1 digunakan untuk membedakan saja, supaya bisa pakai 1 fungsi ramai"
-				mysql_tquery(koneksi, QueryCekSlotItem(target_id), "CekSlotItemPemain", "ii", playerid, 1);
+				new jumlah = GetPVarInt(playerid, "beri_item_jumlah"), 
+					id_item = GetPVarInt(playerid, "beri_item_id_item");
+
+				if(GetSlotInventoryPlayer(target_id) + getKapasitasByIdItem(id_item) * jumlah <= PlayerInfo[target_id][limitItem]){
+					new nama_item[50];
+					getNamaByIdItem(id_item, nama_item);
+
+					format(pDialog[playerid], sizePDialog, WHITE"Anda akan memberikan item dengan spesifikasi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item yang ingin diberi: "GREEN"%d\n"WHITE"Pemain yang ingin diberi : "ORANGE"%s\n", nama_item, jumlah, PlayerInfo[target_id][pPlayerName]);
+					strcat(pDialog[playerid], WHITE"\nApakah anda yakin ?");
+					strcat(pDialog[playerid], WHITE"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.\n* Pastikan orang yang diberikan adalah orang terpecaya, jika melakukan transaksi.");
+
+					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BERI_ITEM, DIALOG_STYLE_MSGBOX, ORANGE"Konfirmasi pemberian", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
+				}else{
+					resetPVarInventory(playerid);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Slot item tidak cukup", WHITE"Slot item pemain yang ingin diberi tidak muat.\n"YELLOW"Suruh pemain untuk menyisihkan ruang terlebih dahulu.", "Ok", "");
+				}				
 			}else
 				resetPVarInventory(playerid);
 			return 1;
@@ -5654,26 +5667,33 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						// Mancing Ikan
-						inline responseTotal(){
-							new total_item;
-							cache_get_value_name_int(0, "total_item", total_item);
-							if((total_item + 1) > PlayerInfo[playerid][limitItem]){						
-								format(pDialog[playerid], sizePDialog, "Maaf inventory item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", 1, total_item, PlayerInfo[playerid][limitItem]);
-								return showDialogPesan(playerid, RED"Inventory anda penuh", pDialog[playerid]);
-							}else{
-								new Float: x, Float: y, Float: z, Float: a, Float: tmp, obj;
-								GetPlayerPos(playerid, x, y, z);
-								GetPlayerFacingAngle(playerid, a);
-								obj = CA_RayCastLine(x, y, z, x+(3.0*floatsin(-a, degrees)), y+(3.0*floatsin(-a, degrees)), z-3.0, tmp, tmp, tmp);
-								if(PlayerInfo[playerid][sisaJoran] <= 0) return error_command(playerid, "Anda tidak memiliki joran pancing.");
-								if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
-								if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memancing dalam keadaan sekarang.");
-								if(obj != 20000) return error_command(playerid, "Anda harus berada di pinggir perairan untuk dapat memancing.");
-								cekMulaiMancing(playerid);
-							}
+						if(GetSlotInventoryPlayer(playerid) + 1 > PlayerInfo[playerid][limitItem]){
+							return showDialogPesan(playerid, RED"Inventory anda penuh", WHITE"Silahkan sisakan minimal 1 slot item anda terlebih dahulu.\nPengosongan berguna untuk menyisakan tempat untuk hasil yang didapat nantinya.");
 						}
-						MySQL_TQueryInline(koneksi, using inline responseTotal, "SELECT SUM(a.jumlah * b.kapasitas) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
+
+						// Mancing Ikan
+						new Float: x, Float: y, Float: z, Float: a, Float: tmp, obj;
+						GetPlayerPos(playerid, x, y, z);
+						GetPlayerFacingAngle(playerid, a);
+						obj = CA_RayCastLine(x, y, z, x+(3.0*floatsin(-a, degrees)), y+(3.0*floatsin(-a, degrees)), z-3.0, tmp, tmp, tmp);
+						if(PlayerInfo[playerid][sisaJoran] <= 0) return error_command(playerid, "Anda tidak memiliki joran pancing.");
+						if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+						if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memancing dalam keadaan sekarang.");
+						if(obj != 20000) return error_command(playerid, "Anda harus berada di pinggir perairan untuk dapat memancing.");
+
+						if(GetJumlahItemPlayer(playerid, ID_ROTI_UMPAN_IKAN) <= 0){
+							return error_command(playerid, "Anda tidak memiliki umpan untuk melakukan mancing.");
+						}
+						tambahItemPlayer(playerid, 43, -1);
+						TogglePlayerControllable(playerid , 0);
+						SetPlayerArmedWeapon(playerid, 0);
+						ApplyAnimation(playerid,"SWORD","sword_block", 50.0, 0, 1, 0, 1, 1);
+						SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
+						mancingSecs[playerid] = 30;
+						mancingAktif[playerid] = 1;
+						mancingTimer[playerid] = SetPreciseTimer("waktuMancing", 1000, true, "i", playerid);
+						// Achievement berlaut
+						PlayerInfo[playerid][ach_Berlaut]++;
 					}
 					case 1:
 					{
@@ -9582,6 +9602,8 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				if(nombakDelay[playerid] < gettime()){
 					nombakDelay[playerid] = gettime() + 10;
 					nombakDepth[playerid] = depth2;
+					// Achievement berlaut
+					PlayerInfo[playerid][ach_Berlaut]++;
 					randomIkan(playerid);
 				}else{
 					error_command(playerid, "Tunggu beberapa detik untuk dapat menombak ikan.");

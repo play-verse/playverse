@@ -622,19 +622,6 @@ IsMobilPickup(vehicleid) {
     return 0;
 }
 
-/**
-    >> Query untuk cek kapasitas item
-    ```
-        Field yang menyimpan nilai total 
-        slot item pada player adalah 'total_item'
-    ```
- */
-stock QueryCekSlotItem(playerid){
-    new queryFormated[500];
-    format(queryFormated, 500, "SELECT IFNULL(SUM(a.jumlah * b.kapasitas), 0) as total_item FROM user_item a INNER JOIN item b ON a.id_item = b.id_item WHERE a.id_user = '%d'", PlayerInfo[playerid][pID]);
-    return queryFormated;
-}
-
 IsPemainPunyaNomorAktif(playerid){
     return !isnull(PlayerInfo[playerid][nomorHP]) && PlayerInfo[playerid][masaAktifNomor] >= gettime();
 }
