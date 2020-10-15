@@ -420,7 +420,7 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
 	{45, 15}, // Bensin 50 Liter
 	{46, 23}, // Bensin 100 Liter
 	{ID_PALU_TAMBANG, 10},
-	{ID_GERGAJI_MESIN, 12},
+	{ID_GERGAJI_MESIN, 50},
 	{ID_GPS, 50},
 	{ID_ALAT_PERBAIKAN_KENDARAAN, 50},
 	{ID_CAT_KENDARAAN, 500}
@@ -556,8 +556,8 @@ enum INFO_MENU_ALAT_PANCING {
 
 new const MENU_ALAT_PANCING[][INFO_MENU_ALAT_PANCING] = {
 // Item Pancing
-    {35, "Joran Pancing", 5, 1},
-	{36, "Tombak Ikan", 35, 1},
+    {35, "Joran Pancing", 50, 1},
+	{36, "Tombak Ikan", 300, 1},
 	{43, "Roti - Umpan Ikan", 1, 1}
 
 };
@@ -1673,7 +1673,7 @@ new const item_beli_tambang[][INFO_BARANG_MARKET] = {
 };
 
 new const list_barang_tampung_kayu[][INFO_BARANG_DENGAN_JUMLAH] = {
-	{ID_KAYU, 10, 200}
+	{ID_KAYU, 20, 200}
 };
 
 new const item_beli_kayu[][INFO_BARANG_MARKET] = {

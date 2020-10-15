@@ -5680,6 +5680,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						GetPlayerFacingAngle(playerid, a);
 						obj = CA_RayCastLine(x, y, z, x+(3.0*floatsin(-a, degrees)), y+(3.0*floatsin(-a, degrees)), z-3.0, tmp, tmp, tmp);
 						if(PlayerInfo[playerid][sisaJoran] <= 0) return error_command(playerid, "Anda tidak memiliki joran pancing.");
+
+						if(mancingAktif[playerid])
+						return error_command(playerid, "Anda sedang memancing.");
+
 						if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
 						if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memancing dalam keadaan sekarang.");
 						if(obj != 20000) return error_command(playerid, "Anda harus berada di pinggir perairan untuk dapat memancing.");
@@ -5690,7 +5694,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						tambahItemPlayer(playerid, 43, -1);
 						TogglePlayerControllable(playerid , 0);
 						SetPlayerArmedWeapon(playerid, 0);
-						ApplyAnimation(playerid,"SWORD","sword_block", 50.0, 0, 1, 0, 1, 1);
+						ApplyAnimation(playerid,"SWORD","sword_block", 4.0, 0, 1, 0, 1, 1);
 						SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
 						mancingSecs[playerid] = 30;
 						mancingAktif[playerid] = 1;

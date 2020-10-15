@@ -1208,11 +1208,11 @@ publicFor: pakaiPaluTambang(playerid){
 
 publicFor: pakaiGergajiMesin(playerid){
 	if(PlayerInfo[playerid][sisaGergaji] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
-	tambahItemPlayer(playerid, 26, -1);
-	PlayerInfo[playerid][sisaGergaji] += 15;
+	tambahItemPlayer(playerid, ID_GERGAJI_MESIN, -1);
+	PlayerInfo[playerid][sisaGergaji] += 10;
 
 	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item gergaji mesin"WHITE".");
-	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item gergaji mesin, "YELLOW"dapat digunakan untuk 15x percobaan memotong pohon.");
+	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item gergaji mesin, "YELLOW"dapat digunakan untuk 10x percobaan memotong pohon.");
 	return 1;
 }
 
@@ -4620,7 +4620,7 @@ TurunkanPohon(playerid){
 	}else{
 		new randomLog = 0, randomNo;
 		for(new i = 0; i < treeVeh; i++){
-			randomNo = random(4)+1;
+			randomNo = random(4) + 1;
 			randomLog += randomNo;
 		}
 		format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil melakukan pemotongan "GREEN"%d"WHITE" buah pohon, dan mendapatkan total kayu "GREEN"%d"WHITE" buah.", treeVeh, randomLog);
@@ -4832,22 +4832,22 @@ randomIkan(playerid){
 }
 
 publicFor: waktuMancing(playerid){
-	if(mancingSecs[playerid] >= 0){
-		mancingSecs[playerid]--;
-		new string[128];
-		format(string, 128, "~r~WAKTU TERSISA ~b~: %d", mancingSecs[playerid]);
-		GameTextForPlayer(playerid, string , 1000, 3);
-		if(mancingSecs[playerid] == 0){
-			mancingSecs[playerid] = -1;
-			DeletePreciseTimer(mancingTimer[playerid]);
-			TogglePlayerControllable(playerid , 1);
-			GameTextForPlayer(playerid, "~g~MEMANCING SELESAI!", 1000, 3);
-			ClearAnimations(playerid);
-			ApplyAnimation(playerid, "CARRY", "crry_prtial", 4.0, 0, 0, 0, 0, 0);
-			randomIkan(playerid);
-			// Exp Score
-			TambahExpScore(playerid, EXP_TAMBAH_MANCING);
-		}
+	mancingSecs[playerid]--;
+	new string[128];
+	format(string, 128, "~r~WAKTU TERSISA ~b~: %d", mancingSecs[playerid]);
+	GameTextForPlayer(playerid, string , 1000, 3);
+	if(mancingSecs[playerid] <= 0){
+		mancingSecs[playerid] = -1;
+		DeletePreciseTimer(mancingTimer[playerid]);
+		mancingTimer[playerid] = -1;
+		TogglePlayerControllable(playerid , 1);
+		GameTextForPlayer(playerid, "~g~MEMANCING SELESAI!", 1000, 3);
+		ClearAnimations(playerid);
+		ApplyAnimation(playerid, "CARRY", "crry_prtial", 4.0, 0, 0, 0, 0, 0);
+		PlayerInfo[playerid][sisaJoran]--;
+		randomIkan(playerid);
+		// Exp Score
+		TambahExpScore(playerid, EXP_TAMBAH_MANCING);
 	}
 	return 1;
 }
