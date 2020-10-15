@@ -20,7 +20,9 @@
 							5. Dilarang random death match tanpa alasan yang jelas.\n\
 							6. Dilarang memanfaatkan bug yang ada, segera laporkan bug jika menemukannya.\n\
 							7. Harus menaati peraturan roleplay yang berlaku.\n\
-							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n"
+							8. Dilarang melakukan penipuan, pembullyan kepada sesama player ataupun SARA.\n\
+							9. Usahakan ketika bermain di server kami selalu membahas segala sesuatu dengan IC.\n\
+							10. Diperbolehkan membahas OOC ketika kalian sedang bermain di server kami, Usahakan seminimal mungkin!"
 
 #define MAX_SERVER_ITEM 83 // Diatur sesuai dengan banyak data didatabase 
 
