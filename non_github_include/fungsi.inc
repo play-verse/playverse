@@ -4844,6 +4844,8 @@ publicFor: waktuMancing(playerid){
 		GameTextForPlayer(playerid, "~g~MEMANCING SELESAI!", 1000, 3);
 		ClearAnimations(playerid);
 		ApplyAnimation(playerid, "CARRY", "crry_prtial", 4.0, 0, 0, 0, 0, 0);
+		PlayerInfo[playerid][isOnAnimation] = false;
+		PlayerInfo[playerid][isBusy] = false;
 		PlayerInfo[playerid][sisaJoran]--;
 		randomIkan(playerid);
 		// Exp Score
