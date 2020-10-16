@@ -282,6 +282,10 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][ach_Bertambang] = 0;
 	PlayerInfo[playerid][ach_MotongPohon] = 0;
 
+	PlayerInfo[playerid][ach_Sweeper] = 0;
+	PlayerInfo[playerid][ach_Pizzaboy] = 0;
+	PlayerInfo[playerid][ach_Trashmaster] = 0;
+
 	PlayerInfo[playerid][ach_IkanArwana] = 0;
 	PlayerInfo[playerid][ach_IkanKakap] = 0;
 	PlayerInfo[playerid][ach_IkanMas] = 0;
@@ -3222,12 +3226,16 @@ updateOnPlayerDisconnect(playerid){
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', playtime = '%d', in_house = '%d', in_die = %d WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][inDie], PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 
+	new query_ach[1000];
 	// User Achievement
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE user_achievement \
+	mysql_format(koneksi, query_ach, sizeof(query_ach), "UPDATE user_achievement \
 		SET \
 		berlaut=%d,\
 		bertambang=%d,\
 		motong_pohon=%d,\
+		trashmaster=%d,\
+		pizzaboy=%d,\
+		sweeper=%d,\
 		ikan_arwana=%d,\
 		ikan_kakap=%d,\
 		ikan_mas=%d,\
@@ -3246,6 +3254,9 @@ updateOnPlayerDisconnect(playerid){
 		PlayerInfo[playerid][ach_Berlaut],
 		PlayerInfo[playerid][ach_Bertambang],
 		PlayerInfo[playerid][ach_MotongPohon],
+		PlayerInfo[playerid][ach_Trashmaster],
+		PlayerInfo[playerid][ach_Pizzaboy],
+		PlayerInfo[playerid][ach_Sweeper],
 		PlayerInfo[playerid][ach_IkanArwana],
 		PlayerInfo[playerid][ach_IkanKakap],
 		PlayerInfo[playerid][ach_IkanMas],
@@ -3261,7 +3272,7 @@ updateOnPlayerDisconnect(playerid){
 		PlayerInfo[playerid][ach_BatuBara],
 		PlayerInfo[playerid][ach_BatuBata],
 		PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, pQuery[playerid]);
+	mysql_tquery(koneksi, query_ach);
 	return 1;
 }
 
@@ -5486,6 +5497,9 @@ loadPlayerAchievement(playerid){
 			cache_get_value_name_int(0, "berlaut", PlayerInfo[playerid][ach_Berlaut]);
 			cache_get_value_name_int(0, "bertambang", PlayerInfo[playerid][ach_Bertambang]);
 			cache_get_value_name_int(0, "motong_pohon", PlayerInfo[playerid][ach_MotongPohon]);
+			cache_get_value_name_int(0, "trashmaster", PlayerInfo[playerid][ach_Trashmaster]);
+			cache_get_value_name_int(0, "pizzaboy", PlayerInfo[playerid][ach_Pizzaboy]);
+			cache_get_value_name_int(0, "sweeper", PlayerInfo[playerid][ach_Sweeper]);
 			cache_get_value_name_int(0, "ikan_arwana", PlayerInfo[playerid][ach_IkanArwana]);
 			cache_get_value_name_int(0, "ikan_kakap", PlayerInfo[playerid][ach_IkanKakap]);
 			cache_get_value_name_int(0, "ikan_mas", PlayerInfo[playerid][ach_IkanMas]);

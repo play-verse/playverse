@@ -146,7 +146,10 @@ enum pInfo
 	ach_BatuBata,
 	ach_Berlaut,
 	ach_Bertambang,
-	ach_MotongPohon
+	ach_MotongPohon,
+	ach_Sweeper,
+	ach_Trashmaster,
+	ach_Pizzaboy
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 

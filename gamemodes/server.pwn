@@ -11362,6 +11362,7 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 		}else if(IsPlayerInRangeOfPoint(playerid, 3.0, CP_sweeper35)){
 			todoFinish[playerid] = 1;
 			resetPlayerToDo(playerid);
+			PlayerInfo[playerid][ach_Sweeper]++;
 			addGajiPemain(playerid, GAJI_SWEEPER, "Pembersih jalan (sweeper)");
 			GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
 			format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", GAJI_SWEEPER);
@@ -11606,6 +11607,7 @@ public OnPlayerEnterCheckpoint(playerid){
 				gaji = jumlah_trash*GAJI_TRASHMASTER;
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
+				PlayerInfo[playerid][ach_Trashmaster]++;
 				addGajiPemain(playerid, gaji, "Truk Sampah (Trashmaster)");
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
@@ -11622,6 +11624,7 @@ public OnPlayerEnterCheckpoint(playerid){
 				gaji = jumlah_pizza*GAJI_PIZZABOY;
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
+				PlayerInfo[playerid][ach_Pizzaboy]++;
 				addGajiPemain(playerid, gaji, "Pengantar Pizza (Pizzaboy)");
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
