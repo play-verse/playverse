@@ -1773,7 +1773,10 @@ new const VehicleLuggageLimit[][VEHICLE_LUGGAGE_INFO] = {
 	{451, 50},
 	{558, 50},
 	{555, 50},
-	{477, 50}
+	{477, 50},
+
+	{579, 50}, // Huntley	
+	{543, 80} // Sadler
 };
 // Penampung Limit
 new VehicleItemLimit[MAX_VEHICLE_MODELS];
