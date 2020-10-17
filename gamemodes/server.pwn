@@ -504,8 +504,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SetPlayerCheckpoint(playerid, pos[0], pos[1], pos[2], 5.0);
 						PlayerInfo[playerid][activeMarker] = true;
 
-						SendClientMessage(playerid, COLOR_PINK, "[GPS] "WHITE"Lokasi kendaraan yang anda maksud telah ditandai pada peta menggunakan marker merah.");
-						SendClientMessage(playerid, COLOR_PINK, "[GPS] "YELLOW"Penggunaan fitur ini akan menggantikan marker yang sebelumnya ada.");
+						SendClientMessage(playerid, COLOR_PINK, TAG_GPS" "WHITE"Lokasi kendaraan yang anda maksud telah ditandai pada peta menggunakan marker merah.");
+						SendClientMessage(playerid, COLOR_PINK, TAG_GPS" "YELLOW"Penggunaan fitur ini akan menggantikan marker yang sebelumnya ada.");
 						return 1;
 					}
 					case 1:
@@ -5461,7 +5461,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(pDialog[playerid], sizePDialog, WHITE"Berhasil membuat alat perbaikan kendaraan.\nAnda dapat menggunakan item ini untuk memperbaiki kendaraan.\n\n"YELLOW"Karena berhasil membuat alat anda mendapatkan %d exp mekanik.", exp_didapat);
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membuat alat perbaikan", pDialog[playerid], "Ok", "");
 
-					sendPesan(playerid, COLOR_LIGHT_BLUE, "[SKILL] "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
+					sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_SKILL" "WHITE"Exp dari skill mekanik anda saat ini adalah %d.", PlayerInfo[playerid][expMekanik]);
 					// Exp Score
 					TambahExpScore(playerid, EXP_TAMBAH_SKILL);
 					return 1;
@@ -8511,8 +8511,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SetPlayerCheckpoint(playerid, GPS_LOCATION[listitem][gpsPos][0], GPS_LOCATION[listitem][gpsPos][1], GPS_LOCATION[listitem][gpsPos][2], 4.0);
 				PlayerInfo[playerid][activeMarker] = true;
 
-				SendClientMessage(playerid, COLOR_PINK, "[GPS] "WHITE"Lokasi yang anda maksud telah ditandai pada peta menggunakan marker merah.");
-				SendClientMessage(playerid, COLOR_PINK, "[GPS] "YELLOW"Penggunaan gps ini akan menggantikan marker yang sebelumnya ada.");
+				SendClientMessage(playerid, COLOR_PINK, TAG_GPS" "WHITE"Lokasi yang anda maksud telah ditandai pada peta menggunakan marker merah.");
+				SendClientMessage(playerid, COLOR_PINK, TAG_GPS" "YELLOW"Penggunaan gps ini akan menggantikan marker yang sebelumnya ada.");
 			}
 			return 1;
 		}
@@ -9614,6 +9614,9 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 					// Achievement berlaut
 					PlayerInfo[playerid][ach_Berlaut]++;
 					randomIkan(playerid);
+
+					// Exp Score
+					TambahExpScore(playerid, EXP_TAMBAH_MANCING);
 				}else{
 					error_command(playerid, "Tunggu beberapa detik untuk dapat menombak ikan.");
 				}

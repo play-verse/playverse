@@ -176,10 +176,10 @@
 #define BLACKSMITH_LEVEL_SKILL_ENAM 5000
 
 #define EXP_SCORE_DEFAULT 		250
-#define EXP_TAMBAH_JOB			5
+#define EXP_TAMBAH_JOB			7
 #define EXP_TAMBAH_MANCING		2
 #define EXP_TAMBAH_TAMBANG		2
-#define EXP_TAMBAH_SKILL		3
+#define EXP_TAMBAH_SKILL		5
 #define EXP_TAMBAH_FRAKSI		3
 #define EXP_TAMBAH_PANEN		3
 #define EXP_TAMBAH_MASAK		3
@@ -656,6 +656,7 @@ new const NAMA_ABJAD[][] = {
 #define TAG_SPEC				"Spec:"
 #define TAG_GAGAL				"Gagal:"
 #define TAG_MANCING				"Mancing:"
+#define TAG_GPS					"GPS:"
 
 /*
 	Job Define

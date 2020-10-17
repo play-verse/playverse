@@ -422,7 +422,7 @@ new const BARANG_MARKET[][INFO_BARANG_MARKET] = {
 	{44, 8}, // Bensin 20 Liter
 	{45, 15}, // Bensin 50 Liter
 	{46, 23}, // Bensin 100 Liter
-	{ID_PALU_TAMBANG, 10},
+	{ID_PALU_TAMBANG, 20},
 	{ID_GERGAJI_MESIN, 50},
 	{ID_GPS, 50},
 	{ID_ALAT_PERBAIKAN_KENDARAAN, 50},
@@ -1643,11 +1643,11 @@ enum INFO_BARANG_DENGAN_JUMLAH {
 };
 
 new const list_barang_tampung_tambang[][INFO_BARANG_DENGAN_JUMLAH] = {
-	{ID_PERAK, 2, 100},
+	{ID_PERAK, 4, 100},
 	{ID_ALUMINIUM, 1, 200},
 	{ID_BERLIAN, 1, 5000},
 	{ID_EMAS, 1, 2500},
-	{ID_BESI, 5, 100},
+	{ID_BESI, 10, 100},
 	{ID_BATU_BATA, 10, 50},
 	{ID_BATU_BARA, 10, 50}
 };
@@ -1672,7 +1672,7 @@ new const list_barang_tampung_buah[][INFO_BARANG_DENGAN_JUMLAH] = {
 };
 
 new const item_beli_tambang[][INFO_BARANG_MARKET] = {
-	{ID_PALU_TAMBANG, 8}
+	{ID_PALU_TAMBANG, 18}
 };
 
 new const list_barang_tampung_kayu[][INFO_BARANG_DENGAN_JUMLAH] = {
