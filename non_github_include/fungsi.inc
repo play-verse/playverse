@@ -5434,7 +5434,11 @@ NeedExpScore(playerid){
 	new p_Score, next_Score, exp_Need, exp_Default;
 	p_Score = PlayerInfo[playerid][pScore];
 	next_Score = p_Score+1;
-	exp_Default = EXP_SCORE_DEFAULT*next_Score;
+	if(p_Score == EXP_LEVEL_MAX){
+		exp_Default = EXP_SCORE_DEFAULT*p_Score;
+	}else{
+		exp_Default = EXP_SCORE_DEFAULT*next_Score;
+	}
 	if(next_Score >= 1){
 		new Float:exp_Float = exp_Default*0.25,
 		exp_Rand = floatround(exp_Float, floatround_round);
@@ -5450,7 +5454,14 @@ UpdateExpScore(playerid){
 	exp_Score = PlayerInfo[playerid][expScore];
 	exp_Need = NeedExpScore(playerid);
 	if(exp_Score >= exp_Need){
-		PlayerInfo[playerid][pScore] = PlayerInfo[playerid][pScore]+1;
+		if(PlayerInfo[playerid][pScore] < (EXP_LEVEL_MAX - 1)){
+			PlayerInfo[playerid][pScore] = PlayerInfo[playerid][pScore]+1;
+			sendPesan(playerid, COLOR_BLUE, "Rank: "WHITE"Selamat %s, anda telah berhasil mencapai score %d.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pScore]);
+		}else if(PlayerInfo[playerid][pScore] == (EXP_LEVEL_MAX - 1)){
+			PlayerInfo[playerid][expScore] = exp_Need;
+			PlayerInfo[playerid][pScore] = PlayerInfo[playerid][pScore]+1;
+			sendPesan(playerid, COLOR_BLUE, "Rank: "WHITE"Selamat %s, anda telah berhasil mencapai maksimal score %d.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pScore]);
+		}
 	}
 	SetPlayerScore(playerid, PlayerInfo[playerid][pScore]);
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET exp_score = '%d', score = '%d' WHERE id = '%d'", exp_Score, PlayerInfo[playerid][pScore], PlayerInfo[playerid][pID]);
@@ -5459,8 +5470,10 @@ UpdateExpScore(playerid){
 }
 
 TambahExpScore(playerid, exp){
-	PlayerInfo[playerid][expScore] += exp;
-	UpdateExpScore(playerid);
+	if(PlayerInfo[playerid][pScore] < EXP_LEVEL_MAX){
+		PlayerInfo[playerid][expScore] += exp;
+		UpdateExpScore(playerid);
+	}
 	return 1;
 }
 

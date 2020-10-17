@@ -5694,8 +5694,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						tambahItemPlayer(playerid, 43, -1);
 						TogglePlayerControllable(playerid , 0);
 						SetPlayerArmedWeapon(playerid, 0);
-						ApplyAnimation(playerid,"SWORD","sword_block", 4.0, 0, 1, 0, 1, 1);
-						SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX,18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
+						SetPlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX, 18632, 6, 0.079376, 0.037070, 0.007706, 181.482910, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
+						ApplyAnimation(playerid, "SWORD","sword_block", 4.1, 0, 1, 1, 1, 1);
 						PlayerInfo[playerid][isBusy] = true;
 						PlayerInfo[playerid][isOnAnimation] = true;
 						mancingSecs[playerid] = 30;
