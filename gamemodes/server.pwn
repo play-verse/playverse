@@ -2662,7 +2662,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								format(pDialog[playerid], sizePDialog, RED"Masa aktif jaminan sosial anda telah berakhir "WHITE"pada %s.\n", expired);
 							else
 								format(pDialog[playerid], sizePDialog, LIGHT_BLUE"Jaminan sosial anda aktif "WHITE"hingga %s.\n", expired);
-							strcatEx(pDialog[playerid], sizePDialog, "\nAnda dapat memperpanjangnya atau mengurusnya disini.\n\n"YELLOW"Anda akan dikenakan biaya sebesar "GREEN"$%d "WHITE"untuk setiap perpanjangannya.\n", HARGA_PERPANJANG_JAMSOS);
+							strcatEx(pDialog[playerid], sizePDialog, "\nAnda dapat memperpanjangnya atau mengurusnya disini.\n\n"YELLOW"Anda akan dikenakan biaya sebesar "GREEN"$%d \n"WHITE"dan membutuhkan 2 materai, ktp dan 2 pas foto.\n"WHITE"untuk setiap pengurusannya.\n", HARGA_PERPANJANG_JAMSOS);
 							strcatEx(pDialog[playerid], sizePDialog, YELLOW"Perpanjangan akan menambah masa aktif jaminan sosial sebanyak %d hari.\n"WHITE"Apakah anda yakin?", MASA_AKTIF_JAM_SOS);
 
 							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_PERPANJANG_JAMSOS, DIALOG_STYLE_MSGBOX, "Perpanjang masa aktif jamsos", pDialog[playerid], "Perpanjang", "Kembali");
@@ -2703,7 +2703,17 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_KONFIRMASI_PERPANJANG_JAMSOS:
 		{
 			if(response){
-				if(getUangPlayer(playerid) < HARGA_PERPANJANG_JAMSOS) return server_message(playerid, "Anda tidak memiliki cukup uang untuk membayar.");
+				if(getUangPlayer(playerid) < HARGA_PERPANJANG_JAMSOS) 
+					return server_message(playerid, "Anda tidak memiliki cukup uang untuk membayar.");
+
+				if(GetJumlahItemPlayer(playerid, ID_MATERAI) < 2 || GetJumlahItemPlayer(playerid, ID_PAS_FOTO) < 2)
+					return server_message(playerid, "Item yang diperlukan tidak mencukupi.");
+
+				if(GetJumlahItemPlayer(playerid, ID_KTP) < 1)
+					return server_message(playerid, "Anda harus membawa KTP.");
+
+				tambahItemPlayer(playerid, ID_MATERAI, -2);
+				tambahItemPlayer(playerid, ID_PAS_FOTO, -2);
 
 				givePlayerUang(playerid, -HARGA_PERPANJANG_JAMSOS);
 

@@ -689,6 +689,8 @@ new const NAMA_ABJAD[][] = {
 #define ID_ITEM_HELM   		49
 #define ID_ITEM_MASK   		50
 #define ID_PAS_FOTO 		5
+#define ID_KTP				7
+#define ID_MATERAI			6
 #define ID_ULTIMATE_PART    51
 #define ID_GANJOS    		34
 #define ID_BUBUK_HERBAL    	52

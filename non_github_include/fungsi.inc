@@ -62,6 +62,12 @@ publicFor: isRegistered(playerid)
 			PlayerInfo[playerid][masaAktifNomor] = convStrSqlDateIntoUnix(temp_value);
 		}
 
+		cache_is_value_name_null(0, "masa_jamsos", is_null);
+		if(!is_null) {
+			cache_get_value_name(0, "masa_jamsos", temp_value);
+			PlayerInfo[playerid][masaAktifJamsos] = convStrSqlDateIntoUnix(temp_value);
+		} else PlayerInfo[playerid][masaAktifJamsos] = 0;
+
 		cache_is_value_name_null(0, "rekening", is_null);
 		if(is_null){
 			PlayerInfo[playerid][nomorRekening][0] = EOS;
