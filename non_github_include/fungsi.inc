@@ -3019,6 +3019,9 @@ publicFor: responseUpdateHari(tahun, hari){
 }
 
 publicFor: pakaiMakanan(playerid, itemid){
+	if(CA_IsPlayerNearWater(playerid))
+		return error_command(playerid, "Tidak dapat makan dalam kondisi sekarang");
+
 	tambahItemPlayer(playerid, itemid, -1);
 	ApplyAnimation(playerid, "FOOD", "EAT_Burger", 4.1, 0, 1, 1, 0, 0, 1);
 
@@ -3142,6 +3145,9 @@ publicFor: cekSudahPunyaSIM(playerid){
 }
 
 publicFor: pakaiMinuman(playerid, itemid){
+	if(CA_IsPlayerNearWater(playerid))
+		return error_command(playerid, "Tidak dapat minum dalam kondisi sekarang");
+
 	tambahItemPlayer(playerid, itemid, -1);
 	ApplyAnimation(playerid, "BAR", "dnk_stndM_loop", 4.1, 0, 1, 1, 0, 0, 1);
 
