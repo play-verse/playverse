@@ -106,6 +106,7 @@ publicFor: isRegistered(playerid)
 		// agar tidak terjadi hal yang tidak diinginkan (lebih dari satu cache active secara bersamaan)
 		loadPlayerSkill(playerid);
 		loadPlayerAchievement(playerid);
+		loadPlayerCount(playerid);
 
 		// Pindahkan player
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
@@ -300,6 +301,8 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][ach_Kayu] = 0;
 	PlayerInfo[playerid][ach_BatuBara] = 0;
 	PlayerInfo[playerid][ach_BatuBata] = 0;
+
+	PlayerInfo[playerid][ucnt_Payday] = 0;
 
 	PlayerInfo[playerid][lamaBermain] = 0;
 	PlayerInfo[playerid][waktuSaatLogin] = 0;
@@ -3227,9 +3230,9 @@ updateOnPlayerDisconnect(playerid){
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', playtime = '%d', in_house = '%d', in_die = %d WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][inDie], PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 
-	new query_ach[1000];
+	new query_temp_str[1000];
 	// User Achievement
-	mysql_format(koneksi, query_ach, sizeof(query_ach), "UPDATE user_achievement \
+	mysql_format(koneksi, query_temp_str, sizeof(query_temp_str), "UPDATE user_achievement \
 		SET \
 		berlaut=%d,\
 		bertambang=%d,\
@@ -3273,7 +3276,11 @@ updateOnPlayerDisconnect(playerid){
 		PlayerInfo[playerid][ach_BatuBara],
 		PlayerInfo[playerid][ach_BatuBata],
 		PlayerInfo[playerid][pID]);
-	mysql_tquery(koneksi, query_ach);
+	mysql_tquery(koneksi, query_temp_str);
+
+	// Update User Count
+	mysql_format(koneksi, query_temp_str, sizeof(query_temp_str), "UPDATE user_count SET cnt_payday = %d WHERE id_user = %d", PlayerInfo[playerid][ucnt_Payday], PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, query_temp_str);
 	return 1;
 }
 
@@ -4953,6 +4960,15 @@ publicFor: pemainUpdate(playerid){
 		setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - STATUS_MINUM_BERKURANG_PER_WAKTU);
 	}
 
+	if(gettime() < PlayerInfo[playerid][masaAktifJamsos]) {
+		PlayerInfo[playerid][ucnt_Payday]++;
+		if(PlayerInfo[playerid][ucnt_Payday] == 3600 || PlayerInfo[playerid][ucnt_Payday] == 3600 * 2 || PlayerInfo[playerid][ucnt_Payday] == 3600 * 3) {
+			new keterangan[50];
+			format(keterangan, sizeof(keterangan), "Jaminan sosial ke-%d", floatround(float(PlayerInfo[playerid][ucnt_Payday]) / 3600.0));
+			addGajiPemain(playerid, PAYDAY_PER_JAM, keterangan);
+		}
+	}
+
 	if(PlayerInfo[playerid][inPenjara] > 0 && IsPlayerInAnyAreaPenjara(playerid)){
 		new str_temp[70];
 		if(PlayerInfo[playerid][inPenjara] == 1){
@@ -5518,4 +5534,20 @@ loadPlayerAchievement(playerid){
 		}
 	}
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM user_achievement WHERE id_user = %d", PlayerInfo[playerid][pID]);
+}
+
+loadPlayerCount(playerid){
+	inline responseQuery(){
+		new rows;
+		cache_get_row_count(rows);
+		if(rows){
+			cache_get_value_name_int(0, "cnt_payday", PlayerInfo[playerid][ucnt_Payday]);
+		}else{
+			// IMPORTANT NOTE: JANGAN LUPA UPDATE QUERY INI UNTUK RESET FIELD COUNT
+			// Seperti cnt_payday = 0
+			mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_count(id_user, last_tanggal) VALUES(%d, NOW()) ON DUPLICATE KEY UPDATE last_tanggal = NOW(), cnt_payday = 0", PlayerInfo[playerid][pID]);
+			mysql_tquery(koneksi, pQuery[playerid]);
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM user_count WHERE id_user = %d AND last_tanggal = DATE(NOW())", PlayerInfo[playerid][pID]);
 }

@@ -2649,6 +2649,26 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT DATE_FORMAT(masa_aktif_nomor, \"%%W, %%d-%%M-%%Y %%H:%%i:%%S\") AS expired FROM `user` WHERE id = %d", PlayerInfo[playerid][pID]);
 					}
+					case 3: // Perpanjang Masa Aktif Jaminan Sosial
+					{
+						inline responseQuery(){
+							new expired[100], bool:is_null_exp;
+							cache_get_value_name(0, "expired", expired);
+							cache_is_value_name_null(0, "expired", is_null_exp);
+
+							if(is_null_exp)
+								format(pDialog[playerid], sizePDialog, RED"Anda belum pernah membuat jamsos.\n");
+							else if(gettime() > PlayerInfo[playerid][masaAktifJamsos])
+								format(pDialog[playerid], sizePDialog, RED"Masa aktif jaminan sosial anda telah berakhir "WHITE"pada %s.\n", expired);
+							else
+								format(pDialog[playerid], sizePDialog, LIGHT_BLUE"Jaminan sosial anda aktif "WHITE"hingga %s.\n", expired);
+							strcatEx(pDialog[playerid], sizePDialog, "\nAnda dapat memperpanjangnya atau mengurusnya disini.\n\n"YELLOW"Anda akan dikenakan biaya sebesar "GREEN"$%d "WHITE"untuk setiap perpanjangannya.\n", HARGA_PERPANJANG_JAMSOS);
+							strcatEx(pDialog[playerid], sizePDialog, YELLOW"Perpanjangan akan menambah masa aktif jaminan sosial sebanyak %d hari.\n"WHITE"Apakah anda yakin?", MASA_AKTIF_JAM_SOS);
+
+							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_PERPANJANG_JAMSOS, DIALOG_STYLE_MSGBOX, "Perpanjang masa aktif jamsos", pDialog[playerid], "Perpanjang", "Kembali");
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT DATE_FORMAT(masa_jamsos, \"%%W, %%d-%%M-%%Y %%H:%%i:%%S\") AS expired FROM `user` WHERE id = %d", PlayerInfo[playerid][pID]);
+					}					
 				}
 			}
 			return 1;
@@ -2677,6 +2697,33 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Masa diperpanjang", pDialog[playerid], "Ok", "");
 				}
 				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT DATE_FORMAT(masa_aktif_nomor, \"%%W, %%d-%%M-%%Y %%H:%%i:%%S\") AS expired, masa_aktif_nomor FROM `user` WHERE id = %d", PlayerInfo[playerid][pID]);
+			}
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_PERPANJANG_JAMSOS:
+		{
+			if(response){
+				if(getUangPlayer(playerid) < HARGA_PERPANJANG_JAMSOS) return server_message(playerid, "Anda tidak memiliki cukup uang untuk membayar.");
+
+				givePlayerUang(playerid, -HARGA_PERPANJANG_JAMSOS);
+
+				// Jika belum expired maka tambahkan saja
+				if(gettime() < PlayerInfo[playerid][masaAktifJamsos])
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET masa_jamsos = DATE_ADD(masa_jamsos, INTERVAL %d DAY) WHERE id = %d", MASA_AKTIF_JAM_SOS, PlayerInfo[playerid][pID]);
+				else // Jika sudah expired maka timpa dengan hari yang baru
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET masa_jamsos = NOW() + INTERVAL %d DAY WHERE id = %d", MASA_AKTIF_JAM_SOS, PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				inline responseQuery(){
+					new expired[100], masa_jamsos[100];
+					cache_get_value_name(0, "masa_jamsos", masa_jamsos);
+					cache_get_value_name(0, "expired", expired);
+					PlayerInfo[playerid][masaAktifJamsos] = convStrSqlDateIntoUnix(masa_jamsos);
+					format(pDialog[playerid], sizePDialog, GREEN"Berhasil menambahkan masa aktif anda sebanyak %d hari.\n"WHITE"Masa aktif anda saat ini "YELLOW"%s\n\n", MASA_AKTIF_JAM_SOS, expired);
+					strcat(pDialog[playerid], WHITE"Masa aktif mempengaruhi perhitugan pemberian jamsos.\nMasa aktif jamsos anda akan berkurang secara real-time sesuai dengan tanggal yang tertera.\nTerima kasih.");
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Masa diperpanjang", pDialog[playerid], "Ok", "");
+				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT DATE_FORMAT(masa_jamsos, \"%%W, %%d-%%M-%%Y %%H:%%i:%%S\") AS expired, masa_jamsos FROM `user` WHERE id = %d", PlayerInfo[playerid][pID]);
 			}
 			return 1;
 		}
@@ -9954,18 +10001,21 @@ public OnGameModeInit()
 	Iter_Add(trashM_Veh, trashM_Veh[1]);
 	Iter_Add(trashM_Veh, trashM_Veh[2]);
 
+	for(new i = 0; i < 3; i++){
+		SetVehicleParams(trashM_Veh[i], VEHICLE_TYPE_ENGINE, 0);
+		SetVehicleParams(trashM_Veh[i], VEHICLE_TYPE_LIGHTS, 0);
+		ToggleVehicleFuel(trashM_Veh[i], 0);
+	}
+
 	// Ambulance Rumah sakit
 	ambulance_Veh[0] = AddStaticVehicleEx(416, 1177.6633, -1308.5510, 14.0078, 268.5052, 1, 3, -1, 1);
 	ambulance_Veh[1] = AddStaticVehicleEx(416, 1179.5927, -1338.8085, 13.9587, 271.2625, 1, 3, -1, 1);
 
-	SetVehicleParams(ambulance_Veh[0], VEHICLE_TYPE_ENGINE, 0);
-	SetVehicleParams(ambulance_Veh[0], VEHICLE_TYPE_LIGHTS, 0);
-
-	SetVehicleParams(ambulance_Veh[1], VEHICLE_TYPE_ENGINE, 0);
-	SetVehicleParams(ambulance_Veh[1], VEHICLE_TYPE_LIGHTS, 0);
-
-	ToggleVehicleFuel(ambulance_Veh[0], 0);
-	ToggleVehicleFuel(ambulance_Veh[1], 0);
+	for(new i = 0; i < 2; i++){
+		ToggleVehicleFuel(ambulance_Veh[i], 0);
+		SetVehicleParams(ambulance_Veh[i], VEHICLE_TYPE_ENGINE, 0);
+		SetVehicleParams(ambulance_Veh[i], VEHICLE_TYPE_LIGHTS, 0);
+	}
 
 	// Pizzaboy Vehicle
 	CreateDynamic3DTextLabel("Tempat Restok Pizza\n"GREEN"Pengantar Pizza (Pizzaboy)", COLOR_WHITE, 2105.00439, -1808.99744, 13.66980, 20.0);
@@ -9976,6 +10026,12 @@ public OnGameModeInit()
 	Iter_Add(pizza_Veh, pizza_Veh[1]);
 	Iter_Add(pizza_Veh, pizza_Veh[2]);
 
+	for(new i = 0; i < 3; i++){
+		ToggleVehicleFuel(pizza_Veh[i], 0);
+		SetVehicleParams(pizza_Veh[i], VEHICLE_TYPE_ENGINE, 0);
+		SetVehicleParams(pizza_Veh[i], VEHICLE_TYPE_LIGHTS, 0);
+	}	
+
 	// SIM Vehicle
 	vehicleSIM[0] = CreateVehicle(410, 1362.7140, -1651.1733, 13.1261, 270.3739, -1, -1, TIME_SIMPRAKTIK*60000);
 	vehicleSIM[1] = CreateVehicle(414, 1362.9814, -1643.2692, 13.1263, 269.2806, -1, -1, TIME_SIMPRAKTIK*60000);
@@ -9983,6 +10039,12 @@ public OnGameModeInit()
 	Iter_Add(vehicleSIM, vehicleSIM[0]);
 	Iter_Add(vehicleSIM, vehicleSIM[1]);
 	Iter_Add(vehicleSIM, vehicleSIM[2]);
+
+	for(new i = 0; i < 3; i++){
+		ToggleVehicleFuel(vehicleSIM[i], 0);
+		SetVehicleParams(vehicleSIM[i], VEHICLE_TYPE_ENGINE, 0);
+		SetVehicleParams(vehicleSIM[i], VEHICLE_TYPE_LIGHTS, 0);
+	}	
 	return 1;
 }
 
@@ -10250,6 +10312,12 @@ public OnPlayerText(playerid, text[]){
 						}
 						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(memperpanjang|perpanjang|menambah|nambah|tambah)\\smasa\\saktif\\snomor.*")){
 							CallLocalFunction("OnDialogResponse", "iiiis", playerid,DIALOG_RESEPSIONIS_PEMERINTAH, 1, 2, "a");
+
+							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+							ActorResetAndProses(ACT_NPC[ACTOR_RESEPSIONIS_PEMERINTAH][actID], playerid);
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(mengurus|urus|memperpanjang|perpanjang)\\s(jamsos|jaminan\\ssosial).*")){
+							CallLocalFunction("OnDialogResponse", "iiiis", playerid,DIALOG_RESEPSIONIS_PEMERINTAH, 1, 3, "a");
 
 							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
 							ActorResetAndProses(ACT_NPC[ACTOR_RESEPSIONIS_PEMERINTAH][actID], playerid);

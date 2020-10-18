@@ -74,6 +74,7 @@ enum pInfo
     sHouse, // Berisi ID Rumah, untuk spawn dirumah jika tidak 0
     nomorHP[12], // Berisi 62 + 4 kode
 	masaAktifNomor, // Berisi masa aktif dalam satuan detik
+	masaAktifJamsos, // Berisi masa aktif dalam satuan detik
 
     nomorRekening[10], // Berisi 8 digit kode rekening
     
@@ -149,7 +150,10 @@ enum pInfo
 	ach_MotongPohon,
 	ach_Sweeper,
 	ach_Trashmaster,
-	ach_Pizzaboy
+	ach_Pizzaboy,
+
+	// User Count
+	ucnt_Payday
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 
@@ -1775,8 +1779,57 @@ new const VehicleLuggageLimit[][VEHICLE_LUGGAGE_INFO] = {
 	{555, 50},
 	{477, 50},
 
+	// SUVs & Wagons
 	{579, 50}, // Huntley	
-	{543, 80} // Sadler
+	{400, 50},
+	{404, 50},
+	{489, 50},
+	{505, 50},
+	{479, 50},
+	{442, 50},
+	{458, 50},
+
+	// Light trucks & Vans
+	{459, 80},
+	{422, 80},
+	{482, 80},
+	{530, 80},
+	{418, 80},
+	{582, 80},
+	{413, 80},
+	{440, 80},
+	{543, 80},
+	{478, 80},
+	{554, 80},
+
+	// Heavy & Utility trucks
+	{499, 150},
+	{609, 150},
+	{498, 150},
+	{578, 150},
+	{406, 150},
+	{573, 150},
+	{455, 150},
+	{588, 150},
+	{403, 150},
+	{423, 150},
+	{414, 150},
+	{443, 150},
+	{515, 150},
+	{514, 150},
+	{456, 150},
+
+	// Recreational
+	{568, 50},
+	{424, 50},
+	{504, 50},
+	{483, 50},
+	{508, 50},
+	{500, 50},
+	{444, 100},
+	{556, 100},
+	{557, 100},
+	{495, 50}
 };
 // Penampung Limit
 new VehicleItemLimit[MAX_VEHICLE_MODELS];
@@ -1799,7 +1852,7 @@ new GPS_LOCATION[][GPS_INFO_ENUM] = {
 	{"Rumah Sakit Los Santos", {1172.2648, -1323.4558, 15.4032}},
 	{"Toko Gadget "nama_A, {1097.6610, -1370.0361, 13.9844}},
 	{"Pusat Tambang", {-685.2260, 2372.3379, 129.8383}},
-	{"Pusat Blacksmith", {1720.2994, -1741.1611, 13.5469}}
+	{"Pusat Blacksmith", {998.8984, -1251.3457, 19.3988}}
 };
 // Panduan Bermain
 new timerPanduanStream[MAX_PLAYERS];
