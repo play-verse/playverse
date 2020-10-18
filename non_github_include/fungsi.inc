@@ -5501,12 +5501,12 @@ TambahExpScore(playerid, exp){
 
 PlayerRankScore(playerid){
 	new p_Rank[64], p_Score = PlayerInfo[playerid][pScore];
-	if(p_Score >= 0 && p_Score <= 25) format(p_Rank, sizeof(p_Rank), "%s", "Newbie");
-	else if(p_Score >= 26 && p_Score <= 50) format(p_Rank, sizeof(p_Rank), "%s", "Training");
-	else if(p_Score >= 51 && p_Score <= 100) format(p_Rank, sizeof(p_Rank), "%s", "Elite");
-	else if(p_Score >= 101 && p_Score <= 150) format(p_Rank, sizeof(p_Rank), "%s", "Master");
-	else if(p_Score >= 151 && p_Score <= 200) format(p_Rank, sizeof(p_Rank), "%s", "Pro");
-	else if(p_Score >= 201) format(p_Rank, sizeof(p_Rank), "%s", "Legend");
+	if(p_Score >= 0 && p_Score <= 5) format(p_Rank, sizeof(p_Rank), "%s", "Newbie");
+	else if(p_Score >= 6 && p_Score <= 10) format(p_Rank, sizeof(p_Rank), "%s", "Training");
+	else if(p_Score >= 11 && p_Score <= 20) format(p_Rank, sizeof(p_Rank), "%s", "Elite");
+	else if(p_Score >= 21 && p_Score <= 35) format(p_Rank, sizeof(p_Rank), "%s", "Master");
+	else if(p_Score >= 36 && p_Score <= 49) format(p_Rank, sizeof(p_Rank), "%s", "Pro");
+	else if(p_Score >= 50) format(p_Rank, sizeof(p_Rank), "%s", "Legend");
 	return p_Rank;
 }
 
