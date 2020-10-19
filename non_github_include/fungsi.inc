@@ -1210,6 +1210,7 @@ publicFor: isPunyaKTP(playerid, punya){
 }
 
 publicFor: pakaiPaluTambang(playerid){
+	if(checkMinimal(playerid, "score", 6)) return 1;
 	if(PlayerInfo[playerid][sisaPalu] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 8, -1);
 	PlayerInfo[playerid][sisaPalu] += 15;
@@ -1230,6 +1231,7 @@ publicFor: pakaiGergajiMesin(playerid){
 }
 
 publicFor: pakaiTombakIkan(playerid){
+	if(checkMinimal(playerid, "score", 6)) return 1;
 	if(PlayerInfo[playerid][sisaTombak] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 36, -1);
 	PlayerInfo[playerid][sisaTombak] += 15;
@@ -1243,6 +1245,7 @@ publicFor: pakaiTombakIkan(playerid){
 }
 
 publicFor: pakaiJoranPancing(playerid){
+	if(checkMinimal(playerid, "score", 6)) return 1;
 	tambahItemPlayer(playerid, ID_JORAN_PANCING, -1);
 	PlayerInfo[playerid][sisaJoran] += 10;
 
@@ -5575,4 +5578,14 @@ loadPlayerCount(playerid){
 		}
 	}
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM user_count WHERE id_user = %d AND last_tanggal = DATE(NOW())", PlayerInfo[playerid][pID]);
+}
+
+checkMinimal(playerid, const var[], level){
+	if(sama("score", var)){
+		if(PlayerInfo[playerid][pScore] < level){
+			sendPesan(playerid, COLOR_RED, "Error: "GREY"Anda harus memiliki minimal score %d untuk dapat menggunakan ini.", level);
+			return 1;
+		}
+	}
+	return 0;
 }

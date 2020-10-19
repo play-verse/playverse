@@ -182,13 +182,13 @@
 
 #define EXP_LEVEL_MAX			50
 #define EXP_SCORE_DEFAULT 		250
-#define EXP_TAMBAH_JOB			7
-#define EXP_TAMBAH_MANCING		2
-#define EXP_TAMBAH_TAMBANG		2
-#define EXP_TAMBAH_SKILL		5
-#define EXP_TAMBAH_FRAKSI		3
-#define EXP_TAMBAH_PANEN		3
-#define EXP_TAMBAH_MASAK		3
+#define EXP_TAMBAH_JOB			6
+#define EXP_TAMBAH_MANCING		1
+#define EXP_TAMBAH_TAMBANG		1
+#define EXP_TAMBAH_SKILL		4
+#define EXP_TAMBAH_FRAKSI		2
+#define EXP_TAMBAH_PANEN		2
+#define EXP_TAMBAH_MASAK		2
 
 #define EXP_GAGAL_CURR_SKILL 2 		// Digunakan untuk memberikan exp walaupun gagal
 #define EXP_SUKSES_CURR_SKILL 5   	// Exp yang diberikan saat sukses

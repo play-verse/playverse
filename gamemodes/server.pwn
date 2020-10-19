@@ -2473,6 +2473,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_BELI_BARANG_MARKET:
 		{
 			if(response){
+				if(BARANG_MARKET[listitem][idItemMarket] == 8){
+					return checkMinimal(playerid, "score", 6);
+				}
 				SetPVarInt(playerid, "bBarang_index", listitem);
 				ShowPlayerDialog(playerid, DIALOG_JUMLAH_BARANG_MARKET, DIALOG_STYLE_INPUT, "Jumlah barang yang ingin dibeli", "Silahkan input jumlah barang yang ingin dibeli.", "Beli", "Batal");
 			}
@@ -5159,9 +5162,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				SetPVarInt(playerid, "index_terpilih", listitem);
 				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
-			}else{
-				DeletePVar(playerid, "index_terpilih");
-				DeletePVar(playerid, "jumlah_terpilih");
 			}
 			return 1;
 		}
@@ -5186,9 +5186,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				SetPVarInt(playerid, "index_terpilih", listitem);
 				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
-			}else{
-				DeletePVar(playerid, "index_terpilih");
-				DeletePVar(playerid, "jumlah_terpilih");
 			}
 			return 1;
 		}
@@ -5650,11 +5647,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_MENU_BELI_ALAT_PANCING:
 		{
 			if(response){
+				if(MENU_ALAT_PANCING[listitem][idItem] == 35 || MENU_ALAT_PANCING[listitem][idItem] == 36){
+					return checkMinimal(playerid, "score", 6);
+				}
 				SetPVarInt(playerid, "index_terpilih", listitem);
 				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_ALAT_PANCING, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
-			}else{
-				DeletePVar(playerid, "index_terpilih");
-				DeletePVar(playerid, "jumlah_terpilih");
 			}
 			return 1;
 		}
@@ -6291,9 +6288,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				SetPVarInt(playerid, "index_terpilih", listitem);
 				ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PHONE, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
-			}else{
-				DeletePVar(playerid, "index_terpilih");
-				DeletePVar(playerid, "jumlah_terpilih");
 			}
 			return 1;
 		}
@@ -9305,6 +9299,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
+}
+
+public OnPlayerClickPlayer(playerid, clickedplayerid, source)
+{
+    if(clickedplayerid == playerid){
+		tampilkanTextDrawMyInfo(playerid);
+	}
+    return 1;
 }
 
 public OnPlayerClickMap(playerid, Float:fX, Float:fY, Float:fZ)
