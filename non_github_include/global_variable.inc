@@ -151,6 +151,7 @@ enum pInfo
 	ach_Sweeper,
 	ach_Trashmaster,
 	ach_Pizzaboy,
+	ach_MontirListrik,
 
 	// User Count
 	ucnt_Payday
@@ -783,6 +784,44 @@ new Iterator:pizza_Veh<MAX_VEHICLES>,
 	Float:pizza_X[MAX_PLAYERS],
 	Float:pizza_Y[MAX_PLAYERS],
 	Float:pizza_Z[MAX_PLAYERS];
+
+/* Montir Listrik */
+new Iterator:montirL_Veh<MAX_VEHICLES>,
+    montirL_Job[MAX_PLAYERS],
+    montirL_Id[MAX_PLAYERS] = {-1},
+    montirL_Veh[3],
+    montirL_Used[MAX_VEHICLES],
+	montirL_Tangga[MAX_PLAYERS],
+	montirL_TanggaObj[MAX_PLAYERS],
+	montirL_TanggaPasang[MAX_PLAYERS],
+	montirL_Tiang[MAX_PLAYERS] = {-1},
+	montirL_TiangDone_LS[MAX_PLAYERS][MAX_TIANG_LISTRIK],
+	montirL_TiangProses[MAX_PLAYERS] = {-1, ...},
+	montirL_TiangCap[MAX_PLAYERS],
+	montirL_Timer[MAX_PLAYERS],
+	Float:montirL_PlayerX[MAX_PLAYERS],
+	Float:montirL_PlayerY[MAX_PLAYERS],
+	Float:montirL_PlayerZ[MAX_PLAYERS],
+	Float:montirL_X[MAX_PLAYERS],
+	Float:montirL_Y[MAX_PLAYERS],
+	Float:montirL_Z[MAX_PLAYERS];
+
+// Tiang Listrik
+enum TiangInfo
+{
+    tiangObjID,
+    Text3D:tiangLabel,
+    Float: tiangX,
+    Float: tiangY,
+    Float: tiangZ,
+    Float: tiangRX,
+    Float: tiangRY,
+    Float: tiangRZ
+}
+new Iterator:TiangIterator<MAX_TIANG_LISTRIK>,
+    DTiang[MAX_TIANG_LISTRIK][TiangInfo],
+    tiangEditID[MAX_PLAYERS] = {-1, ...};
+
 
 /* Ojol */
 new ojol_Job[MAX_PLAYERS],

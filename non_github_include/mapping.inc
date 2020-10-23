@@ -40,6 +40,7 @@
 //Exterior BS ilegal
 //Exterior BS Legal
 //Perkebunan
+//Montir Listrik Job Los Santos
 
 #define MALL_OBJECT_DRAW_DIST   30.0 // Even with a streamer, keep the draw distance on the objects inside the shops low.
 
@@ -82,6 +83,7 @@ loadAllMapingan(){
     exteriorBSIlegal();
     exteriorBSLegal();
     perkebunan();
+    montirlistrikLS();
 }
 
 removeBangunanUntukMapping(playerid){
@@ -7062,4 +7064,17 @@ perkebunan(){
     CreateDynamicObject(3276, -181.93860, 194.95129, 10.80000,   357.00000, 3.00000, -19.00000);
     CreateDynamicObject(3276, -192.95653, 198.73151, 11.20000,   357.00000, 1.00000, -19.00000);
     CreateDynamicObject(3276, -197.27649, 199.99217, 11.20000,   357.00000, 1.00000, -19.00000);
+}
+
+montirlistrikLS(){
+    CreateDynamicObject(2773, 2385.72583, -2077.03271, 13.06020,   0.00000, 0.00000, -90.84002);
+    CreateDynamicObject(2773, 2385.69287, -2078.09399, 13.06020,   0.00000, 0.00000, -90.84002);
+    CreateDynamicObject(2773, 2388.06445, -2077.09937, 13.06020,   0.00000, 0.00000, -90.84002);
+    CreateDynamicObject(2773, 2388.03271, -2078.11792, 13.06020,   0.00000, 0.00000, -90.84002);
+    CreateDynamicObject(2773, 2390.35205, -2078.18701, 13.06020,   0.00000, 0.00000, -90.84002);
+    CreateDynamicObject(2773, 2390.38428, -2077.12817, 13.06020,   0.00000, 0.00000, -90.84002);
+    CreateDynamicObject(2773, 2392.71143, -2078.25684, 13.06020,   0.00000, 0.00000, -90.84002);
+    CreateDynamicObject(2773, 2392.72290, -2077.21313, 13.06020,   0.00000, 0.00000, -90.84002);
+    CreateDynamicObject(2773, 2395.05493, -2078.30518, 13.06020,   0.00000, 0.00000, -90.84002);
+    CreateDynamicObject(2773, 2395.06689, -2077.26123, 13.06020,   0.00000, 0.00000, -90.84002);
 }
