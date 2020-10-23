@@ -13,6 +13,7 @@
 #include <sscanf2>
 #include <streamer>
 #include <a_mysql>
+#include <Pawn.RakNet>
 
 #include <weapon-config> // Custom Damage
 
@@ -12044,6 +12045,37 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
 			}
 		}
 	}
+	return 1;
+}
+
+// public OnIncomingPacket(playerid, packetid, BitStream:bs){
+// 	printf("OnIncomingPacket %d %d", playerid, packetid);
+// 	return 1;
+// }
+// public OnIncomingRPC(playerid, rpcid, BitStream:bs){
+// 	printf("OnIncomingRPC %d %d", playerid, rpcid);
+// 	return 1;
+// }
+// public OnOutcomingPacket(playerid, packetid, BitStream:bs){
+// 	printf("OnOutcomingPacket %d %d", playerid, packetid);
+// 	return 1;
+// }
+// public OnOutcomingRPC(playerid, rpcid, BitStream:bs){
+// 	printf("OnOutcomingRPC %d %d", playerid, rpcid);
+// 	return 1;
+// }
+
+public OnVehicleStreamIn(vehicleid){
+	if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
+		ChangeVehicleColor(vehicleid, PVeh[IDVehToPVeh[vehicleid]][pVehColor][0], PVeh[IDVehToPVeh[vehicleid]][pVehColor][1]);
+		new i[4];
+		GetVehicleDamageStatus(vehicleid, i[0], i[1], i[2], i[3]);
+		UpdateVehicleDamageStatus(vehicleid, i[0], i[1], i[2], i[3]);
+	}
+
+	new paramsVehTemp[7];
+	GetVehicleParamsEx(vehicleid, paramsVehTemp[5], paramsVehTemp[6], paramsVehTemp[0], paramsVehTemp[1], paramsVehTemp[2], paramsVehTemp[3], paramsVehTemp[4]);
+	SetVehicleParamsEx(vehicleid, paramsVehTemp[5], paramsVehTemp[6], paramsVehTemp[0], paramsVehTemp[1], paramsVehTemp[2], paramsVehTemp[3], paramsVehTemp[4]);
 	return 1;
 }
 

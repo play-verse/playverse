@@ -2104,6 +2104,14 @@ publicFor: progressPerbaikiKendaraan(playerid, vehicleid, alat_dibutuhkan){
 				}else{
 					PVeh[vehicleid][pVehDarah] = 1000.0;
 					RepairVehicle(vehicleid);
+
+					new panels, doors, lights, tires;
+					GetVehicleDamageStatus(vehicleid, panels, doors, lights, tires);
+					UpdateVehicleDamageStatus(vehicleid, panels, doors, lights, tires);
+
+					new paramstemp[7];
+					GetVehicleParamsEx(vehicleid, paramstemp[0], paramstemp[1], paramstemp[2], paramstemp[3], paramstemp[4], paramstemp[5], paramstemp[6]);
+					SetVehicleParamsEx(vehicleid, paramstemp[0], paramstemp[1], paramstemp[2], paramstemp[3], 0, paramstemp[5], paramstemp[6]);
 				}
 				PlayerPlaySound(playerid, 1133, 0.0, 0.0, 0.0);
 
@@ -4084,6 +4092,8 @@ LoadVehiclePlayer(playerid){
 					UpdateVehicleDamageStatus(idveh, panels, doors, lights, tires);
 
 					SetVehicleFuel(idveh, bensin);
+
+					ChangeVehicleColor(idveh, PVeh[idpv][pVehColor][0], PVeh[idpv][pVehColor][1]);
 
 					// Memakai variable yang sama dengan UpdateVehicleDamageStatus maka di terakhirkan saja, agar tidak ditimpa value nya oleh fungsi getter VehicleParamsEx
 					GetVehicleParamsEx(idveh, engine, lights, alarm, doors, bonnet, boot, objective);

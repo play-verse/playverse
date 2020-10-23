@@ -997,6 +997,17 @@ ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_R
             // 15 detik batas interaksi
             ACT_NPC[i][actTimer] = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
             UpdateDynamic3DTextLabelText(ACT_NPC[i][actText], COLOR_WHITE, text);
+
+            new text_actor[250];
+            format(text_actor, sizeof(text_actor), "%s: %s", ACT_POSITION[i][ACT__Nama], text);
+            // For Android Client
+            foreach(new pid : Player)
+            {
+                if(IsPlayerInRangeOfPoint(pid, 20.0, ACT_NPC[i][actPos][0], ACT_NPC[i][actPos][1], ACT_NPC[i][actPos][2]))
+                {
+                    SendClientMessage(pid, COLOR_WHITE, text_actor);
+                }
+            }
             break;
         }
     }
@@ -1008,6 +1019,19 @@ ActorResponse(actorid, const text[], lama_text_atau_respon = LAMA_BATAS_RESPON_R
         // 15 detik batas interaksi
         ACT_tokoNarko_Timer = SetPreciseTimer("TerminateInteraksi", lama_text_atau_respon * 1000, false, "i", actorid);
         UpdateDynamic3DTextLabelText(ACT_tokoNarko_Text, COLOR_WHITE, text);
+
+        if(MrPuyengRand != -1){
+            new text_actor[250];
+            format(text_actor, sizeof(text_actor), "%s: %s", NAMA_ACTOR_PENJUAL_NARKO, text);
+            // For Android Client
+            foreach(new pid : Player)
+            {
+                if(IsPlayerInRangeOfPoint(pid, 20.0, POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z]))
+                {
+                    SendClientMessage(pid, COLOR_WHITE, text_actor);
+                }
+            }            
+        }
     }
 }
 
