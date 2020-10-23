@@ -183,6 +183,14 @@ CMD:arent(playerid, params[]){
     return 1;
 }
 
+CMD:atiang(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    ShowPlayerDialog(playerid, DIALOG_TIANG_ADMIN, DIALOG_STYLE_LIST, WHITE"Tiang System :", "Buat Tiang\nEdit Tiang\nHapus Tiang", "Pilih", "Batal");
+    return 1;
+}
+
 CMD:setadmin(playerid, params[]){
     // Jika bukan admin level 2
     if(GetLevelAdminPlayer(playerid) < 2 && !IsPlayerAdmin(playerid)) return 0;
@@ -891,13 +899,19 @@ CMD:lumberjack(playerid, const params[]){
 
 CMD:trashmaster(playerid, const params[]){
     if(trashM_Job[playerid] != 1) return error_command(playerid, "Anda bukan pengangkut sampah dan tidak dapat menggunakan perintah ini.");
-    ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_CMD, DIALOG_STYLE_LIST, WHITE"Trashmaster System :", "Angkut Sampah\nCek Muatan Sampah", "Pilih", "Batal");
+    ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_CMD, DIALOG_STYLE_LIST, WHITE"Trashmaster Job :", "Angkut Sampah\nCek Muatan Sampah", "Pilih", "Batal");
     return 1;
 }
 
 CMD:pizzaboy(playerid, const params[]){
     if(pizza_Job[playerid] != 1) return error_command(playerid, "Anda bukan pengantar pizza dan tidak dapat menggunakan perintah ini.");
-    ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_CMD, DIALOG_STYLE_LIST, WHITE"Pizzaboy System :", "Restok Pizza\nAmbil Pizza\nCek Muatan Pizza", "Pilih", "Batal");
+    ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_CMD, DIALOG_STYLE_LIST, WHITE"Pizzaboy Job :", "Restok Pizza\nAmbil Pizza\nCek Muatan Pizza", "Pilih", "Batal");
+    return 1;
+}
+
+CMD:montirlistrik(playerid, const params[]){
+    if(montirL_Job[playerid] != 1) return error_command(playerid, "Anda bukan montir listrik dan tidak dapat menggunakan perintah ini.");
+    ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_CMD, DIALOG_STYLE_LIST, WHITE"Montir Listrik Job :", "Ambil Tangga\nPasang Tangga\nTaruh Tangga", "Pilih", "Batal");
     return 1;
 }
 
