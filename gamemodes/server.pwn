@@ -2408,7 +2408,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(houseClosest == -1){
 								error_command(playerid, "Mohon maaf, saat ini tidak tersedia sampah untuk di ambil, silahkan kembali.");
 								TogglePlayerAllDynamicCPs(playerid, 1);
-								SetPlayerCheckpoint(playerid, 1644.5551,-1537.3542,13.5697, 3.0);
+								SetPlayerCheckpoint(playerid, 1644.5551, -1537.3542, 13.5697, 3.0);
 								return 1;
 							}
 							trashM_House[playerid] = houseClosest;
@@ -6102,7 +6102,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda berhasil mengangkut sampah ke dalam truk sampah.");
 						if(trashM_VehCap[vid] == VEH_TRASH_LIMIT){
 							TogglePlayerAllDynamicCPs(playerid, 1);
-							SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
+							SetPlayerCheckpoint(playerid, 1644.5551, -1537.3542, 13.5697, 3.0);
 							PlayerInfo[playerid][activeMarker] = true;
 						}
 					}
