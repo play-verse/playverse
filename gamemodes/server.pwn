@@ -10375,6 +10375,12 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 	 *	Stating entering vehicle or exiting vehicle
 	 */
 	if(oldstate == PLAYER_STATE_ONFOOT && (newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER)){
+		if(newstate == PLAYER_STATE_DRIVER){
+			new engine, lights, alarm, doors, bonnet, boot, objective;
+			GetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
+			SetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
+		}
+
 		// Stuff need to be executed 
 		PlayerTextDrawSetString(playerid, SpeedoTD_VehInfo[playerid][0], GetVehicleModelName(GetVehicleModel(vehid)));
 		ShowSpeedoForPlayer(playerid, vehid);
@@ -12405,14 +12411,7 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
 public OnVehicleStreamIn(vehicleid){
 	if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
 		ChangeVehicleColor(vehicleid, PVeh[IDVehToPVeh[vehicleid]][pVehColor][0], PVeh[IDVehToPVeh[vehicleid]][pVehColor][1]);
-		new i[4];
-		GetVehicleDamageStatus(vehicleid, i[0], i[1], i[2], i[3]);
-		UpdateVehicleDamageStatus(vehicleid, i[0], i[1], i[2], i[3]);
 	}
-
-	new paramsVehTemp[7];
-	GetVehicleParamsEx(vehicleid, paramsVehTemp[5], paramsVehTemp[6], paramsVehTemp[0], paramsVehTemp[1], paramsVehTemp[2], paramsVehTemp[3], paramsVehTemp[4]);
-	SetVehicleParamsEx(vehicleid, paramsVehTemp[5], paramsVehTemp[6], paramsVehTemp[0], paramsVehTemp[1], paramsVehTemp[2], paramsVehTemp[3], paramsVehTemp[4]);
 	return 1;
 }
 
