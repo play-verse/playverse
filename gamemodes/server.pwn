@@ -10534,7 +10534,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(vehicleSweeper, vehid)){
 			if(sweeperJob[playerid] == 0 && usedSweeper[vehid] != 1){
-				ShowPlayerDialog(playerid, DIALOG_JOB_SWEEPER, DIALOG_STYLE_MSGBOX, "Sweeper Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Sweeper"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_JOB_SWEEPER, DIALOG_STYLE_MSGBOX, "Sweeper Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Sweeper"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(sweeperJob[playerid] == 1 && sweeperId[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(sweeperJob[playerid] == 1 && sweeperId[playerid] != vehid){
@@ -10546,7 +10546,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(trashM_Veh, vehid)){
 			if(trashM_Job[playerid] == 0 && trashM_Used[vehid] != 1){
-				ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_ENTER, DIALOG_STYLE_MSGBOX, "Trashmaster Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Trashmaster"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_ENTER, DIALOG_STYLE_MSGBOX, "Trashmaster Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Trashmaster"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(trashM_Job[playerid] == 1 && trashM_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(trashM_Job[playerid] == 1 && trashM_Id[playerid] != vehid){
@@ -10558,7 +10558,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(pizza_Veh, vehid)){
 			if(pizza_Job[playerid] == 0 && pizza_Used[vehid] != 1){
-				ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_ENTER, DIALOG_STYLE_MSGBOX, "Pizzaboy Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Pizzaboy"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_ENTER, DIALOG_STYLE_MSGBOX, "Pizzaboy Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Pizzaboy"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(pizza_Job[playerid] == 1 && pizza_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(pizza_Job[playerid] == 1 && pizza_Id[playerid] != vehid){
@@ -10584,7 +10584,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 			if(GetLevelAdminPlayer(playerid) == 2 && RentVehEdit[playerid] == 1) return 1;
 			if(RentPlayerVehID[vehid] == -1){
-				ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE, DIALOG_STYLE_MSGBOX, "Penyewaan Kendaraan", WHITE"Apakah anda ingin menyewa kendaraan ini? Jika anda ingin silahkan klik "GREEN"Sewa"WHITE" untuk melanjutkan.", "Sewa", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE, DIALOG_STYLE_MSGBOX, "Penyewaan Kendaraan", WHITE"Apakah anda ingin menyewa kendaraan ini?\nJika anda ingin silahkan klik "GREEN"Sewa"WHITE" untuk melanjutkan.", "Sewa", "Batal");
 			}else{
 				error_command(playerid, "Anda sudah memiliki kendaraan sewa dan tidak dapat menyewa lagi.");
 				RemovePlayerFromVehicle(playerid);
@@ -10607,7 +10607,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(montirL_Veh, vehid)){
 			if(montirL_Job[playerid] == 0 && montirL_Used[vehid] != 1){
-				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Montir Listrik Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Montir Listrik"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Montir Listrik Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Montir Listrik"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] != vehid){
