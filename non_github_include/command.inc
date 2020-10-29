@@ -1827,3 +1827,30 @@ CMD:unlock(playerid, params[]){
     }
     return 1;
 }
+
+// CMD:idmgs(playerid, params[]){
+//     if(IsPlayerInAnyVehicle(playerid)){
+//         new panels, doors, lights, tires;
+//         GetVehicleDamageStatus(GetPlayerVehicleID(playerid), panels, doors, lights, tires);
+//         sendPesan(playerid, COLOR_WHITE, "panels %d doors %d lights %d tires %d", panels, doors, lights, tires);
+//     }
+//     return 1;
+// }
+
+// CMD:dbfx(playerid, params[]){
+//     if(IsPlayerInAnyVehicle(playerid)){
+//         RepairVehicle(GetPlayerVehicleID(playerid));
+//     }
+//     return 1;
+// }
+
+// CMD:dbdc(playerid, params[]){
+//     if(!IsPlayerInAnyVehicle(playerid))
+//         return 1;
+//     new panels, doors, lights, tires;
+//     new vehicleid = GetPlayerVehicleID(playerid);
+//     if(sscanf(params, "iiii", panels, doors, lights, tires))
+//         return error_syntax(playerid, "/dbdc [panels] [doors] [lights] [tires]");
+//     UpdateVehicleDamageStatus(vehicleid, panels, doors, lights, tires);
+//     return 1;
+// }

@@ -13,7 +13,7 @@
 #include <sscanf2>
 #include <streamer>
 #include <a_mysql>
-#include <Pawn.RakNet>
+// #include <Pawn.RakNet>
 
 #include <weapon-config> // Custom Damage
 
