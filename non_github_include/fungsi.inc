@@ -1327,8 +1327,8 @@ publicFor: pakaiBibitSrikaya(playerid){
 
 publicFor: pakaiBibitGanja(playerid){
 	new nama_item[50];
-	getNamaByIdItem(34, nama_item);
-	pakaiBibit(playerid, nama_item, 33, 34);
+	getNamaByIdItem(ID_KANGKUNG_IJO, nama_item);
+	pakaiBibit(playerid, nama_item, 33, ID_KANGKUNG_IJO);
 	return 1;
 }
 
@@ -1354,8 +1354,8 @@ pakaiNarko(playerid, const nama_item[], id_item, persen){
 
 publicFor: pakaiNarkoGanja(playerid){
 	new nama_item[50];
-	getNamaByIdItem(34, nama_item);
-	pakaiNarko(playerid, nama_item, 34, 10);
+	getNamaByIdItem(ID_KANGKUNG_IJO, nama_item);
+	pakaiNarko(playerid, nama_item, ID_KANGKUNG_IJO, 10);
 	return 1;
 }
 

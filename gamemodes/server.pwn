@@ -4832,16 +4832,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						if(!PlayerInfo[playerid][activeBlacksmith]) return server_message(playerid, "Maaf skill blacksmith anda tidak aktif.");
 
-						/**
-							@IMPORTANT :
-								PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN 
-									``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
-								SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
-						*/
-						format(pDialog[playerid], sizePDialog, "Rakit Joran Pancing");
-						strcat(pDialog[playerid], "\nRakit Tombak Ikan");
-						
-						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_BLACKSMITH, DIALOG_STYLE_LIST, "Skill blacksmith : ", pDialog[playerid], "Pilih", "Batal");
+
+						ShowPlayerDialog(playerid, DIALOG_KATEGORI_SKILL_BLACKSMITH, DIALOG_STYLE_LIST, "Pilih kategori.", "Legal\nIlegal", "Pilih", "Batal");
 						return 1;
 					}
 				}
@@ -6961,7 +6953,65 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_PILIH_SKILL_BLACKSMITH:
+		case DIALOG_KATEGORI_SKILL_BLACKSMITH:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						if(
+							!(
+								IsPlayerInRangeOfPoint(playerid, 1.0, 701.8707, -457.0614, -25.6099) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 701.8704, -454.8651, -25.6099) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 697.0372, -454.8519, -25.6099)
+							)
+						)
+							return SendClientMessage(playerid, COLOR_RED, TAG_SKILL" "WHITE"Anda harus berada pada meja blacksmith legal.");
+						/**
+							@IMPORTANT :
+								PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN 
+									``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
+								SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
+						*/
+						format(pDialog[playerid], sizePDialog, "Rakit Joran Pancing");
+						strcat(pDialog[playerid], "\nRakit Tombak Ikan");
+						
+						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_BLACKSMITH_LEGAL, DIALOG_STYLE_LIST, "Skill blacksmith : ", pDialog[playerid], "Pilih", "Batal");
+					}
+					case 1:
+					{
+						if(
+							!(
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1047.0126, -772.7744, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1046.9467, -775.1295, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1051.7716, -772.6537, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1051.7008, -769.2098, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1051.7112, -766.9233, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1046.9840, -767.0082, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1046.9702, -769.3915, 1087.1460)
+							)
+						)
+							return SendClientMessage(playerid, COLOR_RED, TAG_SKILL" "WHITE"Anda harus berada pada meja blacksmith ilegal.");
+						/**
+							@IMPORTANT :
+								PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN 
+									``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
+								SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
+						*/
+						format(pDialog[playerid], sizePDialog, "Bubuk Herbal");
+						strcat(pDialog[playerid], "\nPil Darah Merah 20");
+						strcat(pDialog[playerid], "\nPil Darah Merah 50");
+						strcat(pDialog[playerid], "\nPil Darah Merah 100");
+						
+						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_BLACKSMITH_ILEGAL, DIALOG_STYLE_LIST, "Skill blacksmith : ", pDialog[playerid], "Pilih", "Batal");
+					}
+				}
+			}else{
+				cmd_skill(playerid, "");
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_SKILL_BLACKSMITH_LEGAL:
 		{
 			if(response){
 				/**
@@ -6984,8 +7034,45 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						dialogKonfirmasiBuatItemBs(playerid, bahan_tombak_ikan);
 					}
 				}
-			}else
-				cmd_skill(playerid, "");
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_SKILL_BLACKSMITH_ILEGAL:
+		{
+			if(response){
+				/**
+					@IMPORTANT :
+						PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN 
+							``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
+						SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
+				 */
+				switch(listitem){
+					case 0: // Craft Bubuk Herbal
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_BUBUK_HERBAL); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
+						dialogKonfirmasiBuatItemBs(playerid, bahan_bubuk_herbal);
+					}
+					case 1: // Craft Pil Darah Merah 20
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_PIL_DARAH_MERAH_20); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
+						dialogKonfirmasiBuatItemBs(playerid, bahan_pil_darah_merah_20);
+					}
+					case 2: // Craft Pil Darah Merah 50
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_PIL_DARAH_MERAH_50); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
+						dialogKonfirmasiBuatItemBs(playerid, bahan_pil_darah_merah_50);
+					}
+					case 3: // Craft Pil Darah Merah 100
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_PIL_DARAH_MERAH_100); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
+						dialogKonfirmasiBuatItemBs(playerid, bahan_pil_darah_merah_100);
+					}
+				}
+			}
 			return 1;
 		}
 		case DIALOG_BELI_ALAT_BLACKSMITH:
@@ -7065,6 +7152,38 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(ret){
 							for(new i=0;i<sizeof(bahan_tombak_ikan);i++)
 								tambahItemPlayer(playerid, bahan_tombak_ikan[i][0], -bahan_tombak_ikan[i][1]);
+						}
+					}
+					case ID_BUBUK_HERBAL:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_bubuk_herbal);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_bubuk_herbal);i++)
+								tambahItemPlayer(playerid, bahan_bubuk_herbal[i][0], -bahan_bubuk_herbal[i][1]);
+						}
+					}
+					case ID_PIL_DARAH_MERAH_20:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_pil_darah_merah_20);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_pil_darah_merah_20);i++)
+								tambahItemPlayer(playerid, bahan_pil_darah_merah_20[i][0], -bahan_pil_darah_merah_20[i][1]);
+						}
+					}
+					case ID_PIL_DARAH_MERAH_50:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_pil_darah_merah_50);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_pil_darah_merah_50);i++)
+								tambahItemPlayer(playerid, bahan_pil_darah_merah_50[i][0], -bahan_pil_darah_merah_50[i][1]);
+						}
+					}
+					case ID_PIL_DARAH_MERAH_100:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_pil_darah_merah_100);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_pil_darah_merah_100);i++)
+								tambahItemPlayer(playerid, bahan_pil_darah_merah_100[i][0], -bahan_pil_darah_merah_100[i][1]);
 						}
 					}
 					default:
