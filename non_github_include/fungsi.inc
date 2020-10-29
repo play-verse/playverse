@@ -5525,11 +5525,11 @@ UpdateExpScore(playerid){
 	if(exp_Score >= exp_Need){
 		if(PlayerInfo[playerid][pScore] < (EXP_LEVEL_MAX - 1)){
 			PlayerInfo[playerid][pScore] = PlayerInfo[playerid][pScore]+1;
-			sendPesan(playerid, COLOR_BLUE, "Rank: "WHITE"Selamat %s, anda telah berhasil mencapai score %d.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pScore]);
+			sendPesan(playerid, COLOR_BLUE, "Rank: "WHITE"Selamat %s, anda telah berhasil mencapai level %d.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pScore]);
 		}else if(PlayerInfo[playerid][pScore] == (EXP_LEVEL_MAX - 1)){
 			PlayerInfo[playerid][expScore] = exp_Need;
 			PlayerInfo[playerid][pScore] = PlayerInfo[playerid][pScore]+1;
-			sendPesan(playerid, COLOR_BLUE, "Rank: "WHITE"Selamat %s, anda telah berhasil mencapai maksimal score %d.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pScore]);
+			sendPesan(playerid, COLOR_BLUE, "Rank: "WHITE"Selamat %s, anda telah berhasil mencapai maksimal level %d.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pScore]);
 		}
 	}
 	SetPlayerScore(playerid, PlayerInfo[playerid][pScore]);
@@ -5622,7 +5622,7 @@ loadPlayerCount(playerid){
 checkMinimal(playerid, const var[], level){
 	if(sama("score", var)){
 		if(PlayerInfo[playerid][pScore] < level){
-			sendPesan(playerid, COLOR_RED, "Error: "GREY"Anda harus memiliki minimal score %d untuk dapat menggunakan ini.", level);
+			sendPesan(playerid, COLOR_RED, "Error: "GREY"Anda harus memiliki minimal level %d untuk dapat menggunakan ini.", level);
 			return 1;
 		}
 	}

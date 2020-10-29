@@ -910,8 +910,8 @@ CMD:pizzaboy(playerid, const params[]){
 }
 
 CMD:montirlistrik(playerid, const params[]){
-    if(montirL_Job[playerid] != 1) return error_command(playerid, "Anda bukan montir listrik dan tidak dapat menggunakan perintah ini.");
-    ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_CMD, DIALOG_STYLE_LIST, WHITE"Montir Listrik Job :", "Ambil Tangga\nPasang Tangga\nTaruh Tangga", "Pilih", "Batal");
+    if(montirL_Job[playerid] != 1) return error_command(playerid, "Anda bukan Electrician dan tidak dapat menggunakan perintah ini.");
+    ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_CMD, DIALOG_STYLE_LIST, WHITE"Electrician Job :", "Ambil Tangga\nPasang Tangga\nTaruh Tangga", "Pilih", "Batal");
     return 1;
 }
 

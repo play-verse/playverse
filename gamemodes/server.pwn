@@ -9212,8 +9212,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					InterpolateCameraLookAt(playerid, 2469.536376, -2052.941406, 55.282344, 2399.002685, -2075.903808, 15.904707, 2000);
 					// Dialog
 					format(pDialog[playerid], sizePDialog, 
-					GREEN"Montir Listrik\n\n"\
-					WHITE"Kamu akan bekerja sebagai Montir Listrik, tugas kamu adalah\n\
+					GREEN"Electrician\n\n"\
+					WHITE"Kamu akan bekerja sebagai Electrician, tugas kamu adalah\n\
 					mengikuti setiap checkpoint yang ada dan perbaiki setiap tiang,\n\
 					jangan lupa untuk ikuti aturan lalu lintas agar kamu selamat\n\
 					dan tidak di tilang.");
@@ -9585,7 +9585,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				TogglePlayerAllDynamicCPs(playerid, 0);
 				SetPlayerCheckpoint(playerid, montirL_X[playerid], montirL_Y[playerid], montirL_Z[playerid], 3.0);
 				PlayerInfo[playerid][activeMarker] = true;
-				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Montir Listrik"YELLOW"!");
+				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Electrician"YELLOW"!");
 				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit, jika belum selesai anda akan gagal.", TIME_MONTIR_LISTRIK);
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Gunakan perintah "GREEN"/montirlistrik"WHITE" untuk melakukan aktivitas pekerjaan.");
 				todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_MONTIR_LISTRIK*60000, false, "i", playerid);
@@ -10607,14 +10607,14 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(montirL_Veh, vehid)){
 			if(montirL_Job[playerid] == 0 && montirL_Used[vehid] != 1){
-				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Montir Listrik Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Montir Listrik"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Electrician Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Electrician"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] != vehid){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
 				RemovePlayerFromVehicle(playerid);
 			}else if(montirL_Job[playerid] == 0 && montirL_Used[vehid] == 1){
-				error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang melakukan pekerjaan Montir Listrik.");
+				error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang melakukan pekerjaan Electrician.");
 				RemovePlayerFromVehicle(playerid);
 			}
 		}
@@ -12136,7 +12136,7 @@ public OnPlayerEnterCheckpoint(playerid){
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
 				PlayerInfo[playerid][ach_MontirListrik]++;
-				addGajiPemain(playerid, gaji, "Montir Listrik");
+				addGajiPemain(playerid, gaji, "Bekerja sebagai electrician");
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");

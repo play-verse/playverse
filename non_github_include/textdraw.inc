@@ -39,7 +39,7 @@ tampilkanTextDrawMyInfo(playerid){
 	PlayerTextDrawSetString(playerid, myInfo[playerid][6], string);
 
 	//Score
-	format(string, sizeof(string), "Exp Score: %d/%d (%s)", PlayerInfo[playerid][expScore], NeedExpScore(playerid), PlayerRankScore(playerid));
+	format(string, sizeof(string), "Exp Level: %d/%d (%s)", PlayerInfo[playerid][expScore], NeedExpScore(playerid), PlayerRankScore(playerid));
 	PlayerTextDrawSetString(playerid, myInfo[playerid][7], string);	
 
 	// Tampilkan
@@ -656,7 +656,7 @@ loadTextDrawPemain(playerid){
     PlayerTextDrawSetProportional(playerid, myInfo[playerid][6], 1);
     PlayerTextDrawSetSelectable(playerid, myInfo[playerid][6], 0);
 
-	myInfo[playerid][7] = CreatePlayerTextDraw(playerid, 144.000000, 196.000000, "Exp Score : 0/0");
+	myInfo[playerid][7] = CreatePlayerTextDraw(playerid, 144.000000, 196.000000, "Exp Level : 0/0");
     PlayerTextDrawFont(playerid, myInfo[playerid][7], 1);
     PlayerTextDrawLetterSize(playerid, myInfo[playerid][7], 0.354166, 1.500000);
     PlayerTextDrawTextSize(playerid, myInfo[playerid][7], 325.000000, 17.000000);
