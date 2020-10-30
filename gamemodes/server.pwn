@@ -13,7 +13,7 @@
 #include <sscanf2>
 #include <streamer>
 #include <a_mysql>
-#include <Pawn.RakNet>
+// #include <Pawn.RakNet>
 
 #include <weapon-config> // Custom Damage
 
@@ -4842,16 +4842,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						if(!PlayerInfo[playerid][activeBlacksmith]) return server_message(playerid, "Maaf skill blacksmith anda tidak aktif.");
 
-						/**
-							@IMPORTANT :
-								PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN 
-									``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
-								SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
-						*/
-						format(pDialog[playerid], sizePDialog, "Rakit Joran Pancing");
-						strcat(pDialog[playerid], "\nRakit Tombak Ikan");
-						
-						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_BLACKSMITH, DIALOG_STYLE_LIST, "Skill blacksmith : ", pDialog[playerid], "Pilih", "Batal");
+
+						ShowPlayerDialog(playerid, DIALOG_KATEGORI_SKILL_BLACKSMITH, DIALOG_STYLE_LIST, "Pilih kategori.", "Legal\nIlegal", "Pilih", "Batal");
 						return 1;
 					}
 				}
@@ -6971,7 +6963,65 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_PILIH_SKILL_BLACKSMITH:
+		case DIALOG_KATEGORI_SKILL_BLACKSMITH:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						if(
+							!(
+								IsPlayerInRangeOfPoint(playerid, 1.0, 701.8707, -457.0614, -25.6099) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 701.8704, -454.8651, -25.6099) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 697.0372, -454.8519, -25.6099)
+							)
+						)
+							return SendClientMessage(playerid, COLOR_RED, TAG_SKILL" "WHITE"Anda harus berada pada meja blacksmith legal.");
+						/**
+							@IMPORTANT :
+								PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN 
+									``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
+								SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
+						*/
+						format(pDialog[playerid], sizePDialog, "Rakit Joran Pancing");
+						strcat(pDialog[playerid], "\nRakit Tombak Ikan");
+						
+						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_BLACKSMITH_LEGAL, DIALOG_STYLE_LIST, "Skill blacksmith : ", pDialog[playerid], "Pilih", "Batal");
+					}
+					case 1:
+					{
+						if(
+							!(
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1047.0126, -772.7744, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1046.9467, -775.1295, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1051.7716, -772.6537, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1051.7008, -769.2098, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1051.7112, -766.9233, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1046.9840, -767.0082, 1087.1460) ||
+								IsPlayerInRangeOfPoint(playerid, 1.0, 1046.9702, -769.3915, 1087.1460)
+							)
+						)
+							return SendClientMessage(playerid, COLOR_RED, TAG_SKILL" "WHITE"Anda harus berada pada meja blacksmith ilegal.");
+						/**
+							@IMPORTANT :
+								PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN 
+									``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
+								SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
+						*/
+						format(pDialog[playerid], sizePDialog, "Bubuk Herbal");
+						strcat(pDialog[playerid], "\nPil Darah Merah 20");
+						strcat(pDialog[playerid], "\nPil Darah Merah 50");
+						strcat(pDialog[playerid], "\nPil Darah Merah 100");
+						
+						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_BLACKSMITH_ILEGAL, DIALOG_STYLE_LIST, "Skill blacksmith : ", pDialog[playerid], "Pilih", "Batal");
+					}
+				}
+			}else{
+				cmd_skill(playerid, "");
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_SKILL_BLACKSMITH_LEGAL:
 		{
 			if(response){
 				/**
@@ -6994,8 +7044,45 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						dialogKonfirmasiBuatItemBs(playerid, bahan_tombak_ikan);
 					}
 				}
-			}else
-				cmd_skill(playerid, "");
+			}
+			return 1;
+		}
+		case DIALOG_PILIH_SKILL_BLACKSMITH_ILEGAL:
+		{
+			if(response){
+				/**
+					@IMPORTANT :
+						PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN 
+							``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
+						SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
+				 */
+				switch(listitem){
+					case 0: // Craft Bubuk Herbal
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_BUBUK_HERBAL); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
+						dialogKonfirmasiBuatItemBs(playerid, bahan_bubuk_herbal);
+					}
+					case 1: // Craft Pil Darah Merah 20
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_PIL_DARAH_MERAH_20); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
+						dialogKonfirmasiBuatItemBs(playerid, bahan_pil_darah_merah_20);
+					}
+					case 2: // Craft Pil Darah Merah 50
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_PIL_DARAH_MERAH_50); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
+						dialogKonfirmasiBuatItemBs(playerid, bahan_pil_darah_merah_50);
+					}
+					case 3: // Craft Pil Darah Merah 100
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_PIL_DARAH_MERAH_100); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
+						dialogKonfirmasiBuatItemBs(playerid, bahan_pil_darah_merah_100);
+					}
+				}
+			}
 			return 1;
 		}
 		case DIALOG_BELI_ALAT_BLACKSMITH:
@@ -7075,6 +7162,38 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(ret){
 							for(new i=0;i<sizeof(bahan_tombak_ikan);i++)
 								tambahItemPlayer(playerid, bahan_tombak_ikan[i][0], -bahan_tombak_ikan[i][1]);
+						}
+					}
+					case ID_BUBUK_HERBAL:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_bubuk_herbal);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_bubuk_herbal);i++)
+								tambahItemPlayer(playerid, bahan_bubuk_herbal[i][0], -bahan_bubuk_herbal[i][1]);
+						}
+					}
+					case ID_PIL_DARAH_MERAH_20:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_pil_darah_merah_20);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_pil_darah_merah_20);i++)
+								tambahItemPlayer(playerid, bahan_pil_darah_merah_20[i][0], -bahan_pil_darah_merah_20[i][1]);
+						}
+					}
+					case ID_PIL_DARAH_MERAH_50:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_pil_darah_merah_50);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_pil_darah_merah_50);i++)
+								tambahItemPlayer(playerid, bahan_pil_darah_merah_50[i][0], -bahan_pil_darah_merah_50[i][1]);
+						}
+					}
+					case ID_PIL_DARAH_MERAH_100:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_pil_darah_merah_100);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_pil_darah_merah_100);i++)
+								tambahItemPlayer(playerid, bahan_pil_darah_merah_100[i][0], -bahan_pil_darah_merah_100[i][1]);
 						}
 					}
 					default:
@@ -9104,8 +9223,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					InterpolateCameraLookAt(playerid, 2469.536376, -2052.941406, 55.282344, 2399.002685, -2075.903808, 15.904707, 2000);
 					// Dialog
 					format(pDialog[playerid], sizePDialog, 
-					GREEN"Electric\n\n"\
-					WHITE"Kamu akan bekerja sebagai Electric (Montir Listrik), tugas kamu adalah\n\
+					GREEN"Electrician\n\n"\
+					WHITE"Kamu akan bekerja sebagai Electrician, tugas kamu adalah\n\
 					mengikuti setiap checkpoint yang ada dan perbaiki setiap tiang,\n\
 					jangan lupa untuk ikuti aturan lalu lintas agar kamu selamat\n\
 					dan tidak di tilang.");
@@ -9477,7 +9596,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				TogglePlayerAllDynamicCPs(playerid, 0);
 				SetPlayerCheckpoint(playerid, montirL_X[playerid], montirL_Y[playerid], montirL_Z[playerid], 3.0);
 				PlayerInfo[playerid][activeMarker] = true;
-				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Electric"YELLOW"!");
+				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Electrician"YELLOW"!");
 				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit, jika belum selesai anda akan gagal.", TIME_MONTIR_LISTRIK);
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Gunakan perintah "GREEN"/montirlistrik"WHITE" untuk melakukan aktivitas pekerjaan.");
 				todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_MONTIR_LISTRIK*60000, false, "i", playerid);
@@ -10500,7 +10619,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(vehicleSweeper, vehid)){
 			if(sweeperJob[playerid] == 0 && usedSweeper[vehid] != 1){
-				ShowPlayerDialog(playerid, DIALOG_JOB_SWEEPER, DIALOG_STYLE_MSGBOX, "Sweeper Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Sweeper"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_JOB_SWEEPER, DIALOG_STYLE_MSGBOX, "Sweeper Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Sweeper"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(sweeperJob[playerid] == 1 && sweeperId[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(sweeperJob[playerid] == 1 && sweeperId[playerid] != vehid){
@@ -10512,7 +10631,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(trashM_Veh, vehid)){
 			if(trashM_Job[playerid] == 0 && trashM_Used[vehid] != 1){
-				ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_ENTER, DIALOG_STYLE_MSGBOX, "Trashmaster Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Trashmaster"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_ENTER, DIALOG_STYLE_MSGBOX, "Trashmaster Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Trashmaster"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(trashM_Job[playerid] == 1 && trashM_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(trashM_Job[playerid] == 1 && trashM_Id[playerid] != vehid){
@@ -10524,7 +10643,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(pizza_Veh, vehid)){
 			if(pizza_Job[playerid] == 0 && pizza_Used[vehid] != 1){
-				ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_ENTER, DIALOG_STYLE_MSGBOX, "Pizzaboy Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Pizzaboy"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_ENTER, DIALOG_STYLE_MSGBOX, "Pizzaboy Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Pizzaboy"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(pizza_Job[playerid] == 1 && pizza_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(pizza_Job[playerid] == 1 && pizza_Id[playerid] != vehid){
@@ -10550,7 +10669,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 			if(GetLevelAdminPlayer(playerid) == 2 && RentVehEdit[playerid] == 1) return 1;
 			if(RentPlayerVehID[vehid] == -1){
-				ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE, DIALOG_STYLE_MSGBOX, "Penyewaan Kendaraan", WHITE"Apakah anda ingin menyewa kendaraan ini? Jika anda ingin silahkan klik "GREEN"Sewa"WHITE" untuk melanjutkan.", "Sewa", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE, DIALOG_STYLE_MSGBOX, "Penyewaan Kendaraan", WHITE"Apakah anda ingin menyewa kendaraan ini?\nJika anda ingin silahkan klik "GREEN"Sewa"WHITE" untuk melanjutkan.", "Sewa", "Batal");
 			}else{
 				error_command(playerid, "Anda sudah memiliki kendaraan sewa dan tidak dapat menyewa lagi.");
 				RemovePlayerFromVehicle(playerid);
@@ -10573,14 +10692,14 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(montirL_Veh, vehid)){
 			if(montirL_Job[playerid] == 0 && montirL_Used[vehid] != 1){
-				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Electric Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Electric"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Electrician Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Electrician"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] != vehid){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
 				RemovePlayerFromVehicle(playerid);
 			}else if(montirL_Job[playerid] == 0 && montirL_Used[vehid] == 1){
-				error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang melakukan pekerjaan Electric.");
+				error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang melakukan pekerjaan Electrician.");
 				RemovePlayerFromVehicle(playerid);
 			}
 		}
@@ -12102,7 +12221,7 @@ public OnPlayerEnterCheckpoint(playerid){
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
 				PlayerInfo[playerid][ach_MontirListrik]++;
-				addGajiPemain(playerid, gaji, "Electric");
+				addGajiPemain(playerid, gaji, "Bekerja sebagai electrician");
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");

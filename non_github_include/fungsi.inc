@@ -175,7 +175,7 @@ publicFor: filterLoginPemain(playerid){
 		cache_get_value_name(0, "happen", happen);
 		cache_get_value_name(0, "expired", berakhir);
 		cache_get_value_name(0, "keterangan", keterangan);
-		cache_is_value_name_null(0, "berakhir", is_berakhir_null);
+		cache_is_value_name_null(0, "expired", is_berakhir_null);
 
 		format(pDialog[playerid], sizePDialog, WHITE"Selamat datang kembali "GREEN"%s\n\n", PlayerInfo[playerid][pPlayerName]);
 		strcatEx(pDialog[playerid], sizePDialog, ORANGE"Maaf saat ini akun kamu sedang diblock.\n");
@@ -1232,7 +1232,7 @@ publicFor: pakaiGergajiMesin(playerid){
 }
 
 publicFor: pakaiTombakIkan(playerid){
-	if(checkMinimal(playerid, "score", 6)) return 1;
+	if(checkMinimal(playerid, "score", 4)) return 1;
 	if(PlayerInfo[playerid][sisaTombak] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 36, -1);
 	PlayerInfo[playerid][sisaTombak] += 15;
@@ -1246,7 +1246,7 @@ publicFor: pakaiTombakIkan(playerid){
 }
 
 publicFor: pakaiJoranPancing(playerid){
-	if(checkMinimal(playerid, "score", 6)) return 1;
+	if(checkMinimal(playerid, "score", 1)) return 1;
 	tambahItemPlayer(playerid, ID_JORAN_PANCING, -1);
 	PlayerInfo[playerid][sisaJoran] += 10;
 
@@ -1327,8 +1327,8 @@ publicFor: pakaiBibitSrikaya(playerid){
 
 publicFor: pakaiBibitGanja(playerid){
 	new nama_item[50];
-	getNamaByIdItem(34, nama_item);
-	pakaiBibit(playerid, nama_item, 33, 34);
+	getNamaByIdItem(ID_KANGKUNG_IJO, nama_item);
+	pakaiBibit(playerid, nama_item, 33, ID_KANGKUNG_IJO);
 	return 1;
 }
 
@@ -1354,8 +1354,8 @@ pakaiNarko(playerid, const nama_item[], id_item, persen){
 
 publicFor: pakaiNarkoGanja(playerid){
 	new nama_item[50];
-	getNamaByIdItem(34, nama_item);
-	pakaiNarko(playerid, nama_item, 34, 10);
+	getNamaByIdItem(ID_KANGKUNG_IJO, nama_item);
+	pakaiNarko(playerid, nama_item, ID_KANGKUNG_IJO, 10);
 	return 1;
 }
 
@@ -5525,11 +5525,11 @@ UpdateExpScore(playerid){
 	if(exp_Score >= exp_Need){
 		if(PlayerInfo[playerid][pScore] < (EXP_LEVEL_MAX - 1)){
 			PlayerInfo[playerid][pScore] = PlayerInfo[playerid][pScore]+1;
-			sendPesan(playerid, COLOR_BLUE, "Rank: "WHITE"Selamat %s, anda telah berhasil mencapai score %d.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pScore]);
+			sendPesan(playerid, COLOR_BLUE, "Rank: "WHITE"Selamat %s, anda telah berhasil mencapai level %d.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pScore]);
 		}else if(PlayerInfo[playerid][pScore] == (EXP_LEVEL_MAX - 1)){
 			PlayerInfo[playerid][expScore] = exp_Need;
 			PlayerInfo[playerid][pScore] = PlayerInfo[playerid][pScore]+1;
-			sendPesan(playerid, COLOR_BLUE, "Rank: "WHITE"Selamat %s, anda telah berhasil mencapai maksimal score %d.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pScore]);
+			sendPesan(playerid, COLOR_BLUE, "Rank: "WHITE"Selamat %s, anda telah berhasil mencapai maksimal level %d.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pScore]);
 		}
 	}
 	SetPlayerScore(playerid, PlayerInfo[playerid][pScore]);
@@ -5622,7 +5622,7 @@ loadPlayerCount(playerid){
 checkMinimal(playerid, const var[], level){
 	if(sama("score", var)){
 		if(PlayerInfo[playerid][pScore] < level){
-			sendPesan(playerid, COLOR_RED, "Error: "GREY"Anda harus memiliki minimal score %d untuk dapat menggunakan ini.", level);
+			sendPesan(playerid, COLOR_RED, "Error: "GREY"Anda harus memiliki minimal level %d untuk dapat menggunakan ini.", level);
 			return 1;
 		}
 	}

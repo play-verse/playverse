@@ -519,7 +519,7 @@ new const MENU_ALAT_BLACKSMITH[][INFO_MENU_BLACKSMITH] = {
 };
 
 new const MENU_BELI_ITEM_MEDIS[][INFO_BARANG_MARKET] = {
-    {52, 100}, // Bubuk Herbal
+    {52, 25}, // Bubuk Herbal
     {53, 300}, // Obat Revive
     {58, 250}, // Pil Darah Merah 100
     {57, 150}, // Pil Darah Merah 50
@@ -551,8 +551,7 @@ new const MENU_BIBIT[][INFO_MENU_BIBIT] = {
 
 new const MENU_BIBIT_NARKO[][INFO_MENU_BIBIT] = {
 // Bibit Narko
-    {33, "Bibit Kangkung Ijo", 30, 9}
-
+    {33, "Bibit Kangkung Ijo", 25, 9}
 };
 
 enum INFO_MENU_ALAT_PANCING {
@@ -1654,6 +1653,28 @@ new const bahan_joran_pancing[][2] = {
 new const bahan_tombak_ikan[][2] = {
 	{11, 1}, // Aluminium - 1
 	{25, 1}  // Kayu - 1
+};
+
+new const bahan_bubuk_herbal[][2] = {
+	{ID_KANGKUNG_IJO, 9}
+};
+
+new const bahan_pil_darah_merah_20[][2] = {
+	{ID_BUBUK_HERBAL, 2},
+	{ID_JAHE, 9},
+	{ID_TEMULAWAK, 9}
+};
+
+new const bahan_pil_darah_merah_50[][2] = {
+	{ID_BUBUK_HERBAL, 4},
+	{ID_JAHE, 18},
+	{ID_TEMULAWAK, 18}
+};
+
+new const bahan_pil_darah_merah_100[][2] = {
+	{ID_BUBUK_HERBAL, 7},
+	{ID_JAHE, 27},
+	{ID_TEMULAWAK, 27}
 };
 
 new const bahan_besi_utuh[][2] = {
