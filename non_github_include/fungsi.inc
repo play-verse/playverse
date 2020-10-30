@@ -175,7 +175,7 @@ publicFor: filterLoginPemain(playerid){
 		cache_get_value_name(0, "happen", happen);
 		cache_get_value_name(0, "expired", berakhir);
 		cache_get_value_name(0, "keterangan", keterangan);
-		cache_is_value_name_null(0, "berakhir", is_berakhir_null);
+		cache_is_value_name_null(0, "expired", is_berakhir_null);
 
 		format(pDialog[playerid], sizePDialog, WHITE"Selamat datang kembali "GREEN"%s\n\n", PlayerInfo[playerid][pPlayerName]);
 		strcatEx(pDialog[playerid], sizePDialog, ORANGE"Maaf saat ini akun kamu sedang diblock.\n");
@@ -1232,7 +1232,7 @@ publicFor: pakaiGergajiMesin(playerid){
 }
 
 publicFor: pakaiTombakIkan(playerid){
-	if(checkMinimal(playerid, "score", 6)) return 1;
+	if(checkMinimal(playerid, "score", 4)) return 1;
 	if(PlayerInfo[playerid][sisaTombak] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 36, -1);
 	PlayerInfo[playerid][sisaTombak] += 15;
@@ -1246,7 +1246,7 @@ publicFor: pakaiTombakIkan(playerid){
 }
 
 publicFor: pakaiJoranPancing(playerid){
-	if(checkMinimal(playerid, "score", 6)) return 1;
+	if(checkMinimal(playerid, "score", 1)) return 1;
 	tambahItemPlayer(playerid, ID_JORAN_PANCING, -1);
 	PlayerInfo[playerid][sisaJoran] += 10;
 
