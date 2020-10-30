@@ -59,6 +59,8 @@
 #define DROP_PIZZA_LIMIT 10
 #define VEH_PIZZA_LIMIT 5
 
+#define JOB_MAX_TASK 10
+
 // Montir Listrik
 #define MAX_TIANG_LISTRIK 100
 #define TIANG_LISTRIK_TIME 8
@@ -691,10 +693,10 @@ new const NAMA_ABJAD[][] = {
 */
 
 /** Bonus atau Gaji */
-#define GAJI_SWEEPER			30
-#define GAJI_TRASHMASTER		5
-#define GAJI_PIZZABOY			4
-#define GAJI_MONTIR_LISTRIK		6
+#define GAJI_SWEEPER			175
+#define GAJI_TRASHMASTER		20
+#define GAJI_PIZZABOY			20
+#define GAJI_MONTIR_LISTRIK		20
 
 #define BONUS_MENGHANCURKAN_GANJA 	(floatround(float(MENU_BIBIT_NARKO[0][hargaBibit]) * 0.75))
 #define BONUS_REVIVE				floatround(float(TAGIHAN_REVIVE) * 0.75)
