@@ -3741,6 +3741,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							SendClientMessage(playerid, COLOR_RED, TAG_ADMIN_DEALER" "WHITE"Kendaraan ini bukan kendaraan dealer yang dapat dihapus!");
 						}
 					}
+					case 4: // Respawn kendaraan Statis
+					{
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_RESPAWN_STATIS, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk kendaraan", "\
+						Respawn kendaraan SIM\n\
+						Respawn kendaraan Sweeper\n\
+						Respawn kendaraan Trashmaster\n\
+						Respawn kendaraan Pizzaboy\n\
+						Respawn kendaraan Electric\n\
+						Respawn kendaraan Ambulance", "Pilih", "Batal");
+					}
 				}
 			}
 			return 1;
@@ -7923,7 +7933,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/pizzaboy "WHITE"- Menu perintah pengantar pizza\n"\
 							YELLOW"/dig "WHITE"- Melakukan aksi gali\n"\
 							YELLOW"/farm "WHITE"- Menu perintah menanam\n"\
-							YELLOW"/fishing "WHITE"- Menu perintah memancing");
+							YELLOW"/fishing "WHITE"- Menu perintah memancing\n"\
+							YELLOW"/electric "WHITE"- Menu perintah montir listrik");
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Pekerjaan):", str_guide, "Ok", "");
 					}
 					// Admin
@@ -9093,8 +9104,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					InterpolateCameraLookAt(playerid, 2469.536376, -2052.941406, 55.282344, 2399.002685, -2075.903808, 15.904707, 2000);
 					// Dialog
 					format(pDialog[playerid], sizePDialog, 
-					GREEN"Montir Listrik\n\n"\
-					WHITE"Kamu akan bekerja sebagai Montir Listrik, tugas kamu adalah\n\
+					GREEN"Electric\n\n"\
+					WHITE"Kamu akan bekerja sebagai Electric (Montir Listrik), tugas kamu adalah\n\
 					mengikuti setiap checkpoint yang ada dan perbaiki setiap tiang,\n\
 					jangan lupa untuk ikuti aturan lalu lintas agar kamu selamat\n\
 					dan tidak di tilang.");
@@ -9115,7 +9126,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					Jika anda memiliki pertanyaan atau saran anda dapat mengunjungi forum kami\n\
 					"GREEN"forum.playverse.org"WHITE", jangan sungkan untuk berdiskusi bersama kami,\n\
 					terima kasih.");
-					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Akhir) :", pDialog[playerid], "Lanjut", "Tutup");
+					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Akhir) :", pDialog[playerid], "", "Selesai");
 				}
 				// Akhir panduan bermain 30
 				if(sama(temp_panduan, "panduan_bermain_30")){
@@ -9466,7 +9477,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				TogglePlayerAllDynamicCPs(playerid, 0);
 				SetPlayerCheckpoint(playerid, montirL_X[playerid], montirL_Y[playerid], montirL_Z[playerid], 3.0);
 				PlayerInfo[playerid][activeMarker] = true;
-				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Montir Listrik"YELLOW"!");
+				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Electric"YELLOW"!");
 				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit, jika belum selesai anda akan gagal.", TIME_MONTIR_LISTRIK);
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Gunakan perintah "GREEN"/montirlistrik"WHITE" untuk melakukan aktivitas pekerjaan.");
 				todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_MONTIR_LISTRIK*60000, false, "i", playerid);
@@ -9550,7 +9561,81 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 			}
 			return 1;
-		}		
+		}
+		case DIALOG_ADMIN_VEHICLE_RESPAWN_STATIS:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Respawn kendaraan SIM
+					{
+						new res_count = 0;
+						foreach(new i : vehicleSIM){
+							if(limitVehSIM[i] != 1){
+								SetVehicleToRespawn(i);
+								res_count++;
+							}
+						}
+						sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil merespawn "GREEN"%d"WHITE" kendaraan SIM.", res_count);
+					}
+					case 1: // Respawn kendaraan Sweeper
+					{
+						new res_count = 0;
+						foreach(new i : vehicleSweeper){
+							if(usedSweeper[i] != 1){
+								SetVehicleToRespawn(i);
+								res_count++;
+							}
+						}
+						sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil merespawn "GREEN"%d"WHITE" kendaraan Sweeper.", res_count);
+					}
+					case 2: // Respawn kendaraan Trashmaster
+					{
+						new res_count = 0;
+						foreach(new i : trashM_Veh){
+							if(trashM_Used[i] != 1){
+								SetVehicleToRespawn(i);
+								res_count++;
+							}
+						}
+						sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil merespawn "GREEN"%d"WHITE" kendaraan Trashmaster.", res_count);
+					}
+					case 3: // Respawn kendaraan Pizzaboy
+					{
+						new res_count = 0;
+						foreach(new i : pizza_Veh){
+							if(pizza_Used[i] != 1){
+								SetVehicleToRespawn(i);
+								res_count++;
+							}
+						}
+						sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil merespawn "GREEN"%d"WHITE" kendaraan Pizzaboy.", res_count);
+					}
+					case 4: // Respawn kendaraan Electric
+					{
+						new res_count = 0;
+						foreach(new i : montirL_Veh){
+							if(montirL_Used[i] != 1){
+								SetVehicleToRespawn(i);
+								res_count++;
+							}
+						}
+						sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil merespawn "GREEN"%d"WHITE" kendaraan Electric.", res_count);
+					}
+					case 5: // Respawn kendaraan Ambulance
+					{
+						new res_count = 0;
+						for(new i = 0; i < 2; i++){
+							if(!IsVehicleOccupied(i)){
+								SetVehicleToRespawn(i);
+								res_count++;
+							}
+						}
+						sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil merespawn "GREEN"%d"WHITE" kendaraan Electric.", res_count);
+					}
+				}
+			}
+			return 1;
+		}	
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -10488,14 +10573,14 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(montirL_Veh, vehid)){
 			if(montirL_Job[playerid] == 0 && montirL_Used[vehid] != 1){
-				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Montir Listrik Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Montir Listrik"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Electric Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Electric"WHITE"? Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] != vehid){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
 				RemovePlayerFromVehicle(playerid);
 			}else if(montirL_Job[playerid] == 0 && montirL_Used[vehid] == 1){
-				error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang melakukan pekerjaan Montir Listrik.");
+				error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang melakukan pekerjaan Electric.");
 				RemovePlayerFromVehicle(playerid);
 			}
 		}
@@ -12017,7 +12102,7 @@ public OnPlayerEnterCheckpoint(playerid){
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
 				PlayerInfo[playerid][ach_MontirListrik]++;
-				addGajiPemain(playerid, gaji, "Montir Listrik");
+				addGajiPemain(playerid, gaji, "Electric");
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
 				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");

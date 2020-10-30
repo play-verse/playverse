@@ -3264,6 +3264,7 @@ updateOnPlayerDisconnect(playerid){
 		trashmaster=%d,\
 		pizzaboy=%d,\
 		sweeper=%d,\
+		electric=%d,\
 		ikan_arwana=%d,\
 		ikan_kakap=%d,\
 		ikan_mas=%d,\
@@ -3277,8 +3278,7 @@ updateOnPlayerDisconnect(playerid){
 		besi=%d,\
 		kayu=%d,\
 		batu_bara=%d,\
-		batu_bata=%d,\
-		montir_listrik=%d \
+		batu_bata=%d\
 		WHERE id_user = '%d'",
 		PlayerInfo[playerid][ach_Berlaut],
 		PlayerInfo[playerid][ach_Bertambang],
@@ -5597,7 +5597,7 @@ loadPlayerAchievement(playerid){
 			cache_get_value_name_int(0, "kayu", PlayerInfo[playerid][ach_Kayu]);
 			cache_get_value_name_int(0, "batu_bara", PlayerInfo[playerid][ach_BatuBara]);
 			cache_get_value_name_int(0, "batu_bata", PlayerInfo[playerid][ach_BatuBata]);
-			cache_get_value_name_int(0, "montir_listrik", PlayerInfo[playerid][ach_MontirListrik]);
+			cache_get_value_name_int(0, "electric", PlayerInfo[playerid][ach_MontirListrik]);
 		}
 	}
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM user_achievement WHERE id_user = %d", PlayerInfo[playerid][pID]);
