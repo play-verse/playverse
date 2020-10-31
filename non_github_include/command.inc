@@ -273,6 +273,18 @@ CMD:ban(playerid, params[]){
     return 1;
 }
 
+CMD:asay(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new pesan[144];
+	if(sscanf(params, "s[144]", pesan)) return error_syntax(playerid, "/asay [text]");
+    format(pesan, sizeof(pesan), "Admin: "WHITE"%s", pesan);
+    foreach(new i : Player)
+        SendClientMessage(i, COLOR_ORANGE, pesan);
+    return 1;
+}
+
 CMD:setmedic(playerid, params[]){
     // Jika bukan admin level 1 (bukan admin)
     if(GetLevelAdminPlayer(playerid) < 1) return 0;
@@ -909,9 +921,9 @@ CMD:pizzaboy(playerid, const params[]){
     return 1;
 }
 
-CMD:montirlistrik(playerid, const params[]){
+CMD:electrician(playerid, const params[]){
     if(montirL_Job[playerid] != 1) return error_command(playerid, "Anda bukan Electrician dan tidak dapat menggunakan perintah ini.");
-    ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_CMD, DIALOG_STYLE_LIST, WHITE"Electrician Job :", "Ambil Tangga\nPasang Tangga\nTaruh Tangga", "Pilih", "Batal");
+    ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_CMD, DIALOG_STYLE_LIST, WHITE"Electrician Job :", "Ambil Tangga\nPasang Tangga\nTaruh Tangga\nSelesai Bekerja", "Pilih", "Batal");
     return 1;
 }
 

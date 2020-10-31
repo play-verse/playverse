@@ -373,9 +373,6 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][hungryStackedTime] = 0;
 	PlayerInfo[playerid][thirstyStackedTime] = 0;
 
-	DeletePreciseTimer(PlayerAction[playerid][timerNambang]);
-	PlayerAction[playerid][sedangNambang] = false;
-
 	EditingObject[playerid] = EDITING_NONE;
 }
 
@@ -1329,6 +1326,23 @@ publicFor: pakaiBibitGanja(playerid){
 	new nama_item[50];
 	getNamaByIdItem(ID_KANGKUNG_IJO, nama_item);
 	pakaiBibit(playerid, nama_item, 33, ID_KANGKUNG_IJO);
+	return 1;
+}
+
+publicFor: pakaiBibitLabu(playerid){
+	pakaiBibit(playerid, "Labu", ID_BIBIT_LABU, ID_LABU);
+	return 1;
+}
+
+publicFor: pakaiLabu(playerid, itemid){
+	if(CA_IsPlayerNearWater(playerid))
+		return error_command(playerid, "Tidak dapat makan dalam kondisi sekarang");
+
+	tambahItemPlayer(playerid, itemid, -1);
+	ApplyAnimation(playerid, "FOOD", "EAT_Burger", 4.1, 0, 1, 1, 0, 0, 1);
+
+	setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) + 5.0);
+	setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) + 10.0);
 	return 1;
 }
 
@@ -2779,7 +2793,6 @@ publicFor: inputNomorRekeningATMBaru(playerid, ada){
 }
 
 publicFor: selesaiNambang(playerid){
-	PlayerAction[playerid][sedangNambang] = false;
 	ClearAnimations(playerid);
 	PlayerInfo[playerid][isOnAnimation] = false;
 	PlayerInfo[playerid][isBusy] = false;
@@ -3719,7 +3732,9 @@ publicFor: resetPlayerToDo(playerid){
 		SetVehicleToRespawn(sweeperId[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
 		DeletePreciseTimer(todoTimer[playerid]);
+		todoTimer[playerid] = -1;
 		DeletePreciseTimer(todoTimeout[playerid]);
+		todoTimeout[playerid] = -1;
 		sweeperJob[playerid] = 0;
 		usedSweeper[sweeperId[playerid]] = 0;
 		sweeperId[playerid] = -1;
@@ -3733,7 +3748,9 @@ publicFor: resetPlayerToDo(playerid){
 		TogglePlayerAllDynamicCPs(playerid, 1);
 		SetVehicleToRespawn(trashM_Id[playerid]);
 		DeletePreciseTimer(todoTimer[playerid]);
+		todoTimer[playerid] = -1;
 		DeletePreciseTimer(todoTimeout[playerid]);
+		todoTimeout[playerid] = -1;
 		if(IsPlayerAttachedObjectSlotUsed(playerid, TRASH_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TRASH_ATTACH_INDEX);
 		todoFinish[playerid] = 0;
 		trashM_Job[playerid] = 0;
@@ -3752,7 +3769,9 @@ publicFor: resetPlayerToDo(playerid){
 		TogglePlayerAllDynamicCPs(playerid, 1);
 		SetVehicleToRespawn(pizza_Id[playerid]);
 		DeletePreciseTimer(todoTimer[playerid]);
+		todoTimer[playerid] = -1;
 		DeletePreciseTimer(todoTimeout[playerid]);
+		todoTimeout[playerid] = -1;
 		if(IsPlayerAttachedObjectSlotUsed(playerid, TRASH_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TRASH_ATTACH_INDEX);
 		todoFinish[playerid] = 0;
 		pizza_Job[playerid] = 0;
@@ -3770,7 +3789,9 @@ publicFor: resetPlayerToDo(playerid){
 		SetVehicleToRespawn(vehicleIdSIM[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
 		DeletePreciseTimer(todoTimer[playerid]);
+		todoTimer[playerid] = -1;
 		DeletePreciseTimer(todoTimeout[playerid]);
+		todoTimeout[playerid] = -1;
 		testSim[playerid] = 0;
 		poinSim[playerid] = 0;
 		limitVehSIM[vehicleIdSIM[playerid]] = 0;
@@ -3786,7 +3807,9 @@ publicFor: resetPlayerToDo(playerid){
 		TogglePlayerAllDynamicCPs(playerid, 1);
 		SetVehicleToRespawn(montirL_Id[playerid]);
 		DeletePreciseTimer(todoTimer[playerid]);
+		todoTimer[playerid] = -1;
 		DeletePreciseTimer(todoTimeout[playerid]);
+		todoTimeout[playerid] = -1;
 		if(IsPlayerAttachedObjectSlotUsed(playerid, TANGGA_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TANGGA_ATTACH_INDEX);
 		todoFinish[playerid] = 0;
 		montirL_Job[playerid] = 0;
@@ -5651,13 +5674,12 @@ checkMinimal(playerid, const var[], level){
 }
 
 loadAllTiang(){
-	new tiang_Id, free, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ;
+	new tiang_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ;
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `tiang`");
 	cache_get_row_count(row);
 	while(idx < row){
 		result = cache_save();
-		free = Iter_Free(TiangIterator);
 		cache_get_value_name_int(idx, "id", tiang_Id);
 		cache_get_value_name_float(idx, "tiangX", tX);
 		cache_get_value_name_float(idx, "tiangY", tY);
@@ -5665,7 +5687,7 @@ loadAllTiang(){
 		cache_get_value_name_float(idx, "tiangRX", tRX);
 		cache_get_value_name_float(idx, "tiangRY", tRY);
 		cache_get_value_name_float(idx, "tiangRZ", tRZ);
-		createTiang(tiang_Id, free, tX, tY, tZ, tRX, tRY, tRZ);
+		createTiang(tiang_Id, tX, tY, tZ, tRX, tRY, tRZ);
 		cache_set_active(result);
 		
 		#if DEBUG_SERVER_LOAD == true
@@ -5677,9 +5699,9 @@ loadAllTiang(){
 	cache_delete(result);
 }
 
-createTiang(tiang_Id, free, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ)
+createTiang(tiang_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ)
 {
-	if(free < MAX_TIANG_LISTRIK){
+	if(tiang_Id < MAX_TIANG_LISTRIK){
 		DTiang[tiang_Id][tiangX] = tX;
 		DTiang[tiang_Id][tiangY] = tY;
 		DTiang[tiang_Id][tiangZ] = tZ;
@@ -5700,21 +5722,28 @@ createTiang(tiang_Id, free, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, 
 	return 0;
 }
 
-ClosestTiangListrik(playerid, Float: min = 0.0, Float: max = 2.0){
-    new id = -1, Float: dist = min, Float: tempdist;
-	foreach(new i : TiangIterator){
-		tempdist = GetPlayerDistanceFromPoint(playerid, DTiang[i][tiangX], DTiang[i][tiangY], DTiang[i][tiangZ]);
+GetRandomTiangForJob(playerid, Float:min = 3.0, Float:max = 1500.0){
+	new Float:tempdist, id = -1, idx, bool:is_exist;
+	for(new i = 0; i < 10; i++)
+	{
+		idx = Iter_Random(TiangIterator);
+
+		tempdist = GetPlayerDistanceFromPoint(playerid, DTiang[idx][tiangX], DTiang[idx][tiangY], DTiang[idx][tiangZ]);
 		if(tempdist > max) continue;
-		if(tempdist >= dist && tempdist <= max){
-			if(montirL_Job[playerid] == 1){
-				if(montirL_TiangDone_LS[playerid][i] != 1){
-					dist = tempdist;
-					id = i;
-				}
+		if(tempdist > min){
+			is_exist = false;
+			for(new j = 0; j < JOB_MAX_TASK; j++)
+			{
+				if(jobHouseTake[playerid][j] == idx)
+					is_exist = true;
 			}
+			if(is_exist) 
+				continue;
+			id = idx;
+			break;
 		}
 	}
-    return id;
+	return id;
 }
 
 publicFor: waktuMontirListrik(playerid){
@@ -5722,7 +5751,9 @@ publicFor: waktuMontirListrik(playerid){
 		new id = montirL_TiangProses[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + (MAX_PROGRESS_BAR / TIANG_LISTRIK_TIME);
 		if(value >= MAX_PROGRESS_BAR){
 			SetPlayerPos(playerid, montirL_PlayerX[playerid], montirL_PlayerY[playerid], montirL_PlayerZ[playerid]);
+			jobHouseTake[playerid][montirL_TiangCap[playerid] % JOB_MAX_TASK] = id;
 			montirL_TiangCap[playerid]++;
+			jobSallary[playerid] += max(floatround(jobDistance[playerid] / 400.0, floatround_floor)  * 10, GAJI_MONTIR_LISTRIK);
 			montirL_TiangDone_LS[playerid][id] = 1;
 			ClearAnimations(playerid);
 			PlayerInfo[playerid][isOnAnimation] = false;
@@ -5743,13 +5774,14 @@ publicFor: waktuMontirListrik(playerid){
 				SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
 				PlayerInfo[playerid][activeMarker] = true;
 			}else{
-				new tiangClosest = ClosestTiangListrik(playerid, 10, 5000);
+				new tiangClosest = GetRandomTiangForJob(playerid);
 				if(tiangClosest == -1){
 					error_command(playerid, "Mohon maaf, saat ini tidak tersedia tiang untuk di perbaiki, silahkan kembali.");
 					TogglePlayerAllDynamicCPs(playerid, 1);
 					SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
 					return 1;
 				}
+				jobDistance[playerid] = GetPlayerDistanceFromPoint(playerid, DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY], DTiang[tiangClosest][tiangZ]);
 				montirL_Tiang[playerid] = tiangClosest;
 				montirL_X[playerid] = DTiang[tiangClosest][tiangX];
 				montirL_Y[playerid] = DTiang[tiangClosest][tiangY];

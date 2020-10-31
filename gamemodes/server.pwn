@@ -6125,6 +6125,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 2:
 					{
+						if(!IsPlayerInAnyVehicle(playerid)) 
+							return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
+						new vid = GetPlayerVehicleID(playerid);
+						if(GetVehicleModel(vid) != 408) 
+							return error_command(playerid, "Anda tidak berada di dalam kendaraan truk sampah.");
+						if(trashM_VehCap[vid] < 3)
+							return SendClientMessage(playerid, COLOR_RED, TAG_JOB" "WHITE"Hanya dapat menyelesaikan pekerjaan saat sudah mengangkut minimal 3 sampah.");
+
 						TogglePlayerAllDynamicCPs(playerid, 1);
 						SetPlayerCheckpoint(playerid, 1644.5551, -1537.3542, 13.5697, 3.0);
 						PlayerInfo[playerid][activeMarker] = true;
@@ -6162,9 +6170,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SetPlayerCheckpoint(playerid, pizza_X[playerid], pizza_Y[playerid], pizza_Z[playerid], 3.0);
 				PlayerInfo[playerid][activeMarker] = true;
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Pizzaboy"YELLOW"!");
-				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit, jika belum selesai anda akan gagal.", TIME_PIZZABOY);
+				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit untuk menyelesaikan pekerjaan.", TIME_PIZZABOY);
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Gunakan perintah "GREEN"/pizzaboy"WHITE" untuk melakukan aktivitas pekerjaan.");
-				todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_PIZZABOY*60000, false, "i", playerid);
+				todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_PIZZABOY * 60000, false, "i", playerid);
 			}else{
 				RemovePlayerFromVehicle(playerid);
 			}
@@ -6218,15 +6226,19 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 2:
 					{
 						// Muatan Pizza
-						if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
-
+						if(!IsPlayerInAnyVehicle(playerid)) 
+							return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
 						new vid = GetPlayerVehicleID(playerid);
-						if(GetVehicleModel(vid) != 448) return error_command(playerid, "Anda tidak berada di dalam kendaraan pengantar pizza.");
+						if(GetVehicleModel(vid) != 448) 
+							return error_command(playerid, "Anda tidak berada di dalam kendaraan pengantar pizza.");
 						format(pDialog[playerid], sizePDialog, WHITE"Kendaraan anda memiliki muatan pizza sebanyak "GREEN"%d"WHITE" buah.", pizza_VehCap[vid]);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Muatan Pizza", pDialog[playerid], "Ok", "");
 					}
 					case 3:
 					{
+						if(pizza_HouseDrop[playerid] < 3)
+							return SendClientMessage(playerid, COLOR_RED, TAG_JOB" "WHITE"Hanya dapat menyelesaikan pekerjaan saat sudah mengantar minimal 3 pizza.");
+
 						TogglePlayerAllDynamicCPs(playerid, 1);
 						SetPlayerCheckpoint(playerid, 2092.4819,-1829.4832,13.5568, 3.0);
 						PlayerInfo[playerid][activeMarker] = true;
@@ -9482,8 +9494,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						z -= 1.0;
 						inline responseQuery(){
 							new id = cache_insert_id(),
-								free = Iter_Free(TiangIterator),
-								create = createTiang(id, free, x, y, z, 0.0, 0.0, 0.0);
+								create = createTiang(id, x, y, z, 0.0, 0.0, 0.0);
 							if(create){
 								tiangEditID[playerid] = id;
 								EditDynamicObject(playerid, DTiang[id][tiangObjID]);
@@ -9598,13 +9609,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 				montirL_Job[playerid] = 1;
 				new vehid = GetPlayerVehicleID(playerid),
-				tiangClosest = ClosestTiangListrik(playerid, 10, 5000);
+				tiangClosest = Iter_Random(TiangIterator);
 				if(tiangClosest == -1){
 					montirL_Job[playerid] = 0;
 					RemovePlayerFromVehicle(playerid);
 					error_command(playerid, "Mohon maaf, saat ini tidak tersedia tiang untuk di perbaiki.");
 					return 1;
 				}
+				jobDistance[playerid] = GetPlayerDistanceFromPoint(playerid, DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY], DTiang[tiangClosest][tiangZ]);
 				montirL_Tiang[playerid] = tiangClosest;
 				montirL_X[playerid] = DTiang[tiangClosest][tiangX];
 				montirL_Y[playerid] = DTiang[tiangClosest][tiangY];
@@ -9616,7 +9628,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				PlayerInfo[playerid][activeMarker] = true;
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Electrician"YELLOW"!");
 				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit, jika belum selesai anda akan gagal.", TIME_MONTIR_LISTRIK);
-				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Gunakan perintah "GREEN"/montirlistrik"WHITE" untuk melakukan aktivitas pekerjaan.");
+				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Gunakan perintah "GREEN"/electrician"WHITE" untuk melakukan aktivitas pekerjaan.");
 				todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_MONTIR_LISTRIK*60000, false, "i", playerid);
 			}else{
 				RemovePlayerFromVehicle(playerid);
@@ -9640,8 +9652,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							GetVehicleBoot(vid, x, y, z);
 							if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Anda tidak berada tepat dibelakang kendaraaan utilitas.");
 						}else{
+							new Float:tempPos[3];
+							GetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+
 							GetDynamicObjectPos(montirL_TanggaObj[playerid], x, y, z);
-							if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Anda tidak berada di sekitar tangga.");
+							if(!IsPointInRangeOfPoint(tempPos[0], tempPos[1], 0.0, x, y, 0.0, 2.0))
+								return error_command(playerid, "Anda tidak berada di sekitar tangga.");
 							DestroyDynamicObject(montirL_TanggaObj[playerid]);
 							montirL_TanggaPasang[playerid] = 0;
 						}
@@ -9655,14 +9671,20 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1:
 					{
 						// Pasang Tangga
-                        new tiangClosest = ClosestTiangListrik(playerid, 0, 3);
+                        new tiangClosest = -1;
+						new Float:tempPos[3];
+						GetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+						foreach(new i : TiangIterator){
+							if(IsPointInRangeOfPoint(tempPos[0], tempPos[1], 0.0, DTiang[i][tiangX], DTiang[i][tiangY], 0.0, 2.0))
+								tiangClosest = i;
+						}
                         if(tiangClosest == -1 || montirL_Tiang[playerid] != tiangClosest) return error_command(playerid, "Anda tidak berada di sekitar tiang yang di tuju.");
                         if(montirL_Tangga[playerid] == 0) return error_command(playerid, "Anda tidak membawa tangga, silahkan ambil tangga terlebih dahulu.");
 						if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memasang dalam keadaan sekarang.");
 						montirL_Tangga[playerid] = 0;
 						montirL_TanggaPasang[playerid] = 1;
 						montirL_TiangProses[playerid] = tiangClosest;
-						montirL_TanggaObj[playerid] = CreateDynamicObject(1428, DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY]-0.5, DTiang[tiangClosest][tiangZ]-2.0, 0.00000, 0.00000, 0.00000);
+						montirL_TanggaObj[playerid] = CreateDynamicObject(1428, DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY]-0.5, tempPos[2], 0.00000, 0.00000, 0.00000);
 						new Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz;
 						GetPlayerPos(playerid, x, y, z);
 						montirL_PlayerX[playerid] = x;
@@ -9675,7 +9697,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						GetDynamicObjectRot(montirL_TanggaObj[playerid], rx, ry, rz);
 						SetPlayerFacingAngle(playerid, rz);
 						ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 1, 1, 1, 1, 1);
-						MoveDynamicObject(montirL_TanggaObj[playerid], DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY]-0.5, DTiang[tiangClosest][tiangZ]+1.5, 0.5, 0.00000, 0.00000, 0.00000);
+						MoveDynamicObject(montirL_TanggaObj[playerid], DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY]-0.5, tempPos[2]+1.5, 0.5, 0.00000, 0.00000, 0.00000);
 						montirL_Timer[playerid] = SetPreciseTimer("waktuPasangTangga", 7000, false, "i", playerid);
 					}
 					case 2:
@@ -9694,6 +9716,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(IsPlayerAttachedObjectSlotUsed(playerid, TANGGA_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TANGGA_ATTACH_INDEX);
 						ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 0, 0, 0, 0);
 						SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda berhasil menaruh tangga.");
+					}
+					case 3: // Selesai Bekerja
+					{
+						if(montirL_TiangCap[playerid] < 3)
+							return SendClientMessage(playerid, COLOR_RED, TAG_JOB" "WHITE"Hanya dapat menyelesaikan pekerjaan saat sudah memperbaiki minimal 3 tiang.");
+
+						TogglePlayerAllDynamicCPs(playerid, 1);
+						SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
+						PlayerInfo[playerid][activeMarker] = true;
+						SendClientMessage(playerid, COLOR_ORANGE, TAG_JOB" "WHITE"Anda mengakhiri pekerjaan anda, silahkan ikuti marker untuk mendapatkan hasil.");
 					}
 				}
 			}
@@ -10125,8 +10157,6 @@ public OnPlayerSpawn(playerid)
 
 	// Tambang
 	if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
-	DeletePreciseTimer(PlayerAction[playerid][timerNambang]);
-	PlayerAction[playerid][sedangNambang] = false;
 	// Mancing
 	if(PlayerInfo[playerid][sisaTombak] > 0){
 		if(!IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) SetPlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX, 11716, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
@@ -10365,6 +10395,7 @@ public OnGameModeInit()
     SetVehiclePassengerDamage(true);
     SetDisableSyncBugs(true);	
 	SetCbugAllowed(false);
+	SetCustomVendingMachines(false);
 
 	/**
 		Weather Init
@@ -10554,6 +10585,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 		}else if(Iter_Contains(vehicleSIM, vehid)){
 			if(testSim[playerid] == 1 && vehicleIdSIM[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
+				todoTimer[playerid] = -1;
 			}else if(testSim[playerid] == 1 && vehicleIdSIM[playerid] != vehid){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
 				RemovePlayerFromVehicleEx(playerid);
@@ -10566,6 +10598,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 				ShowPlayerDialog(playerid, DIALOG_JOB_SWEEPER, DIALOG_STYLE_MSGBOX, "Sweeper Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Sweeper"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(sweeperJob[playerid] == 1 && sweeperId[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
+				todoTimer[playerid] = -1;
 			}else if(sweeperJob[playerid] == 1 && sweeperId[playerid] != vehid){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
 				RemovePlayerFromVehicle(playerid);
@@ -10578,6 +10611,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 				ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_ENTER, DIALOG_STYLE_MSGBOX, "Trashmaster Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Trashmaster"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(trashM_Job[playerid] == 1 && trashM_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
+				todoTimer[playerid] = -1;
 			}else if(trashM_Job[playerid] == 1 && trashM_Id[playerid] != vehid){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
 				RemovePlayerFromVehicle(playerid);
@@ -10590,6 +10624,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 				ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_ENTER, DIALOG_STYLE_MSGBOX, "Pizzaboy Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Pizzaboy"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(pizza_Job[playerid] == 1 && pizza_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
+				todoTimer[playerid] = -1;
 			}else if(pizza_Job[playerid] == 1 && pizza_Id[playerid] != vehid){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
 				RemovePlayerFromVehicle(playerid);
@@ -10639,6 +10674,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Electrician Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Electrician"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
 			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
+				todoTimer[playerid] = -1;
 			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] != vehid){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
 				RemovePlayerFromVehicle(playerid);
@@ -12128,13 +12164,19 @@ public OnPlayerEnterCheckpoint(playerid){
 				new gaji = jobSallary[playerid];
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
-				PlayerInfo[playerid][ach_Trashmaster]++;
-				addGajiPemain(playerid, gaji, "Truk Sampah (Trashmaster)");
+
+				if(gaji > 0){
+					PlayerInfo[playerid][ach_Trashmaster]++;
+
+					addGajiPemain(playerid, gaji, "Truk Sampah (Trashmaster)");
+					format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+
+					// Exp Score
+					TambahExpScore(playerid, EXP_TAMBAH_JOB);
+				}
+
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
-				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
-				// Exp Score
-				TambahExpScore(playerid, EXP_TAMBAH_JOB);
 			}
 		}
 	}
@@ -12144,13 +12186,17 @@ public OnPlayerEnterCheckpoint(playerid){
 				new gaji = jobSallary[playerid];
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
-				PlayerInfo[playerid][ach_Pizzaboy]++;
-				addGajiPemain(playerid, gaji, "Pengantar Pizza (Pizzaboy)");
+
+				if(gaji > 0){
+					PlayerInfo[playerid][ach_Pizzaboy]++;
+					addGajiPemain(playerid, gaji, "Pengantar Pizza (Pizzaboy)");
+					format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+					// Exp Score
+					TambahExpScore(playerid, EXP_TAMBAH_JOB);
+				}
+
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
-				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
-				// Exp Score
-				TambahExpScore(playerid, EXP_TAMBAH_JOB);
 			}
 		}
 	}
@@ -12161,13 +12207,18 @@ public OnPlayerEnterCheckpoint(playerid){
 				new gaji = jobSallary[playerid];
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
-				PlayerInfo[playerid][ach_MontirListrik]++;
-				addGajiPemain(playerid, gaji, "Bekerja sebagai electrician");
+
+				if(gaji > 0){
+					PlayerInfo[playerid][ach_MontirListrik]++;
+					
+					addGajiPemain(playerid, gaji, "Bekerja sebagai electrician");
+					format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+					// Exp Score
+					TambahExpScore(playerid, EXP_TAMBAH_JOB);
+				}
+
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
-				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
-				// Exp Score
-				TambahExpScore(playerid, EXP_TAMBAH_JOB);
 			}
 		}
 	}

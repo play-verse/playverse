@@ -172,12 +172,6 @@ new PlayerItem[MAX_PLAYERS][MAX_SERVER_ITEM + 1][PLAYER_ITEM_INFO];
  */
 new TempPlayerDialog[MAX_PLAYERS][BANYAK_DATA_PER_PAGE];
 
-enum pInfoAct {
-    timerNambang,
-    bool:sedangNambang
-}
-new PlayerAction[MAX_PLAYERS][pInfoAct];
-
 enum rInfo
 {
     freeSkinID,
@@ -547,7 +541,8 @@ new const MENU_BIBIT[][INFO_MENU_BIBIT] = {
 	{ID_BIBIT_ALPUKAT, "Bibit Alpukat", 15, 9},
 	{ID_BIBIT_PEPAYA, "Bibit Pepaya", 15, 9},
 	{ID_BIBIT_BELIMBING, "Bibit Belimbing", 15, 9},
-	{ID_BIBIT_SRIKAYA, "Bibit Srikaya", 10, 9}
+	{ID_BIBIT_SRIKAYA, "Bibit Srikaya", 10, 9},
+	{ID_BIBIT_LABU, "Bibit Labu", 15, 9}
 };
 
 new const MENU_BIBIT_NARKO[][INFO_MENU_BIBIT] = {
@@ -1737,7 +1732,8 @@ new const list_barang_tampung_buah[][INFO_BARANG_DENGAN_JUMLAH] = {
 	{ID_ALPUKAT, 9, 23},
 	{ID_PEPAYA, 9, 23},
 	{ID_BELIMBING, 9, 23},
-	{ID_SRIKAYA, 9, 15}
+	{ID_SRIKAYA, 9, 15},
+	{ID_LABU, 9, 25}
 };
 
 new const item_beli_tambang[][INFO_BARANG_MARKET] = {
