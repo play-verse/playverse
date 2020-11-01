@@ -956,7 +956,7 @@ publicFor: tampilListDaganganMarketplace(playerid){
 	return 1;
 }
 
-publicFor: tampilListMarketplace(playerid){
+publicFor: tampilListMarketplace(playerid, dialogid){
 	new rows;
 	cache_get_row_count(rows);
 	if(rows){
@@ -984,13 +984,13 @@ publicFor: tampilListMarketplace(playerid){
 		PlayerInfo[playerid][tempCache] = cache_save();
 
 		format(subString, 64, WHITE"Pilih barang yang ingin dibeli : "GREEN"(page : %d)", GetPVarInt(playerid, "halaman") + 1);
-		ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM_MARKETPLACE, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
+		ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
 	}else{
 		if(GetPVarInt(playerid, "halaman") < 1)
 			showDialogPesan(playerid, RED"Marketplace kosong", WHITE"Marketplace tidak berisi barang apapun yang sedang dijual.");
 		else{ // Kembalikan ke halaman sebelumnya
 			SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
-			showDialogBeliItemMarketplace(playerid);
+			showDialogBeliItemMarketplace(playerid, dialogid);
 		}
 	}
 

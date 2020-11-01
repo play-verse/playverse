@@ -61,9 +61,9 @@ showDialogListItem(playerid, fromplayerid = INVALID_PLAYER_ID, dialogid = DIALOG
         return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, subString, pDialog[playerid], "Pilih", "Kembali");
 }
 
-showDialogBeliItemMarketplace(playerid){
+showDialogBeliItemMarketplace(playerid, dialogid = DIALOG_PILIH_ITEM_MARKETPLACE){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT a.*, b.nama FROM marketplace a INNER JOIN `user` b ON b.id = a.id_user WHERE a.status = 0 AND a.id_user != %d ORDER BY a.tanggal DESC LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
-    mysql_tquery(koneksi, pQuery[playerid], "tampilListMarketplace", "i", playerid);
+    mysql_tquery(koneksi, pQuery[playerid], "tampilListMarketplace", "ii", playerid, dialogid);
 }
 
 showDialogDaganganMarketplace(playerid){

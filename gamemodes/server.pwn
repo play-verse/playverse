@@ -1618,6 +1618,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						return ShowPlayerDialog(playerid, DIALOG_SHARELOCK_HP, DIALOG_STYLE_INPUT, "Sharelock", WHITE"Silahkan masukan "GREEN"ID Pemain "WHITE"yang ingin anda bagikan lokasi anda.\n"ORANGE"Note : Pastikan pemain yang anda ingin bagikan memiliki HP yang terpakai (minimal ePhone 3)\n** Pada saat anda membagikan lokasi anda, pemain tersebut "GREEN" dapat melihat anda di peta mereka.", "Pilih", "Batal");
 					}
+					case 5:
+					{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogBeliItemMarketplace(playerid, DIALOG_EPHONE_MARKETPLACE);
+						return 1;
+					}
 					default:
 						return 1;
 				}
@@ -9748,6 +9754,26 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}		
+		case DIALOG_EPHONE_MARKETPLACE:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					showDialogBeliItemMarketplace(playerid, dialogid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						showDialogBeliItemMarketplace(playerid, dialogid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogBeliItemMarketplace(playerid, dialogid);
+					}
+					return 1;
+				}
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
