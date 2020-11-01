@@ -1211,7 +1211,7 @@ publicFor: isPunyaKTP(playerid, punya){
 }
 
 publicFor: pakaiPaluTambang(playerid){
-	if(checkMinimal(playerid, "score", 6)) return 1;
+	if(checkMinimal(playerid, MINIMAL_SCORE, 6)) return 1;
 	if(PlayerInfo[playerid][sisaPalu] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 8, -1);
 	PlayerInfo[playerid][sisaPalu] += 15;
@@ -1232,7 +1232,7 @@ publicFor: pakaiGergajiMesin(playerid){
 }
 
 publicFor: pakaiTombakIkan(playerid){
-	if(checkMinimal(playerid, "score", 4)) return 1;
+	if(checkMinimal(playerid, MINIMAL_SCORE, 4)) return 1;
 	if(PlayerInfo[playerid][sisaTombak] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 36, -1);
 	PlayerInfo[playerid][sisaTombak] += 15;
@@ -1246,7 +1246,7 @@ publicFor: pakaiTombakIkan(playerid){
 }
 
 publicFor: pakaiJoranPancing(playerid){
-	if(checkMinimal(playerid, "score", 1)) return 1;
+	if(checkMinimal(playerid, MINIMAL_SCORE, 1)) return 1;
 	tambahItemPlayer(playerid, ID_JORAN_PANCING, -1);
 	PlayerInfo[playerid][sisaJoran] += 10;
 
@@ -3244,9 +3244,16 @@ updateOnPlayerDisconnect(playerid){
 		temp_stats_makan = getStatusMakanPemain(playerid);
 		temp_stats_minum = getStatusMinumPemain(playerid);
 	}else{
-		// Reset nilai jadi 0 semua
-		last_hp = last_armour = last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a = temp_stats_makan = temp_stats_minum = 0;
-		last_spawn_info_int = last_spawn_info_vw = 0;
+		if(aktifPanduanStream[playerid] == 1){
+			last_spawn_info_x = PlayerInfo[playerid][last_x];
+			last_spawn_info_y = PlayerInfo[playerid][last_y];
+			last_spawn_info_z = PlayerInfo[playerid][last_z];
+			last_spawn_info_a = PlayerInfo[playerid][last_a];
+		}else{
+			// Reset nilai jadi 0 semua
+			last_hp = last_armour = last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a = temp_stats_makan = temp_stats_minum = 0;
+			last_spawn_info_int = last_spawn_info_vw = 0;
+		}
 	}
 
 	new lama_bermain = getTotalLamaBermain(playerid);
@@ -3710,7 +3717,7 @@ updatePVehReparasi(primary_id, status){
 publicFor: resetPlayerToDo(playerid){
 	if(sweeperJob[playerid] == 1){
 		if(todoFinish[playerid] != 1){
-			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
+			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Pekerjaan saat ini sudah berakhir!");
 		}
 		SetVehicleToRespawn(sweeperId[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
@@ -3723,7 +3730,7 @@ publicFor: resetPlayerToDo(playerid){
 	}
 	if(trashM_Job[playerid] == 1){
 		if(todoFinish[playerid] != 1){
-			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
+			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Pekerjaan saat ini sudah berakhir!");
 		}
 		DisablePlayerCheckpoint(playerid);
 		TogglePlayerAllDynamicCPs(playerid, 1);
@@ -3731,6 +3738,8 @@ publicFor: resetPlayerToDo(playerid){
 		DeletePreciseTimer(todoTimer[playerid]);
 		DeletePreciseTimer(todoTimeout[playerid]);
 		if(IsPlayerAttachedObjectSlotUsed(playerid, TRASH_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TRASH_ATTACH_INDEX);
+		todoTimer[playerid] = -1;
+		todoTimeout[playerid] = -1;
 		todoFinish[playerid] = 0;
 		trashM_Job[playerid] = 0;
 		trashM_Used[trashM_Id[playerid]] = 0;
@@ -3748,7 +3757,7 @@ publicFor: resetPlayerToDo(playerid){
 	}
 	if(pizza_Job[playerid] == 1){
 		if(todoFinish[playerid] != 1){
-			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
+			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Pekerjaan saat ini sudah berakhir!");
 		}
 		DisablePlayerCheckpoint(playerid);
 		TogglePlayerAllDynamicCPs(playerid, 1);
@@ -3756,6 +3765,8 @@ publicFor: resetPlayerToDo(playerid){
 		DeletePreciseTimer(todoTimer[playerid]);
 		DeletePreciseTimer(todoTimeout[playerid]);
 		if(IsPlayerAttachedObjectSlotUsed(playerid, TRASH_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TRASH_ATTACH_INDEX);
+		todoTimer[playerid] = -1;
+		todoTimeout[playerid] = -1;
 		todoFinish[playerid] = 0;
 		pizza_Job[playerid] = 0;
 		pizza_Used[pizza_Id[playerid]] = 0;
@@ -3780,6 +3791,8 @@ publicFor: resetPlayerToDo(playerid){
 		DisablePlayerRaceCheckpoint(playerid);
 		DeletePreciseTimer(todoTimer[playerid]);
 		DeletePreciseTimer(todoTimeout[playerid]);
+		todoTimer[playerid] = -1;
+		todoTimeout[playerid] = -1;
 		testSim[playerid] = 0;
 		poinSim[playerid] = 0;
 		limitVehSIM[vehicleIdSIM[playerid]] = 0;
@@ -3789,26 +3802,24 @@ publicFor: resetPlayerToDo(playerid){
 
 	if(montirL_Job[playerid] == 1){
 		if(todoFinish[playerid] != 1){
-			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda telah berhenti bekerja!");
+			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Pekerjaan saat ini sudah berakhir!");
 		}
 		DisablePlayerCheckpoint(playerid);
 		TogglePlayerAllDynamicCPs(playerid, 1);
 		SetVehicleToRespawn(montirL_Id[playerid]);
 		DeletePreciseTimer(todoTimer[playerid]);
 		DeletePreciseTimer(todoTimeout[playerid]);
-		if(IsPlayerAttachedObjectSlotUsed(playerid, TANGGA_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TANGGA_ATTACH_INDEX);
+		if(IsPlayerAttachedObjectSlotUsed(playerid, ALAT_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, ALAT_ATTACH_INDEX);
+		if(IsValidDynamicObject(montirL_AlatObj[playerid])) DestroyDynamicObject(montirL_AlatObj[playerid]);
+		todoTimer[playerid] = -1;
+		todoTimeout[playerid] = -1;
 		todoFinish[playerid] = 0;
 		montirL_Job[playerid] = 0;
 		montirL_Used[montirL_Id[playerid]] = 0;
 		montirL_Id[playerid] = -1;
-		for(new i = 0; i < MAX_TIANG_LISTRIK; i++){
-            if(montirL_TiangDone_LS[playerid][i] == 1){
-                montirL_TiangDone_LS[playerid][i] = 0;
-            }
-		}
-        montirL_Tangga[playerid] = 0;
-        montirL_Tiang[playerid] = -1;
-        montirL_TiangCap[playerid] = 0;
+        montirL_Alat[playerid] = 0;
+		montirL_AlatPasang[playerid] = 0;
+		montirL_GarduPoint[playerid] = -1;
 	}
 
 	if(CuttingTreeID[playerid] != -1){
@@ -4727,9 +4738,11 @@ createPlant(plant_Id, const nama_bibit[], item_Id, Float:pX, Float:pY, Float:pZ,
 		DFarm[plant_Id][plantLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, DFarm[plant_Id][plantX], DFarm[plant_Id][plantY], DFarm[plant_Id][plantZ]+1.5, 3.0);
 		Iter_Add(PlantIterator, plant_Id);
 		reloadPlantLabel(plant_Id);
+		return 1;
 	}else{
 		print("Tanaman mencapai limit!");
 	}
+	return 0;
 }
 
 reloadPlantLabel(plant_Id){
@@ -4740,6 +4753,7 @@ reloadPlantLabel(plant_Id){
 		format(label, sizeof(label), WHITE"["GREEN"Tanaman %s"WHITE"]\nNo : "GREEN"%d\n\n"WHITE"Ketik "GREEN"/farm"WHITE" (pilih menu "GREEN"Panen Tanaman"WHITE")\nUntuk memanen tanaman", DFarm[plant_Id][plantName], plant_Id);
 	}
 	UpdateDynamic3DTextLabelText(DFarm[plant_Id][plantLabel], COLOR_WHITE, label);
+	return 1;
 }
 
 publicFor: HarvestTime(plant_Id){
@@ -5619,141 +5633,114 @@ loadPlayerCount(playerid){
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM user_count WHERE id_user = %d AND last_tanggal = DATE(NOW())", PlayerInfo[playerid][pID]);
 }
 
-checkMinimal(playerid, const var[], level){
-	if(sama("score", var)){
+checkMinimal(playerid, kondisi, level){
+	if(kondisi == MINIMAL_SCORE){
 		if(PlayerInfo[playerid][pScore] < level){
-			sendPesan(playerid, COLOR_RED, "Error: "GREY"Anda harus memiliki minimal level %d untuk dapat menggunakan ini.", level);
+			sendPesan(playerid, COLOR_RED, "Error: "GREY"Anda harus memiliki minimal score %d untuk dapat menggunakan ini.", level);
 			return 1;
 		}
 	}
 	return 0;
 }
 
-loadAllTiang(){
-	new tiang_Id, free, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ;
-	new Cache:result, row, idx = 0;
-	result = mysql_query(koneksi, "SELECT * FROM `tiang`");
-	cache_get_row_count(row);
-	while(idx < row){
-		result = cache_save();
-		free = Iter_Free(TiangIterator);
-		cache_get_value_name_int(idx, "id", tiang_Id);
-		cache_get_value_name_float(idx, "tiangX", tX);
-		cache_get_value_name_float(idx, "tiangY", tY);
-		cache_get_value_name_float(idx, "tiangZ", tZ);
-		cache_get_value_name_float(idx, "tiangRX", tRX);
-		cache_get_value_name_float(idx, "tiangRY", tRY);
-		cache_get_value_name_float(idx, "tiangRZ", tRZ);
-		createTiang(tiang_Id, free, tX, tY, tZ, tRX, tRY, tRZ);
-		cache_set_active(result);
-		
-		#if DEBUG_SERVER_LOAD == true
-			printf("Tiang load id(%d)", tiang_Id);
-		#endif
-
-		idx++;
+publicFor: re_GarduPadam(){
+	DeletePreciseTimer(montirL_GarduEnd);
+	foreach(new i : Player){
+		if(montirL_GarduDone != 2){
+			if(montirL_Job[i] == 1){
+				resetPlayerToDo(i);
+			}
+		}
+		server_message(i, WHITE"Pemadaman listrik telah selesai diperbaiki, semua akses dapat digunakan kembali.");
 	}
-	cache_delete(result);
+	for(new i = 0; i < sizeof(POINT_GARDU_PADAM); i++){
+		if(IsValidDynamic3DTextLabel(montirL_GarduLabel[i]))
+			DestroyDynamic3DTextLabel(montirL_GarduLabel[i]);
+		if(IsValidDynamicArea(montirL_GarduArea[i]))
+			DestroyDynamicArea(montirL_GarduArea[i]);
+		montirL_GarduLabel[i] = Text3D:INVALID_3DTEXT_ID;
+		montirL_GarduArea[i] = -1;
+		montirL_GarduPadam[i] = 0;
+	}
+	montirL_GarduPadamEvent = 0;
+	montirL_GarduDone = 0;
+	montirL_GarduEnd = -1;
+	// Cooldown
+	montirL_GarduStart = SetPreciseTimer("GarduPadam", 120000, false); // 2 jam (7200000)
+	return 1;
 }
 
-createTiang(tiang_Id, free, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ)
-{
-	if(free < MAX_TIANG_LISTRIK){
-		DTiang[tiang_Id][tiangX] = tX;
-		DTiang[tiang_Id][tiangY] = tY;
-		DTiang[tiang_Id][tiangZ] = tZ;
-		DTiang[tiang_Id][tiangRX] = tRX;
-		DTiang[tiang_Id][tiangRY] = tRY;
-		DTiang[tiang_Id][tiangRZ] = tRZ;
-	
-		DTiang[tiang_Id][tiangObjID] = CreateDynamicObject(3459, DTiang[tiang_Id][tiangX], DTiang[tiang_Id][tiangY], DTiang[tiang_Id][tiangZ], DTiang[tiang_Id][tiangRX], DTiang[tiang_Id][tiangRY], DTiang[tiang_Id][tiangRZ]);
-		
-		new label[256];
-		format(label, sizeof(label), WHITE"["GREEN"Tiang"WHITE"]\nNo : "GREEN"%d\n", tiang_Id);
-		DTiang[tiang_Id][tiangLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, DTiang[tiang_Id][tiangX], DTiang[tiang_Id][tiangY], DTiang[tiang_Id][tiangZ]+1.5, 5.0);
-		Iter_Add(TiangIterator, tiang_Id);
-		return 1;
+publicFor: waktuPerbaikiGardu(playerid){
+	new point_gardu = montirL_GarduPoint[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + (MAX_PROGRESS_BAR / GARDU_LISTRIK_TIME);
+	if(value >= MAX_PROGRESS_BAR){
+		TogglePlayerControllable(playerid, 1);
+		ClearAnimations(playerid);
+		montirL_GarduPadam[point_gardu] = 0;
+		montirL_GarduDone++;
+		PlayerInfo[playerid][isOnAnimation] = false;
+		PlayerInfo[playerid][isBusy] = false;
+		if(montirL_Timer[playerid] != -1){
+			DeletePreciseTimer(montirL_Timer[playerid]);
+			montirL_Timer[playerid] = -1;
+		}
+		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
+		HidePlayerProgressBar(playerid, CuttingBar[playerid]);
+		foreach(new i : Player){
+			sendPesan(i, COLOR_BLUE, TAG_INFO" "WHITE"Telah diperbaiki Gardu pada Pusat Listrik Kota ("GREEN"%d"WHITE"/"YELLOW"%d"WHITE").", montirL_GarduDone, sizeof(POINT_GARDU_PADAM));
+		}
+		if(montirL_GarduDone == 2){
+			re_GarduPadam();
+		}
+		TogglePlayerAllDynamicCPs(playerid, 0);
+		SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
+		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Silahkan kembali ke tempat awal untuk menyelesaikan pekerjaan.");
 	}else{
-		print("Tiang mencapai limit!");
-	}
-	return 0;
-}
-
-ClosestTiangListrik(playerid, Float: min = 0.0, Float: max = 2.0){
-    new id = -1, Float: dist = min, Float: tempdist;
-	foreach(new i : TiangIterator){
-		tempdist = GetPlayerDistanceFromPoint(playerid, DTiang[i][tiangX], DTiang[i][tiangY], DTiang[i][tiangZ]);
-		if(tempdist > max) continue;
-		if(tempdist >= dist && tempdist <= max){
-			if(montirL_Job[playerid] == 1){
-				if(montirL_TiangDone_LS[playerid][i] != 1){
-					dist = tempdist;
-					id = i;
-				}
-			}
-		}
-	}
-    return id;
-}
-
-publicFor: waktuMontirListrik(playerid){
-	if(montirL_TiangProses[playerid] != -1){
-		new id = montirL_TiangProses[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + (MAX_PROGRESS_BAR / TIANG_LISTRIK_TIME);
-		if(value >= MAX_PROGRESS_BAR){
-			SetPlayerPos(playerid, montirL_PlayerX[playerid], montirL_PlayerY[playerid], montirL_PlayerZ[playerid]);
-			montirL_TiangCap[playerid]++;
-			montirL_TiangDone_LS[playerid][id] = 1;
-			ClearAnimations(playerid);
-			PlayerInfo[playerid][isOnAnimation] = false;
-			PlayerInfo[playerid][isBusy] = false;
-
-			TogglePlayerControllable(playerid, 1);
-			if(montirL_Timer[playerid] != -1){
-				DeletePreciseTimer(montirL_Timer[playerid]);
-				montirL_Timer[playerid] = -1;
-			}
-			montirL_PlayerX[playerid] = 0;
-			montirL_PlayerY[playerid] = 0;
-			montirL_PlayerZ[playerid] = 0;
-			SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
-			HidePlayerProgressBar(playerid, CuttingBar[playerid]);
-			if(montirL_TiangCap[playerid] == TIANG_LISTRIK_LIMIT){
-				TogglePlayerAllDynamicCPs(playerid, 1);
-				SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
-				PlayerInfo[playerid][activeMarker] = true;
-			}else{
-				new tiangClosest = ClosestTiangListrik(playerid, 10, 5000);
-				if(tiangClosest == -1){
-					error_command(playerid, "Mohon maaf, saat ini tidak tersedia tiang untuk di perbaiki, silahkan kembali.");
-					TogglePlayerAllDynamicCPs(playerid, 1);
-					SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
-					return 1;
-				}
-				montirL_Tiang[playerid] = tiangClosest;
-				montirL_X[playerid] = DTiang[tiangClosest][tiangX];
-				montirL_Y[playerid] = DTiang[tiangClosest][tiangY];
-				montirL_Z[playerid] = DTiang[tiangClosest][tiangZ];
-				SetPlayerCheckpoint(playerid, montirL_X[playerid], montirL_Y[playerid], montirL_Z[playerid], 3.0);
-				PlayerInfo[playerid][activeMarker] = true;
-			}
-		}else{
-			SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
-		}
+		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 	}
 	return 1;
 }
 
-publicFor: waktuPasangTangga(playerid){
-	SetPlayerPos(playerid,DTiang[montirL_Tiang[playerid]][tiangX], DTiang[montirL_Tiang[playerid]][tiangY]-0.5, montirL_PlayerZ[playerid]+2.0);
-	SetPlayerLookAt(playerid, DTiang[montirL_Tiang[playerid]][tiangX], DTiang[montirL_Tiang[playerid]][tiangY]);
-	SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
-	ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
-	GameTextForPlayer(playerid, "~w~Sedang ~y~memperbaiki...", 3000, 3);
-	ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
-	
-	montirL_Timer[playerid] = SetPreciseTimer("waktuMontirListrik", 1000, true, "i", playerid);
-
-	PlayerInfo[playerid][isOnAnimation] = true;
-	PlayerInfo[playerid][isBusy] = true;
+publicFor: GarduPadam(){
+	new label[128];
+	DeletePreciseTimer(montirL_GarduStart);
+	montirL_GarduStart = -1;
+	foreach(new i : Player){
+		if(montirL_Job[i] == 1){
+			resetPlayerToDo(i);
+		}
+		server_message(i, WHITE"Terjadi kerusakan Gardu pada Pusat Listrik Kota, semua akses menjadi padam.");
+		server_message(i, WHITE"Pergi ke tempat Electrician dan lakukan perbaikan untuk dapat menggunakan akses kembali.");
+		sendPesan(i, COLOR_BLUE, TAG_INFO" "WHITE"Dibutuhkan %d pemain untuk dapat memperbaiki Gardu pada Pusat Listrik Kota.", sizeof(POINT_GARDU_PADAM));
+	}
+	for(new i = 0; i < sizeof(POINT_GARDU_PADAM); i++){
+		format(label, sizeof(label), WHITE"["GREEN"Gardu"WHITE"]\nNo : "GREEN"%d", i);
+		montirL_GarduLabel[i] = CreateDynamic3DTextLabel(label, COLOR_WHITE, POINT_GARDU_PADAM[i][GARDU_X], POINT_GARDU_PADAM[i][GARDU_Y], POINT_GARDU_PADAM[i][GARDU_Z] + 1.25, 10.0, .testlos = 1);
+		montirL_GarduArea[i] = CreateDynamicSphere(POINT_GARDU_PADAM[i][GARDU_X], POINT_GARDU_PADAM[i][GARDU_Y], POINT_GARDU_PADAM[i][GARDU_Z], 3.0);
+		montirL_GarduPadam[i] = 1;
+	}
+	montirL_GarduPadamEvent = 1;
+	// Reset
+	montirL_GarduEnd = SetPreciseTimer("re_GarduPadam", 300000, false); // 30 menit (1800000)
 	return 1;
+}
+
+FormatJam(temp_jam = 0, temp_menit = 0){
+	new text[16], text_menit[8], text_jam[8];
+	if(temp_menit > 60){
+		temp_menit = temp_menit-60;
+		temp_jam += 1;
+		if(temp_jam > 24) temp_jam = 0;
+	}
+	if(temp_menit < 10){
+		format(text_menit, sizeof(text_menit), "0%d", temp_menit);
+	}else{
+		format(text_menit, sizeof(text_menit), "%d", temp_menit);
+	}
+	if(temp_jam < 10){
+		format(text_jam, sizeof(text_jam), "0%d", temp_jam);
+	}else{
+		format(text_jam, sizeof(text_jam), "%d", temp_jam);
+	}
+	format(text, sizeof(text), "%s:%s", text_jam, text_menit);
+	return text;
 }

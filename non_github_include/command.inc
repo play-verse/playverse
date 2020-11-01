@@ -10,12 +10,40 @@ CMD:kick(playerid, params[]){
     if(!IsPlayerConnected(target_id)) return  error_command(playerid, "Player dengan id tersebut tidak ada!");
     if(target_id == playerid) return  error_command(playerid, "Tidak dapat mengusir diri sendiri!");
 
+    foreach(new i : Player){
+        // SendMessageToAllAdmin
+        if(GetLevelAdminPlayer(i) > 0) {
+            format(msg, sizeof(msg), "KICK %s(%d) > %s(%d) alasan : "SILVER"%s", PlayerInfo[playerid][pPlayerName], playerid, PlayerInfo[target_id][pPlayerName], target_id, pesan);
+            SendClientMessage(i, COLOR_BLUE, msg);
+        }
+    }
     format(msg, sizeof(msg),  TAG_KICK" "WHITE"Anda telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", pesan);
     SendClientMessage(target_id, COLOR_RED, msg);
     KickEx(target_id);
 
     format(msg, sizeof(msg), TAG_ADMIN" "RED"%s "WHITE"telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", PlayerInfo[target_id][pPlayerName], pesan);
     SendClientMessageToAll(COLOR_ORANGE, msg);
+	return 1;
+}
+
+CMD:kickall(playerid, params[]){
+    // Jika level admin < 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+	new pesan[256];
+	if(sscanf(params, "s[256]", pesan)) return error_syntax(playerid, "/kickall [pesan]");
+
+    foreach(new i : Player){
+        // SendMessageToAllAdmin
+        if(GetLevelAdminPlayer(i) > 0) {
+            format(msg, sizeof(msg), "KICK ALL %s(%d) > All: "SILVER"%s", PlayerInfo[playerid][pPlayerName], playerid, pesan);
+            SendClientMessage(i, COLOR_BLUE, msg);
+        }else{
+            format(msg, sizeof(msg), TAG_ADMIN" "WHITE"Semua pemain telah di kick dari server dengan alasan : "YELLOW"%s "WHITE"!", pesan);
+            SendClientMessage(i, COLOR_RED, msg);
+            KickEx(i);
+        }
+    }
 	return 1;
 }
 
@@ -180,14 +208,6 @@ CMD:arent(playerid, params[]){
     if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     ShowPlayerDialog(playerid, DIALOG_ADMIN_RENT, DIALOG_STYLE_LIST, "Rent System :", "Vehicle", "Pilih", "Batal");
-    return 1;
-}
-
-CMD:atiang(playerid, params[]){
-    // Jika bukan admin level 1 (bukan admin)
-    if(GetLevelAdminPlayer(playerid) < 1) return 0;
-
-    ShowPlayerDialog(playerid, DIALOG_TIANG_ADMIN, DIALOG_STYLE_LIST, WHITE"Tiang System :", "Buat Tiang\nEdit Tiang\nHapus Tiang", "Pilih", "Batal");
     return 1;
 }
 
@@ -514,6 +534,70 @@ CMD:pma(playerid, params[]){
 
     format(text, sizeof(text), "PMA "TAG_ADMIN" "WHITE"%s", text);
     SendClientMessage(targetid, COLOR_BLUE, text);
+    return 1;
+}
+
+CMD:pmall(playerid, params[]){
+    // Jika level admin < 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new pesan[256], text[200];
+    if(sscanf(params, "s[256]", pesan)) return error_syntax(playerid, "/pmall [pesan]");
+
+    foreach(new i : Player){
+        // SendMessageToAllAdmin
+        if(GetLevelAdminPlayer(i) > 0) {
+            format(text, sizeof(text), "PM ALL %s(%d) > All: "SILVER"%s", PlayerInfo[playerid][pPlayerName], playerid, pesan);
+            SendClientMessage(i, COLOR_BLUE, text);
+        }else{
+            format(text, sizeof(text), "PM ALL "TAG_ADMIN" "WHITE"%s", pesan);
+            SendClientMessage(i, COLOR_BLUE, text);
+        }
+    }
+    return 1;
+}
+
+CMD:announce(playerid, params[]){
+    // Jika level admin < 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new pesan[256], text[256], targetid;
+    if(sscanf(params, "us[256]", targetid, text))
+        return error_syntax(playerid, "/announce [id pemain] [text]");
+
+    if(!IsPlayerConnected(targetid) || playerid == targetid)
+        return error_command(playerid, "Player tidak valid.");
+
+    foreach(new i : Player){
+        // SendMessageToAllAdmin
+        if(GetLevelAdminPlayer(i) > 0) {
+            format(pesan, sizeof(pesan), "ANNOUNCE %s(%d) > %s(%d): "SILVER"%s", PlayerInfo[playerid][pPlayerName], playerid, PlayerInfo[targetid][pPlayerName], targetid, text);
+            SendClientMessage(i, COLOR_BLUE, pesan);
+        }
+    }
+
+    format(pesan, sizeof(pesan), "~b~[ANNOUNCEMENT]~n~~w~%s", text);
+    GameTextForPlayer(targetid, pesan, 5000, 3);
+    return 1;
+}
+
+CMD:announceall(playerid, params[]){
+    // Jika level admin < 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new pesan[256], text[200];
+    if(sscanf(params, "s[256]", pesan)) return error_syntax(playerid, "/announce [keterangan]");
+
+    foreach(new i : Player){
+        // SendMessageToAllAdmin
+        if(GetLevelAdminPlayer(i) > 0) {
+            format(text, sizeof(text), "ANNOUNCE ALL %s(%d) > All: "SILVER"%s", PlayerInfo[playerid][pPlayerName], playerid, pesan);
+            SendClientMessage(i, COLOR_BLUE, text);
+        }else{
+            format(text, sizeof(text), "~b~[ANNOUNCEMENT]~n~~w~%s", pesan);
+            GameTextForPlayer(i, text, 5000, 3);
+        }
+    }
     return 1;
 }
 
@@ -911,7 +995,7 @@ CMD:pizzaboy(playerid, const params[]){
 
 CMD:electrician(playerid, const params[]){
     if(montirL_Job[playerid] != 1) return error_command(playerid, "Anda bukan Electrician dan tidak dapat menggunakan perintah ini.");
-    ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_CMD, DIALOG_STYLE_LIST, WHITE"Electrician Job :", "Ambil Tangga\nPasang Tangga\nTaruh Tangga", "Pilih", "Batal");
+    ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_CMD, DIALOG_STYLE_LIST, WHITE"Electrician Job :", "Ambil Alat\nPerbaiki Gardu\nTaruh Alat", "Pilih", "Batal");
     return 1;
 }
 
@@ -1749,10 +1833,15 @@ CMD:tutorial(playerid, params[]){
     new Float:temp_pos[4];
     GetPlayerPos(playerid, temp_pos[0], temp_pos[1], temp_pos[2]);
     GetPlayerFacingAngle(playerid, temp_pos[3]);
+    PlayerInfo[playerid][last_x] = temp_pos[0];
+    PlayerInfo[playerid][last_y] = temp_pos[1];
+    PlayerInfo[playerid][last_z] = temp_pos[2];
+    PlayerInfo[playerid][last_a] = temp_pos[3];
     SetPVarFloat(playerid, "panduan_bermain_x", temp_pos[0]);
     SetPVarFloat(playerid, "panduan_bermain_y", temp_pos[1]);
     SetPVarFloat(playerid, "panduan_bermain_z", temp_pos[2]);
     SetPVarFloat(playerid, "panduan_bermain_a", temp_pos[3]);
+    aktifPanduanStream[playerid] = 1;
     // Set variabel panduan umum 1
     SetPVarString(playerid, "panduan_bermain", "panduan_bermain_1");
     format(pDialog[playerid], sizePDialog, 
