@@ -373,9 +373,6 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][hungryStackedTime] = 0;
 	PlayerInfo[playerid][thirstyStackedTime] = 0;
 
-	DeletePreciseTimer(PlayerAction[playerid][timerNambang]);
-	PlayerAction[playerid][sedangNambang] = false;
-
 	EditingObject[playerid] = EDITING_NONE;
 }
 
@@ -1329,6 +1326,23 @@ publicFor: pakaiBibitGanja(playerid){
 	new nama_item[50];
 	getNamaByIdItem(ID_KANGKUNG_IJO, nama_item);
 	pakaiBibit(playerid, nama_item, 33, ID_KANGKUNG_IJO);
+	return 1;
+}
+
+publicFor: pakaiBibitLabu(playerid){
+	pakaiBibit(playerid, "Labu", ID_BIBIT_LABU, ID_LABU);
+	return 1;
+}
+
+publicFor: pakaiLabu(playerid, itemid){
+	if(CA_IsPlayerNearWater(playerid))
+		return error_command(playerid, "Tidak dapat makan dalam kondisi sekarang");
+
+	tambahItemPlayer(playerid, itemid, -1);
+	ApplyAnimation(playerid, "FOOD", "EAT_Burger", 4.1, 0, 1, 1, 0, 0, 1);
+
+	setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) + 5.0);
+	setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) + 10.0);
 	return 1;
 }
 
@@ -2779,7 +2793,6 @@ publicFor: inputNomorRekeningATMBaru(playerid, ada){
 }
 
 publicFor: selesaiNambang(playerid){
-	PlayerAction[playerid][sedangNambang] = false;
 	ClearAnimations(playerid);
 	PlayerInfo[playerid][isOnAnimation] = false;
 	PlayerInfo[playerid][isBusy] = false;
@@ -3611,6 +3624,8 @@ unloadAllHouse(){
 			houseInfo[i][icon_z] = 0;
 			houseId[housePickup[i]] = -1;
 			housePickup[i] = -1;
+
+			Iter_Remove(houseIterator, i);
 		}
 	}
 }
@@ -3637,6 +3652,8 @@ createHouse(house_Id, ownerId, houseLevel, houseHarga, houseSetHarga, houseKunci
 		houseInfo[house_Id][icon_y] = hY;
 		houseInfo[house_Id][icon_z] = hZ;
 		reloadHouseLabel(house_Id);
+
+		Iter_Add(houseIterator, house_Id);
 	}else{
 		print("Rumah mencapai limit!");
 	}
@@ -3723,6 +3740,8 @@ publicFor: resetPlayerToDo(playerid){
 		DisablePlayerRaceCheckpoint(playerid);
 		DeletePreciseTimer(todoTimer[playerid]);
 		DeletePreciseTimer(todoTimeout[playerid]);
+		todoTimer[playerid] = -1;
+		todoTimeout[playerid] = -1;
 		sweeperJob[playerid] = 0;
 		usedSweeper[sweeperId[playerid]] = 0;
 		sweeperId[playerid] = -1;
@@ -3746,14 +3765,8 @@ publicFor: resetPlayerToDo(playerid){
 		trashM_BagCap[playerid] = 0;
 		trashM_VehCap[trashM_Id[playerid]] = 0;
 		trashM_Id[playerid] = -1;
-		for(new i = 0; i < MAX_HOUSES; i++){
-			if(housePickup[i] != -1){
-				if(trashM_HouseTake[playerid][i] == 1){
-					trashM_HouseTake[playerid][i] = 0;
-				}
-			}
-		}
 		trashM_House[playerid] = -1;
+		trashM_Take[playerid] = 0;
 	}
 	if(pizza_Job[playerid] == 1){
 		if(todoFinish[playerid] != 1){
@@ -3773,13 +3786,6 @@ publicFor: resetPlayerToDo(playerid){
 		pizza_Carry[playerid] = 0;
 		pizza_VehCap[pizza_Id[playerid]] = 0;
 		pizza_Id[playerid] = -1;
-		for(new i = 0; i < MAX_HOUSES; i++){
-			if(housePickup[i] != -1){
-				if(pizza_HouseTake[playerid][i] == 1){
-					pizza_HouseTake[playerid][i] = 0;
-				}
-			}
-		}
 		pizza_House[playerid] = -1;
 		pizza_HouseDrop[playerid] = 0;
 	}
@@ -3808,6 +3814,7 @@ publicFor: resetPlayerToDo(playerid){
 		TogglePlayerAllDynamicCPs(playerid, 1);
 		SetVehicleToRespawn(montirL_Id[playerid]);
 		DeletePreciseTimer(todoTimer[playerid]);
+		todoTimer[playerid] = -1;
 		DeletePreciseTimer(todoTimeout[playerid]);
 		if(IsPlayerAttachedObjectSlotUsed(playerid, ALAT_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, ALAT_ATTACH_INDEX);
 		if(IsValidDynamicObject(montirL_AlatObj[playerid])) DestroyDynamicObject(montirL_AlatObj[playerid]);
@@ -3850,6 +3857,12 @@ publicFor: resetPlayerToDo(playerid){
 	PlayerInfo[playerid][thirstyStackedTime] = 0;
 	PlayerInfo[playerid][inHelp] = 0;
 	RentVehEdit[playerid] = 0;
+	jobSallary[playerid] = 0;
+	jobDistance[playerid] = 0.0;
+
+	for(new i = 0; i < JOB_MAX_TASK; i++){
+		jobHouseTake[playerid][i] = -1;
+	}
 	return 1;
 }
 
@@ -4559,35 +4572,59 @@ GetClosestATM(playerid, Float: range = 3.0)
 	return id;
 }
 
-GetClosestHouse(playerid, Float: min = 0.0, Float: max = 2.0, job = 0){
-    new id = -1, Float: dist = min, Float: tempdist;
-    for(new i = 0; i < MAX_HOUSES; i++){
-		if(housePickup[i] != -1){
-			tempdist = GetPlayerDistanceFromPoint(playerid, houseInfo[i][icon_x], houseInfo[i][icon_y], houseInfo[i][icon_z]);
-			if(tempdist > max) continue;
-			if(tempdist >= dist && tempdist <= max){
-				if(job == 1){
-					if(trashM_Job[playerid] == 1){
-						if(trashM_HouseTake[playerid][i] != 1){
-							dist = tempdist;
-							id = i;
-						}
-					}
-					if(pizza_Job[playerid] == 1){
-						if(pizza_HouseTake[playerid][i] != 1){
-							dist = tempdist;
-							id = i;
-						}
-					}
-				}else{
-					dist = tempdist;
-					id = i;
-				}
+GetRandomHouseForJob(playerid, Float:min = 3.0, Float:max = 1500.0){
+	new Float:tempdist, id = -1, idx, bool:is_exist;
+	for(new i = 0; i < 10; i++)
+	{
+		idx = Iter_Random(houseIterator);
+
+		tempdist = GetPlayerDistanceFromPoint(playerid, houseInfo[idx][icon_x], houseInfo[idx][icon_y], houseInfo[idx][icon_z]);
+		if(tempdist > max) continue;
+		if(tempdist > min){
+			is_exist = false;
+			for(new j = 0; j < JOB_MAX_TASK; j++)
+			{
+				if(jobHouseTake[playerid][j] == idx)
+					is_exist = true;
 			}
+			if(is_exist) 
+				continue;
+			id = idx;
+			break;
 		}
-    }
-    return id;
+	}
+	return id;
 }
+
+// GetClosestHouse(playerid, Float: min = 0.0, Float: max = 2.0, job = 0){
+//     new id = -1, Float: dist = min, Float: tempdist;
+//     for(new i = 0; i < MAX_HOUSES; i++){
+// 		if(housePickup[i] != -1){
+// 			tempdist = GetPlayerDistanceFromPoint(playerid, houseInfo[i][icon_x], houseInfo[i][icon_y], houseInfo[i][icon_z]);
+// 			if(tempdist > max) continue;
+// 			if(tempdist >= dist && tempdist <= max){
+// 				if(job == 1){
+// 					if(trashM_Job[playerid] == 1){
+// 						if(trashM_HouseTake[playerid][i] != 1){
+// 							dist = tempdist;
+// 							id = i;
+// 						}
+// 					}
+// 					if(pizza_Job[playerid] == 1){
+// 						if(pizza_HouseTake[playerid][i] != 1){
+// 							dist = tempdist;
+// 							id = i;
+// 						}
+// 					}
+// 				}else{
+// 					dist = tempdist;
+// 					id = i;
+// 				}
+// 			}
+// 		}
+//     }
+//     return id;
+// }
 
 Player_ResetCutting(playerid){
     if(!IsPlayerConnected(playerid) || CuttingTreeID[playerid] == -1) return 0;
@@ -5646,7 +5683,7 @@ checkMinimal(playerid, kondisi, level){
 publicFor: re_GarduPadam(){
 	DeletePreciseTimer(montirL_GarduEnd);
 	foreach(new i : Player){
-		if(montirL_GarduDone != 2){
+		if(montirL_GarduDone != sizeof(POINT_GARDU_PADAM)){
 			if(montirL_Job[i] == 1){
 				resetPlayerToDo(i);
 			}
@@ -5688,7 +5725,7 @@ publicFor: waktuPerbaikiGardu(playerid){
 		foreach(new i : Player){
 			sendPesan(i, COLOR_BLUE, TAG_INFO" "WHITE"Telah diperbaiki Gardu pada Pusat Listrik Kota ("GREEN"%d"WHITE"/"YELLOW"%d"WHITE").", montirL_GarduDone, sizeof(POINT_GARDU_PADAM));
 		}
-		if(montirL_GarduDone == 2){
+		if(montirL_GarduDone == sizeof(POINT_GARDU_PADAM)){
 			re_GarduPadam();
 		}
 		TogglePlayerAllDynamicCPs(playerid, 0);

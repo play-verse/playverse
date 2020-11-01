@@ -1210,3 +1210,13 @@ GetWeatherName(weatherid, destinasi[], len = sizeof(destinasi)){
     format(destinasi, len, "Tidak diketahui");
     return 1;
 }
+
+GetPlayerOnline(){
+    new p = 0;
+    foreach(new i : Player){
+        if(IsPlayerConnected(i)){
+            p++;
+        }
+    }
+    return p;
+}

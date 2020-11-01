@@ -11,7 +11,7 @@
 #define UCP_URL			"https://ucp.playverse.org/"
 
 #define NAMA_SERVER			"Playverse"
-#define NAMA_GAMEMODE 		"VRP v0.7.5 Alpha"
+#define NAMA_GAMEMODE 		"VRP v0.7.5b Alpha"
 #define RULES_SERVER		"\n\
 							1. Dilarang menggunakan cheat apapun.\n\
 							2. Dilarang menggunakan modifikasi (mod) yang dapat merugikan player lain.\n\
@@ -24,7 +24,7 @@
 							9. Usahakan ketika bermain di server kami selalu membahas segala sesuatu dengan IC.\n\
 							10. Diperbolehkan membahas OOC ketika kalian sedang bermain di server kami, Usahakan seminimal mungkin!"
 
-#define MAX_SERVER_ITEM 83 // Diatur sesuai dengan banyak data didatabase 
+#define MAX_SERVER_ITEM 85 // Diatur sesuai dengan banyak data didatabase 
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -53,11 +53,13 @@
 #define PLANT_HARVEST 1800
 
 // Trashmaster
-#define VEH_TRASH_LIMIT 10
+#define VEH_TRASH_LIMIT 5
 
 // Pizzaboy
-#define DROP_PIZZA_LIMIT 10
+#define DROP_PIZZA_LIMIT 5
 #define VEH_PIZZA_LIMIT 5
+
+#define JOB_MAX_TASK 5
 
 // Montir Listrik
 #define GARDU_LISTRIK_TIME 8
@@ -191,7 +193,7 @@
 #define BLACKSMITH_LEVEL_SKILL_ENAM 5000
 
 #define EXP_LEVEL_MAX			50
-#define EXP_SCORE_DEFAULT 		250
+#define EXP_SCORE_DEFAULT 		150
 #define EXP_TAMBAH_JOB			6
 #define EXP_TAMBAH_MANCING		1
 #define EXP_TAMBAH_TAMBANG		1
@@ -687,10 +689,10 @@ new const NAMA_ABJAD[][] = {
 */
 
 /** Bonus atau Gaji */
-#define GAJI_SWEEPER			30
-#define GAJI_TRASHMASTER		5
-#define GAJI_PIZZABOY			4
-#define GAJI_MONTIR_LISTRIK		200
+#define GAJI_SWEEPER			150
+#define GAJI_TRASHMASTER		20
+#define GAJI_PIZZABOY			15
+#define GAJI_MONTIR_LISTRIK		100
 
 #define BONUS_MENGHANCURKAN_GANJA 	(floatround(float(MENU_BIBIT_NARKO[0][hargaBibit]) * 0.75))
 #define BONUS_REVIVE				floatround(float(TAGIHAN_REVIVE) * 0.75)
@@ -701,6 +703,10 @@ new const NAMA_ABJAD[][] = {
 #define TIME_TRASHMASTER		25
 #define TIME_PIZZABOY			20
 #define TIME_MONTIR_LISTRIK		5
+
+#define TIME_PER_TASK_PIZZABOY			3
+#define TIME_PER_TASK_TRASHMASTER		5
+#define TIME_PER_TASK_MONTIR_LISTRIK	5
 
 /*
  * Constant untuk ID item yang diperlukan
@@ -753,6 +759,8 @@ new const NAMA_ABJAD[][] = {
 #define ID_BIBIT_BELIMBING	75
 #define ID_BIBIT_SRIKAYA	76
 
+#define ID_BIBIT_LABU		84
+
 #define ID_JERUK			32
 #define ID_JAHE				77
 #define ID_TEMULAWAK		78
@@ -761,6 +769,8 @@ new const NAMA_ABJAD[][] = {
 #define ID_BELIMBING		81
 #define ID_SRIKAYA			82
 #define ID_KANGKUNG_IJO		34
+
+#define ID_LABU				85
 
 #define ID_BATU_BATA		69
 #define ID_BATU_BARA		70

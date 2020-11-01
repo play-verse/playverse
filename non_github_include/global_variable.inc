@@ -172,12 +172,6 @@ new PlayerItem[MAX_PLAYERS][MAX_SERVER_ITEM + 1][PLAYER_ITEM_INFO];
  */
 new TempPlayerDialog[MAX_PLAYERS][BANYAK_DATA_PER_PAGE];
 
-enum pInfoAct {
-    timerNambang,
-    bool:sedangNambang
-}
-new PlayerAction[MAX_PLAYERS][pInfoAct];
-
 enum rInfo
 {
     freeSkinID,
@@ -213,6 +207,7 @@ enum hInfo
 }
 new houseInfo[MAX_HOUSES][hInfo],
 	lastHousePickup[MAX_PLAYERS] = {-1, ...},
+	Iterator:houseIterator<MAX_HOUSES>,
 	Text3D:houseTextInfo[MAX_HOUSES],
 	housePickup[MAX_HOUSES] = {-1, ...},
 	houseId[MAX_HOUSES] = {-1, ...},
@@ -546,7 +541,8 @@ new const MENU_BIBIT[][INFO_MENU_BIBIT] = {
 	{ID_BIBIT_ALPUKAT, "Bibit Alpukat", 15, 9},
 	{ID_BIBIT_PEPAYA, "Bibit Pepaya", 15, 9},
 	{ID_BIBIT_BELIMBING, "Bibit Belimbing", 15, 9},
-	{ID_BIBIT_SRIKAYA, "Bibit Srikaya", 10, 9}
+	{ID_BIBIT_SRIKAYA, "Bibit Srikaya", 10, 9},
+	{ID_BIBIT_LABU, "Bibit Labu", 15, 9}
 };
 
 new const MENU_BIBIT_NARKO[][INFO_MENU_BIBIT] = {
@@ -759,13 +755,17 @@ new Iterator:trashM_Veh<MAX_VEHICLES>,
     trashM_Id[MAX_PLAYERS] = {-1, ...},
     trashM_Veh[3],
     trashM_Used[MAX_VEHICLES],
-	trashM_House[MAX_PLAYERS] = {-1, ...},
-	trashM_HouseTake[MAX_PLAYERS][MAX_HOUSES],
+	trashM_House[MAX_PLAYERS] = {-1},
+	trashM_Take[MAX_PLAYERS],
 	trashM_BagCap[MAX_PLAYERS],
 	trashM_VehCap[MAX_VEHICLES],
 	Float:trashM_X[MAX_PLAYERS],
 	Float:trashM_Y[MAX_PLAYERS],
 	Float:trashM_Z[MAX_PLAYERS];
+
+new jobHouseTake[MAX_PLAYERS][JOB_MAX_TASK],
+	jobSallary[MAX_PLAYERS],
+	Float:jobDistance[MAX_PLAYERS];
 
 /* Pizzaboy */
 new Iterator:pizza_Veh<MAX_VEHICLES>,
@@ -775,7 +775,6 @@ new Iterator:pizza_Veh<MAX_VEHICLES>,
     pizza_Used[MAX_VEHICLES],
 	pizza_House[MAX_PLAYERS] = {-1, ...},
 	pizza_HouseDrop[MAX_PLAYERS],
-	pizza_HouseTake[MAX_PLAYERS][MAX_HOUSES],
 	pizza_Carry[MAX_PLAYERS],
 	pizza_VehCap[MAX_VEHICLES],
 	pizza_Palang,
@@ -1727,7 +1726,8 @@ new const list_barang_tampung_buah[][INFO_BARANG_DENGAN_JUMLAH] = {
 	{ID_ALPUKAT, 9, 23},
 	{ID_PEPAYA, 9, 23},
 	{ID_BELIMBING, 9, 23},
-	{ID_SRIKAYA, 9, 15}
+	{ID_SRIKAYA, 9, 15},
+	{ID_LABU, 9, 25}
 };
 
 new const item_beli_tambang[][INFO_BARANG_MARKET] = {

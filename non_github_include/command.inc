@@ -293,6 +293,18 @@ CMD:ban(playerid, params[]){
     return 1;
 }
 
+CMD:asay(playerid, params[]){
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+
+    new pesan[144];
+	if(sscanf(params, "s[144]", pesan)) return error_syntax(playerid, "/asay [text]");
+    format(pesan, sizeof(pesan), "Admin: "WHITE"%s", pesan);
+    foreach(new i : Player)
+        SendClientMessage(i, COLOR_ORANGE, pesan);
+    return 1;
+}
+
 CMD:setmedic(playerid, params[]){
     // Jika bukan admin level 1 (bukan admin)
     if(GetLevelAdminPlayer(playerid) < 1) return 0;
@@ -983,13 +995,13 @@ CMD:lumberjack(playerid, const params[]){
 
 CMD:trashmaster(playerid, const params[]){
     if(trashM_Job[playerid] != 1) return error_command(playerid, "Anda bukan pengangkut sampah dan tidak dapat menggunakan perintah ini.");
-    ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_CMD, DIALOG_STYLE_LIST, WHITE"Trashmaster Job :", "Angkut Sampah\nCek Muatan Sampah", "Pilih", "Batal");
+    ShowPlayerDialog(playerid, DIALOG_JOB_TRASHMASTER_CMD, DIALOG_STYLE_LIST, WHITE"Trashmaster Job :", "Angkut Sampah\nCek Muatan Sampah\nSelesai Bekerja", "Pilih", "Batal");
     return 1;
 }
 
 CMD:pizzaboy(playerid, const params[]){
     if(pizza_Job[playerid] != 1) return error_command(playerid, "Anda bukan pengantar pizza dan tidak dapat menggunakan perintah ini.");
-    ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_CMD, DIALOG_STYLE_LIST, WHITE"Pizzaboy Job :", "Restok Pizza\nAmbil Pizza\nCek Muatan Pizza", "Pilih", "Batal");
+    ShowPlayerDialog(playerid, DIALOG_JOB_PIZZABOY_CMD, DIALOG_STYLE_LIST, WHITE"Pizzaboy Job :", "Restok Pizza\nAmbil Pizza\nCek Muatan Pizza\nSelesai Bekerja", "Pilih", "Batal");
     return 1;
 }
 
