@@ -940,6 +940,15 @@ GetSlotInventoryPlayer(playerid){
 #define CekJikaInventoryPlayerMuat(%0,%1,%2) \
     ((GetSlotInventoryPlayer(%0) + GetSlotItemTerpakai(%1,%2)) <= PlayerInfo[%0][limitItem])
 
+FilterSlotInvetory(playerid, id_item_yang_akan_masuk, jumlah_yang_akan_masuk){
+    new slot_saat_ini = GetSlotInventoryPlayer(playerid);
+    if((slot_saat_ini + GetSlotItemTerpakai(id_item_yang_akan_masuk, jumlah_yang_akan_masuk)) > PlayerInfo[playerid][limitItem]){
+        dialogInventoryItemTidakMuat(playerid, jumlah_yang_akan_masuk, slot_saat_ini, id_item_yang_akan_masuk);
+        return 0;
+    }
+    return 1;
+}
+
 /**
     Params:
         %0 = playerid

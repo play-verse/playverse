@@ -1120,13 +1120,11 @@ publicFor: pakaiGps(playerid, itemid){
 	if(pizza_Job[playerid] || trashM_Job[playerid] || sweeperJob[playerid])
 		return SendClientMessage(playerid, COLOR_RED, TAG_JOB" "WHITE"Saat ini anda sedang bekerja, tidak dapat menggunakan GPS.");
 
-	static str_gps[1000];
-	if(str_gps[0] == EOS){
-		format(str_gps, sizeof(str_gps), PURPLE"Nama Lokasi\t"ORANGE"Jarak\n"WHITE);
-		for(new i=0; i < sizeof(GPS_LOCATION); i++)
-			strcatEx(str_gps, sizeof(str_gps), "%s\t%.2fm\n", GPS_LOCATION[i][gpsNama], GetPlayerDistanceFromPoint(playerid, GPS_LOCATION[i][gpsPos][0], GPS_LOCATION[i][gpsPos][1], GPS_LOCATION[i][gpsPos][2]));
-	}
-	ShowPlayerDialog(playerid, DIALOG_PILIH_LOKASI_GPS, DIALOG_STYLE_TABLIST_HEADERS, "Pilih lokasi yang ingin ditandai:", str_gps, "Pilih", "Batal");
+	format(pDialog[playerid], sizePDialog, PURPLE"Nama Lokasi\t"ORANGE"Jarak\n"WHITE);
+	for(new i=0; i < sizeof(GPS_LOCATION); i++)
+		strcatEx(pDialog[playerid], sizePDialog, "%s\t%.2fm\n", GPS_LOCATION[i][gpsNama], GetPlayerDistanceFromPoint(playerid, GPS_LOCATION[i][gpsPos][0], GPS_LOCATION[i][gpsPos][1], GPS_LOCATION[i][gpsPos][2]));
+
+	ShowPlayerDialog(playerid, DIALOG_PILIH_LOKASI_GPS, DIALOG_STYLE_TABLIST_HEADERS, "Pilih lokasi yang ingin ditandai:", pDialog[playerid], "Pilih", "Batal");
 	return 1;
 }
 
@@ -3847,6 +3845,7 @@ publicFor: resetPlayerToDo(playerid){
 		removedVeh[playerid] = 0;
 		TogglePlayerControllable(playerid, true);
 		DeletePreciseTimer(removedTimer[playerid]);
+		removedTimer[playerid] = -1;
 	}
 
 	PlayerInfo[playerid][hungryStackedTime] = 0;
@@ -4761,13 +4760,14 @@ createPlant(plant_Id, const nama_bibit[], item_Id, Float:pX, Float:pY, Float:pZ,
 		DFarm[plant_Id][plantRX] = pRX;
 		DFarm[plant_Id][plantRY] = pRY;
 		DFarm[plant_Id][plantRZ] = pRZ;
+		DFarm[plant_Id][plantSecond] = gettime();
 
 		DFarm[plant_Id][plantObjID] = CreateDynamicObject(3409, DFarm[plant_Id][plantX], DFarm[plant_Id][plantY], DFarm[plant_Id][plantZ]-1.25, DFarm[plant_Id][plantRX], DFarm[plant_Id][plantRY], DFarm[plant_Id][plantRZ]);
-		DFarm[plant_Id][plantTimer] = SetPreciseTimer("HarvestTime", 1000, true, "i", plant_Id);
-		DFarm[plant_Id][plantSecs] = PLANT_HARVEST;
+		// DFarm[plant_Id][plantTimer] = SetPreciseTimer("HarvestTime", 1000, true, "i", plant_Id);
+		// DFarm[plant_Id][plantSecs] = PLANT_HARVEST;
 		DFarm[plant_Id][plantHarvest] = false;
 		new label[256];
-		format(label, sizeof(label), WHITE"["GREEN"Tanaman %s"WHITE"]\nNo : "GREEN"%d\n"WHITE"Waktu Panen : "GREEN"%s menit", DFarm[plant_Id][plantName], plant_Id, ConvertToMinutes(DFarm[plant_Id][plantSecs]));
+		format(label, sizeof(label), WHITE"["GREEN"Tanaman %s"WHITE"]\nNo : "GREEN"%d\n"WHITE"Waktu Panen : "GREEN"%s menit", DFarm[plant_Id][plantName], plant_Id, ConvertToMinutes(DFarm[plant_Id][plantSecond] + PLANT_HARVEST - gettime()));
 		DFarm[plant_Id][plantLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, DFarm[plant_Id][plantX], DFarm[plant_Id][plantY], DFarm[plant_Id][plantZ]+1.5, 3.0);
 		Iter_Add(PlantIterator, plant_Id);
 		reloadPlantLabel(plant_Id);
@@ -4779,7 +4779,7 @@ createPlant(plant_Id, const nama_bibit[], item_Id, Float:pX, Float:pY, Float:pZ,
 reloadPlantLabel(plant_Id){
 	new label[256];
 	if(!DFarm[plant_Id][plantHarvest]){
-		format(label, sizeof(label), WHITE"["GREEN"Tanaman %s"WHITE"]\nNo : "GREEN"%d\n"WHITE"Waktu Panen : "GREEN"%s menit", DFarm[plant_Id][plantName], plant_Id, ConvertToMinutes(DFarm[plant_Id][plantSecs]));
+		format(label, sizeof(label), WHITE"["GREEN"Tanaman %s"WHITE"]\nNo : "GREEN"%d\n"WHITE"Waktu Panen : "GREEN"%s menit", DFarm[plant_Id][plantName], plant_Id, ConvertToMinutes(DFarm[plant_Id][plantSecond] + PLANT_HARVEST - gettime()));
 	}else{
 		format(label, sizeof(label), WHITE"["GREEN"Tanaman %s"WHITE"]\nNo : "GREEN"%d\n\n"WHITE"Ketik "GREEN"/farm"WHITE" (pilih menu "GREEN"Panen Tanaman"WHITE")\nUntuk memanen tanaman", DFarm[plant_Id][plantName], plant_Id);
 	}
@@ -4787,15 +4787,17 @@ reloadPlantLabel(plant_Id){
 }
 
 publicFor: HarvestTime(plant_Id){
-    if(DFarm[plant_Id][plantSecs] > 1) {
-        DFarm[plant_Id][plantSecs]--;
+    if(DFarm[plant_Id][plantSecond] + PLANT_HARVEST > gettime()) {
         reloadPlantLabel(plant_Id);
-    }else if(DFarm[plant_Id][plantSecs] == 1){
-        DeletePreciseTimer(DFarm[plant_Id][plantTimer]);
-        DFarm[plant_Id][plantSecs] = 0;
-        DFarm[plant_Id][plantTimer] = -1;
+    }else if(DFarm[plant_Id][plantSecond] + PLANT_HARVEST + 1800000 < gettime()){
+		DestroyTime(plant_Id);
+		return 0;
+	}else{
+        // DeletePreciseTimer(DFarm[plant_Id][plantTimer]);
+        // DFarm[plant_Id][plantSecs] = 0;
+        // DFarm[plant_Id][plantTimer] = -1;
 		DFarm[plant_Id][plantHarvest] = true;
-		DFarm[plant_Id][destroyTimer] = SetPreciseTimer("DestroyTime", 1800000, false, "i", plant_Id);
+		// DFarm[plant_Id][destroyTimer] = SetPreciseTimer("DestroyTime", 1800000, false, "i", plant_Id);
         SetDynamicObjectPos(DFarm[plant_Id][plantObjID], DFarm[plant_Id][plantX], DFarm[plant_Id][plantY], DFarm[plant_Id][plantZ]-0.75);
         SetDynamicObjectRot(DFarm[plant_Id][plantObjID], DFarm[plant_Id][plantRX], DFarm[plant_Id][plantRY], DFarm[plant_Id][plantRZ]);
         reloadPlantLabel(plant_Id);
@@ -4804,13 +4806,15 @@ publicFor: HarvestTime(plant_Id){
 }
 
 publicFor: DestroyTime(plant_Id){
-	DeletePreciseTimer(DFarm[plant_Id][destroyTimer]);
-	if(IsValidDynamicObject(DFarm[plant_Id][plantObjID])) DestroyDynamicObject(DFarm[plant_Id][plantObjID]);
-	if(IsValidDynamic3DTextLabel(DFarm[plant_Id][plantLabel])) DestroyDynamic3DTextLabel(DFarm[plant_Id][plantLabel]);
-	DFarm[plant_Id][plantSecs] = 0;
-	DFarm[plant_Id][plantObjID] = DFarm[plant_Id][destroyTimer] = -1;
+	// DeletePreciseTimer(DFarm[plant_Id][destroyTimer]);
+	if(IsValidDynamicObject(DFarm[plant_Id][plantObjID])) 
+		DestroyDynamicObject(DFarm[plant_Id][plantObjID]);
+	if(IsValidDynamic3DTextLabel(DFarm[plant_Id][plantLabel])) 
+		DestroyDynamic3DTextLabel(DFarm[plant_Id][plantLabel]);
+	// DFarm[plant_Id][plantSecs] = 0;
+	DFarm[plant_Id][plantObjID] = -1;
+	// DFarm[plant_Id][destroyTimer] = -1;
 	DFarm[plant_Id][plantLabel] = Text3D: -1;
-	Iter_Remove(PlantIterator, plant_Id);
 	return 1;
 }
 
@@ -4843,6 +4847,7 @@ GetClosestPlant(playerid, Float: range = 5.0){
 publicFor: buatTokoNarko(){
 	MrPuyengRand = random(sizeof(POINT_NARKO_ACTOR));
 	DeletePreciseTimer(MrPuyengStart);
+	MrPuyengStart = -1;
 	ACT_tokoNarko = CreateDynamicActor(272, POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_A], .worldid = 0, .interiorid = 0);
     ACT_tokoNarko_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z] + 1.25, 10.0, .testlos = 1);
 	ACT_tokoNarko_Area = CreateDynamicSphere(POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z], 3.0);
@@ -4876,6 +4881,7 @@ publicFor: waktuPuyeng(playerid){
 			SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
 			SetPlayerDrunkLevel (playerid, 0);
 			DeletePreciseTimer(puyengTimer[playerid]);
+			puyengTimer[playerid] = -1;
 		}
 	}
 	return 1;
@@ -4887,14 +4893,14 @@ randomIkan(playerid){
 		mancingAktif[playerid] = 0;
 		if(IsPlayerAttachedObjectSlotUsed(playerid, PANCINGAN_ATTACH_INDEX)) 
 			RemovePlayerAttachedObject(playerid, PANCINGAN_ATTACH_INDEX);
-		angka = random(110);
+		angka = random(140);
 	}else if(PlayerInfo[playerid][sisaTombak] > 0){ // Pakai tombak keberuntungan +14%
 		PlayerInfo[playerid][sisaTombak]--;
 		if(PlayerInfo[playerid][sisaTombak] == 0){
 			if(IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) 
 				RemovePlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX);
 		}
-		angka = random(95);
+		angka = random(115);
 	}else{
 		angka = 0;
 	}
@@ -4911,7 +4917,7 @@ randomIkan(playerid){
 			goto re_switch;
 		}
 	}else if((curr_weather_id == ID_WEATHER_RAIN && angka <= 10) || (curr_weather_id != ID_WEATHER_RAIN && angka <= 3)){
-		if(nombakDepth[playerid] > 5.0 || nombakDepth[playerid] < 10.0){ // Ikan Kakap kedalaman > 5-10
+		if((nombakDepth[playerid] >= 5.0 && nombakDepth[playerid] < 10.0) || angka <= 7){ // Ikan Kakap kedalaman > 5-10
 			SendClientMessage(playerid, COLOR_GREEN, TAG_MANCING" "WHITE"Anda mendapatkan "YELLOW"Ikan Kakap.");
 			SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Keberuntungan yang bagus, anda dapat menjualnya dengan harga yang sangat tinggi.");
 			tambahItemPlayer(playerid, ID_IKAN_KAKAP, 1);
@@ -5446,6 +5452,7 @@ publicFor: tungguPanduanDialog(playerid, cara){
 			Float:panduan_z = GetPVarFloat(playerid, "panduan_bermain_z"),
 			Float:panduan_a = GetPVarFloat(playerid, "panduan_bermain_a");
 		DeletePreciseTimer(timerPanduanStream[playerid]);
+		timerPanduanStream[playerid] = -1;
 		Streamer_UpdateEx(playerid, panduan_x, panduan_y, panduan_z, -1, -1, -1, 2000, 1);
 		SetPlayerPos(playerid, panduan_x, panduan_y, panduan_z);
 		SetPlayerFacingAngle(playerid, panduan_a);
@@ -5457,6 +5464,7 @@ publicFor: tungguPanduanDialog(playerid, cara){
 			Float:panduan_z = GetPVarFloat(playerid, "panduan_bermain_z"),
 			Float:panduan_a = GetPVarFloat(playerid, "panduan_bermain_a");
 		DeletePreciseTimer(timerPanduanStream[playerid]);
+		timerPanduanStream[playerid] = -1;
 		Streamer_UpdateEx(playerid, panduan_x, panduan_y, panduan_z, -1, -1, -1, 2000, 1);
 		SetPlayerPos(playerid, panduan_x, panduan_y, panduan_z);
 		SetPlayerFacingAngle(playerid, panduan_a);
@@ -5469,6 +5477,7 @@ publicFor: tungguPanduanDialog(playerid, cara){
 		tidak silahkan klik "GREEN"Tutup"WHITE".", "Lanjut", "Tutup");
 	}else{
 		DeletePreciseTimer(timerPanduanStream[playerid]);
+		timerPanduanStream[playerid] = -1;
 	}
 	return 1;
 }

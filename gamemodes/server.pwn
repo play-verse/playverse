@@ -5170,6 +5170,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new jumlah;
 				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+
+				if(!FilterSlotInvetory(playerid, MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][idItemBibit], jumlah))
+					return 1;
+
 				SetPVarInt(playerid, "jumlah_terpilih", jumlah);
 				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][hargaBibit], jumlah);
 				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][hargaBibit], "selesaiBeliBibit", pDialog[playerid]);
@@ -5194,9 +5198,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new jumlah;
 				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_BIBIT_NARKO, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+
+				if(!FilterSlotInvetory(playerid, MENU_BIBIT_NARKO[GetPVarInt(playerid, "index_terpilih")][idItemBibit], jumlah))
+					return 1;
+
 				SetPVarInt(playerid, "jumlah_terpilih", jumlah);
-				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][hargaBibit], jumlah);
-				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_BIBIT[GetPVarInt(playerid, "index_terpilih")][hargaBibit], "selesaiBeliNarko", pDialog[playerid]);
+				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_BIBIT_NARKO[GetPVarInt(playerid, "index_terpilih")][hargaBibit], jumlah);
+				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_BIBIT_NARKO[GetPVarInt(playerid, "index_terpilih")][hargaBibit], "selesaiBeliNarko", pDialog[playerid]);
 			}else{
 				DeletePVar(playerid, "index_terpilih");
 				DeletePVar(playerid, "jumlah_terpilih");
@@ -5662,7 +5670,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new jumlah;
 				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_ALAT_PANCING, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+				
 				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_ALAT_PANCING, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+
+				if(!FilterSlotInvetory(playerid, MENU_ALAT_PANCING[GetPVarInt(playerid, "index_terpilih")][idItem], jumlah))
+					return 1;
+
 				SetPVarInt(playerid, "jumlah_terpilih", jumlah);
 				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_ALAT_PANCING[GetPVarInt(playerid, "index_terpilih")][hargaItem], jumlah);
 				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_ALAT_PANCING[GetPVarInt(playerid, "index_terpilih")][hargaItem], "selesaiBeliPancing", pDialog[playerid]);
@@ -6331,6 +6344,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new jumlah;
 				if(sscanf(inputtext, "i", jumlah)) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PHONE, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
 				if(jumlah < 1 || jumlah > 10) return ShowPlayerDialog(playerid, DIALOG_JUMLAH_PEMBELIAN_PHONE, DIALOG_STYLE_INPUT, WHITE"Jumlah yang diinginkan", RED"Pastikan anda memasukan angka yang benar dan anda hanya dapat membeli 10 dalam sekali pembelian.\n"WHITE"Berapa banyak jumlah yang ingin anda beli:\nPastikan uang anda mencukupi.", "Bayar", "Kembali");
+
+				if(!FilterSlotInvetory(playerid, MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][idItemMarket], jumlah))
+					return 1;
+
 				SetPVarInt(playerid, "jumlah_terpilih", jumlah);
 				format(pDialog[playerid], sizePDialog, "Pembelian %s sebanyak %d", MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItemMarket], jumlah);
 				dialogMetodeBayar(playerid, GetPVarInt(playerid, "jumlah_terpilih") * MENU_PHONE[GetPVarInt(playerid, "index_terpilih")][hargaItemMarket], "selesaiBeliPhone", pDialog[playerid]);
@@ -10458,8 +10475,8 @@ public OnGameModeInit()
 	}
 
 	// Ambulance Rumah sakit
-	ambulance_Veh[0] = AddStaticVehicleEx(416, 1177.6633, -1308.5510, 14.0078, 268.5052, 1, 3, -1, 1);
-	ambulance_Veh[1] = AddStaticVehicleEx(416, 1179.5927, -1338.8085, 13.9587, 271.2625, 1, 3, -1, 1);
+	ambulance_Veh[0] = AddStaticVehicleEx(416, 1177.6633, -1308.5510, 14.0078, 268.5052, 1, 3, 30*60000, 1);
+	ambulance_Veh[1] = AddStaticVehicleEx(416, 1179.5927, -1338.8085, 13.9587, 271.2625, 1, 3, 30*60000, 1);
 
 	for(new i = 0; i < 2; i++){
 		ToggleVehicleFuel(ambulance_Veh[i], 0);
@@ -11130,7 +11147,7 @@ public OnPlayerText(playerid, text[]){
 				}else if(ACT_tokoNarko_User == playerid){
 					// Check apakah ini response yang pertama
 					if(ACT_tokoNarko_Res == 0){
-						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(beli|membeli)\\s(bibit|benih)\\silegal.*")){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(beli|membeli)\\s(bibit|benih|item).*")){
 							showDialogBeliBibitNarko(playerid);
 
 							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
@@ -12273,6 +12290,13 @@ publicFor: updateWorldTime()
 	if(++weather_time >= 3600){
 		gantiCuaca();
 		weather_time = 0;
+	}
+
+	foreach(new i : PlantIterator){
+		if(!HarvestTime(i)){
+			new cur = i;
+			Iter_SafeRemove(PlantIterator, cur, i);
+		}
 	}
 	return 1;
 }

@@ -560,7 +560,7 @@ enum INFO_MENU_ALAT_PANCING {
 new const MENU_ALAT_PANCING[][INFO_MENU_ALAT_PANCING] = {
 // Item Pancing
     {35, "Joran Pancing", 50, 1},
-	{36, "Tombak Ikan", 300, 1},
+	{36, "Tombak Ikan", 250, 1},
 	{43, "Roti - Umpan Ikan", 1, 1}
 
 };
@@ -737,10 +737,10 @@ new pintuPenjara[3];
     Job / Aktifitas
 */
 new	todoFinish[MAX_PLAYERS],
-	todoTimer[MAX_PLAYERS],
+	todoTimer[MAX_PLAYERS] = {-1, ...},
 	todoTimeout[MAX_PLAYERS],
 	removedVeh[MAX_PLAYERS],
-	removedTimer[MAX_PLAYERS];
+	removedTimer[MAX_PLAYERS] = {-1, ...};
 
 /* Sweeper */
 new Iterator:vehicleSweeper<MAX_VEHICLES>,
@@ -828,7 +828,7 @@ new ojol_Job[MAX_PLAYERS],
     ojol_Veh[MAX_PLAYERS] = {-1},
     ojol_Passenger[MAX_PLAYERS] = {-1},
 	ojol_AppShow[MAX_PLAYERS],
-	ojol_AppTimer[MAX_PLAYERS],
+	ojol_AppTimer[MAX_PLAYERS] = {-1, ...},
 	Float:ojol_startX[MAX_PLAYERS],
 	Float:ojol_startY[MAX_PLAYERS],
 	Float:ojol_startZ[MAX_PLAYERS],
@@ -1441,12 +1441,12 @@ new	ATMData[MAX_ATMS][E_ATM],
 enum FarmInfo{
 	plantName[32],
 	plantItemID,
-	plantTimer,
-	destroyTimer,
+	// plantTimer,
+	// destroyTimer,
 	playerId,
 	playerPlant,
 	plantObjID,
-	plantSecs,
+	// plantSecs,
 	plantHarvest,
 	Text3D:plantLabel,
 	Float: plantX,
@@ -1454,7 +1454,8 @@ enum FarmInfo{
     Float: plantZ,
     Float: plantRX,
     Float: plantRY,
-    Float: plantRZ
+    Float: plantRZ,
+	plantSecond
 }
 
 enum POINT_NARKO_ACTOR_INFO {
@@ -1474,9 +1475,9 @@ new const POINT_NARKO_ACTOR[][POINT_NARKO_ACTOR_INFO] = {
 new Iterator:PlantIterator<MAX_PLANTS>,
     DFarm[MAX_PLANTS][FarmInfo],
 	MrPuyengRand,
-	MrPuyengStart,
-	MrPuyengEnd,
-	puyengTimer[MAX_PLAYERS],
+	MrPuyengStart = -1,
+	MrPuyengEnd = -1,
+	puyengTimer[MAX_PLAYERS] = {-1, ...},
 	puyengSecs[MAX_PLAYERS];
 
 new PerbaikiTimer[MAX_PLAYERS] = {-1, ...};
@@ -1514,7 +1515,7 @@ new const gVehicleColors[] =
 /*
 	Mancing
 */
-new mancingTimer[MAX_PLAYERS],
+new mancingTimer[MAX_PLAYERS] = {-1, ...},
 	mancingSecs[MAX_PLAYERS],
 	mancingAktif[MAX_PLAYERS],
 	nombakDelay[MAX_PLAYERS],
@@ -1718,11 +1719,11 @@ new const list_barang_tampung_tambang[][INFO_BARANG_DENGAN_JUMLAH] = {
 
 new const list_barang_tampung_ikan[][INFO_BARANG_DENGAN_JUMLAH] = {
 	{ID_IKAN_ARWANA, 1, 500},
-	{ID_IKAN_KAKAP, 1, 300},
-	{ID_IKAN_MAS, 2, 200},
-	{ID_IKAN_MUJAIR, 2, 100},
-	{ID_UBUR_UBUR, 4, 150},
-	{ID_BINTANG_LAUT, 4, 100}
+	{ID_IKAN_KAKAP, 1, 200},
+	{ID_IKAN_MAS, 2, 150},
+	{ID_IKAN_MUJAIR, 2, 75},
+	{ID_UBUR_UBUR, 4, 75},
+	{ID_BINTANG_LAUT, 4, 50}
 };
 
 new const list_barang_tampung_buah[][INFO_BARANG_DENGAN_JUMLAH] = {
@@ -1913,10 +1914,16 @@ new GPS_LOCATION[][GPS_INFO_ENUM] = {
 	{"Rumah Sakit Los Santos", {1172.2648, -1323.4558, 15.4032}},
 	{"Toko Gadget "nama_A, {1097.6610, -1370.0361, 13.9844}},
 	{"Pusat Tambang", {-685.2260, 2372.3379, 129.8383}},
-	{"Pusat Blacksmith", {998.8984, -1251.3457, 19.3988}}
+	{"Pusat Blacksmith", {998.8984, -1251.3457, 19.3988}},
+	{"Perkebunan Blueberry", {-72.4007, 105.3258, 3.1172}},
+	{"Pusat Mekanik", {1006.1548, -1650.7123, 14.5905}},
+	{"Sidejob Trashmaster", {1640.8062, -1550.8942 , 13.5837}},
+	{"Sidejob Sweeper", {684.8059, -1189.2422 , 15.7512}},
+	{"Sidejob Pizza Delivery", {2106.6531, -1822.8940 , 13.6000}},
+	{"Sidejob Electrician", {2396.3955, -2077.6990 , 13.5241}}
 };
 // Panduan Bermain
-new timerPanduanStream[MAX_PLAYERS];
+new timerPanduanStream[MAX_PLAYERS] = {-1, ...};
 
 /**
 	Weather
