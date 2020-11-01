@@ -541,8 +541,10 @@ new const MENU_BIBIT[][INFO_MENU_BIBIT] = {
 	{ID_BIBIT_ALPUKAT, "Bibit Alpukat", 15, 9},
 	{ID_BIBIT_PEPAYA, "Bibit Pepaya", 15, 9},
 	{ID_BIBIT_BELIMBING, "Bibit Belimbing", 15, 9},
-	{ID_BIBIT_SRIKAYA, "Bibit Srikaya", 10, 9},
-	{ID_BIBIT_LABU, "Bibit Labu", 15, 9}
+	{ID_BIBIT_SRIKAYA, "Bibit Srikaya", 10, 9}
+	#if HALLOWEEN_EVENT == true
+	{ID_BIBIT_LABU, "Bibit Labu", 15, 9},
+	#endif
 };
 
 new const MENU_BIBIT_NARKO[][INFO_MENU_BIBIT] = {
@@ -1733,8 +1735,10 @@ new const list_barang_tampung_buah[][INFO_BARANG_DENGAN_JUMLAH] = {
 	{ID_ALPUKAT, 9, 23},
 	{ID_PEPAYA, 9, 23},
 	{ID_BELIMBING, 9, 23},
-	{ID_SRIKAYA, 9, 15},
+	{ID_SRIKAYA, 9, 15}
+	#if HALLOWEEN_EVENT == true
 	{ID_LABU, 9, 25}
+	#endif
 };
 
 new const item_beli_tambang[][INFO_BARANG_MARKET] = {
