@@ -2212,7 +2212,7 @@ stock GetNearestVehicleToPos(Float:x,Float:y,Float:z,worldid=-1,interiorid=-1,Fl
 stock GetNearestVehicleToPlayer(playerid,Float:maxdist=0.0,bool:fast=false){
 	new Float:x,Float:y,Float:z;
 	GetPlayerPos(playerid,x,y,z);
-	return GetNearestVehicleToPos(x,y,z,GetPlayerVirtualWorld(playerid),GetPlayerInterior(playerid),maxdist,fast);
+	return GetNearestVehicleToPos(x,y,z,CallLocalFunction("SS_GetPlayerVirtualWorld", "i", playerid),CallLocalFunction("SS_GetPlayerInterior", "i", playerid),maxdist,fast);
 }
 
 stock GetVehicleOffset(vehicleid, type, &Float:x, &Float:y, &Float:z)
@@ -2350,14 +2350,14 @@ stock TeleportVehicle(vehicleid,Float:x,Float:y,Float:z,Float:angle,worldid = -1
 	EVF::Foreach(i){
 		if(GetPlayerVehicleID(i) == vehicleid){
 			if(worldid != -1){
-				SetPlayerVirtualWorld(i,worldid);
+				CallLocalFunction("SS_SetPlayerVirtualWorld", "ii", i, worldid);
 			} else {
-				SetPlayerVirtualWorld(i,GetVehicleVirtualWorld(vehicleid));
+				CallLocalFunction("SS_SetPlayerVirtualWorld", "ii", i, GetVehicleVirtualWorld(vehicleid));
 			}
 			if(interiorid != -1){
-				SetPlayerInterior(i,interiorid);
+				CallLocalFunction("SS_SetPlayerInterior", "ii", i, interiorid);
 			} else {
-				SetPlayerInterior(i,GetVehicleInterior(vehicleid));
+				CallLocalFunction("SS_SetPlayerInterior", "ii", i, GetVehicleInterior(vehicleid));
 			}
 		}
 	}

@@ -61,6 +61,9 @@ enum pInfo
     Float:statusMakan,
     Float:statusMinum,
 
+	statusVw,
+	statusInt,
+
 	// Menyimpan timer count down sebelum dia di spawn di rumah sakit
 	inDie, // Jika sedang sekarat bilangan positif - untuk sekarat, 0 - untuk false
 	inPenjara, // Jika sedang di penjara

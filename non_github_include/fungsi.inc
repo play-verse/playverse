@@ -116,7 +116,7 @@ publicFor: isRegistered(playerid)
 
 		// Pindahkan player
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
-		SetPlayerVirtualWorld(playerid, playerid + 100);
+		SS_SetPlayerVirtualWorld(playerid, playerid + 100);
 		// SpawnPlayer(playerid);
 
 		saveHistoryLogin(playerid);
@@ -153,7 +153,7 @@ publicFor: isRegistered(playerid)
 
 			// Spawn player
 			SetSpawnInfo(playerid, 0, 0, 2093.7747,-1806.4586,13.5499,87.6500, 0, 0, 0, 0, 0, 0);
-			SetPlayerVirtualWorld(playerid, playerid + 100);
+			SS_SetPlayerVirtualWorld(playerid, playerid + 100);
 			// SpawnPlayer(playerid);
 
 			ShowPlayerDialog(playerid, DIALOG_REGISTER, DIALOG_STYLE_PASSWORD, WHITE"SILAHKAN DAFTAR", WHITE"Kamu "RED"belum "WHITE"terdaftar di server","Daftar","Keluar");
@@ -1253,7 +1253,7 @@ publicFor: pakaiJoranPancing(playerid){
 pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 	new Float: x, Float: y, Float: z, Float: a, Float: tmp, Float: x1, Float: y1, Float: x2, Float: y2,
 	id = Iter_Free(PlantIterator), plant_Id = GetClosestPlant(playerid);
-	if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+	if(SS_GetPlayerInterior(playerid) != 0 || SS_GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
 	if(id == -1 || playerMaxPlant(playerid)) return error_command(playerid, "Tidak dapat menanam bibit lagi, tunggu hingga beberapa tanaman dipanen.");
 	if(plant_Id != -1) return error_command(playerid, "Anda tidak dapat menanam di tempat yang sudah ditanami bibit.");
 	if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Tidak dapat menanam bibit di dalam kendaraan.");
@@ -2965,7 +2965,7 @@ publicFor: cekPembuatanSIM(playerid, ada){
 	if(ada){
 		givePlayerUang(playerid, -100);
 		SetPVarInt(playerid, "sim_soal", 0);
-		SetPlayerVirtualWorld(playerid, playerid+2);
+		SS_SetPlayerVirtualWorld(playerid, playerid+2);
 		ShowPlayerDialog(playerid, DIALOG_SIM_SOAL, DIALOG_STYLE_MSGBOX, "Praktik SIM", WHITE"Anda sekarang akan melakukan Ujian Teori SIM. Silahkan baca panduan agar anda dapat mengisinya.\nPanduan:\n"YELLOW"- Ketika anda mengendarai kendaraan, anda harus fokus dan menaati peraturan.\n- Gunakan jalur kanan ketika sedang berkendara.\n- Berhenti jika lampu lalu lintas merah, berhati-hati jika kuning.\n- Kurangi kecepatan jika ada player / kendaraan yang sedang lewat / menyalip.\n- Jika ingin menyalip kendaraan ambil jalur kiri dan jika ingin mengurangi kecepatan ambil jalur kanan.\n- Kecepatan normal di bawah "GREEN"80 KmpH"YELLOW", jika lebih maka anda harus mengurangi kecepatan.\n"WHITE"Note: Minimal poin yang didapat "GREEN"10", "Mengerti", "Batal");
 	}else{
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Anda harus memiliki KTP terlebih dahulu untuk dapat mendaftarkan Ujian Praktik SIM.", "Ok", "");
@@ -3246,8 +3246,8 @@ updateOnPlayerDisconnect(playerid){
 	if(PlayerInfo[playerid][sudahSpawn]){
 		GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
 		GetPlayerFacingAngle(playerid, last_spawn_info_a);
-		last_spawn_info_vw = GetPlayerVirtualWorld(playerid);
-		last_spawn_info_int = GetPlayerInterior(playerid);
+		last_spawn_info_vw = SS_GetPlayerVirtualWorld(playerid);
+		last_spawn_info_int = SS_GetPlayerInterior(playerid);
 
 		GetPlayerHealth(playerid, last_hp);
 		GetPlayerArmour(playerid, last_armour);

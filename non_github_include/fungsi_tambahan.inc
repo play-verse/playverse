@@ -21,6 +21,29 @@
 #define IsPlayerPria(%0)         (PlayerInfo[%0][jenisKelamin] == 0)
 #define IsPlayerWanita(%0)         (PlayerInfo[%0][jenisKelamin] == 1)
 
+publicFor: SS_SetPlayerVirtualWorld(playerid, worldid){
+    PlayerInfo[playerid][statusVw] = worldid;
+    return SetPlayerVirtualWorld(playerid, worldid);
+}
+
+publicFor: SS_GetPlayerVirtualWorld(playerid){
+    if(GetPlayerVirtualWorld(playerid) != PlayerInfo[playerid][statusVw])
+        SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][statusVw]);
+    return PlayerInfo[playerid][statusVw];
+}
+
+publicFor: SS_SetPlayerInterior(playerid, interiorid){
+    PlayerInfo[playerid][statusInt] = interiorid;
+    SetPlayerInterior(playerid,interiorid);
+    return 1;
+}
+
+publicFor: SS_GetPlayerInterior(playerid){
+    if(GetPlayerInterior(playerid) != PlayerInfo[playerid][statusInt])
+        SetPlayerInterior(playerid, PlayerInfo[playerid][statusInt]);
+    return PlayerInfo[playerid][statusInt];
+}
+
 /**
     Bantuan Item
  */
@@ -58,7 +81,7 @@ strcatEx(dest[], len_dest, const source[], {Float,_}:...){
 }
 
 isPlayerInOwnedHouse(playerid){
-    if(GetPlayerInterior(playerid) > 0 && GetPlayerVirtualWorld(playerid) <= MAX_HOUSES){
+    if(SS_GetPlayerInterior(playerid) > 0 && SS_GetPlayerVirtualWorld(playerid) <= MAX_HOUSES){
         if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] == PlayerInfo[playerid][pID]) return 1;
     }
     return 0;
@@ -154,8 +177,8 @@ pindahkanPemain(playerid, Float:x, Float:y, Float:z, Float:a, int, vw, bool:prel
     }else{
         SetPlayerPos(playerid, x, y, z);
     }
-    SetPlayerInterior(playerid, int);
-    SetPlayerVirtualWorld(playerid, vw);
+    SS_SetPlayerInterior(playerid, int);
+    SS_SetPlayerVirtualWorld(playerid, vw);
 }
 
 
@@ -1148,12 +1171,12 @@ IsInvalidTargetId(target_id, playerid, type = TIPE_TARGET_AKTIF){
 publicFor: SpectatePlayer(playerid, idtujuan)
 {
 	if (IsPlayerInAnyVehicle(idtujuan)) {
-        SetPlayerInterior(playerid, GetPlayerInterior(idtujuan));
-        SetPlayerVirtualWorld(playerid, GetPlayerVirtualWorld(idtujuan));
+        SS_SetPlayerInterior(playerid, SS_GetPlayerInterior(idtujuan));
+        SS_SetPlayerVirtualWorld(playerid, SS_GetPlayerVirtualWorld(idtujuan));
 		PlayerSpectateVehicle(playerid, GetPlayerVehicleID(idtujuan));
 	} else {
-        SetPlayerInterior(playerid, GetPlayerInterior(idtujuan));
-        SetPlayerVirtualWorld(playerid, GetPlayerVirtualWorld(idtujuan));
+        SS_SetPlayerInterior(playerid, SS_GetPlayerInterior(idtujuan));
+        SS_SetPlayerVirtualWorld(playerid, SS_GetPlayerVirtualWorld(idtujuan));
 		PlayerSpectatePlayer(playerid, idtujuan);
     }
 	return 1;

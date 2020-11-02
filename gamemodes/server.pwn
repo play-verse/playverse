@@ -1196,7 +1196,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							GetXYInFrontOfPlayer(playerid, pos[0], pos[1], 3.0);
 
 							inline responseQuery(){
-								new objectid = CreateDynamicObject(id_object, pos[0], pos[1], pos[2], 0.0, 0.0, 0.0, GetPlayerVirtualWorld(playerid), GetPlayerInterior(playerid));
+								new objectid = CreateDynamicObject(id_object, pos[0], pos[1], pos[2], 0.0, 0.0, 0.0, SS_GetPlayerVirtualWorld(playerid), SS_GetPlayerInterior(playerid));
 
 								new data[e_furniture];
 								data[fID] = cache_insert_id();
@@ -2550,7 +2550,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new banyak_foto;
 				if(sscanf(inputtext, "i", banyak_foto)) return ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", RED"Inputan anda tidak valid, harap input bilangan bulat!\n"WHITE"Berapa banyak foto yang ingin anda cetak ?", "Cetak", "Batal");
 
-				new harga = (GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
+				new harga = (SS_GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
 
 				if(banyak_foto < 1 || banyak_foto > 1000) return ShowPlayerDialog(playerid, DIALOG_TEMPAT_FOTO, DIALOG_STYLE_INPUT, "Foto dan Cetak", RED"Inputan anda tidak valid, harap input bilangan bulat!\n"WHITE"Berapa banyak foto yang ingin anda cetak ?", "Cetak", "Batal");
 
@@ -2565,7 +2565,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				new jumlah = GetPVarInt(playerid, "foto_jumlahFoto"); 
-				new harga = (GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
+				new harga = (SS_GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
 				harga = jumlah * harga;
 				if(getUangPlayer(playerid) < harga) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Uang anda tidak mencukupi", WHITE"Maaf uang anda tidak mencukupi!", "Ok", "");
 				
@@ -3451,7 +3451,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						poinSim[playerid] = 0;
 						DeletePVar(playerid, "sim_soal");
 						DeletePVar(playerid, "tipe_sim");
-						SetPlayerVirtualWorld(playerid, 1);
+						SS_SetPlayerVirtualWorld(playerid, 1);
 						return 1;
 					}else{
 						new tipeSIM = GetPVarInt(playerid, "tipe_sim");
@@ -3461,7 +3461,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						poinSim[playerid] = 0;
 						DeletePVar(playerid, "sim_soal");
 						DeletePVar(playerid, "tipe_sim");
-						SetPlayerVirtualWorld(playerid, 1);
+						SS_SetPlayerVirtualWorld(playerid, 1);
 						mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO pengambilan_sim(id_user,tipe_sim,status_teori) VALUES('%d','%d',1)", PlayerInfo[playerid][pID],tipeSIM);
 						mysql_tquery(koneksi, pQuery[playerid]);
 						return 1;
@@ -3477,7 +3477,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				poinSim[playerid] = 0;
 				DeletePVar(playerid, "sim_soal");
 				DeletePVar(playerid, "tipe_sim");
-				SetPlayerVirtualWorld(playerid, 1);
+				SS_SetPlayerVirtualWorld(playerid, 1);
 			}
 			return 1;
 		}
@@ -3715,7 +3715,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								format(pDialog[playerid], sizePDialog, TAG_ADMIN_DEALER" "WHITE"Berhasil memarkirkan kendaraan dealer %s pada tempat ini.", GetVehicleModelName(DVeh[idveh][dVehModel]));
 								SendClientMessage(playerid, COLOR_CYAN, pDialog[playerid]);
 
-								EVF::SetVehicleSpawnInfo(idveh, DVeh[idveh][dVehCoord][0], DVeh[idveh][dVehCoord][1], DVeh[idveh][dVehCoord][2], DVeh[idveh][dVehCoord][3], GetPlayerVirtualWorld(playerid), GetPlayerInterior(playerid));
+								EVF::SetVehicleSpawnInfo(idveh, DVeh[idveh][dVehCoord][0], DVeh[idveh][dVehCoord][1], DVeh[idveh][dVehCoord][2], DVeh[idveh][dVehCoord][3], SS_GetPlayerVirtualWorld(playerid), SS_GetPlayerInterior(playerid));
 							}else{
 								error_command(playerid, "Ini bukan kendaraan dealer.");
 							}
@@ -4140,12 +4140,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				// inline responseCek(){
 				// 	new total_item;
 				// 	cache_get_value_name_int(0, "total_item", total_item);
-				// 	if((total_item + input_jumlah) > HouseLevel[houseInfo[GetPlayerVirtualWorld(playerid)][hLevel]][houseItemCapacity]){						
-				// 		format(pDialog[playerid], sizePDialog, "Maaf inventory rumah item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", input_jumlah, total_item, HouseLevel[houseInfo[GetPlayerVirtualWorld(playerid)][hLevel]][houseItemCapacity]);
+				// 	if((total_item + input_jumlah) > HouseLevel[houseInfo[SS_GetPlayerVirtualWorld(playerid)][hLevel]][houseItemCapacity]){						
+				// 		format(pDialog[playerid], sizePDialog, "Maaf inventory rumah item anda tidak memiliki cukup ruang,\nuntuk menyimpan sebanyak "ORANGE"%i "WHITE"item. Sisa ruang yang anda miliki adalah "ORANGE"(%i/%i).", input_jumlah, total_item, HouseLevel[houseInfo[SS_GetPlayerVirtualWorld(playerid)][hLevel]][houseItemCapacity]);
 
 				// 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory rumah anda penuh", pDialog[playerid], "Ok", "");
 				// 	}else{
-				// 		tambahItemHouse(GetPlayerVirtualWorld(playerid), id_item, input_jumlah);
+				// 		tambahItemHouse(SS_GetPlayerVirtualWorld(playerid), id_item, input_jumlah);
 				// 		tambahItemPlayer(playerid, id_item, -input_jumlah);
 
 				// 		format(pDialog[playerid], sizePDialog, "Anda berhasil menyimpan "YELLOW"%s"WHITE" ke dalam inventory rumah.\nSebanyak "YELLOW"%d"WHITE".\nAnda dapat mengambilnya kembali.", nama_item, input_jumlah);
@@ -4226,7 +4226,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				// 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Inventory anda penuh", pDialog[playerid], "Ok", "");
 				// 	}else{
-				// 		tambahItemHouse(GetPlayerVirtualWorld(playerid), id_item, -input_jumlah);
+				// 		tambahItemHouse(SS_GetPlayerVirtualWorld(playerid), id_item, -input_jumlah);
 				// 		tambahItemPlayer(playerid, id_item, input_jumlah);
 
 				// 		format(pDialog[playerid], sizePDialog, "Anda berhasil mengambil "YELLOW"%s"WHITE" dari dalam inventory rumah.\nSebanyak "YELLOW"%d"WHITE".\nAnda dapat menyimpannya kembali selama anda memiliki cukup ruang.", nama_item, input_jumlah);
@@ -5759,7 +5759,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(mancingAktif[playerid])
 						return error_command(playerid, "Anda sedang memancing.");
 
-						if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+						if(SS_GetPlayerInterior(playerid) != 0 || SS_GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
 						if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memancing dalam keadaan sekarang.");
 						if(obj != 20000) return error_command(playerid, "Anda harus berada di pinggir perairan untuk dapat memancing.");
 
@@ -10244,8 +10244,8 @@ public OnPlayerDeath(playerid, killerid, reason)
 	PlayerInfo[playerid][inDie] = 1; // Supaya langsung teleport ke rumah sakit
 	// GetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
 	// GetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
-	// PlayerInfo[playerid][last_int] = GetPlayerInterior(playerid); 
-	// PlayerInfo[playerid][last_vw] = GetPlayerVirtualWorld(playerid);
+	// PlayerInfo[playerid][last_int] = SS_GetPlayerInterior(playerid); 
+	// PlayerInfo[playerid][last_vw] = SS_GetPlayerVirtualWorld(playerid);
 	onPlayerDeath_Alt(playerid);
 
 	hideHUDStats(playerid);
@@ -10578,7 +10578,7 @@ public OnPlayerUpdate(playerid)
 	if(IsPlayerNPC(playerid)) return 1;
 	
 	// No weapons in interiors
-	//if(GetPlayerInterior(playerid) != 0 && GetPlayerWeapon(playerid) != 0) {
+	//if(SS_GetPlayerInterior(playerid) != 0 && GetPlayerWeapon(playerid) != 0) {
 	    //SetPlayerArmedWeapon(playerid,0); // fists
 	    //return 0; // no syncing until they change their weapon
 	//}
@@ -11748,7 +11748,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		pindahkanPemain(playerid, 1477.4969, -1641.4519, 14.1652, 179.7030, 0, 0, true);
 		return 1;
 	}else if(pickupid == PU_tempatFoto_out){
-		switch(GetPlayerVirtualWorld(playerid)){
+		switch(SS_GetPlayerVirtualWorld(playerid)){
 			case VW_tempatFoto_1:
 			{
 				pindahkanPemain(playerid, 1112.2352, -1372.2939, 13.9844, 178.5421, 0, 0, true);
@@ -11768,7 +11768,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	}
 	else if(pickupid == PU_keluarRestoran){
 		// Jika terjadi virtual world yang lebih dari maximize size, maka akan di random tempatnya dengan modulo
-		new idx = GetPlayerVirtualWorld(playerid) % sizeof(ENTRANCE_RESTORAN);
+		new idx = SS_GetPlayerVirtualWorld(playerid) % sizeof(ENTRANCE_RESTORAN);
 		pindahkanPemain(playerid, ENTRANCE_RESTORAN[idx][enPosOut][0], ENTRANCE_RESTORAN[idx][enPosOut][1], ENTRANCE_RESTORAN[idx][enPosOut][2], ENTRANCE_RESTORAN[idx][enPosOut][3], 0, 0, true);
 		return 1;
 	}
@@ -11782,7 +11782,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	}
 	else if(pickupid == PU_keluarMarket){
 		// Jika terjadi virtual world yang lebih dari maximize size, maka akan di random tempatnya dengan modulo
-		new idx = GetPlayerVirtualWorld(playerid) % sizeof(ENTRANCE_MARKET);
+		new idx = SS_GetPlayerVirtualWorld(playerid) % sizeof(ENTRANCE_MARKET);
 		pindahkanPemain(playerid, ENTRANCE_MARKET[idx][enPosOut][0], ENTRANCE_MARKET[idx][enPosOut][1], ENTRANCE_MARKET[idx][enPosOut][2], ENTRANCE_MARKET[idx][enPosOut][3], 0, 0, true);
 		return 1;
 	}
@@ -12526,9 +12526,9 @@ public OnPlayerEnterDynamicArea(playerid, areaid){
 	}else if(areaid == AREA_tempatFoto){
 		new jam, menit, detik;
 		gettime(jam, menit, detik);
-		if(GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2 && !(jam >= 20 || jam <= 5)) return SendClientMessage(playerid, COLOR_RED, "Maaf Tempat foto "nama_B" saat ini tutup! Silahkan kembali antara jam 20.00 hingga 05.59.");
+		if(SS_GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2 && !(jam >= 20 || jam <= 5)) return SendClientMessage(playerid, COLOR_RED, "Maaf Tempat foto "nama_B" saat ini tutup! Silahkan kembali antara jam 20.00 hingga 05.59.");
 
-		new harga = (GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
+		new harga = (SS_GetPlayerVirtualWorld(playerid) == VW_tempatFoto_2) ? 10 : 20;
 
 		format(pDialog[playerid], sizePDialog, WHITE"Berapa banyak foto yang ingin anda cetak?\n"YELLOW"Harga 1 foto adalah "GREEN"%d", harga);
 
@@ -12630,7 +12630,7 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
 	if(newinteriorid != oldinteriorid){
 		foreach(new i : Player) {
 			if(PlayerInfo[i][inSpectating] == playerid){
-				SetPlayerInterior(i, GetPlayerInterior(playerid));
+				SS_SetPlayerInterior(i, SS_GetPlayerInterior(playerid));
 			}
 		}
 	}

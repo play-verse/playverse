@@ -147,7 +147,7 @@ CMD:arumah(playerid, params[]){
     // Jika bukan admin level 2
     if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
-    if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+    if(SS_GetPlayerInterior(playerid) != 0 || SS_GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
     ShowPlayerDialog(playerid, DIALOG_ADMIN_RUMAH, DIALOG_STYLE_LIST, WHITE"House Sytem :", "Buat Rumah\nReset Rumah\nHapus Rumah", "Pilih", "Batal");
     return 1;
 }
@@ -461,7 +461,7 @@ CMD:tele(playerid, params[]){
     GetPlayerPos(target_id, pos[0], pos[1], pos[2]);    
     GetPlayerFacingAngle(target_id, pos[3]);
 
-    pindahkanPemain(playerid, pos[0], pos[1] + 0.5, pos[2], pos[3], GetPlayerInterior(target_id), GetPlayerVirtualWorld(target_id), true);
+    pindahkanPemain(playerid, pos[0], pos[1] + 0.5, pos[2], pos[3], SS_GetPlayerInterior(target_id), SS_GetPlayerVirtualWorld(target_id), true);
     PlayerInfo[playerid][inHouse] = PlayerInfo[target_id][inHouse];
     sendPesan(playerid, COLOR_BLUE, TAG_ADMIN" "WHITE"Anda berhasil teleport ke posisi %s berada.", PlayerInfo[target_id][pPlayerName]);
     return 1;
@@ -494,7 +494,7 @@ CMD:get(playerid, params[]){
     GetPlayerPos(playerid, pos[0], pos[1], pos[2]);    
     GetPlayerFacingAngle(playerid, pos[3]);
 
-    pindahkanPemain(target_id, pos[0], pos[1] + 0.5, pos[2], pos[3], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid), true);
+    pindahkanPemain(target_id, pos[0], pos[1] + 0.5, pos[2], pos[3], SS_GetPlayerInterior(playerid), SS_GetPlayerVirtualWorld(playerid), true);
 
     PlayerInfo[target_id][inHouse] = PlayerInfo[playerid][inHouse];
     
@@ -552,8 +552,8 @@ CMD:spec(playerid, params[]) {
         GetPlayerPos(playerid, PlayerInfo[playerid][last_x], PlayerInfo[playerid][last_y], PlayerInfo[playerid][last_z]);
         GetPlayerFacingAngle(playerid, PlayerInfo[playerid][last_a]);
 
-        PlayerInfo[playerid][last_vw] = GetPlayerVirtualWorld(playerid);
-		PlayerInfo[playerid][last_int] = GetPlayerInterior(playerid);
+        PlayerInfo[playerid][last_vw] = SS_GetPlayerVirtualWorld(playerid);
+		PlayerInfo[playerid][last_int] = SS_GetPlayerInterior(playerid);
         
         TogglePlayerSpectating(playerid, 1);
 
@@ -804,7 +804,7 @@ CMD:suicide(playerid, params[]){
 }
 
 CMD:house(playerid, params[]){
-    if(GetPlayerInterior(playerid) == 0) return error_command(playerid, "Anda tidak di dalam rumah manapun.");
+    if(SS_GetPlayerInterior(playerid) == 0) return error_command(playerid, "Anda tidak di dalam rumah manapun.");
     if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] != PlayerInfo[playerid][pID]) return error_command(playerid, "Anda bukan pemilik rumah.");
     ShowPlayerDialog(playerid, DIALOG_MENU_RUMAH, DIALOG_STYLE_LIST, "Menu Rumah : ", "Inventory Rumah\nSemua Furniture", "Pilih", "Tutup");
     return 1;
@@ -1431,7 +1431,7 @@ CMD:create(playerid, params[]){
     if(sama(text, "ranjau", true) && IsPlayerOnDutyPolice(playerid)){
         new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
         if(id != -1){
-            if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+            if(SS_GetPlayerInterior(playerid) != 0 || SS_GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
             if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
 	        if(CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Tidak dapat melakukan ini di sekitar air.");
             GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
@@ -1446,7 +1446,7 @@ CMD:create(playerid, params[]){
     }else if(sama(text, "barikade", true) && IsPlayerOnDutyPolice(playerid)){
         new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
         if(id != -1){
-            if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+            if(SS_GetPlayerInterior(playerid) != 0 || SS_GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
             if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
             if(CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Tidak dapat melakukan ini di sekitar air.");
             GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
@@ -1461,7 +1461,7 @@ CMD:create(playerid, params[]){
     }else if(sama(text, "sign", true) && IsPlayerOnDutyPolice(playerid)){
         new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
         if(id != -1){
-            if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+            if(SS_GetPlayerInterior(playerid) != 0 || SS_GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
             if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
 	        if(CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Tidak dapat melakukan ini di sekitar air.");
             GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
@@ -1476,7 +1476,7 @@ CMD:create(playerid, params[]){
     }else if(sama(text, "garis", true) && IsPlayerOnDutyPolice(playerid)){
         new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
         if(id != -1){
-            if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+            if(SS_GetPlayerInterior(playerid) != 0 || SS_GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
             if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
 	        if(CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Tidak dapat melakukan ini di sekitar air.");
             GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
@@ -1493,7 +1493,7 @@ CMD:create(playerid, params[]){
         if(number >= MIN_SPEEDLIMIT && number <= MAX_SPEEDLIMIT){
             new Float:pos[4], id = Iter_Free(ObjPoliceIterator);
             if(id != -1){
-                if(GetPlayerInterior(playerid) != 0 || GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
+                if(SS_GetPlayerInterior(playerid) != 0 || SS_GetPlayerVirtualWorld(playerid) != 0) return error_command(playerid, "Maaf anda harus berada di luar ruangan atau dunia sesungguhnya.");
                 if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
 	            if(CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Tidak dapat melakukan ini di sekitar air.");
                 GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
@@ -1753,6 +1753,12 @@ CMD:ooc(playerid, params[]){
 
     format(pesan, sizeof(pesan), "[OOC] "WHITE"%s: %s", PlayerInfo[playerid][pPlayerName], pesan);
     ProxDetector(30.0, playerid, pesan, COLOR_YELLOW);
+    return 1;
+}
+
+CMD:refreshme(playerid, params[]){
+    SS_GetPlayerInterior(playerid);
+    SS_GetPlayerVirtualWorld(playerid);
     return 1;
 }
 

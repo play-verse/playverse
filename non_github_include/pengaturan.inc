@@ -203,6 +203,7 @@
 #define EXP_TAMBAH_FRAKSI		2
 #define EXP_TAMBAH_PANEN		2
 #define EXP_TAMBAH_MASAK		2
+#define EXP_TAMBAH_LUMBERJACK	3
 
 #define EXP_GAGAL_CURR_SKILL 2 		// Digunakan untuk memberikan exp walaupun gagal
 #define EXP_SUKSES_CURR_SKILL 5   	// Exp yang diberikan saat sukses
@@ -830,3 +831,5 @@ new const NAMA_ABJAD[][] = {
 	Event Setting
  */
 #define HALLOWEEN_EVENT	false
+
+// End event settings
