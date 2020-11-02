@@ -3692,9 +3692,9 @@ getHousePrice(house_Id, const method[16] = ""){
 	return -1;
 }
 
-getKayuForUpgradeHouse(level){
-	return level * JUMLAH_KAYU_PER_UPGRADE;
-}
+#define getKayuForUpgradeHouse(%0)  (%0 * JUMLAH_KAYU_PER_UPGRADE)
+#define getBatuBataForUpgradeHouse(%0)  (%0 * JUMLAH_BATU_BATA_PER_UPGRADE)
+#define getBesiForUpgradeHouse(%0)  (%0 * JUMLAH_BESI_PER_UPGRADE)
 
 todoActive(playerid){
 	if(sweeperJob[playerid] == 1){

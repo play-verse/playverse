@@ -2247,10 +2247,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(getUangPlayer(playerid) < upgradeRate) return SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf uang anda tidak mencukupi!");
 
 								inline responseQuery(){
-									new terpasang, cukup;
+									new terpasang;
 									cache_get_value_name_int(0, "terpasang", terpasang);
-									cache_get_value_name_int(0, "cukup", cukup);
-									if(!cukup) return sendPesan(playerid, COLOR_ORANGE, "SERVER: "WHITE"Anda harus memiliki %d kayu untuk upgrade ke level selanjutnya.", getKayuForUpgradeHouse(houseInfo[id][hLevel]));
+									if(GetJumlahItemPlayer(playerid, ID_KAYU) < getKayuForUpgradeHouse(houseInfo[id][hLevel]) || GetJumlahItemPlayer(playerid, ID_BESI) < getBesiForUpgradeHouse(houseInfo[id][hLevel]) || GetJumlahItemPlayer(playerid, ID_BATU_BATA) < getBatuBataForUpgradeHouse(houseInfo[id][hLevel]))
+										return sendPesan(playerid, COLOR_ORANGE, TAG_RUMAH" "WHITE"Anda harus memiliki %d kayu, %d besi, dan %d batu bata untuk upgrade ke level selanjutnya.", getKayuForUpgradeHouse(houseInfo[id][hLevel]), getBesiForUpgradeHouse(houseInfo[id][hLevel]), getBatuBataForUpgradeHouse(houseInfo[id][hLevel]));
+									
 									if(!terpasang){
 										givePlayerUang(playerid, -upgradeRate);
 										tambahItemPlayer(playerid, 25, -getKayuForUpgradeHouse(houseInfo[id][hLevel]));
@@ -2267,7 +2268,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										return sendPesan(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Anda harus melepas semua furniture di dalam rumah terlebih dahulu!");
 									}
 								}
-								MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT(SELECT COUNT(*) FROM house_furniture WHERE id_house = '%d') as terpasang, (SELECT COUNT(*) FROM user_item WHERE id_user = '%d' AND id_item = '%d' AND jumlah >= '%d') as cukup", id, PlayerInfo[playerid][pID], 25, getKayuForUpgradeHouse(houseInfo[id][hLevel]));
+								MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT COUNT(*) as terpasang FROM house_furniture WHERE id_house = '%d'", id);
 							}else{
 								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf level rumah anda sudah maksimal!");
 							}

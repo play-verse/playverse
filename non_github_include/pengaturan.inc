@@ -127,7 +127,9 @@
 
 // Define Harga dan Sebagainya
 #define BIAYA_PERBAIKI_KENDARAAN 250
-#define JUMLAH_KAYU_PER_UPGRADE 50  // 50 x level yang mau diupgrade
+#define JUMLAH_KAYU_PER_UPGRADE 25  // n x level yang mau diupgrade
+#define JUMLAH_BESI_PER_UPGRADE 25  // n x level yang mau diupgrade
+#define JUMLAH_BATU_BATA_PER_UPGRADE 25  // n x level yang mau diupgrade
 
 
 #define STATUS_KENDARAAN_TIDAK_RUSAK 0
