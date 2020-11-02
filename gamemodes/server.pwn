@@ -1259,7 +1259,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah furniture yang ingin dibuang.\n\nNama Furniture : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_furniture, jumlah);
 						strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang furniture,\n"RED"Furniture yang telah dibuang tidak dapat dikembalikan lagi.");
-						ShowPlayerDialog(playerid, DIALOG_BUANG_FURNITURE, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+						ShowPlayerDialog(playerid, DIALOG_BUANG_FURNITURE, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], "Buang", "Batal");
 					}
 				}
 			}else{
@@ -1352,7 +1352,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah item yang ingin diberi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item saat ini: "GREEN"%d", nama_item, GetJumlahItemPlayer(playerid, id_item));
 						strcat(pDialog[playerid], YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.");
-						ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
+						ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], "Beri", "Batal");
 					}
 					case 4: // Kunci/Buka Kunci
 					{
@@ -1392,7 +1392,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						format(pDialog[playerid], sizePDialog, WHITE"Silahkan masukan jumlah item yang ingin dibuang.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, GetJumlahItemPlayer(playerid, id_item));
 						strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
-						ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+						ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], "Buang", "Batal");
 					}
 				}
 			}else{
@@ -1413,14 +1413,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 					format(pDialog[playerid], sizePDialog, RED"Masukan inputan yang benar.\n"WHITE"Silahkan masukan jumlah furniture yang ingin dibuang.\n\nNama Furniture : "PINK"%s\n"WHITE"Jumlah Furniture : "GREEN"%d", nama_furniture, jumlah);
 					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang furniture,\n"RED"Furniture yang telah dibuang tidak dapat dikembalikan lagi.");
-					return ShowPlayerDialog(playerid, DIALOG_BUANG_FURNITURE, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_BUANG_FURNITURE, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], "Buang", "Batal");
 				}
 				if(input_jumlah < 1 || input_jumlah > jumlah){
 					cache_unset_active(); // Unset_active agar tidak terjadi hal yang tidak diinginkan
 
 					format(pDialog[playerid], sizePDialog, RED"Jumlah yang ingin anda buang salah.\n"WHITE"Silahkan masukan jumlah furniture yang ingin dibuang.\n\nNama Furniture : "PINK"%s\n"WHITE"Jumlah Furniture : "GREEN"%d", nama_furniture, jumlah);
 					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang furniture,\n"RED"Furniture yang telah dibuang tidak dapat dikembalikan lagi.");
-					return ShowPlayerDialog(playerid, DIALOG_BUANG_FURNITURE, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_BUANG_FURNITURE, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], "Buang", "Batal");
 				}
 				
 				// Buang furniture player (beri player dalam jumlah minus)
@@ -1454,12 +1454,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sscanf(inputtext, "i", input_jumlah)) {
 					format(pDialog[playerid], sizePDialog, RED"Masukan inputan yang benar.\n"WHITE"Silahkan masukan jumlah item yang ingin dibuang.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, jumlah);
 					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
-					return ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], "Buang", "Batal");
 				}
 				if(input_jumlah < 1 || input_jumlah > jumlah){
 					format(pDialog[playerid], sizePDialog, RED"Jumlah yang ingin anda buang salah.\n"WHITE"Silahkan masukan jumlah item yang ingin dibuang.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item : "GREEN"%d", nama_item, jumlah);
 					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item,\n"RED"item yang telah dibuang tidak dapat dikembalikan lagi.");
-					return ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], RED"Buang", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_BUANG_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin dibuang", pDialog[playerid], "Buang", "Batal");
 				}
 				
 				// Buang item player (beri player dalam jumlah minus)
@@ -1491,12 +1491,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(sscanf(inputtext, "i", input_jumlah)) {
 					format(pDialog[playerid], sizePDialog, RED"Masukan inputan yang benar.\n"WHITE"Silahkan masukan jumlah item yang ingin diberi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item saat ini: "GREEN"%d", nama_item, jumlah);
 					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.");
-					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], "Beri", "Batal");
 				}				
 				if(input_jumlah < 1 || input_jumlah > jumlah){
 					format(pDialog[playerid], sizePDialog, RED"Jumlah yang ingin anda beri tidak valid.\n"WHITE"Silahkan masukan jumlah item yang ingin diberi.\n\nNama Item : "PINK"%s\n"WHITE"Jumlah Item saat ini: "GREEN"%d", nama_item, jumlah);
 					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.");
-					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM, DIALOG_STYLE_INPUT, ORANGE"Berapa banyak yang ingin berikan", pDialog[playerid], "Beri", "Batal");
 				}
 
 				SetPVarInt(playerid, "beri_item_jumlah", input_jumlah);
@@ -1513,16 +1513,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new target_id;
 				if(sscanf(inputtext, "u", target_id)) {
-					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"ID pemain invalid.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", LIGHT_BLUE"Beri", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"ID pemain invalid.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", "Beri", "Batal");
 				}
 				if(!IsPlayerConnected(target_id) || target_id == INVALID_PLAYER_ID || target_id == playerid) {
-					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"ID pemain invalid.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", LIGHT_BLUE"Beri", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"ID pemain invalid.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", "Beri", "Batal");
 				}
 
 				new Float:pos[3];
 				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
 				if(!IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
-					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"Pemain harus berada didekat anda.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", LIGHT_BLUE"Beri", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"Pemain harus berada didekat anda.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", "Beri", "Batal");
 				}
 
 				SetPVarInt(playerid, "beri_item_target_id", target_id);
@@ -1538,7 +1538,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					strcat(pDialog[playerid], WHITE"\nApakah anda yakin ?");
 					strcat(pDialog[playerid], WHITE"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.\n* Pastikan orang yang diberikan adalah orang terpecaya, jika melakukan transaksi.");
 
-					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BERI_ITEM, DIALOG_STYLE_MSGBOX, ORANGE"Konfirmasi pemberian", pDialog[playerid], LIGHT_BLUE"Beri", "Batal");
+					return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BERI_ITEM, DIALOG_STYLE_MSGBOX, ORANGE"Konfirmasi pemberian", pDialog[playerid], "Beri", "Batal");
 				}else{
 					resetPVarInventory(playerid);
 					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Slot item tidak cukup", WHITE"Slot item pemain yang ingin diberi tidak muat.\n"YELLOW"Suruh pemain untuk menyisihkan ruang terlebih dahulu.", "Ok", "");
@@ -1645,7 +1645,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				sendPesan(playerid, COLOR_WHITE, "Anda akan dapat informasi jika "GREEN"%s "WHITE"menyetujui sharelock anda.", PlayerInfo[target_id][pPlayerName]);
 
 				format(pDialog[playerid], sizePDialog, GREEN"%s "WHITE"ingin membagikan lokasinya kepada anda. Apakah anda ingin menerimanya?\n"YELLOW"Menerima sharelock dari orang lain akan menghilangkan marker merah anda yang sedang aktif,\nmarker merah tersebut akan digantikan dengan marker merah yang baru\nyang mengarah kepada lokasi "GREEN"%s "YELLOW"sekarang berada.", PlayerInfo[playerid][pPlayerName], PlayerInfo[playerid][pPlayerName]);
-				ShowPlayerDialog(target_id, DIALOG_KONFIRMASI_TERIMA_SHARELOCK, DIALOG_STYLE_MSGBOX, "Konfirmasi Sharelock", pDialog[playerid], GREEN"Terima", RED"Tidak");
+				ShowPlayerDialog(target_id, DIALOG_KONFIRMASI_TERIMA_SHARELOCK, DIALOG_STYLE_MSGBOX, "Konfirmasi Sharelock", pDialog[playerid], "Terima", "Tidak");
 
 				SetPVarInt(target_id, "sharelock_pemilik", playerid);
 			}else
