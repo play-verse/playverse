@@ -209,11 +209,11 @@ enum hInfo
     Float:last_a
 }
 new houseInfo[MAX_HOUSES][hInfo],
-	lastHousePickup[MAX_PLAYERS] = {-1},
+	lastHousePickup[MAX_PLAYERS] = {-1, ...},
 	Iterator:houseIterator<MAX_HOUSES>,
 	Text3D:houseTextInfo[MAX_HOUSES],
-	housePickup[MAX_HOUSES] = {-1},
-	houseId[MAX_HOUSES] = {-1},
+	housePickup[MAX_HOUSES] = {-1, ...},
+	houseId[MAX_HOUSES] = {-1, ...},
 	houseNotif[MAX_PLAYERS];
 
 enum hLevelInfo {
@@ -750,14 +750,14 @@ new	todoFinish[MAX_PLAYERS],
 /* Sweeper */
 new Iterator:vehicleSweeper<MAX_VEHICLES>,
     sweeperJob[MAX_PLAYERS],
-    sweeperId[MAX_PLAYERS] = {-1},
+    sweeperId[MAX_PLAYERS] = {-1, ...},
     vehicleSweeper[3],
     usedSweeper[MAX_VEHICLES];
 
 /* Trashmaster */
 new Iterator:trashM_Veh<MAX_VEHICLES>,
     trashM_Job[MAX_PLAYERS],
-    trashM_Id[MAX_PLAYERS] = {-1},
+    trashM_Id[MAX_PLAYERS] = {-1, ...},
     trashM_Veh[3],
     trashM_Used[MAX_VEHICLES],
 	trashM_House[MAX_PLAYERS] = {-1},
@@ -775,10 +775,10 @@ new jobHouseTake[MAX_PLAYERS][JOB_MAX_TASK],
 /* Pizzaboy */
 new Iterator:pizza_Veh<MAX_VEHICLES>,
     pizza_Job[MAX_PLAYERS],
-    pizza_Id[MAX_PLAYERS] = {-1},
+    pizza_Id[MAX_PLAYERS] = {-1, ...},
     pizza_Veh[3],
     pizza_Used[MAX_VEHICLES],
-	pizza_House[MAX_PLAYERS] = {-1},
+	pizza_House[MAX_PLAYERS] = {-1, ...},
 	pizza_HouseDrop[MAX_PLAYERS],
 	pizza_Carry[MAX_PLAYERS],
 	pizza_VehCap[MAX_VEHICLES],
@@ -790,25 +790,18 @@ new Iterator:pizza_Veh<MAX_VEHICLES>,
 	Float:pizza_Z[MAX_PLAYERS];
 
 /* Montir Listrik */
-new Iterator:montirL_Veh<MAX_VEHICLES>,
-    montirL_Job[MAX_PLAYERS],
-    montirL_Id[MAX_PLAYERS] = {-1},
-    montirL_Veh[3],
-    montirL_Used[MAX_VEHICLES],
-	montirL_Tangga[MAX_PLAYERS],
-	montirL_TanggaObj[MAX_PLAYERS],
-	montirL_TanggaPasang[MAX_PLAYERS],
-	montirL_Tiang[MAX_PLAYERS] = {-1},
-	montirL_TiangDone_LS[MAX_PLAYERS][MAX_TIANG_LISTRIK],
-	montirL_TiangProses[MAX_PLAYERS] = {-1, ...},
-	montirL_TiangCap[MAX_PLAYERS],
-	montirL_Timer[MAX_PLAYERS],
-	Float:montirL_PlayerX[MAX_PLAYERS],
-	Float:montirL_PlayerY[MAX_PLAYERS],
-	Float:montirL_PlayerZ[MAX_PLAYERS],
-	Float:montirL_X[MAX_PLAYERS],
-	Float:montirL_Y[MAX_PLAYERS],
-	Float:montirL_Z[MAX_PLAYERS];
+enum POINT_GARDU_PADAM_INFO {
+	Float:GARDU_X,
+    Float:GARDU_Y,
+    Float:GARDU_Z,
+	Float:GARDU_A
+}
+
+new const POINT_GARDU_PADAM[][POINT_GARDU_PADAM_INFO] = {
+    {2687.3708,-1954.2535,13.5469,179.2838},
+    {2666.5459,-1954.2578,13.5469,181.1639},
+	{2644.8496,-1954.2562,13.5469,182.7306}
+};
 
 // Tiang Listrik
 enum TiangInfo
@@ -822,16 +815,46 @@ enum TiangInfo
     Float: tiangRY,
     Float: tiangRZ
 }
-new Iterator:TiangIterator<MAX_TIANG_LISTRIK>,
-    DTiang[MAX_TIANG_LISTRIK][TiangInfo],
-    tiangEditID[MAX_PLAYERS] = {-1, ...};
 
+new Iterator:montirL_Veh<MAX_VEHICLES>,
+    montirL_Job[MAX_PLAYERS],
+    montirL_Id[MAX_PLAYERS] = {-1, ...},
+    montirL_Veh[3],
+    montirL_Used[MAX_VEHICLES],
+	montirL_Alat[MAX_PLAYERS],
+	montirL_AlatObj[MAX_PLAYERS],
+	montirL_AlatPasang[MAX_PLAYERS],
+	montirL_Timer[MAX_PLAYERS],
+	Text3D:montirL_GarduLabel[MAX_PLAYERS],
+	montirL_GarduPoint[MAX_PLAYERS] = {-1, ...},
+	montirL_GarduArea[sizeof(POINT_GARDU_PADAM)] = {-1, ...},
+	montirL_GarduPadam[sizeof(POINT_GARDU_PADAM)],
+	montirL_GarduPadamEvent,
+	montirL_GarduDone,
+	montirL_GarduEnd = -1,
+	montirL_GarduStart,
+	Iterator:TiangIterator<MAX_TIANG_LISTRIK>,
+    DTiang[MAX_TIANG_LISTRIK][TiangInfo],
+    tiangEditID[MAX_PLAYERS] = {-1, ...},
+	Float:montirL_PlayerX[MAX_PLAYERS],
+	Float:montirL_PlayerY[MAX_PLAYERS],
+	Float:montirL_PlayerZ[MAX_PLAYERS],
+	Float:montirL_X[MAX_PLAYERS],
+	Float:montirL_Y[MAX_PLAYERS],
+	Float:montirL_Z[MAX_PLAYERS],
+	montirL_Tangga[MAX_PLAYERS],
+	montirL_TanggaObj[MAX_PLAYERS],
+	montirL_TanggaPasang[MAX_PLAYERS],
+	montirL_Tiang[MAX_PLAYERS] = {-1},
+	montirL_TiangDone_LS[MAX_PLAYERS][MAX_TIANG_LISTRIK],
+	montirL_TiangProses[MAX_PLAYERS] = {-1, ...},
+	montirL_TiangCap[MAX_PLAYERS];
 
 /* Ojol */
 new ojol_Job[MAX_PLAYERS],
-    ojol_Id[MAX_VEHICLES] = {-1},
-    ojol_Veh[MAX_PLAYERS] = {-1},
-    ojol_Passenger[MAX_PLAYERS] = {-1},
+    ojol_Id[MAX_VEHICLES] = {-1, ...},
+    ojol_Veh[MAX_PLAYERS] = {-1, ...},
+    ojol_Passenger[MAX_PLAYERS] = {-1, ...},
 	ojol_AppShow[MAX_PLAYERS],
 	ojol_AppTimer[MAX_PLAYERS] = {-1, ...},
 	Float:ojol_startX[MAX_PLAYERS],
@@ -847,7 +870,7 @@ new ambulance_Veh[2];
 new Iterator:vehicleSIM<MAX_VEHICLES>,
     testSim[MAX_PLAYERS],
     poinSim[MAX_PLAYERS],
-    vehicleIdSIM[MAX_PLAYERS] = {-1},
+    vehicleIdSIM[MAX_PLAYERS] = {-1, ...},
     vehicleSIM[3],
     limitVehSIM[MAX_VEHICLES],
     Float:oldVehicleHealth[MAX_VEHICLES];
@@ -1930,7 +1953,8 @@ new GPS_LOCATION[][GPS_INFO_ENUM] = {
 	{"Sidejob Electrician", {2396.3955, -2077.6990 , 13.5241}}
 };
 // Panduan Bermain
-new timerPanduanStream[MAX_PLAYERS] = {-1, ...};
+new aktifPanduanStream[MAX_PLAYERS],
+	timerPanduanStream[MAX_PLAYERS] = {-1, ...};
 
 /**
 	Weather
