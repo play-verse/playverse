@@ -138,23 +138,6 @@ public OnPlayerDisconnect(playerid, reason){
 
 	if(PlayerInfo[playerid][sudahLogin]) {
 		updateOnPlayerDisconnect(playerid);
-
-		if(IsPlayerInAnyVehicle(playerid)){
-			new vehicleid = GetPlayerVehicleID(playerid);
-			if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
-				new Float:darah;
-				GetVehicleHealth(vehicleid, darah);
-
-				if(!IsVehicleFlipped(vehicleid) && darah > 300)
-				{
-					new idpv = IDVehToPVeh[vehicleid];
-					GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
-					GetVehicleZAngle(vehicleid, PVeh[idpv][pVehCoord][3]);
-					PVeh[idpv][pVehDarah] = darah;
-					UpdatePosisiDarahVehiclePlayer(vehicleid);
-				}
-			}
-		}
 	}else{
 		// Pastikan dia memiliki loginAttempt dan merupakan player terdaftar
 		if(PlayerInfo[playerid][pID]){
@@ -1610,7 +1593,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 3:
 					{
 						if(isnull(PlayerInfo[playerid][nomorRekening])) return showDialogPesan(playerid, RED"Anda tidak memiliki ATM", WHITE"Untuk dapat mengakses ATM Banking, anda harus mempunyai rekening bank terlebih dahulu.\n"YELLOW"Anda dapat pergi ke bank untuk mengurusnya.");
-
+						
+						if(montirL_GarduPadamEvent == 1)
+							return SendClientMessage(playerid, COLOR_RED, TAG_LISTRIK" "WHITE"Listrik saat ini padam, m-banking tidak dapat digunakan.");
+						
 						showDialogEBank(playerid);
 					}
 					// Sharelock
@@ -2323,7 +2309,19 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							if(houseInfo[id][hSetHarga] != 0){
 								beliRate = houseInfo[id][hSetHarga];
 							}
-							if(PlayerInfo[playerid][uang] < beliRate) return SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf uang anda tidak mencukupi!");
+							if(PlayerInfo[playerid][uang] < beliRate) 
+								return SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf uang anda tidak mencukupi!");
+
+							// Begin Counter Rumah
+							new cntRumah = 0;
+							foreach(new i : houseIterator){
+								if(houseInfo[i][hOwner] == PlayerInfo[playerid][pID])
+									cntRumah++;
+							}
+							if(cntRumah >= MAX_HOUSE_PER_PLAYER)
+								return SendClientMessage(playerid, COLOR_RED, TAG_RUMAH" "RED"Anda telah mencapai batas kepemilikan rumah.");
+							// End Counter Rumah
+
 							if(houseInfo[id][hOwner] != -1){
 								new ownerId = INVALID_PLAYER_ID;
 								foreach(new i : Player){
@@ -2336,23 +2334,23 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									givePlayerUang(ownerId, beliRate);
 								}else{
 									mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
-				   			 		mysql_tquery(koneksi, pQuery[playerid]);
-
-				   			 		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
+									mysql_tquery(koneksi, pQuery[playerid]);
+									
+									mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
 									mysql_tquery(koneksi, pQuery[playerid]);
 								}
 							}
 							givePlayerUang(playerid, -beliRate);
 
-						    houseInfo[id][hOwner] = PlayerInfo[playerid][pID];
+							houseInfo[id][hOwner] = PlayerInfo[playerid][pID];
 							// Update house owner name
 							format(houseInfo[id][hOwnerName], MAX_PLAYER_NAME + 1, "%s", PlayerInfo[playerid][pPlayerName]);
-						    houseInfo[id][hJual] = 0;
-						    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `id_user` = '%d', `jual` = 0 WHERE `id_house` = '%d'", PlayerInfo[playerid][pID], id);
-						    mysql_tquery(koneksi, pQuery[playerid]);
-						    reloadHouseLabel(id);
-						    format(msg, sizeof(msg),  TAG_RUMAH" "WHITE"Anda telah berhasil membeli rumah (id:"YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hID], beliRate);
-						    SendClientMessage(playerid, COLOR_GREEN, msg);
+							houseInfo[id][hJual] = 0;
+							mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `id_user` = '%d', `jual` = 0 WHERE `id_house` = '%d'", PlayerInfo[playerid][pID], id);
+							mysql_tquery(koneksi, pQuery[playerid]);
+							reloadHouseLabel(id);
+							format(msg, sizeof(msg),  TAG_RUMAH" "WHITE"Anda telah berhasil membeli rumah (id:"YELLOW"%d"WHITE"), dengan harga ("YELLOW"%d"WHITE")!", houseInfo[id][hID], beliRate);
+							SendClientMessage(playerid, COLOR_GREEN, msg);
 							DeletePVar(playerid, "info_rumah");
 						}
 						case 2:
@@ -2421,6 +2419,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							GameTextForPlayer(playerid, "~y~Terus Bekerja", 2000, 3);
 							ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 1, 1, 0, 0, 1);
 							SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda berhasil mengangkut sampah ke dalam tas sampah.");
+
+							PlayerInfo[playerid][ach_Trashmaster]++;
+							// Exp Score
+							TambahExpScore(playerid, EXP_TAMBAH_JOB);
 							new houseClosest = GetRandomHouseForJob(playerid);
 							if(houseClosest == -1){
 								error_command(playerid, "Mohon maaf, saat ini tidak tersedia sampah untuk di ambil, silahkan kembali.");
@@ -2455,6 +2457,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							GameTextForPlayer(playerid, "~y~Terus Bekerja", 2000, 3);
 							ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 1, 1, 0, 0, 1);
 							SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda berhasil menaruh pizza di depan rumah.");
+							PlayerInfo[playerid][ach_Pizzaboy]++;
+							// Exp Score
+							TambahExpScore(playerid, EXP_TAMBAH_JOB_PIZZA);
 							if(pizza_HouseDrop[playerid] == DROP_PIZZA_LIMIT){
 								TogglePlayerAllDynamicCPs(playerid, 0);
 								SetPlayerCheckpoint(playerid, 2092.4819,-1829.4832,13.5568, 3.0);
@@ -6161,10 +6166,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1:
 					{
 						// Muatan Sampah
-						if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
+						if(!IsPlayerInAnyVehicle(playerid)) 
+							return error_command(playerid, "Anda tidak berada di dalam kendaraan.");
 
 						new vid = GetPlayerVehicleID(playerid);
-						if(GetVehicleModel(vid) != 408) return error_command(playerid, "Anda tidak berada di dalam kendaraan truk sampah.");
+						if(GetVehicleModel(vid) != 408) 
+							return error_command(playerid, "Anda tidak berada di dalam kendaraan truk sampah.");
 						format(pDialog[playerid], sizePDialog, WHITE"Kendaraan anda memiliki muatan sampah sebanyak "GREEN"%d"WHITE" buah.", trashM_VehCap[vid]);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Muatan Sampah", pDialog[playerid], "Ok", "");
 					}
@@ -9350,7 +9357,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(pDialog[playerid], sizePDialog, 
 					GREEN"Electrician\n\n"\
 					WHITE"Kamu akan bekerja sebagai Electrician, tugas kamu adalah\n\
-					mengikuti setiap checkpoint yang ada dan perbaiki setiap gardu,\n\
+					mengikuti setiap checkpoint yang ada dan perbaiki setiap listrik,\n\
 					jangan lupa untuk ikuti aturan lalu lintas agar kamu selamat\n\
 					dan tidak di tilang.");
 					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Pekerjaan) :", pDialog[playerid], "Lanjut", "Tutup");
@@ -9579,31 +9586,31 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_JOB_MONTIR_LISTRIK_ENTER:
 		{
 			if(response){
-				if(montirL_GarduPadamEvent == 0){
-					RemovePlayerFromVehicle(playerid);
-					error_command(playerid, "Mohon maaf, saat ini tidak tersedia pekerjaan sebagai Electrician.");
-					return 1;
-				}
 				if(todoActive(playerid) == 1){
 					RemovePlayerFromVehicle(playerid);
 					return 1;
 				}
 				montirL_Job[playerid] = 1;
-				new vehid = GetPlayerVehicleID(playerid);
-				for(new i = 0; i < 3; i++){
-					if(vehid == montirL_Veh[i]){
-						montirL_GarduPoint[playerid] = i;
-						TogglePlayerAllDynamicCPs(playerid, 0);
-						SetPlayerCheckpoint(playerid, POINT_GARDU_PADAM[i][GARDU_X], POINT_GARDU_PADAM[i][GARDU_Y], POINT_GARDU_PADAM[i][GARDU_Z], 3.0);
-						PlayerInfo[playerid][activeMarker] = true;
-						goto label_electrician_set;
-					}
+				new vehid = GetPlayerVehicleID(playerid),
+				tiangClosest = Iter_Random(TiangIterator);
+				if(tiangClosest == -1){
+					montirL_Job[playerid] = 0;
+					RemovePlayerFromVehicle(playerid);
+					error_command(playerid, "Mohon maaf, saat ini tidak tersedia tiang untuk di perbaiki.");
+					return 1;
 				}
-				label_electrician_set:
+				jobDistance[playerid] = GetPlayerDistanceFromPoint(playerid, DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY], DTiang[tiangClosest][tiangZ]);
+				montirL_Tiang[playerid] = tiangClosest;
+				montirL_X[playerid] = DTiang[tiangClosest][tiangX];
+				montirL_Y[playerid] = DTiang[tiangClosest][tiangY];
+				montirL_Z[playerid] = DTiang[tiangClosest][tiangZ];
 				montirL_Id[playerid] = vehid;
 				montirL_Used[vehid] = 1;
+				TogglePlayerAllDynamicCPs(playerid, 0);
+				SetPlayerCheckpoint(playerid, montirL_X[playerid], montirL_Y[playerid], montirL_Z[playerid], 3.0);
+				PlayerInfo[playerid][activeMarker] = true;
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Electrician"YELLOW"!");
-				sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda memiliki waktu %d menit, jika belum selesai anda akan gagal.", TIME_MONTIR_LISTRIK);
+
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Gunakan perintah "GREEN"/electrician"WHITE" untuk melakukan aktivitas pekerjaan.");
 				new temp_jam, temp_menit, temp_detik;
 				gettime(temp_jam, temp_menit, temp_detik);
@@ -9621,89 +9628,209 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						// Ambil Alat
+						// Ambil Tangga
 						new Float: x, Float: y, Float: z;
-						if(montirL_Alat[playerid] == 1) return error_command(playerid, "Anda sedang membawa alat, silahkan lanjutkan pekerjaan.");
-						if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat mengambil dalam keadaan sekarang.");
+						if(montirL_Alat[playerid] == 1) 
+							return error_command(playerid, "Anda sedang membawa alat, silahkan lanjutkan pekerjaan.");
+
+						if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) 
+							return error_command(playerid, "Tidak dapat mengambil dalam keadaan sekarang.");
+
 						if(montirL_AlatPasang[playerid] == 0){
 							new vid = GetNearestVehicleToPlayer(playerid);
-							if(GetVehicleModel(vid) != 552) return error_command(playerid, "Anda tidak berada disekitar kendaraaan utilitas.");
-							if(montirL_Id[playerid] != vid) return error_command(playerid, "Anda tidak berada disekitar kendaraaan utilitas sebelumnya.");
+							if(GetVehicleModel(vid) != 552) 
+								return error_command(playerid, "Anda tidak berada disekitar kendaraaan utilitas.");
+							if(montirL_Id[playerid] != vid) 
+								return error_command(playerid, "Anda tidak berada disekitar kendaraaan utilitas sebelumnya.");
 							GetVehicleBoot(vid, x, y, z);
-							if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Anda tidak berada tepat dibelakang kendaraaan utilitas.");
+							if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) 
+								return error_command(playerid, "Anda tidak berada tepat dibelakang kendaraaan utilitas.");
 						}else{
+							new Float:tempPos[3];
+							GetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+
 							GetDynamicObjectPos(montirL_AlatObj[playerid], x, y, z);
-							if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Anda tidak berada di sekitar alat.");
+							if(!IsPointInRangeOfPoint(tempPos[0], tempPos[1], 0.0, x, y, 0.0, 2.0))
+								return error_command(playerid, "Anda tidak berada di sekitar alat.");
 							DestroyDynamicObject(montirL_AlatObj[playerid]);
 							montirL_AlatPasang[playerid] = 0;
 						}
+
 						SetPlayerLookAt(playerid, x, y);
 						SetPlayerArmedWeapon(playerid, 0);
-						ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 0, 0, 0, 0);
-						SetPlayerAttachedObject(playerid, ALAT_ATTACH_INDEX, 11745, 6, 0.222, 0.024, 0.128, 1.90, -90.0, 0.0, 0.8, 0.8, 0.8);
+
+						if(montirL_Job[playerid] == 1){
+							ApplyAnimation(playerid,"CARRY","crry_prtial", 4.1, 1, 1, 1, 1, 1);
+							SetPlayerAttachedObject(playerid, ALAT_ATTACH_INDEX, 1428, 1, 0.002953, 0.469660, -0.009797, 269.851104, 88.443557, 0.000000, 0.804894, 1.000000, 0.822361);
+						}else{		
+							SetPlayerAttachedObject(playerid, ALAT_ATTACH_INDEX, 11745, 6, 0.222, 0.024, 0.128, 1.90, -90.0, 0.0, 0.8, 0.8, 0.8);
+						}
 						SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda berhasil mengambil alat.");
+
 						montirL_Alat[playerid] = 1;
 					}
 					case 1:
 					{
-						// Mulai Perbaiki
-						new point_gardu = montirL_GarduPoint[playerid];
-						if(montirL_GarduPadamEvent == 0) return error_command(playerid, "Tidak ada kerusakan yang terdapat pada gardu ini.");
-                        if(!IsPlayerInRangeOfPoint(playerid, 3.0, POINT_GARDU_PADAM[point_gardu][GARDU_X], POINT_GARDU_PADAM[point_gardu][GARDU_Y], POINT_GARDU_PADAM[point_gardu][GARDU_Z])) return error_command(playerid, "Anda tidak berada di sekitar gardu yang di tuju.");
-                        if(montirL_Alat[playerid] == 0) return error_command(playerid, "Anda tidak membawa alat, silahkan ambil alat terlebih dahulu.");
-						if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memasang dalam keadaan sekarang.");
-						
-						new count_gardu = 0;
-						foreach(new i : Player){
-							if(montirL_Job[i] == 1){
-								for(new g = 0; g < sizeof(POINT_GARDU_PADAM); g++){
-									if(montirL_GarduPoint[i] == g){
-										if(IsPlayerInRangeOfPoint(i, 5.0, POINT_GARDU_PADAM[g][GARDU_X], POINT_GARDU_PADAM[g][GARDU_Y], POINT_GARDU_PADAM[g][GARDU_Z])){
-											count_gardu++;
-										}
+						// Perbaiki Tiang
+						if(montirL_Job[playerid] == 1){
+							new tiangClosest = -1;
+							new Float:tempPos[3];
+							GetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+							foreach(new i : TiangIterator){
+								if(IsPointInRangeOfPoint(tempPos[0], tempPos[1], 0.0, DTiang[i][tiangX], DTiang[i][tiangY], 0.0, 2.0))
+									tiangClosest = i;
+							}
+							if(tiangClosest == -1 || montirL_Tiang[playerid] != tiangClosest) 
+								return error_command(playerid, "Anda tidak berada di sekitar tiang yang di tuju.");
+							if(montirL_Alat[playerid] == 0) 
+								return error_command(playerid, "Anda tidak membawa alat, silahkan ambil alat terlebih dahulu.");
+							if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) 
+								return error_command(playerid, "Tidak dapat memasang dalam keadaan sekarang.");
+
+							montirL_Alat[playerid] = 0;
+							montirL_AlatPasang[playerid] = 1;
+							montirL_TiangProses[playerid] = tiangClosest;
+							montirL_AlatObj[playerid] = CreateDynamicObject(1428, DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY]-0.5, tempPos[2], 0.00000, 0.00000, 0.00000);
+							new Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz;
+							GetPlayerPos(playerid, x, y, z);
+							montirL_PlayerX[playerid] = x;
+							montirL_PlayerY[playerid] = y;
+							montirL_PlayerZ[playerid] = z;
+							SetPlayerPos(playerid, DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY]-1.0, z);
+							if(IsPlayerAttachedObjectSlotUsed(playerid, ALAT_ATTACH_INDEX)) 
+								RemovePlayerAttachedObject(playerid, ALAT_ATTACH_INDEX);
+							GameTextForPlayer(playerid, "~w~Memasang ~y~alat...", 3000, 3);
+							GetDynamicObjectRot(montirL_AlatObj[playerid], rx, ry, rz);
+							SetPlayerFacingAngle(playerid, rz);
+							ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 1, 1, 1, 1, 1);
+							MoveDynamicObject(montirL_AlatObj[playerid], DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY]-0.5, tempPos[2]+1.5, 0.5, 0.00000, 0.00000, 0.00000);
+							montirL_Timer[playerid] = SetPreciseTimer("waktuPasangTangga", 7000, false, "i", playerid);
+						}else if(montirL_Job[playerid] == 2){
+							if(montirL_GarduPadamEvent == 0) 
+								return error_command(playerid, "Tidak ada kerusakan yang terdapat pada gardu saat ini.");
+								
+							new point_gardu = montirL_GarduPoint[playerid];
+							if(!IsPlayerInRangeOfPoint(playerid, 3.0, POINT_GARDU_PADAM[point_gardu][GARDU_X], POINT_GARDU_PADAM[point_gardu][GARDU_Y], POINT_GARDU_PADAM[point_gardu][GARDU_Z])) 
+								return error_command(playerid, "Anda tidak berada di sekitar gardu yang di tuju.");
+
+							if(montirL_Alat[playerid] == 0) 
+								return error_command(playerid, "Anda tidak membawa alat, silahkan ambil alat terlebih dahulu.");
+
+							if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) 
+								return error_command(playerid, "Tidak dapat memasang dalam keadaan sekarang.");
+							
+							montirL_Job[playerid] = 3;
+							PlayerInfo[playerid][isOnAnimation] = true;
+							PlayerInfo[playerid][isBusy] = true;
+							ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
+							if(IsPlayerAttachedObjectSlotUsed(playerid, ALAT_ATTACH_INDEX)) 	
+								RemovePlayerAttachedObject(playerid, ALAT_ATTACH_INDEX);
+
+							// Hitung sudah berapa yang ready
+							new cnt = 0;
+							foreach(new i : Player){
+								if(montirL_Job[i] == 3)
+									cnt++;
+							}
+							if(cnt == sizeof(POINT_GARDU_PADAM)){
+								// Start Event
+								foreach(new i : Player){
+									if(montirL_Job[i] == 3){
+										SetPlayerLookAt(i, POINT_GARDU_PADAM[point_gardu][GARDU_X], POINT_GARDU_PADAM[point_gardu][GARDU_Y]);
+										SetPlayerProgressBarValue(i, CuttingBar[i], 0.0);
+										ShowPlayerProgressBar(i, CuttingBar[i]);
+										GameTextForPlayer(i, "~w~Sedang ~y~memperbaiki...", 3000, 3);
+										ApplyAnimation(i, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
+										montirL_Timer[i] = SetPreciseTimer("waktuPerbaikiGardu", 1000, true, "i", i);
 									}
 								}
+							}else{
+								SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda dalam keadaan bersiap sekarang.");
+								SendClientMessage(playerid, COLOR_ORANGE, TAG_JOB" "WHITE"Silahkan tunggu yang lain untuk bersiap.");
+								SendClientMessage(playerid, COLOR_ORANGE, TAG_JOB" "WHITE"Gunakan "YELLOW"/cancelfix "WHITE"untuk membatalkan persiapan memperbaiki.");
 							}
-						}
-						if(count_gardu == sizeof(POINT_GARDU_PADAM)){
-							goto label_electrician_perbaiki;
 						}else{
-							return error_command(playerid, "Anda harus menunggu pemain lain disekitar gardunya masing-masing.");
+							SendClientMessage(playerid, COLOR_RED, TAG_JOB" "WHITE"Anda tidak dalam keadaan bisa mengambil alat.");
 						}
-						label_electrician_perbaiki:
-						montirL_Alat[playerid] = 0;
-						montirL_AlatPasang[playerid] = 1;
-						new Float:x, Float:y, Float:z;
-						GetPlayerPos(playerid, x, y, z);
-						montirL_AlatObj[playerid] = CreateDynamicObject(11745, x, y, z-0.8, 0.00000, 0.00000, 0.00000);
-						TogglePlayerControllable(playerid, 0);
-						if(IsPlayerAttachedObjectSlotUsed(playerid, ALAT_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, ALAT_ATTACH_INDEX);
-						SetPlayerLookAt(playerid, POINT_GARDU_PADAM[point_gardu][GARDU_X], POINT_GARDU_PADAM[point_gardu][GARDU_Y]);
-						SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
-						ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
-						GameTextForPlayer(playerid, "~w~Sedang ~y~memperbaiki...", 3000, 3);
-						ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
-						montirL_Timer[playerid] = SetPreciseTimer("waktuPerbaikiGardu", 1000, true, "i", playerid);
-
-						PlayerInfo[playerid][isOnAnimation] = true;
-						PlayerInfo[playerid][isBusy] = true;
 					}
 					case 2:
 					{
 						// Taruh Alat
-						if(montirL_Alat[playerid] == 0) return error_command(playerid, "Anda tidak sedang membawa alat.");
-						if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat menaruh dalam keadaan sekarang.");
-                        new vid = GetNearestVehicleToPlayer(playerid);
-						if(GetVehicleModel(vid) != 552) return error_command(playerid, "Anda tidak berada disekitar kendaraaan utilitas.");
-						if(montirL_Id[playerid] != vid) return error_command(playerid, "Anda tidak berada disekitar kendaraaan utilitas sebelumnya.");
+						if(montirL_Alat[playerid] == 0) 
+							return error_command(playerid, "Anda tidak sedang membawa alat.");
+						if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) 
+							return error_command(playerid, "Tidak dapat menaruh dalam keadaan sekarang.");
+						new vid = GetNearestVehicleToPlayer(playerid);
+						
+						if(GetVehicleModel(vid) != 552) 
+							return error_command(playerid, "Anda tidak berada disekitar kendaraaan utilitas.");
+						if(montirL_Id[playerid] != vid) 
+							return error_command(playerid, "Anda tidak berada disekitar kendaraaan utilitas sebelumnya.");
+						
 						new Float: x, Float: y, Float: z;
 						GetVehicleBoot(vid, x, y, z);
-						if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) return error_command(playerid, "Anda tidak berada tepat dibelakang kendaraaan utilitas.");
+						if(!IsPlayerInRangeOfPoint(playerid, 3.0, x, y, z)) 
+							return error_command(playerid, "Anda tidak berada tepat dibelakang kendaraaan utilitas.");
+
 						SetPlayerLookAt(playerid, x, y);
-						ApplyAnimation(playerid, "GRENADE", "WEAPON_throwu", 4.1, 0, 0, 0, 0, 0);
-						if(IsPlayerAttachedObjectSlotUsed(playerid, ALAT_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, ALAT_ATTACH_INDEX);
-						SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda berhasil menaruh alat.");
 						montirL_Alat[playerid] = 0;
+						
+						if(IsPlayerAttachedObjectSlotUsed(playerid, ALAT_ATTACH_INDEX)) 
+							RemovePlayerAttachedObject(playerid, ALAT_ATTACH_INDEX);
+						ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 0, 0, 0, 0);
+						SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda berhasil menaruh alat.");
+					}
+					case 3: // Join Tim Gardu
+					{
+						if(!montirL_GarduPadamEvent)
+							return error_command(playerid, "Tidak ada gardu yang rusak.");
+
+						if(!IsPlayerInAnyVehicle(playerid))
+							return error_command(playerid, "Anda harus berada didalam mobil.");
+
+						new vehid = GetPlayerVehicleID(playerid);
+
+						if(GetVehicleModel(vehid) != 552) 
+							return error_command(playerid, "Anda harus berada didalam mobil electrician.");
+
+						if(montirL_Job[playerid] >= 2)
+							return error_command(playerid, "Anda sudah join tim.");
+
+						for(new i = 0; i < 3; i++){
+							if(vehid == montirL_Veh[i]){
+								montirL_GarduPoint[playerid] = i;
+								TogglePlayerAllDynamicCPs(playerid, 0);
+								SetPlayerCheckpoint(playerid, POINT_GARDU_PADAM[i][GARDU_X], POINT_GARDU_PADAM[i][GARDU_Y], POINT_GARDU_PADAM[i][GARDU_Z], 3.0);
+								PlayerInfo[playerid][activeMarker] = true;
+								break;
+							}
+						}
+						montirL_Job[playerid] = 2;						
+
+						new temp_jam, temp_menit, temp_detik;
+						gettime(temp_jam, temp_menit, temp_detik);
+						temp_menit = temp_menit + TIME_MONTIR_LISTRIK;
+						sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda harus menyelesaikan sebelum jam %s.", FormatJam(temp_jam, temp_menit));
+						SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Berhasil bergabung bersama tim perbaiki gardu.");
+
+						if(todoTimeout[playerid] != -1)
+							DeletePreciseTimer(todoTimeout[playerid]);
+						
+						todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_MONTIR_LISTRIK * 60000, false, "i", playerid);						
+					}
+					case 4: // Selesai Bekerja
+					{
+						if(montirL_Job[playerid] == 1 && montirL_TiangCap[playerid] < 3)
+							return SendClientMessage(playerid, COLOR_RED, TAG_JOB" "WHITE"Hanya dapat menyelesaikan pekerjaan saat sudah memperbaiki minimal 3 tiang.");
+
+						if(montirL_Job[playerid] == 3)
+							return SendClientMessage(playerid, COLOR_RED, TAG_JOB" "WHITE"Silahkan batalkan perbaikan terlebih dahulu.");
+
+						TogglePlayerAllDynamicCPs(playerid, 1);
+						SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
+						PlayerInfo[playerid][activeMarker] = true;
+
+						SendClientMessage(playerid, COLOR_ORANGE, TAG_JOB" "WHITE"Anda mengakhiri pekerjaan anda, silahkan ikuti marker untuk mendapatkan hasil.");
 					}
 				}
 			}
@@ -9800,6 +9927,128 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					return 1;
 				}
+			}
+			return 1;
+		}
+
+		case DIALOG_TIANG_ADMIN:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+                        // Buat Tiang
+						new Float: x, Float: y, Float: z, Float: a;
+						GetPlayerPos(playerid, x, y, z);
+						GetPlayerFacingAngle(playerid, a);
+						x += (3.0 * floatsin(-a, degrees));
+						y += (3.0 * floatcos(-a, degrees));
+						z -= 1.0;
+						inline responseQuery(){
+							new id = cache_insert_id(),
+								create = createTiang(id, x, y, z, 0.0, 0.0, 0.0);
+							if(create){
+								tiangEditID[playerid] = id;
+								EditDynamicObject(playerid, DTiang[id][tiangObjID]);
+								SendClientMessage(playerid, COLOR_GREEN, "[TIANG] "YELLOW"Anda berhasil membuat tiang!");
+								SendClientMessage(playerid, COLOR_GREEN, "[TIANG] "WHITE"Anda dapat mengedit tiang sekarang atau batal untuk mengedit lain kali.");
+							}else{
+								tiangEditID[playerid] = -1;
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `tiang` WHERE `id` = '%d'", id);
+								mysql_tquery(koneksi, pQuery[playerid]);
+								error_command(playerid, "Tidak dapat membuat tiang lagi.");
+							}
+						}
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `tiang` (tiangX, tiangY, tiangZ, tiangRX, tiangRY, tiangRZ) VALUES ('%f', '%f', '%f', '0.0', '0.0', '0.0')", x, y, z);
+					}
+					case 1:
+					{
+                        // Edit Tiang
+						ShowPlayerDialog(playerid, DIALOG_TIANG_EDIT, DIALOG_STYLE_INPUT, "Edit Tiang", WHITE"Silahkan input ID tiang yang ingin diedit.", "Lanjut", "Batal");
+					}
+                    case 2:
+					{
+                        // Hapus Tiang
+						ShowPlayerDialog(playerid, DIALOG_TIANG_HAPUS, DIALOG_STYLE_LIST, WHITE"Hapus Tiang", "Hapus ID Tiang\nHapus Semua Tiang", "Pilih", "Batal");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_TIANG_EDIT:
+		{
+			if(response){
+				new id = strval(inputtext);
+				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_TIANG_EDIT, DIALOG_STYLE_INPUT, "Edit Tiang", RED"ID tidak boleh kosong!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
+				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_TIANG_EDIT, DIALOG_STYLE_INPUT, "Edit Tiang", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
+                if(tiangEditID[playerid] != -1) return ShowPlayerDialog(playerid, DIALOG_TIANG_EDIT, DIALOG_STYLE_INPUT, "Edit Tiang", RED"Anda sedang mengedit!\n"WHITE"Batalkan edit tiang sebelumnya, untuk melakukannya kembali.", "Lanjut", "Batal");
+                if(!Iter_Contains(TiangIterator, id)) return ShowPlayerDialog(playerid, DIALOG_TIANG_EDIT, DIALOG_STYLE_INPUT, "Edit Tiang", RED"ID tidak valid!\n"WHITE"ID tiang tidak tersedia.", "Lanjut", "Batal");
+                if(!IsPlayerInRangeOfPoint(playerid, 30.0, DTiang[id][tiangX], DTiang[id][tiangY], DTiang[id][tiangZ])) return ShowPlayerDialog(playerid, DIALOG_TIANG_EDIT, DIALOG_STYLE_INPUT, "Edit Tiang", RED"Tiang diluar jangkauan!\n"WHITE"ID tiang tersebut diluar jangkauan, silahkan lebih dekat dengan tiang tersebut.", "Lanjut", "Batal");
+                tiangEditID[playerid] = id;
+                EditDynamicObject(playerid, DTiang[id][tiangObjID]);
+			}
+			return 1;
+		}
+		case DIALOG_TIANG_HAPUS:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						ShowPlayerDialog(playerid, DIALOG_TIANG_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Tiang", WHITE"Silahkan input ID tiang yang ingin dihapus.", "Lanjut", "Batal");
+					}
+					case 1:
+					{
+						ShowPlayerDialog(playerid, DIALOG_TIANG_HAPUS_ALL, DIALOG_STYLE_INPUT, "Hapus Tiang", WHITE"Apakah anda yakin ingin menghapus semua tiang? Ketik "GREEN"HAPUS"WHITE" untuk setuju.", "Lanjut", "Batal");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_TIANG_HAPUS_ID:
+		{
+			if(response){
+				new id;
+				if(sscanf(inputtext, "i", id)) return ShowPlayerDialog(playerid, DIALOG_TIANG_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Lumber", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
+
+				new pmsg[256];
+				if(Iter_Contains(TiangIterator, id)){
+					DestroyDynamicObject(DTiang[id][tiangObjID]);
+					DestroyDynamic3DTextLabel(DTiang[id][tiangLabel]);
+
+					DTiang[id][tiangObjID] = -1;
+					DTiang[id][tiangLabel] = Text3D: -1;
+					Iter_Remove(TiangIterator, id);
+
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `tiang` WHERE `id` = '%d'", id);
+					mysql_tquery(koneksi, pQuery[playerid]);
+
+					format(pmsg, sizeof(pmsg),  GREEN"[TIANG] "WHITE"Anda berhasil menghapus tiang (id:"YELLOW"%d"WHITE")!", id);
+					SendClientMessage(playerid, COLOR_WHITE, pmsg);
+				}else{
+					ShowPlayerDialog(playerid, DIALOG_TIANG_HAPUS_ID, DIALOG_STYLE_INPUT, "Hapus Tiang", RED"ID tidak valid!\n"WHITE"ID tiang tidak tersedia.", "Lanjut", "Batal");
+				}
+			}
+			return 1;
+		}
+		case DIALOG_TIANG_HAPUS_ALL:
+		{
+			if(response){
+				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_TIANG_HAPUS_ALL, DIALOG_STYLE_INPUT, "Hapus Tiang", RED"Input tidak boleh kosong!\n"WHITE"Silahkan ketik "GREEN"HAPUS"WHITE" untuk setuju.", "Lanjut", "Batal");
+				if(!sama("HAPUS", inputtext)) return ShowPlayerDialog(playerid, DIALOG_TIANG_HAPUS_ALL, DIALOG_STYLE_INPUT, "Hapus Tiang", RED"Input tidak valid!\n"WHITE"Anda harus mengetik "GREEN"HAPUS"WHITE" untuk setuju.", "Lanjut", "Batal");
+				foreach(new i : TiangIterator){
+					if (Iter_Contains(TiangIterator, i)){
+						DestroyDynamicObject(DTiang[i][tiangObjID]);
+						DestroyDynamic3DTextLabel(DTiang[i][tiangLabel]);
+
+						DTiang[i][tiangObjID] = -1;
+						DTiang[i][tiangLabel] = Text3D: -1;
+						Iter_SafeRemove(TiangIterator, i, i);
+					}
+				}
+
+				mysql_tquery(koneksi, "TRUNCATE TABLE `tuang`");
+				SendClientMessage(playerid, COLOR_GREEN, "[TIANG] "YELLOW"Anda berhasil menghapus semua tiang!");
 			}
 			return 1;
 		}
@@ -10164,7 +10413,11 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && PRESSED(KEY_YES)){
 		// ATM
 		new idatm = GetClosestATM(playerid);
-		if(idatm != -1) return showDialogATM(playerid);
+		if(idatm != -1) {
+			if(montirL_GarduPadamEvent == 1)
+				return SendClientMessage(playerid, COLOR_RED, TAG_LISTRIK" "WHITE"Listrik saat ini padam, atm tidak dapat digunakan.");
+			return showDialogATM(playerid);
+		}
 		// Nombak Ikan
 		new Float:depth, Float:depth2;
 		if(CA_IsPlayerInWater(playerid, depth, depth2)){
@@ -10288,19 +10541,6 @@ public OnPlayerDeath(playerid, killerid, reason)
 
 	if(IsPlayerInAnyVehicle(playerid)){
 		new vehicleid = GetPlayerVehicleID(playerid);
-		if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
-			new Float:darah;
-			GetVehicleHealth(vehicleid, darah);
-
-			if(darah > 300.0)
-			{
-				new idpv = IDVehToPVeh[vehicleid];
-				GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
-				GetVehicleZAngle(vehicleid, PVeh[idpv][pVehCoord][3]);
-				PVeh[idpv][pVehDarah] = darah;
-				UpdatePosisiDarahVehiclePlayer(vehicleid);
-			}
-		}
 		if(Iter_Contains(RentPlayerVehIter, RentPlayerVehID[vehicleid])){
 			new Float:darah;
 			GetVehicleHealth(vehicleid, darah);
@@ -10440,9 +10680,19 @@ public OnGameModeInit()
 	loadAllRentVeh();
 	printf("[VEHICLE RENT] Sukses load kendaraan sewa!");
 
+	printf("[TIANG] Load semua tiang");
+	loadAllTiang();
+	printf("[TIANG] Sukses load semua tiang.");
+
 	printf("[ELECTRICIAN] Load timer gardu padam..");
-	montirL_GarduStart = SetPreciseTimer("GarduPadam", 300000, false);
-	printf("[ELECTRICIAN] Sukses load timer gardu padam (%d)!", montirL_GarduStart);
+	montirL_GarduStart = SetPreciseTimer("GarduPadam", 2 * 60 * 60000, false);
+
+	new label[128];
+	for(new i = 0; i < sizeof(POINT_GARDU_PADAM); i++){
+		format(label, sizeof(label), WHITE"["GREEN"Gardu"WHITE"]\nNo : "GREEN"%d", i);
+		montirL_GarduLabel[i] = CreateDynamic3DTextLabel(label, COLOR_WHITE, POINT_GARDU_PADAM[i][GARDU_X], POINT_GARDU_PADAM[i][GARDU_Y], POINT_GARDU_PADAM[i][GARDU_Z] + 1.25, 10.0, .testlos = 1);
+	}
+	printf("[ELECTRICIAN] Sukses load timer gardu padam!");
 
 	// Setting up Game mode
 	SetGameModeText(NAMA_GAMEMODE);
@@ -10477,7 +10727,7 @@ public OnGameModeInit()
 		rand = random(100) + 1;
 		if(rand <= 65)
 			seq_weather[i] = fine_weather_ids[random(sizeof(fine_weather_ids))];
-		else if(rand <= 90)
+		else if(rand <= 85)
 			seq_weather[i] = ID_WEATHER_RAIN;
 		else
 			seq_weather[i] = foggy_weather_ids[random(sizeof(foggy_weather_ids))];
@@ -10508,17 +10758,17 @@ public OnGameModeInit()
 	#endif
 
     // Sweeper Vehicle
-    vehicleSweeper[0] = CreateVehicle(574, 708.4822, -1193.1827, 15.0324, 0.0000, -1, -1, -1);
-	vehicleSweeper[1] = CreateVehicle(574, 706.6257, -1196.5216, 14.9840, 0.0000, -1, -1, -1);
-	vehicleSweeper[2] = CreateVehicle(574, 704.5869, -1199.6705, 14.9557, 0.0000, -1, -1, -1);
+    vehicleSweeper[0] = CreateVehicle(574, 708.4822, -1193.1827, 15.0324, 0.0000, -1, -1, TIME_SWEEPER * 60000);
+	vehicleSweeper[1] = CreateVehicle(574, 706.6257, -1196.5216, 14.9840, 0.0000, -1, -1, TIME_SWEEPER * 60000);
+	vehicleSweeper[2] = CreateVehicle(574, 704.5869, -1199.6705, 14.9557, 0.0000, -1, -1, TIME_SWEEPER * 60000);
 	Iter_Add(vehicleSweeper, vehicleSweeper[0]);
 	Iter_Add(vehicleSweeper, vehicleSweeper[1]);
 	Iter_Add(vehicleSweeper, vehicleSweeper[2]);
 
 	// Trashmaster Vehicle
-    trashM_Veh[0] = CreateVehicle(408, 1617.6511, -1554.3311, 13.4784, 0.0000, -1, -1, -1);
-	trashM_Veh[1] = CreateVehicle(408, 1607.9219, -1554.7930, 13.4762, 0.0000, -1, -1, -1);
-	trashM_Veh[2] = CreateVehicle(408, 1597.0359, -1554.9255, 13.4827, 0.0000, -1, -1, -1);
+    trashM_Veh[0] = CreateVehicle(408, 1617.6511, -1554.3311, 13.4784, 0.0000, -1, -1, TIME_TRASHMASTER * 60000);
+	trashM_Veh[1] = CreateVehicle(408, 1607.9219, -1554.7930, 13.4762, 0.0000, -1, -1, TIME_TRASHMASTER * 60000);
+	trashM_Veh[2] = CreateVehicle(408, 1597.0359, -1554.9255, 13.4827, 0.0000, -1, -1, TIME_TRASHMASTER * 60000);
 	Iter_Add(trashM_Veh, trashM_Veh[0]);
 	Iter_Add(trashM_Veh, trashM_Veh[1]);
 	Iter_Add(trashM_Veh, trashM_Veh[2]);
@@ -10541,9 +10791,9 @@ public OnGameModeInit()
 
 	// Pizzaboy Vehicle
 	CreateDynamic3DTextLabel("Tempat Restok Pizza\n"GREEN"Pengantar Pizza (Pizzaboy)", COLOR_WHITE, 2105.00439, -1808.99744, 13.66980, 20.0);
-    pizza_Veh[0] = CreateVehicle(448, 2125.2305, -1819.5576, 13.1988, 0.0000, -1, -1, -1);
-	pizza_Veh[1] = CreateVehicle(448, 2125.2546, -1817.6587, 13.1990, 0.0000, -1, -1, -1);
-	pizza_Veh[2] = CreateVehicle(448, 2125.2192, -1815.8719, 13.1992, 0.0000, -1, -1, -1);
+    pizza_Veh[0] = CreateVehicle(448, 2125.2305, -1819.5576, 13.1988, 0.0000, -1, -1, TIME_PIZZABOY * 60000);
+	pizza_Veh[1] = CreateVehicle(448, 2125.2546, -1817.6587, 13.1990, 0.0000, -1, -1, TIME_PIZZABOY * 60000);
+	pizza_Veh[2] = CreateVehicle(448, 2125.2192, -1815.8719, 13.1992, 0.0000, -1, -1, TIME_PIZZABOY * 60000);
 	Iter_Add(pizza_Veh, pizza_Veh[0]);
 	Iter_Add(pizza_Veh, pizza_Veh[1]);
 	Iter_Add(pizza_Veh, pizza_Veh[2]);
@@ -10555,9 +10805,9 @@ public OnGameModeInit()
 	}	
 
 	// SIM Vehicle
-	vehicleSIM[0] = CreateVehicle(410, 1362.7140, -1651.1733, 13.1261, 270.3739, -1, -1, -1);
-	vehicleSIM[1] = CreateVehicle(414, 1362.9814, -1643.2692, 13.1263, 269.2806, -1, -1, -1);
-	vehicleSIM[2] = CreateVehicle(462, 1362.8998, -1635.5781, 13.1262, 269.8343, -1, -1, -1);
+	vehicleSIM[0] = CreateVehicle(410, 1362.7140, -1651.1733, 13.1261, 270.3739, -1, -1, TIME_SIMPRAKTIK * 60000);
+	vehicleSIM[1] = CreateVehicle(414, 1362.9814, -1643.2692, 13.1263, 269.2806, -1, -1, TIME_SIMPRAKTIK * 60000);
+	vehicleSIM[2] = CreateVehicle(462, 1362.8998, -1635.5781, 13.1262, 269.8343, -1, -1, TIME_SIMPRAKTIK * 60000);
 	Iter_Add(vehicleSIM, vehicleSIM[0]);
 	Iter_Add(vehicleSIM, vehicleSIM[1]);
 	Iter_Add(vehicleSIM, vehicleSIM[2]);
@@ -10569,9 +10819,9 @@ public OnGameModeInit()
 	}
 
 	// Montir Listrik Vehicle
-    montirL_Veh[0] = CreateVehicle(552, 2379.6873, -2091.0310, 13.3019, 269.4349, -1, -1, -1);
-	montirL_Veh[1] = CreateVehicle(552, 2379.6882, -2086.1577, 13.2882, 269.1833, -1, -1, -1);
-	montirL_Veh[2] = CreateVehicle(552, 2379.9333, -2081.2854, 13.2795, 270.0456, -1, -1, -1);
+    montirL_Veh[0] = CreateVehicle(552, 2379.6873, -2091.0310, 13.3019, 269.4349, -1, -1, TIME_MONTIR_LISTRIK * 60000);
+	montirL_Veh[1] = CreateVehicle(552, 2379.6882, -2086.1577, 13.2882, 269.1833, -1, -1, TIME_MONTIR_LISTRIK * 60000);
+	montirL_Veh[2] = CreateVehicle(552, 2379.9333, -2081.2854, 13.2795, 270.0456, -1, -1, TIME_MONTIR_LISTRIK * 60000);
 	Iter_Add(montirL_Veh, montirL_Veh[0]);
 	Iter_Add(montirL_Veh, montirL_Veh[1]);
 	Iter_Add(montirL_Veh, montirL_Veh[2]);
@@ -10743,15 +10993,11 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}
 		}else if(Iter_Contains(montirL_Veh, vehid)){
 			if(montirL_Job[playerid] == 0 && montirL_Used[vehid] != 1){
-				format(pDialog[playerid], sizePDialog, WHITE"Apakah anda ingin bekerja sebagai "GREEN"Electrician"WHITE"?\n\
-				Jika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.\n\
-				"YELLOW"Note: "WHITE"Dibutuhkan %d pemain untuk dapat menyelesaikan pekerjaan ini,\n\
-				anda harus bersama memperbaikinya.", sizeof(POINT_GARDU_PADAM));
-				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Electrician Job", pDialog[playerid], "Setuju", "Batal");
-			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] == vehid){
+				ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_ENTER, DIALOG_STYLE_MSGBOX, "Electrician Job", WHITE"Apakah anda ingin bekerja sebagai "GREEN"Electrician"WHITE"?\nJika anda ingin bekerja klik "GREEN"Setuju"WHITE" untuk memulai.", "Setuju", "Batal");
+			}else if(montirL_Job[playerid] != 0 && montirL_Id[playerid] == vehid){
 				DeletePreciseTimer(todoTimer[playerid]);
 				todoTimer[playerid] = -1;
-			}else if(montirL_Job[playerid] == 1 && montirL_Id[playerid] != vehid){
+			}else if(montirL_Job[playerid] != 0 && montirL_Id[playerid] != vehid){
 				error_command(playerid, "Anda salah menaiki kendaaraan, silahkan kembali ke kendaraan sebelumnya.");
 				RemovePlayerFromVehicle(playerid);
 			}else if(montirL_Job[playerid] == 0 && montirL_Used[vehid] == 1){
@@ -10786,19 +11032,6 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 		SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda keluar dari kendaraan, silahkan kembali praktik! "WHITE"Sebelum 30 detik atau anda gagal Ujian Praktik SIM.");
 		todoTimer[playerid] = SetPreciseTimer("resetPlayerToDo", 30000, false, "i", playerid);
 	}else if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER){ // Jika player baru saja keluar dari mengemudi
-		if(Iter_Contains(IDVehToPVehIterator, vehicleid)){ // Jika kendaraan adalah kendaraan berpemilik
-			new Float:darah;
-			GetVehicleHealth(vehicleid, darah);
-
-			if(!IsVehicleFlipped(vehicleid) && darah > 251) // kendaraan tidak terbalik dan kendaraan tidak berasap parah
-			{
-				new idpv = IDVehToPVeh[vehicleid];
-				GetVehiclePos(vehicleid, PVeh[idpv][pVehCoord][0], PVeh[idpv][pVehCoord][1], PVeh[idpv][pVehCoord][2]);
-				GetVehicleZAngle(vehicleid, PVeh[idpv][pVehCoord][3]);
-				PVeh[idpv][pVehDarah] = darah;
-				UpdatePosisiDarahVehiclePlayer(vehicleid);
-			}
-		}
 		if(Iter_Contains(RentPlayerVehIter, RentPlayerVehID[vehicleid])){
 			new Float:darah;
 			GetVehicleHealth(vehicleid, darah);
@@ -12245,14 +12478,14 @@ public OnPlayerEnterCheckpoint(playerid){
 				new gaji = jobSallary[playerid];
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
-				PlayerInfo[playerid][ach_Trashmaster]++;
-				addGajiPemain(playerid, gaji, "Bekerja sebagai Trashmaster");
+
+				if(gaji > 0){
+					addGajiPemain(playerid, gaji, "Truk Sampah (Trashmaster)");
+					format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+				}
+
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
-				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda telah berhasil menyelesaikan pekerjaan! "WHITE"Silahkan ambil gaji anda ke Bank terdekat.");
-				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
-				// Exp Score
-				TambahExpScore(playerid, EXP_TAMBAH_JOB);
 			}
 		}
 	}
@@ -12262,43 +12495,39 @@ public OnPlayerEnterCheckpoint(playerid){
 				new gaji = jobSallary[playerid];
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
-				PlayerInfo[playerid][ach_Pizzaboy]++;
-				addGajiPemain(playerid, gaji, "Bekerja sebagai Pizzaboy");
+
+				if(gaji > 0){
+					addGajiPemain(playerid, gaji, "Pengantar Pizza (Pizzaboy)");
+					format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+				}
+
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
-				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda telah berhasil menyelesaikan pekerjaan! "WHITE"Silahkan ambil gaji anda ke Bank terdekat.");
-				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
-				// Exp Score
-				TambahExpScore(playerid, EXP_TAMBAH_JOB);
 			}
 		}
 	}
-	if(Iter_Contains(montirL_Veh, vehid) && montirL_Job[playerid] == 1 && montirL_Id[playerid] == vehid){
+	if(Iter_Contains(montirL_Veh, vehid) && montirL_Job[playerid] != 0 && montirL_Id[playerid] == vehid){
 		if(IsPlayerInRangeOfPoint(playerid, 3.0, 2397.9021, -2096.1677, 13.5538)){
 			if(IsPlayerInVehicle(playerid, montirL_Id[playerid])){
-				if(montirL_AlatPasang[playerid] == 1 || montirL_Alat[playerid] == 1) return error_command(playerid, "Anda harus menaruh alat ke kendaraan utilitas terlebih dahulu.");
-				if(montirL_GarduPadam[montirL_GarduPoint[playerid]] != 0) return error_command(playerid, "Anda harus memperbaiki gardu yang di tuju terlebih dahulu.");
-				if(montirL_GarduPadamEvent == 1) return error_command(playerid, "Anda harus menunggu semua gardu di perbaiki untuk dapat menyelesaikannya.");
-				new Float:rate_Float = GetPlayerOnline()*2.5,
-				rate_Round = floatround(rate_Float, floatround_round),
-				gaji = GAJI_MONTIR_LISTRIK+rate_Round;
+				if(montirL_AlatPasang[playerid] == 1 || montirL_Alat[playerid] == 1) 
+					return error_command(playerid, "Anda harus menaruh alat ke kendaraan utilitas terlebih dahulu.");
+				new gaji = jobSallary[playerid];
 				todoFinish[playerid] = 1;
 				resetPlayerToDo(playerid);
-				PlayerInfo[playerid][ach_MontirListrik]++;
-				addGajiPemain(playerid, gaji, "Bekerja sebagai Electrician");
+
+				if(gaji > 0){					
+					addGajiPemain(playerid, gaji, "Bekerja sebagai electrician");
+					format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
+					ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
+				}
+
 				GameTextForPlayer(playerid, "~g~Pekerjaan Selesai", 2000, 3);
-				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda telah berhasil menyelesaikan pekerjaan! "WHITE"Silahkan ambil gaji anda ke Bank terdekat.");
-				format(pDialog[playerid], sizePDialog, GREEN"Anda telah berhasil menyelesaikan pekerjaan!\n"WHITE"Upah sudah terkirim ke rekening gaji anda sebesar "GREEN"$%d\n"WHITE"Silahkan ambil gaji anda ke Bank terdekat.", gaji);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", pDialog[playerid], "Ok", "");
-				// Exp Score
-				TambahExpScore(playerid, EXP_TAMBAH_JOB*2);
 			}
 		}
 	}
-	if(montirL_Job[playerid] == 1){
-		new point_gardu = montirL_GarduPoint[playerid];
-		if(IsPlayerInRangeOfPoint(playerid, 3.0, POINT_GARDU_PADAM[point_gardu][GARDU_X], POINT_GARDU_PADAM[point_gardu][GARDU_Y], POINT_GARDU_PADAM[point_gardu][GARDU_Z])){
-			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Silahkan persiapkan alat untuk dapat memperbaiki kerusakan.");
+	if(montirL_Job[playerid] != 0){
+		if(IsPlayerInRangeOfPoint(playerid, 3.0, DTiang[montirL_Tiang[playerid]][tiangX], DTiang[montirL_Tiang[playerid]][tiangY], DTiang[montirL_Tiang[playerid]][tiangZ])){
+			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Silahkan pasang alat untuk dapat memperbaiki kerusakan.");
 		}
 	}
 	return 1;

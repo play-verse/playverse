@@ -77,6 +77,15 @@ CMD:pindahpos(playerid, params[]){
     return 1;
 }
 
+CMD:padamkangardu(playerid, params[]){
+    // Jika level admin < 2 
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
+    if(montirL_GarduStart != -1) 
+        DeletePreciseTimer(montirL_GarduStart);
+    GarduPadam();
+    return 1;
+}
+
 CMD:aveh(playerid, params[]){
     // Jika level admin < 2
     if(GetLevelAdminPlayer(playerid) < 2) return 0;
@@ -1014,8 +1023,30 @@ CMD:pizzaboy(playerid, const params[]){
 }
 
 CMD:electrician(playerid, const params[]){
-    if(montirL_Job[playerid] != 1) return error_command(playerid, "Anda bukan Electrician dan tidak dapat menggunakan perintah ini.");
-    ShowPlayerDialog(playerid, DIALOG_JOB_MONTIR_LISTRIK_CMD, DIALOG_STYLE_LIST, WHITE"Electrician Job :", "Ambil Alat\nPerbaiki Gardu\nTaruh Alat", "Pilih", "Batal");
+    if(montirL_Job[playerid] == 0) 
+        return error_command(playerid, "Anda bukan Electrician dan tidak dapat menggunakan perintah ini.");
+    ShowPlayerDialog(playerid, 
+        DIALOG_JOB_MONTIR_LISTRIK_CMD, 
+        DIALOG_STYLE_LIST, 
+        WHITE"Electrician Job :", 
+        "Ambil Alat\nPerbaiki\nTaruh Alat\nJoin Tim Gardu\nSelesai Bekerja", 
+        "Pilih", 
+        "Batal"
+    );
+    return 1;
+}
+
+CMD:cancelfix(playerid, const params[]){
+    if(montirL_Job[playerid] != 3)
+        return error_command(playerid, "Anda tidak sedang dalam keadaan memperbaiki.");
+    
+	SetPlayerAttachedObject(playerid, ALAT_ATTACH_INDEX, 11745, 6, 0.222, 0.024, 0.128, 1.90, -90.0, 0.0, 0.8, 0.8, 0.8);
+    SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda membatalkan keadaan bersiap.");
+
+    montirL_Job[playerid] = 2;
+    PlayerInfo[playerid][isOnAnimation] = true;
+    PlayerInfo[playerid][isBusy] = true;
+    ClearAnimations(playerid);
     return 1;
 }
 
@@ -1851,6 +1882,11 @@ CMD:ooc(playerid, params[]){
 CMD:refreshme(playerid, params[]){
     SS_GetPlayerInterior(playerid);
     SS_GetPlayerVirtualWorld(playerid);
+
+    new Float:tempPos[3];
+    GetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+    CA_FindZ_For2DCoord(tempPos[0], tempPos[1], tempPos[2]);
+    SetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
     return 1;
 }
 

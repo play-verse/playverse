@@ -3242,9 +3242,14 @@ tampilkanKotakTerkirim(playerid){
 
 updateOnPlayerDisconnect(playerid){
 	// Position
-	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, Float:last_hp, Float:last_armour, Float:temp_stats_makan, Float:temp_stats_minum;
+	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, Float:last_hp, Float:last_armour, Float:temp_stats_makan, Float:temp_stats_minum, Float:unused_depth[2];
 	if(PlayerInfo[playerid][sudahSpawn]){
 		GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
+
+		if(CA_IsPlayerInWater(playerid, unused_depth[0], unused_depth[1])){
+			CA_RayCastLine(last_spawn_info_x, last_spawn_info_y, 700.0, last_spawn_info_x, last_spawn_info_y, -1000.0, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
+		}
+
 		GetPlayerFacingAngle(playerid, last_spawn_info_a);
 		last_spawn_info_vw = SS_GetPlayerVirtualWorld(playerid);
 		last_spawn_info_int = SS_GetPlayerInterior(playerid);
@@ -3304,6 +3309,7 @@ updateOnPlayerDisconnect(playerid){
 		PlayerInfo[playerid][ach_Trashmaster],
 		PlayerInfo[playerid][ach_Pizzaboy],
 		PlayerInfo[playerid][ach_Sweeper],
+		PlayerInfo[playerid][ach_MontirListrik],
 		PlayerInfo[playerid][ach_IkanArwana],
 		PlayerInfo[playerid][ach_IkanKakap],
 		PlayerInfo[playerid][ach_IkanMas],
@@ -3318,7 +3324,6 @@ updateOnPlayerDisconnect(playerid){
 		PlayerInfo[playerid][ach_Kayu],
 		PlayerInfo[playerid][ach_BatuBara],
 		PlayerInfo[playerid][ach_BatuBata],
-		PlayerInfo[playerid][ach_MontirListrik],
 		PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, query_temp_str);
 
@@ -3804,7 +3809,7 @@ publicFor: resetPlayerToDo(playerid){
 		todoFinish[playerid] = 0;
 	}
 
-	if(montirL_Job[playerid] == 1){
+	if(montirL_Job[playerid] != 0){
 		if(todoFinish[playerid] != 1){
 			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Pekerjaan saat ini sudah berakhir!");
 		}
@@ -3814,8 +3819,10 @@ publicFor: resetPlayerToDo(playerid){
 		DeletePreciseTimer(todoTimer[playerid]);
 		todoTimer[playerid] = -1;
 		DeletePreciseTimer(todoTimeout[playerid]);
-		if(IsPlayerAttachedObjectSlotUsed(playerid, ALAT_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, ALAT_ATTACH_INDEX);
-		if(IsValidDynamicObject(montirL_AlatObj[playerid])) DestroyDynamicObject(montirL_AlatObj[playerid]);
+		if(IsPlayerAttachedObjectSlotUsed(playerid, ALAT_ATTACH_INDEX)) 
+			RemovePlayerAttachedObject(playerid, ALAT_ATTACH_INDEX);
+		if(IsValidDynamicObject(montirL_AlatObj[playerid])) 
+			DestroyDynamicObject(montirL_AlatObj[playerid]);
 		todoTimer[playerid] = -1;
 		todoTimeout[playerid] = -1;
 		todoFinish[playerid] = 0;
@@ -3825,6 +3832,10 @@ publicFor: resetPlayerToDo(playerid){
         montirL_Alat[playerid] = 0;
 		montirL_AlatPasang[playerid] = 0;
 		montirL_GarduPoint[playerid] = -1;
+
+		montirL_Alat[playerid] = 0;
+		montirL_Tiang[playerid] = -1;
+		montirL_TiangCap[playerid] = 0;
 	}
 
 	if(CuttingTreeID[playerid] != -1){
@@ -4251,6 +4262,14 @@ UnloadVehiclePlayer(playerid){
 			#endif
 			if(IsValidVehicle(PVeh[i][pVehicle]) && Iter_Contains(IDVehToPVehIterator, PVeh[i][pVehicle]))
 			{
+				new Float:darah;
+				GetVehicleHealth(PVeh[i][pVehicle], darah);
+				GetVehiclePos(PVeh[i][pVehicle], PVeh[i][pVehCoord][0], PVeh[i][pVehCoord][1], PVeh[i][pVehCoord][2]);
+				GetVehicleZAngle(PVeh[i][pVehicle], PVeh[i][pVehCoord][3]);
+				PVeh[i][pVehDarah] = darah;
+
+				UpdatePosisiDarahVehiclePlayer(PVeh[i][pVehicle]);
+
 				bersihkanVariabelItemVehicle(PVeh[i][pVehicle]);
 				Iter_Remove(IDVehToPVehIterator, PVeh[i][pVehicle]);
 				IDVehToPVeh[PVeh[i][pVehicle]] = 0;
@@ -4853,17 +4872,18 @@ GetClosestPlant(playerid, Float: range = 5.0){
 
 publicFor: buatTokoNarko(){
 	MrPuyengRand = random(sizeof(POINT_NARKO_ACTOR));
-	DeletePreciseTimer(MrPuyengStart);
-	MrPuyengStart = -1;
+	// Tidak Perlu delete karena bukan timer looping
+	// DeletePreciseTimer(MrPuyengStart);
 	ACT_tokoNarko = CreateDynamicActor(272, POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_A], .worldid = 0, .interiorid = 0);
     ACT_tokoNarko_Text = CreateDynamic3DTextLabel("", COLOR_WHITE, POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z] + 1.25, 10.0, .testlos = 1);
 	ACT_tokoNarko_Area = CreateDynamicSphere(POINT_NARKO_ACTOR[MrPuyengRand][NARKO_X], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Y], POINT_NARKO_ACTOR[MrPuyengRand][NARKO_Z], 3.0);
-	MrPuyengEnd = SetPreciseTimer("re_TokoNarko", 300000, false); // Buat random toko
+	SetPreciseTimer("re_TokoNarko", 300000, false); // Buat random toko
 	return 1;
 }
 
 publicFor: re_TokoNarko(){
-	DeletePreciseTimer(MrPuyengEnd);
+	// Bukan timer looping jangan delete
+	// DeletePreciseTimer(MrPuyengEnd);
 	if(IsValidDynamicActor(ACT_tokoNarko)) 
 		DestroyDynamicActor(ACT_tokoNarko);
 	if(IsValidDynamicArea(ACT_tokoNarko_Area))
@@ -4875,8 +4895,7 @@ publicFor: re_TokoNarko(){
 	ACT_tokoNarko = -1;
 
 	MrPuyengRand = -1;
-	MrPuyengEnd = -1;
-	MrPuyengStart = SetPreciseTimer("buatTokoNarko", 60000, false); // Cooldown toko
+	SetPreciseTimer("buatTokoNarko", 60000, false); // Cooldown toko
 	return 1;
 }
 
@@ -4962,7 +4981,7 @@ randomIkan(playerid){
 
 publicFor: waktuMancing(playerid){
 	mancingSecs[playerid]--;
-	new string[128];
+	new string[128], Float:depth[2];
 	format(string, 128, "~r~WAKTU TERSISA ~b~: %d", mancingSecs[playerid]);
 	GameTextForPlayer(playerid, string , 1000, 3);
 	if(mancingSecs[playerid] <= 0){
@@ -4976,6 +4995,10 @@ publicFor: waktuMancing(playerid){
 		PlayerInfo[playerid][isOnAnimation] = false;
 		PlayerInfo[playerid][isBusy] = false;
 		PlayerInfo[playerid][sisaJoran]--;
+		CA_IsPlayerInWater(playerid, depth[0], depth[1]);
+		printf("%f %f", depth[0], depth[1]);
+		// Hitung depth
+		nombakDepth[playerid] = float(random(floatround(depth[0] * 0.75, floatround_round)));
 		randomIkan(playerid);
 		// Exp Score
 		TambahExpScore(playerid, EXP_TAMBAH_MANCING);
@@ -5535,7 +5558,7 @@ gantiCuaca(rate_berhasil = 70){
 	rand = random(100) + 1;
 	if(rand <= 65)
 		seq_weather[curr_weather_seq] = fine_weather_ids[random(sizeof(fine_weather_ids))];
-	else if(rand <= 90)
+	else if(rand <= 85)
 		seq_weather[curr_weather_seq] = ID_WEATHER_RAIN;
 	else
 		seq_weather[curr_weather_seq] = foggy_weather_ids[random(sizeof(foggy_weather_ids))];
@@ -5690,13 +5713,12 @@ checkMinimal(playerid, kondisi, level){
 }
 
 loadAllTiang(){
-	new tiang_Id, free, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ;
+	new tiang_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ;
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `tiang`");
 	cache_get_row_count(row);
 	while(idx < row){
 		result = cache_save();
-		free = Iter_Free(TiangIterator);
 		cache_get_value_name_int(idx, "id", tiang_Id);
 		cache_get_value_name_float(idx, "tiangX", tX);
 		cache_get_value_name_float(idx, "tiangY", tY);
@@ -5704,38 +5726,30 @@ loadAllTiang(){
 		cache_get_value_name_float(idx, "tiangRX", tRX);
 		cache_get_value_name_float(idx, "tiangRY", tRY);
 		cache_get_value_name_float(idx, "tiangRZ", tRZ);
-		createTiang(tiang_Id, free, tX, tY, tZ, tRX, tRY, tRZ);
+		createTiang(tiang_Id, tX, tY, tZ, tRX, tRY, tRZ);
 		cache_set_active(result);
-
+		
 		#if DEBUG_SERVER_LOAD == true
 			printf("Tiang load id(%d)", tiang_Id);
 		#endif
 
 		idx++;
 	}
+	cache_delete(result);
 }
 
 publicFor: re_GarduPadam(){
-	DeletePreciseTimer(montirL_GarduEnd);
+	// Bukan timer looping jangan dikill
 	foreach(new i : Player){
-		if(montirL_GarduDone != sizeof(POINT_GARDU_PADAM)){
-			if(montirL_Job[i] == 1){
-				resetPlayerToDo(i);
-			}
+		if(montirL_Job[i] >= 2){
+			resetPlayerToDo(i);
 		}
 		server_message(i, WHITE"Pemadaman listrik telah selesai diperbaiki, semua akses dapat digunakan kembali.");
 	}
 	for(new i = 0; i < sizeof(POINT_GARDU_PADAM); i++){
-		if(IsValidDynamic3DTextLabel(montirL_GarduLabel[i]))
-			DestroyDynamic3DTextLabel(montirL_GarduLabel[i]);
-		if(IsValidDynamicArea(montirL_GarduArea[i]))
-			DestroyDynamicArea(montirL_GarduArea[i]);
-		montirL_GarduLabel[i] = Text3D:INVALID_3DTEXT_ID;
-		montirL_GarduArea[i] = -1;
 		montirL_GarduPadam[i] = 0;
 	}
 	montirL_GarduPadamEvent = 0;
-	montirL_GarduDone = 0;
 	montirL_GarduEnd = -1;
 	// Cooldown
 	montirL_GarduStart = SetPreciseTimer("GarduPadam", 120000, false); // 2 jam (7200000)
@@ -5743,29 +5757,42 @@ publicFor: re_GarduPadam(){
 }
 
 publicFor: waktuPerbaikiGardu(playerid){
-	new point_gardu = montirL_GarduPoint[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + (MAX_PROGRESS_BAR / GARDU_LISTRIK_TIME);
+	new point_gardu = montirL_GarduPoint[playerid], 
+		Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + (MAX_PROGRESS_BAR / GARDU_LISTRIK_TIME);
+
 	if(value >= MAX_PROGRESS_BAR){
 		TogglePlayerControllable(playerid, 1);
 		ClearAnimations(playerid);
 		montirL_GarduPadam[point_gardu] = 0;
-		montirL_GarduDone++;
 		PlayerInfo[playerid][isOnAnimation] = false;
 		PlayerInfo[playerid][isBusy] = false;
+		jobSallary[playerid] += 500;
 		if(montirL_Timer[playerid] != -1){
 			DeletePreciseTimer(montirL_Timer[playerid]);
 			montirL_Timer[playerid] = -1;
 		}
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
 		HidePlayerProgressBar(playerid, CuttingBar[playerid]);
-		foreach(new i : Player){
-			sendPesan(i, COLOR_BLUE, TAG_INFO" "WHITE"Telah diperbaiki Gardu pada Pusat Listrik Kota ("GREEN"%d"WHITE"/"YELLOW"%d"WHITE").", montirL_GarduDone, sizeof(POINT_GARDU_PADAM));
+
+		new cnt = 0;
+		for(new i = 0; i < sizeof(POINT_GARDU_PADAM); i++){
+			if(montirL_GarduPadam[i] == 0)
+				cnt++;
 		}
-		if(montirL_GarduDone == sizeof(POINT_GARDU_PADAM)){
-			re_GarduPadam();
-		}
+		format(pDialog[playerid], sizePDialog, TAG_INFO" "WHITE"Telah diperbaiki Gardu pada Pusat Listrik Kota ("GREEN"%d"WHITE"/"YELLOW"%d"WHITE").", cnt, sizeof(POINT_GARDU_PADAM));
+		SendClientMessageToAll(COLOR_YELLOW, pDialog[playerid]);
+
 		TogglePlayerAllDynamicCPs(playerid, 0);
 		SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
 		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Silahkan kembali ke tempat awal untuk menyelesaikan pekerjaan.");
+
+		montirL_Alat[playerid] = 0;
+		if(cnt == 3){
+			if(montirL_GarduEnd != -1)
+				DeletePreciseTimer(montirL_GarduEnd);
+			montirL_GarduEnd = -1;
+			re_GarduPadam();
+		}
 	}else{
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);
 	}
@@ -5773,26 +5800,29 @@ publicFor: waktuPerbaikiGardu(playerid){
 }
 
 publicFor: GarduPadam(){
+	// Kalau hujan 75% akan rusak
+	// Kalau tidak hujan hanya 50%
+	new rand = (curr_weather_id == ID_WEATHER_RAIN) ? random(3) : random(2); 
+	if(rand == 0)
+		return montirL_GarduStart = SetPreciseTimer("GarduPadam", 2 * 60 * 60000, false);
+
 	new label[128];
-	DeletePreciseTimer(montirL_GarduStart);
-	montirL_GarduStart = -1;
-	foreach(new i : Player){
-		if(montirL_Job[i] == 1){
-			resetPlayerToDo(i);
-		}
-		server_message(i, WHITE"Terjadi kerusakan Gardu pada Pusat Listrik Kota, semua akses menjadi padam.");
-		server_message(i, WHITE"Pergi ke tempat Electrician dan lakukan perbaikan untuk dapat menggunakan akses kembali.");
-		sendPesan(i, COLOR_BLUE, TAG_INFO" "WHITE"Dibutuhkan %d pemain untuk dapat memperbaiki Gardu pada Pusat Listrik Kota.", sizeof(POINT_GARDU_PADAM));
-	}
+	if(curr_weather_id == ID_WEATHER_RAIN)
+		SendClientMessageToAll(COLOR_ORANGE, TAG_LISTRIK" "WHITE"Petir menyambar dan terjadi kerusakan pada Gardu Pusat Listrik Kota, semua akses menjadi padam.");
+	else
+		SendClientMessageToAll(COLOR_ORANGE, TAG_LISTRIK" "WHITE"Terjadi korsleting pada Gardu Pusat Listrik Kota, semua akses menjadi padam.");
+
+	format(label, sizeof(label), TAG_INFO" "WHITE"Dibutuhkan %d electrician untuk dapat memperbaiki Gardu pada Pusat Listrik Kota.", sizeof(POINT_GARDU_PADAM));
+	SendClientMessageToAll(COLOR_BLUE, label);
+	
+	SendClientMessageToAll(COLOR_ORANGE, TAG_LISTRIK" "WHITE"Pergi ke tempat Electrician dan lakukan perbaikan untuk dapat menggunakan akses kembali.");
+
 	for(new i = 0; i < sizeof(POINT_GARDU_PADAM); i++){
-		format(label, sizeof(label), WHITE"["GREEN"Gardu"WHITE"]\nNo : "GREEN"%d", i);
-		montirL_GarduLabel[i] = CreateDynamic3DTextLabel(label, COLOR_WHITE, POINT_GARDU_PADAM[i][GARDU_X], POINT_GARDU_PADAM[i][GARDU_Y], POINT_GARDU_PADAM[i][GARDU_Z] + 1.25, 10.0, .testlos = 1);
-		montirL_GarduArea[i] = CreateDynamicSphere(POINT_GARDU_PADAM[i][GARDU_X], POINT_GARDU_PADAM[i][GARDU_Y], POINT_GARDU_PADAM[i][GARDU_Z], 3.0);
 		montirL_GarduPadam[i] = 1;
 	}
+
 	montirL_GarduPadamEvent = 1;
-	// Reset
-	montirL_GarduEnd = SetPreciseTimer("re_GarduPadam", 300000, false); // 30 menit (1800000)
+	montirL_GarduEnd = SetPreciseTimer("re_GarduPadam", 30 * 60000, false); // 30 menit (1800000)
 	return 1;
 }
 
@@ -5801,8 +5831,9 @@ publicFor: waktuMontirListrik(playerid){
 		new id = montirL_TiangProses[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + (MAX_PROGRESS_BAR / TIANG_LISTRIK_TIME);
 		if(value >= MAX_PROGRESS_BAR){
 			SetPlayerPos(playerid, montirL_PlayerX[playerid], montirL_PlayerY[playerid], montirL_PlayerZ[playerid]);
+			jobHouseTake[playerid][montirL_TiangCap[playerid] % JOB_MAX_TASK] = id;
 			montirL_TiangCap[playerid]++;
-			montirL_TiangDone_LS[playerid][id] = 1;
+			jobSallary[playerid] += max(floatround(jobDistance[playerid] / 400.0, floatround_floor)  * 10, GAJI_MONTIR_LISTRIK);
 			ClearAnimations(playerid);
 			PlayerInfo[playerid][isOnAnimation] = false;
 			PlayerInfo[playerid][isBusy] = false;
@@ -5817,6 +5848,11 @@ publicFor: waktuMontirListrik(playerid){
 			montirL_PlayerZ[playerid] = 0;
 			SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
 			HidePlayerProgressBar(playerid, CuttingBar[playerid]);
+
+			// Exp Score
+			PlayerInfo[playerid][ach_MontirListrik]++;
+			TambahExpScore(playerid, EXP_TAMBAH_JOB_MONTIR);
+
 			if(montirL_TiangCap[playerid] == TIANG_LISTRIK_LIMIT){
 				TogglePlayerAllDynamicCPs(playerid, 1);
 				SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
@@ -5829,6 +5865,7 @@ publicFor: waktuMontirListrik(playerid){
 					SetPlayerCheckpoint(playerid, 2397.9021, -2096.1677, 13.5538, 3.0);
 					return 1;
 				}
+				jobDistance[playerid] = GetPlayerDistanceFromPoint(playerid, DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY], DTiang[tiangClosest][tiangZ]);
 				montirL_Tiang[playerid] = tiangClosest;
 				montirL_X[playerid] = DTiang[tiangClosest][tiangX];
 				montirL_Y[playerid] = DTiang[tiangClosest][tiangY];
@@ -5850,7 +5887,7 @@ publicFor: waktuPasangTangga(playerid){
 	ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
 	GameTextForPlayer(playerid, "~w~Sedang ~y~memperbaiki...", 3000, 3);
 	ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
-
+	
 	montirL_Timer[playerid] = SetPreciseTimer("waktuMontirListrik", 1000, true, "i", playerid);
 
 	PlayerInfo[playerid][isOnAnimation] = true;
@@ -5901,4 +5938,27 @@ GetRandomTiangForJob(playerid, Float:min = 3.0, Float:max = 1500.0){
 		}
 	}
 	return id;
-}		
+}
+
+createTiang(tiang_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:tRZ)
+{
+	if(tiang_Id < MAX_TIANG_LISTRIK){
+		DTiang[tiang_Id][tiangX] = tX;
+		DTiang[tiang_Id][tiangY] = tY;
+		DTiang[tiang_Id][tiangZ] = tZ;
+		DTiang[tiang_Id][tiangRX] = tRX;
+		DTiang[tiang_Id][tiangRY] = tRY;
+		DTiang[tiang_Id][tiangRZ] = tRZ;
+	
+		DTiang[tiang_Id][tiangObjID] = CreateDynamicObject(3459, DTiang[tiang_Id][tiangX], DTiang[tiang_Id][tiangY], DTiang[tiang_Id][tiangZ], DTiang[tiang_Id][tiangRX], DTiang[tiang_Id][tiangRY], DTiang[tiang_Id][tiangRZ]);
+		
+		new label[256];
+		format(label, sizeof(label), WHITE"["GREEN"Tiang"WHITE"]\nNo : "GREEN"%d\n", tiang_Id);
+		DTiang[tiang_Id][tiangLabel] = CreateDynamic3DTextLabel(label, COLOR_WHITE, DTiang[tiang_Id][tiangX], DTiang[tiang_Id][tiangY], DTiang[tiang_Id][tiangZ]+1.5, 5.0);
+		Iter_Add(TiangIterator, tiang_Id);
+		return 1;
+	}else{
+		print("Tiang mencapai limit!");
+	}
+	return 0;
+}
