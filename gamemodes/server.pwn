@@ -11287,7 +11287,7 @@ public OnPlayerText(playerid, text[]){
 				}else if(ACT_NPC[ACTOR_TOKO_GADGET][actUser] == playerid){
 					// Check apakah ini response yang pertama
 					if(ACT_NPC[ACTOR_TOKO_GADGET][actRes] == 0){
-						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(beli|membeli)\\s(hp|phone).*")){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(beli|membeli)\\s(hp|phone|item|gadget).*")){
 							showDialogBeliPhone(playerid);
 
 							// Reset Interaksi dan Biarkan player lanjut sendiri dialognya

@@ -1025,14 +1025,33 @@ CMD:pizzaboy(playerid, const params[]){
 CMD:electrician(playerid, const params[]){
     if(montirL_Job[playerid] == 0) 
         return error_command(playerid, "Anda bukan Electrician dan tidak dapat menggunakan perintah ini.");
-    ShowPlayerDialog(playerid, 
-        DIALOG_JOB_MONTIR_LISTRIK_CMD, 
-        DIALOG_STYLE_LIST, 
-        WHITE"Electrician Job :", 
-        "Ambil Alat\nPerbaiki\nTaruh Alat\nJoin Tim Gardu\nSelesai Bekerja", 
-        "Pilih", 
-        "Batal"
-    );
+    if(montirL_GarduPadamEvent){
+        ShowPlayerDialog(playerid, 
+            DIALOG_JOB_MONTIR_LISTRIK_CMD, 
+            DIALOG_STYLE_LIST, 
+            WHITE"Electrician Job :", 
+            WHITE"Ambil Alat\n\
+            "WHITE"Perbaiki\n\
+            "WHITE"Taruh Alat\n\
+            "GREEN"Join Tim Gardu\n\
+            "WHITE"Selesai Bekerja", 
+            "Pilih", 
+            "Batal"
+        );
+    }else{
+        ShowPlayerDialog(playerid, 
+            DIALOG_JOB_MONTIR_LISTRIK_CMD, 
+            DIALOG_STYLE_LIST, 
+            WHITE"Electrician Job :", 
+            WHITE"Ambil Alat\n\
+            "WHITE"Perbaiki\n\
+            "WHITE"Taruh Alat\n\
+            "RED"Join Tim Gardu\n\
+            "WHITE"Selesai Bekerja", 
+            "Pilih", 
+            "Batal"
+        );
+    }
     return 1;
 }
 
