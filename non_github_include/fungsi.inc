@@ -3301,7 +3301,7 @@ updateOnPlayerDisconnect(playerid){
 		besi=%d,\
 		kayu=%d,\
 		batu_bara=%d,\
-		batu_bata=%d\
+		batu_bata=%d \
 		WHERE id_user = '%d'",
 		PlayerInfo[playerid][ach_Berlaut],
 		PlayerInfo[playerid][ach_Bertambang],
@@ -3823,6 +3823,7 @@ publicFor: resetPlayerToDo(playerid){
 			RemovePlayerAttachedObject(playerid, ALAT_ATTACH_INDEX);
 		if(IsValidDynamicObject(montirL_AlatObj[playerid])) 
 			DestroyDynamicObject(montirL_AlatObj[playerid]);
+		// Reset Teman-teman yang lain
 		todoTimer[playerid] = -1;
 		todoTimeout[playerid] = -1;
 		todoFinish[playerid] = 0;
@@ -5746,13 +5747,6 @@ publicFor: re_GarduPadam(){
 		}
 		server_message(i, WHITE"Pemadaman listrik telah selesai diperbaiki, semua akses dapat digunakan kembali.");
 	}
-	for(new i = 0; i < sizeof(POINT_GARDU_PADAM); i++){
-		montirL_GarduPadam[i] = 0;
-	}
-	montirL_GarduPadamEvent = 0;
-	montirL_GarduEnd = -1;
-	// Cooldown
-	montirL_GarduStart = SetPreciseTimer("GarduPadam", 120000, false); // 2 jam (7200000)
 	return 1;
 }
 
@@ -5791,7 +5785,13 @@ publicFor: waktuPerbaikiGardu(playerid){
 			if(montirL_GarduEnd != -1)
 				DeletePreciseTimer(montirL_GarduEnd);
 			montirL_GarduEnd = -1;
-			re_GarduPadam();
+			montirL_GarduPadamEvent = 0;
+
+			for(new i = 0; i < sizeof(POINT_GARDU_PADAM); i++){
+				montirL_GarduPadam[i] = 0;
+			}
+			// Cooldown
+			montirL_GarduStart = SetPreciseTimer("GarduPadam", 2 * 60 * 60000, false); // 2 jam (7200000)
 		}
 	}else{
 		SetPlayerProgressBarValue(playerid, CuttingBar[playerid], value);

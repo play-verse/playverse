@@ -9807,16 +9807,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						montirL_Job[playerid] = 2;						
 
-						new temp_jam, temp_menit, temp_detik;
-						gettime(temp_jam, temp_menit, temp_detik);
-						temp_menit = temp_menit + TIME_MONTIR_LISTRIK;
-						sendPesan(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Anda harus menyelesaikan sebelum jam %s.", FormatJam(temp_jam, temp_menit));
-						SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Berhasil bergabung bersama tim perbaiki gardu.");
-
 						if(todoTimeout[playerid] != -1)
-							DeletePreciseTimer(todoTimeout[playerid]);
-						
-						todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_MONTIR_LISTRIK * 60000, false, "i", playerid);						
+							DeletePreciseTimer(todoTimeout[playerid]);	
+
+						SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Berhasil bergabung bersama tim perbaiki gardu.");
 					}
 					case 4: // Selesai Bekerja
 					{
