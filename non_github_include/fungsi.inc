@@ -623,6 +623,17 @@ spawnPemain(playerid, dari_callback = 0)
 		ShowPlayerMarker(playerid);
 	}
 
+	// Vehicle Rent dalam air
+	if(RentPlayerVehUser[playerid] != -1){
+		new Float:depth, Float:veh_depth, vehid_rent = RentPlayerVehUser[playerid];
+		if(CA_IsVehicleInWater(vehid_rent, depth, veh_depth)){
+			// Kenakan tagihan
+			format(pDialog[playerid], 50, "denda sewa kendaraaan");
+			addTagihanPemain(playerid, TAGIHAN_DENDA_SEWA_KENDARAAN, pDialog[playerid], JENIS_TAGIHAN_DENDA_SEWA_KENDARAAN);
+			unloadRentPlayerVeh(playerid, 1);
+		}
+	}
+	
 	// Sinkronkan uang pemain
 	getUangPlayer(playerid);
 	return 1;
@@ -3892,6 +3903,10 @@ mulaiPraktikSIM(playerid){
 					limitVehSIM[v] = 1;
 					SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
 					SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
+					new temp_jam, temp_menit, temp_detik;
+					gettime(temp_jam, temp_menit, temp_detik);
+					temp_menit = temp_menit+TIME_SIMPRAKTIK;
+					sendPesan(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Praktik SIM akan berakhir pada jam %s.", FormatJam(temp_jam, temp_menit));
 					todoTimeout[playerid] = SetPreciseTimer("resetPlayerToDo", TIME_SIMPRAKTIK*60000, false, "i", playerid);
 					return 1;
 				}else{

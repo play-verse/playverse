@@ -2500,7 +2500,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response){
 				if(BARANG_MARKET[listitem][idItemMarket] == 8){
-					return checkMinimal(playerid, MINIMAL_SCORE, 6);
+					if(checkMinimal(playerid, MINIMAL_SCORE, 6)) return 1;
 				}
 				SetPVarInt(playerid, "bBarang_index", listitem);
 				ShowPlayerDialog(playerid, DIALOG_JUMLAH_BARANG_MARKET, DIALOG_STYLE_INPUT, "Jumlah barang yang ingin dibeli", "Silahkan input jumlah barang yang ingin dibeli.", "Beli", "Batal");
@@ -3393,7 +3393,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								showDialogPesan(playerid, RED"Anda Belum Ujian Praktik", WHITE"Maaf anda belum melakukan Ujian Praktik SIM, anda belum dapat mengambil SIM!\nSilahkan melakukan Ujian Praktik SIM terlebih dahulu, tempat Ujian Praktik SIM berada di sebelah Kantor Polisi Los Santos (Parkiran).");
 							}
 						}
-						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT tanggal_buat FROM `pengambilan_sim` WHERE `id_user` = '%d' AND tanggal_buat != NULL", PlayerInfo[playerid][pID]);
+						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT tanggal_buat FROM `pengambilan_sim` WHERE id_user = '%d' AND tanggal_buat IS NOT NULL", PlayerInfo[playerid][pID]);
 					}
 				}
 			}
@@ -8321,6 +8321,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_BELI_ITEM_TAMBANG_LIST:
 		{
 			if(response){
+				if(item_beli_tambang[listitem][idItemMarket] == ID_PALU_TAMBANG && checkMinimal(playerid, MINIMAL_SCORE, 6))
+					return 1;
 				SetPVarInt(playerid, "index_terpilih", listitem);
 				ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_TAMBANG_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
 			}
