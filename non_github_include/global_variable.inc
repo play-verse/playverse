@@ -1961,3 +1961,5 @@ new curr_weather_seq = 0, weather_time = 0,
 	curr_weather_id;
 new seq_weather[5],
 	weather_string[1000];
+
+new Float:LastVehiclePos[MAX_VEHICLES][4];

@@ -9611,6 +9611,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				PlayerInfo[playerid][activeMarker] = true;
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Electrician"YELLOW"!");
 
+				if(montirL_GarduPadamEvent){
+					SendClientMessage(playerid, COLOR_ORANGE, TAG_LISTRIK" "WHITE"Saat ini sedang terjadi pemadaman listrik, silahkan join tim gardu melalui /electrician.");
+				}
+
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "WHITE"Gunakan perintah "GREEN"/electrician"WHITE" untuk melakukan aktivitas pekerjaan.");
 				new temp_jam, temp_menit, temp_detik;
 				gettime(temp_jam, temp_menit, temp_detik);
@@ -10825,6 +10829,10 @@ public OnGameModeInit()
 		SetVehicleParams(montirL_Veh[i], VEHICLE_TYPE_LIGHTS, 0);
 		ToggleVehicleFuel(montirL_Veh[i], 0);
 	}
+	for(new i = 0; i < MAX_VEHICLES; i++){
+		if(IsValidVehicle(i))
+			SetVehicleToRespawn(i);
+	}
 	return 1;
 }
 
@@ -11013,6 +11021,9 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 
 public OnPlayerExitVehicle(playerid, vehicleid)
 {
+	GetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
+	GetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+
 	if(Iter_Contains(vehicleSweeper, vehicleid) && sweeperJob[playerid] == 1 && sweeperId[playerid] == vehicleid){
 		SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Anda keluar dari kendaraan, silahkan kembali bekerja! "WHITE"Sebelum 30 detik atau anda berhenti bekerja.");
 		todoTimer[playerid] = SetPreciseTimer("resetPlayerToDo", 30000, false, "i", playerid);
@@ -12373,6 +12384,9 @@ public OnPlayerEnterRaceCheckpoint(playerid){
 }
 
 public OnVehicleSpawn(vehicleid){
+	GetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
+	GetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+
 	if(Iter_Contains(IDVehToPVehIterator, vehicleid))
 		LoadModifVehiclePlayer(vehicleid);
 	else
@@ -12863,6 +12877,14 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
 	return 1;
 }
 
+public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_x, Float:new_y, Float:new_z, Float:vel_x, Float:vel_y, Float:vel_z){
+	if(GetVehicleDistanceFromPoint(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]) > 1.0){
+		SetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
+		SetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+	}
+	return 1;
+}
+
 // public OnIncomingPacket(playerid, packetid, BitStream:bs){
 // 	printf("OnIncomingPacket %d %d", playerid, packetid);
 // 	return 1;
@@ -12878,13 +12900,5 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
 // public OnOutcomingRPC(playerid, rpcid, BitStream:bs){
 // 	printf("OnOutcomingRPC %d %d", playerid, rpcid);
 // 	return 1;
-// }
-
-public OnVehicleStreamIn(vehicleid){
-	if(Iter_Contains(IDVehToPVehIterator, vehicleid)){
-		ChangeVehicleColor(vehicleid, PVeh[IDVehToPVeh[vehicleid]][pVehColor][0], PVeh[IDVehToPVeh[vehicleid]][pVehColor][1]);
-	}
-	return 1;
-}
 
 #include <command>

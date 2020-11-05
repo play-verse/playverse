@@ -5642,10 +5642,11 @@ PlayerRankScore(playerid){
 }
 
 ClosestVehiclePlayer(playerid, Float: range = 5.0){
-    new id = -1, Float: dist = range, Float: tempdist;
+    new id = -1, Float: dist = range, Float: tempdist, Float: tempPos[3];
     foreach(new i : PVehIterator){
 		if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], i)) {
-			tempdist = GetPlayerDistanceFromPoint(playerid, PVeh[i][pVehCoord][0], PVeh[i][pVehCoord][1], PVeh[i][pVehCoord][2]);
+			GetVehiclePos(i, tempPos[0], tempPos[1], tempPos[2]);
+			tempdist = GetPlayerDistanceFromPoint(playerid, tempPos[0], tempPos[1], tempPos[2]);
 			if(tempdist > range) continue;
 			if(tempdist <= dist){
 				dist = tempdist;
@@ -5823,6 +5824,12 @@ publicFor: GarduPadam(){
 
 	montirL_GarduPadamEvent = 1;
 	montirL_GarduEnd = SetPreciseTimer("re_GarduPadam", 30 * 60000, false); // 30 menit (1800000)
+
+	foreach(new i : Player){
+		if(montirL_Job[i] != 0){
+			SendClientMessage(i, COLOR_ORANGE, TAG_LISTRIK" "WHITE"Saat ini sedang terjadi pemadaman listrik, silahkan join tim gardu melalui /electrician");			
+		}
+	}
 	return 1;
 }
 
