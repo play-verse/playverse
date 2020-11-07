@@ -10080,16 +10080,6 @@ public OnPlayerClickPlayer(playerid, clickedplayerid, source)
     return 1;
 }
 
-public OnPlayerClickMap(playerid, Float:fX, Float:fY, Float:fZ)
-{
- 	// Ojol - klik map marker
-	if(ojol_AppShow[playerid] == 1){
-		DeletePreciseTimer(ojol_AppTimer[playerid]);
-		ojol_AppShow[playerid] = 0;
-		ojol_AppTimer[playerid] = -1;
-	}
-}
-
 public OnPlayerClickTextDraw(playerid, Text:clickedid){
 	if(clickedid == Text:INVALID_TEXT_DRAW){
 		hideTextDrawMyInfo(playerid);
