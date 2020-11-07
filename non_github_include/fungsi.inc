@@ -14,7 +14,7 @@ publicFor: isRegistered(playerid)
 
 	// Cek Nama Format Nama
 	if(!cekAllowNama(PlayerInfo[playerid][pPlayerName])){
-		// Sendclient messagenya sengaja dipisah agar pengeksekusiannya terstruktur dan tidak didahului oleh perintah Kick dikarenakan jika satu Sendclientmessage dengan string yang panjang, rendernya juga lama.
+		// Sendclient messagenya sengaja dipisah agar pengeksekusiannya terstruktur dan tidak didahului oleh perintah Kick dikarenakan jika satu SendClientMessage dengan string yang panjang, rendernya juga lama.
 		SendClientMessage(playerid, COLOR_RED, "Nama yang anda gunakan tidak mengikuti rules server!");
 		SendClientMessage(playerid, COLOR_YELLOW, "Nama hanya dapat berisi huruf dan _ (underscore), nama juga harus terdiri dari minimal 3 karakter.");
 		SendClientMessage(playerid, COLOR_YELLOW, "Nama tidak dapat diawali dan diakhiri underscore!");
@@ -240,6 +240,8 @@ resetPlayerVariable(playerid, dari_callback){
     PlayerInfo[playerid][sHouse] = 0;
 	PlayerInfo[playerid][expScore] = 0;
 	PlayerInfo[playerid][pScore] = 0;
+
+	PlayerInfo[playerid][inHouse] = 0;
 
 	if(PlayerInfo[playerid][tidak_dikenali] != 0)
 		Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
@@ -589,6 +591,8 @@ spawnPemain(playerid, dari_callback = 0)
 				// Kenakan tagihan
 				format(pDialog[playerid], 50, "sekarat dan dikirim langsung ke rs");
 				addTagihanPemain(playerid, TAGIHAN_MATI_RS, pDialog[playerid], JENIS_TAGIHAN_RUMAH_SAKIT);
+
+				PlayerInfo[playerid][inHouse] = 0;
 				
 				sendPesan(playerid, COLOR_YELLOW, TAG_RUMAH_SAKIT" "WHITE"Anda dikenakan tagihan sebesar "GREEN"$%d", TAGIHAN_MATI_RS);
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Karena telah dikirim langsung ke rs setelah sekarat dan tidak dapat pertolongan.");
@@ -2597,13 +2601,13 @@ publicFor: progressNambang(playerid, dari_tambang){
 				tambahItemPlayer(playerid, ID_BERLIAN, 1);
 				// Achievement
 				PlayerInfo[playerid][ach_Berlian]++;
-			}else if(angka >= 100 && angka <= 8000){ // Kemungkinan 0,79%
+			}else if(angka >= 100 && angka <= 3000){ // Kemungkinan 0,29%
 				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
 				tambahItemPlayer(playerid, ID_EMAS, 1);
 				// Achievement
 				PlayerInfo[playerid][ach_Emas]++;
-			}else if(angka >= 8001 && angka <= 58001){ // Kemungkinan 5%
+			}else if(angka >= 3001 && angka <= 58000){ // Kemungkinan 5,5%
 				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
 				tambahItemPlayer(playerid, ID_PERAK, 1);
@@ -2624,11 +2628,11 @@ publicFor: progressNambang(playerid, dari_tambang){
 			}
 			else if(angka >= 120001 && angka <= 370000){ // Kemungkinan 25%
 				new const rand = random(100) + 1;
-				if(rand >= 1 && rand <= 3){ // 3% 
+				if(rand >= 1 && rand <= 2){ // 2% 
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"serbuk berlian.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk berlian merupakan bahan dasar berlian.");
 					tambahItemPlayer(playerid, ID_SERBUK_BERLIAN, 1);
-				}else if(rand >= 4 && rand <= 8){ // 5%
+				}else if(rand >= 3 && rand <= 7){ // 5%
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"serbuk emas.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk emas merupakan bahan dasar emas.");
 					tambahItemPlayer(playerid, ID_SERBUK_EMAS, 1);
@@ -2755,6 +2759,33 @@ publicFor: konfirmasiPembuatanRekening(playerid, ada){
 	return 1;
 }
 
+publicFor: konfirmasiUpgradeRumah(playerid, id){
+	new terpasang,
+		upgradeRate = houseInfo[id][hLevel] * HARGA_UPGRADE_RUMAH_PER_LEVEL;
+	cache_get_value_name_int(0, "terpasang", terpasang);
+	if(GetJumlahItemPlayer(playerid, ID_KAYU) < getKayuForUpgradeHouse(houseInfo[id][hLevel]) || GetJumlahItemPlayer(playerid, ID_BESI) < getBesiForUpgradeHouse(houseInfo[id][hLevel]) || GetJumlahItemPlayer(playerid, ID_BATU_BATA) < getBatuBataForUpgradeHouse(houseInfo[id][hLevel]))
+		return sendPesan(playerid, COLOR_ORANGE, TAG_RUMAH"  "WHITE"Anda harus memiliki %d kayu, %d besi, dan %d batu bata untuk upgrade ke level selanjutnya.", getKayuForUpgradeHouse(houseInfo[id][hLevel]), getBesiForUpgradeHouse(houseInfo[id][hLevel]), getBatuBataForUpgradeHouse(houseInfo[id][hLevel]));
+	
+	if(!terpasang){
+		givePlayerUang(playerid, -upgradeRate);
+		tambahItemPlayer(playerid, ID_KAYU, -getKayuForUpgradeHouse(houseInfo[id][hLevel]));
+		tambahItemPlayer(playerid, ID_BESI, -getBesiForUpgradeHouse(houseInfo[id][hLevel]));
+		tambahItemPlayer(playerid, ID_BATU_BATA, -getBatuBataForUpgradeHouse(houseInfo[id][hLevel]));
+
+		houseInfo[id][hLevel] = houseInfo[id][hLevel] + 1;
+
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `level` = '%d' WHERE id_house = %d", houseInfo[id][hLevel], houseInfo[id][hID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
+
+		reloadHouseLabel(id);
+		sendPesan(playerid, COLOR_GREEN, TAG_RUMAH" "WHITE"Anda berhasil mengupgrade rumah ke level %d.", houseInfo[id][hLevel]);
+		sendPesan(playerid, COLOR_YELLOW, TAG_RUMAH" "WHITE"Anda telah dikenakan harga "GREEN"$%d", upgradeRate);
+	}else{
+		SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Anda harus melepas semua furniture di dalam rumah terlebih dahulu!");
+	}	
+	return 1;
+}
+
 publicFor: cekSudahBisaAmbilKTP(playerid){
 	new sudah_selesai, tanggal_pengambilan[50];
 	if(cache_num_rows()){
@@ -2799,63 +2830,6 @@ publicFor: inputNomorRekeningATMBaru(playerid, ada){
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Anda harus memiliki KTP terlebih dahulu untuk dapat mendaftarkan rekening ATM.", "Ok", "");
 	}
 	return 1;
-}
-
-publicFor: selesaiNambang(playerid){
-	ClearAnimations(playerid);
-	PlayerInfo[playerid][isOnAnimation] = false;
-	PlayerInfo[playerid][isBusy] = false;
-
-	TogglePlayerControllable(playerid, 1);
-	if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
-
-	PlayerInfo[playerid][sisaPalu]--;
-
-	setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 1.5);
-
-	// Testing Probalities
-	new angka = random(15);
-	switch(angka){
-		case 1:
-		{
-			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
-			tambahItemPlayer(playerid, 10, 1);
-		}
-		case 2..3:
-		{
-			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
-			tambahItemPlayer(playerid, 9, 1);
-		}
-		case 4..6:{
-			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Aluminium"WHITE".\nAluminium adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
-			tambahItemPlayer(playerid, 11, 1);
-		}
-		case 7..9:
-		{
-			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
-			tambahItemPlayer(playerid, 12, 1);
-		}
-		default:{
-			SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
-		}
-	}
-	// Real Probalities
-	// new angka = random(1000000);
-	// if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
-	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
-	// 		tambahItemPlayer(playerid, 10, 1);
-	// }else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
-	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
-	// 		tambahItemPlayer(playerid, 9, 1);
-	// }else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
-	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Aluminium"WHITE".\nAluminium adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
-	// 		tambahItemPlayer(playerid, 11, 1);
-	// }else if(angka >= 120001 && angka <= 420000){ // Kemungkinan 30%
-	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
-	// 		tambahItemPlayer(playerid, 12, 1);
-	// }else{
-	// 		SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
-	// }
 }
 
 publicFor: showHistoryGajiPemain(playerid){
@@ -3257,7 +3231,7 @@ updateOnPlayerDisconnect(playerid){
 	if(PlayerInfo[playerid][sudahSpawn]){
 		GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
 
-		if(CA_IsPlayerInWater(playerid, unused_depth[0], unused_depth[1])){
+		if(CA_IsPlayerInWater(playerid, unused_depth[0], unused_depth[1]) && SS_GetPlayerInterior(playerid) == 0 && SS_GetPlayerVirtualWorld(playerid) == 0){
 			CA_RayCastLine(last_spawn_info_x, last_spawn_info_y, 700.0, last_spawn_info_x, last_spawn_info_y, -1000.0, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
 		}
 
@@ -3681,7 +3655,7 @@ reloadHouseLabel(house_Id){
 	if(houseInfo[house_Id][hSetHarga] != 0){
 		beliRate = houseInfo[house_Id][hSetHarga];
 	}else{
-		beliRate = getHousePrice(house_Id, "beli");
+		beliRate = houseInfo[house_Id][hHarga];
 	}
 	houseTextInfo[house_Id] = Text3D:INVALID_3DTEXT_ID;
 
@@ -3700,24 +3674,6 @@ reloadHouseLabel(house_Id){
 	
     houseTextInfo[house_Id] = CreateDynamic3DTextLabel(text_info, COLOR_WHITE, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z]+0.75, 5.0);
 }
-
-getHousePrice(house_Id, const method[16] = ""){
-	if(house_Id < MAX_HOUSES){
-		new hargaRate, methodName[16];
-		format(methodName, 16, method);
-		if(sama("beli", methodName)){
-			hargaRate = houseInfo[house_Id][hLevel]*houseInfo[house_Id][hLevel]*houseInfo[house_Id][hHarga];
-		}else if(sama("upgrade", methodName)){
-			hargaRate = houseInfo[house_Id][hLevel]*(houseInfo[house_Id][hLevel]+1)*houseInfo[house_Id][hHarga];
-		}	
-		return hargaRate;
-	}
-	return -1;
-}
-
-#define getKayuForUpgradeHouse(%0)  (%0 * JUMLAH_KAYU_PER_UPGRADE)
-#define getBatuBataForUpgradeHouse(%0)  (%0 * JUMLAH_BATU_BATA_PER_UPGRADE)
-#define getBesiForUpgradeHouse(%0)  (%0 * JUMLAH_BESI_PER_UPGRADE)
 
 todoActive(playerid){
 	if(sweeperJob[playerid] == 1){
@@ -5660,7 +5616,7 @@ ClosestVehiclePlayer(playerid, Float: range = 5.0){
     new id = -1, Float: dist = range, Float: tempdist, Float: tempPos[3];
     foreach(new i : PVehIterator){
 		if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], i)) {
-			GetVehiclePos(i, tempPos[0], tempPos[1], tempPos[2]);
+			GetVehiclePos(PVeh[i][pVehicle], tempPos[0], tempPos[1], tempPos[2]);
 			tempdist = GetPlayerDistanceFromPoint(playerid, tempPos[0], tempPos[1], tempPos[2]);
 			if(tempdist > range) continue;
 			if(tempdist <= dist){

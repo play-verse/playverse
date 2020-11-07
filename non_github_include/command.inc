@@ -905,8 +905,10 @@ CMD:suicide(playerid, params[]){
 }
 
 CMD:house(playerid, params[]){
-    if(SS_GetPlayerInterior(playerid) == 0) return error_command(playerid, "Anda tidak di dalam rumah manapun.");
-    if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] != PlayerInfo[playerid][pID]) return error_command(playerid, "Anda bukan pemilik rumah.");
+    if(SS_GetPlayerInterior(playerid) == 0 || PlayerInfo[playerid][inHouse] == 0) 
+        return error_command(playerid, "Anda tidak di dalam rumah manapun.");
+    if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] != PlayerInfo[playerid][pID]) 
+        return error_command(playerid, "Anda bukan pemilik rumah.");
     ShowPlayerDialog(playerid, DIALOG_MENU_RUMAH, DIALOG_STYLE_LIST, "Menu Rumah : ", "Inventory Rumah\nSemua Furniture", "Pilih", "Tutup");
     return 1;
 }
@@ -927,7 +929,7 @@ CMD:houseinfo(playerid, const params[]){
         format(string, sizeof(string), "Tentang Rumah\nTaruh Pizza");
     }else{
         if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
-            new upgradeRate = getHousePrice(id, "upgrade");
+            new upgradeRate = houseInfo[id][hLevel] * HARGA_UPGRADE_RUMAH_PER_LEVEL;
             if(houseInfo[id][hJual] == 1){
                 SetPVarString(playerid, "info_rumah", "batal_jual");
                 if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
@@ -1899,13 +1901,15 @@ CMD:ooc(playerid, params[]){
 }
 
 CMD:refreshme(playerid, params[]){
-    SS_GetPlayerInterior(playerid);
-    SS_GetPlayerVirtualWorld(playerid);
+    new intTemp = SS_GetPlayerInterior(playerid),
+        intVw = SS_GetPlayerVirtualWorld(playerid);
 
-    new Float:tempPos[3];
-    GetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
-    CA_FindZ_For2DCoord(tempPos[0], tempPos[1], tempPos[2]);
-    SetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+    if(intTemp == 0 && intVw == 0){
+        new Float:tempPos[3];
+        GetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+        CA_FindZ_For2DCoord(tempPos[0], tempPos[1], tempPos[2]);
+        SetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+    }
     return 1;
 }
 

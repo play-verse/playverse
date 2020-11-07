@@ -1242,3 +1242,7 @@ GetWeatherName(weatherid, destinasi[], len = sizeof(destinasi)){
     format(destinasi, len, "Tidak diketahui");
     return 1;
 }
+
+#define getKayuForUpgradeHouse(%0)  (%0 * JUMLAH_KAYU_PER_UPGRADE)
+#define getBatuBataForUpgradeHouse(%0)  (%0 * JUMLAH_BATU_BATA_PER_UPGRADE)
+#define getBesiForUpgradeHouse(%0)  (%0 * JUMLAH_BESI_PER_UPGRADE)
