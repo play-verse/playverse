@@ -771,14 +771,16 @@ CMD:cook(playerid, params[]){
 
 CMD:bc(playerid, params[]){
     new pesan[256];
-    if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
-    if(!IsPemainPunyaNomorAktif(playerid)) return error_command(playerid, "Maaf anda harus memiliki nomor hp yang aktif untuk dapat menggunakan fitur ini.");
+    if(PlayerInfo[playerid][ePhone] == 0) 
+        return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
+    if(!IsPemainPunyaNomorAktif(playerid)) 
+        return error_command(playerid, "Maaf anda harus memiliki nomor hp yang aktif untuk dapat menggunakan fitur ini.");
 	if(sscanf(params, "s[256]", pesan)) return error_syntax(playerid, "/bc [pesan]");
     if(gettime() - PlayerInfo[playerid][lastGlobalChat] < (2 * 60)){
         format(msg, sizeof(msg), "Anda hanya dapat mengirim pesan broadcast 2 menit sekali, anda harus menunggu %d detik lagi!", 2 * 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
         return error_command(playerid, msg);
     }
-    format(msg, sizeof(msg), "**[BROADCAST] ("BLUE"+%s"WHITE") : %s", PlayerInfo[playerid][nomorHP], pesan);
+    format(msg, sizeof(msg), "BC "BLUE"(+%s)"WHITE": %s", PlayerInfo[playerid][nomorHP], pesan);
     SendClientMessageToAll(COLOR_WHITE, msg);
     PlayerInfo[playerid][lastGlobalChat] = gettime();
     return 1;
@@ -1084,7 +1086,11 @@ CMD:dig(playerid, params[]){
     if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT)
         return error_command(playerid, "Anda harus berjalan kaki untuk dapat melakukan hal ini."); 
 
-    if(getStatusMakanPemain(playerid) <= 15.0) return error_command(playerid, "Anda kehabisan energi, silahkan makan terlebih dahulu untuk dapat bekerja kembali.");
+    if(getStatusMakanPemain(playerid) <= 15.0) 
+        return error_command(playerid, "Anda kelaparan, silahkan makan terlebih dahulu untuk dapat bekerja kembali.");
+
+    if(getStatusEnergiPemain(playerid) < STATUS_ENERGI_BERKURANG_SAAT_NAMBANG) 
+        return error_command(playerid, "Anda kehabisan energi, silahkan istirahat untuk mengisinya.");
 
     static const kapasitas_unpredict = 5; // Asumsikan dia mendapatkan item dengan kapasitas terbesar yang bisa didapat pada tambang yaitu 5 (berlian)
     if(GetSlotInventoryPlayer(playerid) + kapasitas_unpredict > PlayerInfo[playerid][limitItem]){	

@@ -53,6 +53,7 @@ enum pInfo
 
     Float:last_stats_makan,
     Float:last_stats_minum,
+    Float:last_stats_energi,
 
     // Status
     Float:lastHp,
@@ -60,6 +61,7 @@ enum pInfo
 
     Float:statusMakan,
     Float:statusMinum,
+    Float:statusEnergi,
 
 	statusVw,
 	statusInt,
@@ -128,6 +130,7 @@ enum pInfo
 
 	hungryStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 	thirstyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
+	energyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 
 	timerPemain,
 	timerDie, // countdown saat died
@@ -253,9 +256,9 @@ new PlayerText:showItem[MAX_PLAYERS][6];
 new PlayerText:myInfo[MAX_PLAYERS][9];
 // new PlayerText:RadarUang[MAX_PLAYERS][2];
 
-new Text:HUD_Stats_PB[5];
+new Text:HUD_Stats_PB[7];
 new PlayerText:HUD_Stats[MAX_PLAYERS][1];
-new PlayerBar:HUD_Stats_Bar[MAX_PLAYERS][2];
+new PlayerBar:HUD_Stats_Bar[MAX_PLAYERS][3];
 
 new Text:TD_JamTanggal[2];
 /*

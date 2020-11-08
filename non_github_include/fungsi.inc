@@ -30,7 +30,8 @@ publicFor: isRegistered(playerid)
 	if(cache_num_rows() && is_null == false) // IsRegistered
 	{
 		// Untuk string harus disimpan dlu ke variable, gabisa langsung masuk enum
-		new temp_value[256];
+		new temp_value[256],
+			temp_int;
 		cache_get_value_name_int(0, "id", PlayerInfo[playerid][pID]);
 		cache_get_value_name_int(0, "current_skin", PlayerInfo[playerid][skinID]);
 		cache_get_value_name(0, "password", temp_value);
@@ -104,6 +105,15 @@ publicFor: isRegistered(playerid)
 
 		cache_get_value_name_float(0, "last_stats_makan", PlayerInfo[playerid][last_stats_makan]);
 		cache_get_value_name_float(0, "last_stats_minum", PlayerInfo[playerid][last_stats_minum]);
+		cache_get_value_name_float(0, "last_stats_energi", PlayerInfo[playerid][last_stats_energi]);
+
+		cache_is_value_name_null(0, "last_active_unix", is_null);
+		if(!is_null){
+			cache_get_value_name_int(0, "last_active_unix", temp_int);
+			temp_int = floatround(float(gettime() - temp_int) / 60.0, floatround_floor);
+			if(temp_int > 0)
+				PlayerInfo[playerid][last_stats_energi] += float(temp_int) * STATUS_ENERGI_BERTAMBAH_PER_WAKTU_OFF;
+		}
 
 		cache_get_value_name_int(0, "in_die", PlayerInfo[playerid][inDie]);
 		cache_get_value_name_int(0, "in_penjara", PlayerInfo[playerid][inPenjara]);
@@ -378,6 +388,7 @@ resetPlayerVariable(playerid, dari_callback){
 
 	PlayerInfo[playerid][hungryStackedTime] = 0;
 	PlayerInfo[playerid][thirstyStackedTime] = 0;
+	PlayerInfo[playerid][energyStackedTime] = 0;
 
 	EditingObject[playerid] = EDITING_NONE;
 }
@@ -505,12 +516,15 @@ spawnPemain(playerid, dari_callback = 0)
 	if(PlayerInfo[playerid][last_stats_makan] == 0 && PlayerInfo[playerid][last_stats_minum] == 0){
 		setStatusMakanPemain(playerid, 80);
 		setStatusMinumPemain(playerid, 80);
+		setStatusEnergiPemain(playerid, 80);
 	}else{
 		setStatusMakanPemain(playerid, PlayerInfo[playerid][last_stats_makan]);
 		setStatusMinumPemain(playerid, PlayerInfo[playerid][last_stats_minum]);
+		setStatusEnergiPemain(playerid, PlayerInfo[playerid][last_stats_energi]);
 
 		PlayerInfo[playerid][last_stats_makan] = 0;
 		PlayerInfo[playerid][last_stats_minum] = 0;
+		PlayerInfo[playerid][last_stats_energi] = 0;
 	}
 
     if(IsPlayerAttachedObjectSlotUsed(playerid, BORGOL_ATTACH_INDEX))
@@ -2497,6 +2511,7 @@ publicFor: progressRevive(playerid){
 				
 				PlayerInfo[playerid][hungryStackedTime] = 0;
 				PlayerInfo[playerid][thirstyStackedTime] = 0;
+				PlayerInfo[playerid][energyStackedTime] = 0;
 				
 				// Reset Timer
 				if(PlayerInfo[target_id][timerPemain] != -1)
@@ -2595,6 +2610,7 @@ publicFor: progressNambang(playerid, dari_tambang){
 		PlayerInfo[playerid][sisaPalu]--;
 
 		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 1.5);
+		setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) - STATUS_ENERGI_BERKURANG_SAAT_NAMBANG);
 
 		if(dari_tambang == 1){
 			// Real Probalities
@@ -3231,7 +3247,7 @@ tampilkanKotakTerkirim(playerid){
 
 updateOnPlayerDisconnect(playerid){
 	// Position
-	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, Float:last_hp, Float:last_armour, Float:temp_stats_makan, Float:temp_stats_minum, Float:unused_depth[2];
+	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, Float:last_hp, Float:last_armour, Float:temp_stats_makan, Float:temp_stats_minum, Float:temp_stats_energi, Float:unused_depth[2];
 	if(PlayerInfo[playerid][sudahSpawn]){
 		GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
 
@@ -3248,6 +3264,7 @@ updateOnPlayerDisconnect(playerid){
 
 		temp_stats_makan = getStatusMakanPemain(playerid);
 		temp_stats_minum = getStatusMinumPemain(playerid);
+		temp_stats_energi = getStatusEnergiPemain(playerid);
 	}else{
 		if(aktifPanduanStream[playerid] == 1){
 			last_spawn_info_x = PlayerInfo[playerid][last_x];
@@ -3256,14 +3273,14 @@ updateOnPlayerDisconnect(playerid){
 			last_spawn_info_a = PlayerInfo[playerid][last_a];
 		}else{
 			// Reset nilai jadi 0 semua
-			last_hp = last_armour = last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a = temp_stats_makan = temp_stats_minum = 0;
+			last_hp = last_armour = last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a = temp_stats_makan = temp_stats_minum = temp_stats_energi = 0;
 			last_spawn_info_int = last_spawn_info_vw = 0;
 		}
 	}
 
 	new lama_bermain = getTotalLamaBermain(playerid);
 
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', playtime = '%d', in_house = '%d', in_die = %d WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][inDie], PlayerInfo[playerid][pID]);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', last_stats_energi = '%f', playtime = '%d', in_house = '%d', in_die = %d, last_active = NOW() WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, temp_stats_energi, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][inDie], PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 
 	new query_temp_str[1000];
@@ -3837,6 +3854,7 @@ publicFor: resetPlayerToDo(playerid){
 
 	PlayerInfo[playerid][hungryStackedTime] = 0;
 	PlayerInfo[playerid][thirstyStackedTime] = 0;
+	PlayerInfo[playerid][energyStackedTime] = 0;
 	PlayerInfo[playerid][inHelp] = 0;
 	RentVehEdit[playerid] = 0;
 	jobSallary[playerid] = 0;
@@ -4646,6 +4664,7 @@ publicFor: CutTree(playerid){
         new id = CuttingTreeID[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + (MAX_PROGRESS_BAR / CUTTING_TIME);
         if(value >= MAX_PROGRESS_BAR){
             Player_ResetCutting(playerid);
+			setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) - STATUS_ENERGI_BERKURANG_SAAT_POTONG_POHON);
             MoveDynamicObject(DTree[id][treeObjID], DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ] + 0.03, 0.025, DTree[id][treeRX], DTree[id][treeRY] - 80.0, DTree[id][treeRZ]);
 
             DTree[id][treeSecs] = TREE_RESPAWN;
@@ -4907,6 +4926,9 @@ randomIkan(playerid){
 		angka = 0;
 	}
 
+	// Kurangkan energi
+	setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) - STATUS_ENERGI_BERKURANG_SAAT_MANCING);
+
 	re_switch:
 	if((curr_weather_id == ID_WEATHER_RAIN && angka <= 3) || (curr_weather_id != ID_WEATHER_RAIN && angka == 0)){ // 1.4%
 		if(nombakDepth[playerid] > 10.0){ // Ikan Arwana kedalaman > 10
@@ -5066,6 +5088,11 @@ publicFor: pemainUpdate(playerid){
 	if(++PlayerInfo[playerid][thirstyStackedTime] >= 90){
 		PlayerInfo[playerid][thirstyStackedTime] = 0;
 		setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - STATUS_MINUM_BERKURANG_PER_WAKTU);
+	}
+
+	if(++PlayerInfo[playerid][energyStackedTime] >= 60){
+		PlayerInfo[playerid][energyStackedTime] = 0;
+		setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) + STATUS_ENERGI_BERTAMBAH_PER_WAKTU);
 	}
 
 	if(gettime() < PlayerInfo[playerid][masaAktifJamsos]) {

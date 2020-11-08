@@ -88,7 +88,7 @@ loadTextdrawGlobal(){
 	TextDrawSetProportional(HUD_Stats_PB[4], 1);
 	TextDrawSetSelectable(HUD_Stats_PB[4], 0);
 
-	HUD_Stats_PB[0] = TextDrawCreate(502.000000, 344.000000, "~w~Makan");
+	HUD_Stats_PB[0] = TextDrawCreate(502.000000, 337.000000, "~w~Makan");
 	TextDrawFont(HUD_Stats_PB[0], 1);
 	TextDrawLetterSize(HUD_Stats_PB[0], 0.400000, 1.649999);
 	TextDrawTextSize(HUD_Stats_PB[0], 400.000000, 17.000000);
@@ -102,7 +102,7 @@ loadTextdrawGlobal(){
 	TextDrawSetProportional(HUD_Stats_PB[0], 1);
 	TextDrawSetSelectable(HUD_Stats_PB[0], 0);
 
-	HUD_Stats_PB[1] = TextDrawCreate(562.000000, 344.000000, "HUD:radar_pizza");
+	HUD_Stats_PB[1] = TextDrawCreate(562.000000, 338.000000, "HUD:radar_pizza");
 	TextDrawFont(HUD_Stats_PB[1], 4);
 	TextDrawLetterSize(HUD_Stats_PB[1], 0.600000, 2.000000);
 	TextDrawTextSize(HUD_Stats_PB[1], 15.500000, 14.000000);
@@ -116,7 +116,7 @@ loadTextdrawGlobal(){
 	TextDrawSetProportional(HUD_Stats_PB[1], 1);
 	TextDrawSetSelectable(HUD_Stats_PB[1], 0);
 
-	HUD_Stats_PB[2] = TextDrawCreate(502.000000, 391.000000, "~w~Minum");
+	HUD_Stats_PB[2] = TextDrawCreate(502.000000, 374.000000, "~w~Minum");
 	TextDrawFont(HUD_Stats_PB[2], 1);
 	TextDrawLetterSize(HUD_Stats_PB[2], 0.400000, 1.649999);
 	TextDrawTextSize(HUD_Stats_PB[2], 400.000000, 17.000000);
@@ -130,7 +130,7 @@ loadTextdrawGlobal(){
 	TextDrawSetProportional(HUD_Stats_PB[2], 1);
 	TextDrawSetSelectable(HUD_Stats_PB[2], 0);
 
-	HUD_Stats_PB[3] = TextDrawCreate(562.000000, 391.000000, "HUD:radar_diner");
+	HUD_Stats_PB[3] = TextDrawCreate(562.000000, 375.000000, "HUD:radar_diner");
 	TextDrawFont(HUD_Stats_PB[3], 4);
 	TextDrawLetterSize(HUD_Stats_PB[3], 0.600000, 2.000000);
 	TextDrawTextSize(HUD_Stats_PB[3], 15.500000, 14.000000);
@@ -143,6 +143,35 @@ loadTextdrawGlobal(){
 	TextDrawUseBox(HUD_Stats_PB[3], 1);
 	TextDrawSetProportional(HUD_Stats_PB[3], 1);
 	TextDrawSetSelectable(HUD_Stats_PB[3], 0);
+
+
+	HUD_Stats_PB[5] = TextDrawCreate(502.000000, 408.000000, "Energi");
+	TextDrawFont(HUD_Stats_PB[5], 1);
+	TextDrawLetterSize(HUD_Stats_PB[5], 0.400000, 1.649999);
+	TextDrawTextSize(HUD_Stats_PB[5], 400.000000, 17.000000);
+	TextDrawSetOutline(HUD_Stats_PB[5], 1);
+	TextDrawSetShadow(HUD_Stats_PB[5], 0);
+	TextDrawAlignment(HUD_Stats_PB[5], 1);
+	TextDrawColor(HUD_Stats_PB[5], -1);
+	TextDrawBackgroundColor(HUD_Stats_PB[5], 255);
+	TextDrawBoxColor(HUD_Stats_PB[5], 50);
+	TextDrawUseBox(HUD_Stats_PB[5], 0);
+	TextDrawSetProportional(HUD_Stats_PB[5], 1);
+	TextDrawSetSelectable(HUD_Stats_PB[5], 0);
+
+	HUD_Stats_PB[6] = TextDrawCreate(562.000000, 409.000000, "HUD:radar_gym");
+	TextDrawFont(HUD_Stats_PB[6], 4);
+	TextDrawLetterSize(HUD_Stats_PB[6], 0.600000, 2.000000);
+	TextDrawTextSize(HUD_Stats_PB[6], 15.500000, 14.000000);
+	TextDrawSetOutline(HUD_Stats_PB[6], 1);
+	TextDrawSetShadow(HUD_Stats_PB[6], 0);
+	TextDrawAlignment(HUD_Stats_PB[6], 1);
+	TextDrawColor(HUD_Stats_PB[6], -1);
+	TextDrawBackgroundColor(HUD_Stats_PB[6], 255);
+	TextDrawBoxColor(HUD_Stats_PB[6], 50);
+	TextDrawUseBox(HUD_Stats_PB[6], 1);
+	TextDrawSetProportional(HUD_Stats_PB[6], 1);
+	TextDrawSetSelectable(HUD_Stats_PB[6], 0);	
 	// End HUD
 
 	// Global Time
@@ -354,6 +383,8 @@ unloadTextdrawGlobal(){
 	TextDrawDestroy(HUD_Stats_PB[2]);
 	TextDrawDestroy(HUD_Stats_PB[3]);
 	TextDrawDestroy(HUD_Stats_PB[4]);
+	TextDrawDestroy(HUD_Stats_PB[5]);
+	TextDrawDestroy(HUD_Stats_PB[6]);
 
 	TextDrawDestroy(TD_JamTanggal[0]);
 	TextDrawDestroy(TD_JamTanggal[1]);
@@ -413,11 +444,14 @@ tampilkanHUDStats(playerid){
 	TextDrawShowForPlayer(playerid, HUD_Stats_PB[2]);
 	TextDrawShowForPlayer(playerid, HUD_Stats_PB[3]);
 	TextDrawShowForPlayer(playerid, HUD_Stats_PB[4]);
+	TextDrawShowForPlayer(playerid, HUD_Stats_PB[5]);
+	TextDrawShowForPlayer(playerid, HUD_Stats_PB[6]);
 
 	PlayerTextDrawShow(playerid, HUD_Stats[playerid][0]);
 
 	ShowPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][0]);
 	ShowPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][1]);
+	ShowPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][2]);
 }
 
 hideHUDStats(playerid){
@@ -426,11 +460,14 @@ hideHUDStats(playerid){
 	TextDrawHideForPlayer(playerid, HUD_Stats_PB[2]);
 	TextDrawHideForPlayer(playerid, HUD_Stats_PB[3]);
 	TextDrawHideForPlayer(playerid, HUD_Stats_PB[4]);
+	TextDrawHideForPlayer(playerid, HUD_Stats_PB[5]);
+	TextDrawHideForPlayer(playerid, HUD_Stats_PB[6]);
 
 	PlayerTextDrawHide(playerid, HUD_Stats[playerid][0]);
 	
 	HidePlayerProgressBar(playerid, HUD_Stats_Bar[playerid][0]);
 	HidePlayerProgressBar(playerid, HUD_Stats_Bar[playerid][1]);
+	HidePlayerProgressBar(playerid, HUD_Stats_Bar[playerid][2]);
 }
 
 // Radar Uang
@@ -722,8 +759,9 @@ loadTextDrawPemain(playerid){
 	// End HUD Stats
 
 	// Stats Bar
-	HUD_Stats_Bar[playerid][0] = CreatePlayerProgressBar(playerid, 503.000000, 365.000000, 81.500000, 7.000000, COLOR_YELLOW, 100.000000, 0);
-	HUD_Stats_Bar[playerid][1] = CreatePlayerProgressBar(playerid, 503.000000, 412.000000, 81.500000, 7.000000, COLOR_LIGHT_BLUE, 100.000000, 0);
+	HUD_Stats_Bar[playerid][0] = CreatePlayerProgressBar(playerid, 503.000000, 356.000000, 81.500000, 7.000000, COLOR_YELLOW, 100.000000, 0);
+	HUD_Stats_Bar[playerid][1] = CreatePlayerProgressBar(playerid, 503.000000, 393.000000, 81.500000, 7.000000, COLOR_LIGHT_BLUE, 100.000000, 0);
+	HUD_Stats_Bar[playerid][2] = CreatePlayerProgressBar(playerid, 503.000000, 427.000000, 81.500000, 7.000000, COLOR_GREEN, 100.000000, 0);
 
 	// Cutting bar
 	CuttingBar[playerid] = CreatePlayerProgressBar(playerid, 498.0, 104.0, 113.0, 6.2, COLOR_YELLOW, MAX_PROGRESS_BAR, 0);
@@ -811,6 +849,7 @@ unloadTextDrawPemain(playerid){
 	// Bar Stats
 	DestroyPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][0]);
 	DestroyPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][1]);
+	DestroyPlayerProgressBar(playerid, HUD_Stats_Bar[playerid][2]);
 
 	// Speedo
 	PlayerTextDrawDestroy(playerid, SpeedoTD_VehInfo[playerid][0]);

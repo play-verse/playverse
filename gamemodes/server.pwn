@@ -95,6 +95,7 @@ public OnPlayerConnect(playerid)
 
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
 	SELECT a.*, \
+		UNIX_TIMESTAMP(last_active) as last_active_unix,\
 		sum(b.jumlah) as limit_item \
 	FROM `user` a \
 	LEFT JOIN user_item_limit b \
@@ -4438,6 +4439,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
 									if(IsPlayerInDynamicCP(playerid, DTree[tid][treeCP])){
 										if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memotong dalam keadaan sekarang.");
+										if(getStatusEnergiPemain(playerid) < STATUS_ENERGI_BERKURANG_SAAT_POTONG_POHON) 
+											return error_command(playerid, "Anda kehabisan energi, silahkan istirahat untuk mengisinya.");
 										SetPlayerLookAt(playerid, DTree[tid][treeX], DTree[tid][treeY]);
 										Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[tid][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
 										CuttingTimer[playerid] = SetPreciseTimer("CutTree", 1000, true, "i", playerid);
@@ -5792,6 +5795,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(GetJumlahItemPlayer(playerid, ID_ROTI_UMPAN_IKAN) <= 0){
 							return error_command(playerid, "Anda tidak memiliki umpan untuk melakukan mancing.");
 						}
+
+						if(getStatusEnergiPemain(playerid) < STATUS_ENERGI_BERKURANG_SAAT_MANCING) 
+							return error_command(playerid, "Anda kehabisan energi, silahkan istirahat untuk mengisinya.");
+
 						tambahItemPlayer(playerid, 43, -1);
 						TogglePlayerControllable(playerid , 0);
 						SetPlayerArmedWeapon(playerid, 0);
@@ -10431,7 +10438,12 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 					return showDialogPesan(playerid, RED"Inventory anda penuh", WHITE"Silahkan sisakan minimal 1 slot item anda terlebih dahulu.\nPengosongan berguna untuk menyisakan tempat untuk hasil yang didapat nantinya.");
 				}
 
-				if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+				if(IsPlayerInAnyVehicle(playerid)) 
+					return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+
+				if(getStatusEnergiPemain(playerid) < STATUS_ENERGI_BERKURANG_SAAT_MANCING) 
+					return error_command(playerid, "Anda kehabisan energi, silahkan istirahat untuk mengisinya.");
+
 				if(nombakDelay[playerid] < gettime()){
 					nombakDelay[playerid] = gettime() + 10;
 					nombakDepth[playerid] = depth2;
