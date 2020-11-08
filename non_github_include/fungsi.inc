@@ -368,7 +368,11 @@ resetPlayerVariable(playerid, dari_callback){
 		if(PlayerInfo[playerid][timerDie] != -1){
 			DeletePreciseTimer(PlayerInfo[playerid][timerDie]);
 		}
+		if(mancingTimer[playerid] != -1){
+			DeletePreciseTimer(mancingTimer[playerid]);
+		}
 	}
+	mancingTimer[playerid] = -1;
 	PlayerInfo[playerid][timerPemain] = -1;
 	PlayerInfo[playerid][timerDie] = -1;
 
@@ -4968,7 +4972,6 @@ publicFor: waktuMancing(playerid){
 		PlayerInfo[playerid][isBusy] = false;
 		PlayerInfo[playerid][sisaJoran]--;
 		CA_IsPlayerInWater(playerid, depth[0], depth[1]);
-		printf("%f %f", depth[0], depth[1]);
 		// Hitung depth
 		nombakDepth[playerid] = float(random(floatround(depth[0] * 0.75, floatround_round)));
 		randomIkan(playerid);
