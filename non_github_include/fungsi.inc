@@ -1306,6 +1306,8 @@ pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 			z -= 1.0;
 			createPlant(id, nama_item, id_buah, x, y, z, 0.0, 0.0, 0.0);
 			tambahItemPlayer(playerid, id_bibit, -1);
+			DFarm[id][playerId] = PlayerInfo[playerid][pID]; 
+
 			format(pDialog[playerid], sizePDialog, WHITE"Penggunaan 1 item "YELLOW"Bibit %s"WHITE".\n"RED"Note :\n- Jaga tanaman anda atau tanaman anda akan dicuri.\n- Tanaman dapat hilang sewaktu-waktu, segera panen jika sudah siap.", nama_item);
 			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", pDialog[playerid], "Ok", "");
 			ClearAnimations(playerid);
@@ -4258,6 +4260,10 @@ UnloadVehiclePlayer(playerid){
 			{
 				new Float:darah;
 				GetVehicleHealth(PVeh[i][pVehicle], darah);
+
+				if(IsVehicleFlipped(PVeh[i][pVehicle]))
+					darah = 260.0;
+
 				GetVehiclePos(PVeh[i][pVehicle], PVeh[i][pVehCoord][0], PVeh[i][pVehCoord][1], PVeh[i][pVehCoord][2]);
 				GetVehicleZAngle(PVeh[i][pVehicle], PVeh[i][pVehCoord][3]);
 				PVeh[i][pVehDarah] = darah;
@@ -4834,6 +4840,7 @@ publicFor: DestroyTime(plant_Id){
 		DestroyDynamic3DTextLabel(DFarm[plant_Id][plantLabel]);
 	// DFarm[plant_Id][plantSecs] = 0;
 	DFarm[plant_Id][plantObjID] = -1;
+	DFarm[plant_Id][playerId] = -1; 
 	// DFarm[plant_Id][destroyTimer] = -1;
 	DFarm[plant_Id][plantLabel] = Text3D: -1;
 	return 1;
@@ -4842,7 +4849,7 @@ publicFor: DestroyTime(plant_Id){
 playerMaxPlant(playerid){
 	new count = 0;
     foreach(new i : PlantIterator){
-		if(DFarm[i][playerId] == playerid){
+		if(DFarm[i][playerId] == PlayerInfo[playerid][pID]){
 			count++;
 			if(count == 5){
 				return 1;
