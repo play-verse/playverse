@@ -268,6 +268,8 @@ givePlayerUang(playerid, jumlah, bool:simpanDb = true){
 setStatusMakanPemain(playerid, Float:jumlah){
     if(jumlah < 0.0) 
         PlayerInfo[playerid][statusMakan] = 0.0;
+    else if(jumlah > 100.0) 
+        PlayerInfo[playerid][statusMakan] = 100.0;
     else
         PlayerInfo[playerid][statusMakan] = jumlah;
 
@@ -296,6 +298,8 @@ setStatusMakanPemain(playerid, Float:jumlah){
 setStatusMinumPemain(playerid, Float:jumlah){
     if(jumlah < 0.0) 
         PlayerInfo[playerid][statusMinum] = 0.0;
+    else if(jumlah > 100.0)
+        PlayerInfo[playerid][statusMinum] = 100.0;
     else
         PlayerInfo[playerid][statusMinum] = jumlah;
 
@@ -307,6 +311,26 @@ setStatusMinumPemain(playerid, Float:jumlah){
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][1], COLOR_LIGHT_BLUE);
 
     SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][1], PlayerInfo[playerid][statusMinum]);
+}
+
+#define getStatusEnergiPemain(%0)        PlayerInfo[%0][statusEnergi]
+
+setStatusEnergiPemain(playerid, Float:jumlah){
+    if(jumlah < 0.0) 
+        PlayerInfo[playerid][statusEnergi] = 0.0;
+    else if(jumlah > 100.0)
+        PlayerInfo[playerid][statusEnergi] = 100.0;
+    else
+        PlayerInfo[playerid][statusEnergi] = jumlah;
+
+    if(PlayerInfo[playerid][statusEnergi] <= 15.0)
+        SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][2], COLOR_DARK_GREEN);
+    else if(PlayerInfo[playerid][statusEnergi] <= 30.0)
+        SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][2], COLOR_GREEN);
+    else
+        SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][2], COLOR_LIGHT_GREEN);
+
+    SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][2], PlayerInfo[playerid][statusEnergi]);
 }
 
 // -- Uncomment fungsi jika ingin menggunakan
@@ -1242,3 +1266,7 @@ GetWeatherName(weatherid, destinasi[], len = sizeof(destinasi)){
     format(destinasi, len, "Tidak diketahui");
     return 1;
 }
+
+#define getKayuForUpgradeHouse(%0)  (%0 * JUMLAH_KAYU_PER_UPGRADE)
+#define getBatuBataForUpgradeHouse(%0)  (%0 * JUMLAH_BATU_BATA_PER_UPGRADE)
+#define getBesiForUpgradeHouse(%0)  (%0 * JUMLAH_BESI_PER_UPGRADE)

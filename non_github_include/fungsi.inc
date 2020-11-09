@@ -14,7 +14,7 @@ publicFor: isRegistered(playerid)
 
 	// Cek Nama Format Nama
 	if(!cekAllowNama(PlayerInfo[playerid][pPlayerName])){
-		// Sendclient messagenya sengaja dipisah agar pengeksekusiannya terstruktur dan tidak didahului oleh perintah Kick dikarenakan jika satu Sendclientmessage dengan string yang panjang, rendernya juga lama.
+		// Sendclient messagenya sengaja dipisah agar pengeksekusiannya terstruktur dan tidak didahului oleh perintah Kick dikarenakan jika satu SendClientMessage dengan string yang panjang, rendernya juga lama.
 		SendClientMessage(playerid, COLOR_RED, "Nama yang anda gunakan tidak mengikuti rules server!");
 		SendClientMessage(playerid, COLOR_YELLOW, "Nama hanya dapat berisi huruf dan _ (underscore), nama juga harus terdiri dari minimal 3 karakter.");
 		SendClientMessage(playerid, COLOR_YELLOW, "Nama tidak dapat diawali dan diakhiri underscore!");
@@ -30,7 +30,8 @@ publicFor: isRegistered(playerid)
 	if(cache_num_rows() && is_null == false) // IsRegistered
 	{
 		// Untuk string harus disimpan dlu ke variable, gabisa langsung masuk enum
-		new temp_value[256];
+		new temp_value[256],
+			temp_int;
 		cache_get_value_name_int(0, "id", PlayerInfo[playerid][pID]);
 		cache_get_value_name_int(0, "current_skin", PlayerInfo[playerid][skinID]);
 		cache_get_value_name(0, "password", temp_value);
@@ -104,6 +105,15 @@ publicFor: isRegistered(playerid)
 
 		cache_get_value_name_float(0, "last_stats_makan", PlayerInfo[playerid][last_stats_makan]);
 		cache_get_value_name_float(0, "last_stats_minum", PlayerInfo[playerid][last_stats_minum]);
+		cache_get_value_name_float(0, "last_stats_energi", PlayerInfo[playerid][last_stats_energi]);
+
+		cache_is_value_name_null(0, "last_active_unix", is_null);
+		if(!is_null){
+			cache_get_value_name_int(0, "last_active_unix", temp_int);
+			temp_int = floatround(float(gettime() - temp_int) / 60.0, floatround_floor);
+			if(temp_int > 0)
+				PlayerInfo[playerid][last_stats_energi] += float(temp_int) * STATUS_ENERGI_BERTAMBAH_PER_WAKTU_OFF;
+		}
 
 		cache_get_value_name_int(0, "in_die", PlayerInfo[playerid][inDie]);
 		cache_get_value_name_int(0, "in_penjara", PlayerInfo[playerid][inPenjara]);
@@ -241,6 +251,8 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][expScore] = 0;
 	PlayerInfo[playerid][pScore] = 0;
 
+	PlayerInfo[playerid][inHouse] = 0;
+
 	if(PlayerInfo[playerid][tidak_dikenali] != 0)
 		Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
 	PlayerInfo[playerid][tidak_dikenali] = 0;
@@ -366,12 +378,17 @@ resetPlayerVariable(playerid, dari_callback){
 		if(PlayerInfo[playerid][timerDie] != -1){
 			DeletePreciseTimer(PlayerInfo[playerid][timerDie]);
 		}
+		if(mancingTimer[playerid] != -1){
+			DeletePreciseTimer(mancingTimer[playerid]);
+		}
 	}
+	mancingTimer[playerid] = -1;
 	PlayerInfo[playerid][timerPemain] = -1;
 	PlayerInfo[playerid][timerDie] = -1;
 
 	PlayerInfo[playerid][hungryStackedTime] = 0;
 	PlayerInfo[playerid][thirstyStackedTime] = 0;
+	PlayerInfo[playerid][energyStackedTime] = 0;
 
 	EditingObject[playerid] = EDITING_NONE;
 }
@@ -507,12 +524,15 @@ spawnPemain(playerid, dari_callback = 0)
 	if(PlayerInfo[playerid][last_stats_makan] == 0 && PlayerInfo[playerid][last_stats_minum] == 0){
 		setStatusMakanPemain(playerid, 80);
 		setStatusMinumPemain(playerid, 80);
+		setStatusEnergiPemain(playerid, 80);
 	}else{
 		setStatusMakanPemain(playerid, PlayerInfo[playerid][last_stats_makan]);
 		setStatusMinumPemain(playerid, PlayerInfo[playerid][last_stats_minum]);
+		setStatusEnergiPemain(playerid, PlayerInfo[playerid][last_stats_energi]);
 
 		PlayerInfo[playerid][last_stats_makan] = 0;
 		PlayerInfo[playerid][last_stats_minum] = 0;
+		PlayerInfo[playerid][last_stats_energi] = 0;
 	}
 
     if(IsPlayerAttachedObjectSlotUsed(playerid, BORGOL_ATTACH_INDEX))
@@ -597,6 +617,8 @@ spawnPemain(playerid, dari_callback = 0)
 				// Kenakan tagihan
 				format(pDialog[playerid], 50, "sekarat dan dikirim langsung ke rs");
 				addTagihanPemain(playerid, TAGIHAN_MATI_RS, pDialog[playerid], JENIS_TAGIHAN_RUMAH_SAKIT);
+
+				PlayerInfo[playerid][inHouse] = 0;
 				
 				sendPesan(playerid, COLOR_YELLOW, TAG_RUMAH_SAKIT" "WHITE"Anda dikenakan tagihan sebesar "GREEN"$%d", TAGIHAN_MATI_RS);
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Karena telah dikirim langsung ke rs setelah sekarat dan tidak dapat pertolongan.");
@@ -1292,6 +1314,8 @@ pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 			z -= 1.0;
 			createPlant(id, nama_item, id_buah, x, y, z, 0.0, 0.0, 0.0);
 			tambahItemPlayer(playerid, id_bibit, -1);
+			DFarm[id][playerId] = PlayerInfo[playerid][pID]; 
+
 			format(pDialog[playerid], sizePDialog, WHITE"Penggunaan 1 item "YELLOW"Bibit %s"WHITE".\n"RED"Note :\n- Jaga tanaman anda atau tanaman anda akan dicuri.\n- Tanaman dapat hilang sewaktu-waktu, segera panen jika sudah siap.", nama_item);
 			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", pDialog[playerid], "Ok", "");
 			ClearAnimations(playerid);
@@ -2497,6 +2521,7 @@ publicFor: progressRevive(playerid){
 				
 				PlayerInfo[playerid][hungryStackedTime] = 0;
 				PlayerInfo[playerid][thirstyStackedTime] = 0;
+				PlayerInfo[playerid][energyStackedTime] = 0;
 				
 				// Reset Timer
 				if(PlayerInfo[target_id][timerPemain] != -1)
@@ -2595,6 +2620,7 @@ publicFor: progressNambang(playerid, dari_tambang){
 		PlayerInfo[playerid][sisaPalu]--;
 
 		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 1.5);
+		setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) - STATUS_ENERGI_BERKURANG_SAAT_NAMBANG);
 
 		if(dari_tambang == 1){
 			// Real Probalities
@@ -2605,13 +2631,13 @@ publicFor: progressNambang(playerid, dari_tambang){
 				tambahItemPlayer(playerid, ID_BERLIAN, 1);
 				// Achievement
 				PlayerInfo[playerid][ach_Berlian]++;
-			}else if(angka >= 100 && angka <= 8000){ // Kemungkinan 0,79%
+			}else if(angka >= 100 && angka <= 3000){ // Kemungkinan 0,29%
 				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"emas.");
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Emas adalah hasil tambang yang sangat langka dan mahal, luar biasa.");
 				tambahItemPlayer(playerid, ID_EMAS, 1);
 				// Achievement
 				PlayerInfo[playerid][ach_Emas]++;
-			}else if(angka >= 8001 && angka <= 58001){ // Kemungkinan 5%
+			}else if(angka >= 3001 && angka <= 58000){ // Kemungkinan 5,5%
 				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "ORANGE"perak.");
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Perak sangat berguna untuk banyak hal, kerja bagus.");
 				tambahItemPlayer(playerid, ID_PERAK, 1);
@@ -2632,11 +2658,11 @@ publicFor: progressNambang(playerid, dari_tambang){
 			}
 			else if(angka >= 120001 && angka <= 370000){ // Kemungkinan 25%
 				new const rand = random(100) + 1;
-				if(rand >= 1 && rand <= 3){ // 3% 
+				if(rand >= 1 && rand <= 2){ // 2% 
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"serbuk berlian.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk berlian merupakan bahan dasar berlian.");
 					tambahItemPlayer(playerid, ID_SERBUK_BERLIAN, 1);
-				}else if(rand >= 4 && rand <= 8){ // 5%
+				}else if(rand >= 3 && rand <= 7){ // 5%
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "YELLOW"serbuk emas.");
 					SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Serbuk emas merupakan bahan dasar emas.");
 					tambahItemPlayer(playerid, ID_SERBUK_EMAS, 1);
@@ -2763,6 +2789,33 @@ publicFor: konfirmasiPembuatanRekening(playerid, ada){
 	return 1;
 }
 
+publicFor: konfirmasiUpgradeRumah(playerid, id){
+	new terpasang,
+		upgradeRate = houseInfo[id][hLevel] * HARGA_UPGRADE_RUMAH_PER_LEVEL;
+	cache_get_value_name_int(0, "terpasang", terpasang);
+	if(GetJumlahItemPlayer(playerid, ID_KAYU) < getKayuForUpgradeHouse(houseInfo[id][hLevel]) || GetJumlahItemPlayer(playerid, ID_BESI) < getBesiForUpgradeHouse(houseInfo[id][hLevel]) || GetJumlahItemPlayer(playerid, ID_BATU_BATA) < getBatuBataForUpgradeHouse(houseInfo[id][hLevel]))
+		return sendPesan(playerid, COLOR_ORANGE, TAG_RUMAH"  "WHITE"Anda harus memiliki %d kayu, %d besi, dan %d batu bata untuk upgrade ke level selanjutnya.", getKayuForUpgradeHouse(houseInfo[id][hLevel]), getBesiForUpgradeHouse(houseInfo[id][hLevel]), getBatuBataForUpgradeHouse(houseInfo[id][hLevel]));
+	
+	if(!terpasang){
+		givePlayerUang(playerid, -upgradeRate);
+		tambahItemPlayer(playerid, ID_KAYU, -getKayuForUpgradeHouse(houseInfo[id][hLevel]));
+		tambahItemPlayer(playerid, ID_BESI, -getBesiForUpgradeHouse(houseInfo[id][hLevel]));
+		tambahItemPlayer(playerid, ID_BATU_BATA, -getBatuBataForUpgradeHouse(houseInfo[id][hLevel]));
+
+		houseInfo[id][hLevel] = houseInfo[id][hLevel] + 1;
+
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `level` = '%d' WHERE id_house = %d", houseInfo[id][hLevel], houseInfo[id][hID]);
+		mysql_tquery(koneksi, pQuery[playerid]);
+
+		reloadHouseLabel(id);
+		sendPesan(playerid, COLOR_GREEN, TAG_RUMAH" "WHITE"Anda berhasil mengupgrade rumah ke level %d.", houseInfo[id][hLevel]);
+		sendPesan(playerid, COLOR_YELLOW, TAG_RUMAH" "WHITE"Anda telah dikenakan harga "GREEN"$%d", upgradeRate);
+	}else{
+		SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Anda harus melepas semua furniture di dalam rumah terlebih dahulu!");
+	}	
+	return 1;
+}
+
 publicFor: cekSudahBisaAmbilKTP(playerid){
 	new sudah_selesai, tanggal_pengambilan[50];
 	if(cache_num_rows()){
@@ -2807,63 +2860,6 @@ publicFor: inputNomorRekeningATMBaru(playerid, ada){
 		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Tidak memiliki KTP", WHITE"Anda harus memiliki KTP terlebih dahulu untuk dapat mendaftarkan rekening ATM.", "Ok", "");
 	}
 	return 1;
-}
-
-publicFor: selesaiNambang(playerid){
-	ClearAnimations(playerid);
-	PlayerInfo[playerid][isOnAnimation] = false;
-	PlayerInfo[playerid][isBusy] = false;
-
-	TogglePlayerControllable(playerid, 1);
-	if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
-
-	PlayerInfo[playerid][sisaPalu]--;
-
-	setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 1.5);
-
-	// Testing Probalities
-	new angka = random(15);
-	switch(angka){
-		case 1:
-		{
-			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
-			tambahItemPlayer(playerid, 10, 1);
-		}
-		case 2..3:
-		{
-			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
-			tambahItemPlayer(playerid, 9, 1);
-		}
-		case 4..6:{
-			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Aluminium"WHITE".\nAluminium adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
-			tambahItemPlayer(playerid, 11, 1);
-		}
-		case 7..9:
-		{
-			showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
-			tambahItemPlayer(playerid, 12, 1);
-		}
-		default:{
-			SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
-		}
-	}
-	// Real Probalities
-	// new angka = random(1000000);
-	// if(angka > 0 && angka <= 80){ // Probabilitas 0,008%
-	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "LIGHT_BLUE"Berlian"WHITE".\nBerlian adalah hasil tambang nomor satu dan pastinya "PURPLE"sangat langka"WHITE". Luar biasa!\nAnda dapat menjualnya dengan harga sangat tinggi.");
-	// 		tambahItemPlayer(playerid, 10, 1);
-	// }else if(angka >= 1601 && angka <= 20000){ // Kemungkinan 1,84%
-	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "YELLOW"Emas"WHITE".\nEmas adalah hasil tambang yang sangat bagus, dan "PURPLE"langka"WHITE". Sangat beruntung!");
-	// 		tambahItemPlayer(playerid, 9, 1);
-	// }else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
-	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "SILVER"Aluminium"WHITE".\nAluminium adalah hasil tambang yang berguna dan juga "BLUE"diminati orang banyak"WHITE". Keren sekali!");
-	// 		tambahItemPlayer(playerid, 11, 1);
-	// }else if(angka >= 120001 && angka <= 420000){ // Kemungkinan 30%
-	// 		showDialogPesan(playerid, "Hasil Tambang", GREEN"Selamat Anda mendapatkan "ORANGE"Perak"WHITE".\nPerak adalah hasil tambang bagus dan "GREEN"berguna untuk banyak hal"WHITE". Kerja bagus!");
-	// 		tambahItemPlayer(playerid, 12, 1);
-	// }else{
-	// 		SendClientMessage(playerid, COLOR_GREY, "[SERVER] Anda tidak mendapatkan apapun silahkan coba lagi.");
-	// }
 }
 
 publicFor: showHistoryGajiPemain(playerid){
@@ -3261,11 +3257,11 @@ tampilkanKotakTerkirim(playerid){
 
 updateOnPlayerDisconnect(playerid){
 	// Position
-	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, Float:last_hp, Float:last_armour, Float:temp_stats_makan, Float:temp_stats_minum, Float:unused_depth[2];
+	new Float:last_spawn_info_x, Float:last_spawn_info_y, Float:last_spawn_info_z, Float:last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, Float:last_hp, Float:last_armour, Float:temp_stats_makan, Float:temp_stats_minum, Float:temp_stats_energi, Float:unused_depth[2];
 	if(PlayerInfo[playerid][sudahSpawn]){
 		GetPlayerPos(playerid, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
 
-		if(CA_IsPlayerInWater(playerid, unused_depth[0], unused_depth[1])){
+		if(CA_IsPlayerInWater(playerid, unused_depth[0], unused_depth[1]) && SS_GetPlayerInterior(playerid) == 0 && SS_GetPlayerVirtualWorld(playerid) == 0){
 			CA_RayCastLine(last_spawn_info_x, last_spawn_info_y, 700.0, last_spawn_info_x, last_spawn_info_y, -1000.0, last_spawn_info_x, last_spawn_info_y, last_spawn_info_z);
 		}
 
@@ -3278,6 +3274,7 @@ updateOnPlayerDisconnect(playerid){
 
 		temp_stats_makan = getStatusMakanPemain(playerid);
 		temp_stats_minum = getStatusMinumPemain(playerid);
+		temp_stats_energi = getStatusEnergiPemain(playerid);
 	}else{
 		if(aktifPanduanStream[playerid] == 1){
 			last_spawn_info_x = PlayerInfo[playerid][last_x];
@@ -3286,14 +3283,14 @@ updateOnPlayerDisconnect(playerid){
 			last_spawn_info_a = PlayerInfo[playerid][last_a];
 		}else{
 			// Reset nilai jadi 0 semua
-			last_hp = last_armour = last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a = temp_stats_makan = temp_stats_minum = 0;
+			last_hp = last_armour = last_spawn_info_x = last_spawn_info_y = last_spawn_info_z = last_spawn_info_a = temp_stats_makan = temp_stats_minum = temp_stats_energi = 0;
 			last_spawn_info_int = last_spawn_info_vw = 0;
 		}
 	}
 
 	new lama_bermain = getTotalLamaBermain(playerid);
 
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', playtime = '%d', in_house = '%d', in_die = %d WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][inDie], PlayerInfo[playerid][pID]);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', last_stats_energi = '%f', playtime = '%d', in_house = '%d', in_die = %d, last_active = NOW() WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, temp_stats_energi, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][inDie], PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 
 	new query_temp_str[1000];
@@ -3689,7 +3686,7 @@ reloadHouseLabel(house_Id){
 	if(houseInfo[house_Id][hSetHarga] != 0){
 		beliRate = houseInfo[house_Id][hSetHarga];
 	}else{
-		beliRate = getHousePrice(house_Id, "beli");
+		beliRate = houseInfo[house_Id][hHarga];
 	}
 	houseTextInfo[house_Id] = Text3D:INVALID_3DTEXT_ID;
 
@@ -3708,24 +3705,6 @@ reloadHouseLabel(house_Id){
 	
     houseTextInfo[house_Id] = CreateDynamic3DTextLabel(text_info, COLOR_WHITE, houseInfo[house_Id][icon_x], houseInfo[house_Id][icon_y], houseInfo[house_Id][icon_z]+0.75, 5.0);
 }
-
-getHousePrice(house_Id, const method[16] = ""){
-	if(house_Id < MAX_HOUSES){
-		new hargaRate, methodName[16];
-		format(methodName, 16, method);
-		if(sama("beli", methodName)){
-			hargaRate = houseInfo[house_Id][hLevel]*houseInfo[house_Id][hLevel]*houseInfo[house_Id][hHarga];
-		}else if(sama("upgrade", methodName)){
-			hargaRate = houseInfo[house_Id][hLevel]*(houseInfo[house_Id][hLevel]+1)*houseInfo[house_Id][hHarga];
-		}	
-		return hargaRate;
-	}
-	return -1;
-}
-
-#define getKayuForUpgradeHouse(%0)  (%0 * JUMLAH_KAYU_PER_UPGRADE)
-#define getBatuBataForUpgradeHouse(%0)  (%0 * JUMLAH_BATU_BATA_PER_UPGRADE)
-#define getBesiForUpgradeHouse(%0)  (%0 * JUMLAH_BESI_PER_UPGRADE)
 
 todoActive(playerid){
 	if(sweeperJob[playerid] == 1){
@@ -3885,6 +3864,7 @@ publicFor: resetPlayerToDo(playerid){
 
 	PlayerInfo[playerid][hungryStackedTime] = 0;
 	PlayerInfo[playerid][thirstyStackedTime] = 0;
+	PlayerInfo[playerid][energyStackedTime] = 0;
 	PlayerInfo[playerid][inHelp] = 0;
 	RentVehEdit[playerid] = 0;
 	jobSallary[playerid] = 0;
@@ -4288,6 +4268,10 @@ UnloadVehiclePlayer(playerid){
 			{
 				new Float:darah;
 				GetVehicleHealth(PVeh[i][pVehicle], darah);
+
+				if(IsVehicleFlipped(PVeh[i][pVehicle]))
+					darah = 260.0;
+
 				GetVehiclePos(PVeh[i][pVehicle], PVeh[i][pVehCoord][0], PVeh[i][pVehCoord][1], PVeh[i][pVehCoord][2]);
 				GetVehicleZAngle(PVeh[i][pVehicle], PVeh[i][pVehCoord][3]);
 				PVeh[i][pVehDarah] = darah;
@@ -4694,6 +4678,7 @@ publicFor: CutTree(playerid){
         new id = CuttingTreeID[playerid], Float: value = GetPlayerProgressBarValue(playerid, CuttingBar[playerid]) + (MAX_PROGRESS_BAR / CUTTING_TIME);
         if(value >= MAX_PROGRESS_BAR){
             Player_ResetCutting(playerid);
+			setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) - STATUS_ENERGI_BERKURANG_SAAT_POTONG_POHON);
             MoveDynamicObject(DTree[id][treeObjID], DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ] + 0.03, 0.025, DTree[id][treeRX], DTree[id][treeRY] - 80.0, DTree[id][treeRZ]);
 
             DTree[id][treeSecs] = TREE_RESPAWN;
@@ -4863,6 +4848,7 @@ publicFor: DestroyTime(plant_Id){
 		DestroyDynamic3DTextLabel(DFarm[plant_Id][plantLabel]);
 	// DFarm[plant_Id][plantSecs] = 0;
 	DFarm[plant_Id][plantObjID] = -1;
+	DFarm[plant_Id][playerId] = -1; 
 	// DFarm[plant_Id][destroyTimer] = -1;
 	DFarm[plant_Id][plantLabel] = Text3D: -1;
 	return 1;
@@ -4871,7 +4857,7 @@ publicFor: DestroyTime(plant_Id){
 playerMaxPlant(playerid){
 	new count = 0;
     foreach(new i : PlantIterator){
-		if(DFarm[i][playerId] == playerid){
+		if(DFarm[i][playerId] == PlayerInfo[playerid][pID]){
 			count++;
 			if(count == 5){
 				return 1;
@@ -4955,6 +4941,9 @@ randomIkan(playerid){
 		angka = 0;
 	}
 
+	// Kurangkan energi
+	setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) - STATUS_ENERGI_BERKURANG_SAAT_MANCING);
+
 	re_switch:
 	if((curr_weather_id == ID_WEATHER_RAIN && angka <= 3) || (curr_weather_id != ID_WEATHER_RAIN && angka == 0)){ // 1.4%
 		if(nombakDepth[playerid] > 10.0){ // Ikan Arwana kedalaman > 10
@@ -5020,7 +5009,6 @@ publicFor: waktuMancing(playerid){
 		PlayerInfo[playerid][isBusy] = false;
 		PlayerInfo[playerid][sisaJoran]--;
 		CA_IsPlayerInWater(playerid, depth[0], depth[1]);
-		printf("%f %f", depth[0], depth[1]);
 		// Hitung depth
 		nombakDepth[playerid] = float(random(floatround(depth[0] * 0.75, floatround_round)));
 		randomIkan(playerid);
@@ -5115,6 +5103,11 @@ publicFor: pemainUpdate(playerid){
 	if(++PlayerInfo[playerid][thirstyStackedTime] >= 90){
 		PlayerInfo[playerid][thirstyStackedTime] = 0;
 		setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - STATUS_MINUM_BERKURANG_PER_WAKTU);
+	}
+
+	if(++PlayerInfo[playerid][energyStackedTime] >= 60){
+		PlayerInfo[playerid][energyStackedTime] = 0;
+		setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) + STATUS_ENERGI_BERTAMBAH_PER_WAKTU);
 	}
 
 	if(gettime() < PlayerInfo[playerid][masaAktifJamsos]) {

@@ -53,6 +53,7 @@ enum pInfo
 
     Float:last_stats_makan,
     Float:last_stats_minum,
+    Float:last_stats_energi,
 
     // Status
     Float:lastHp,
@@ -60,6 +61,7 @@ enum pInfo
 
     Float:statusMakan,
     Float:statusMinum,
+    Float:statusEnergi,
 
 	statusVw,
 	statusInt,
@@ -128,6 +130,7 @@ enum pInfo
 
 	hungryStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 	thirstyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
+	energyStackedTime, // Untuk menghitung waktu yang berlalu di timer player update
 
 	timerPemain,
 	timerDie, // countdown saat died
@@ -253,9 +256,9 @@ new PlayerText:showItem[MAX_PLAYERS][6];
 new PlayerText:myInfo[MAX_PLAYERS][9];
 // new PlayerText:RadarUang[MAX_PLAYERS][2];
 
-new Text:HUD_Stats_PB[5];
+new Text:HUD_Stats_PB[7];
 new PlayerText:HUD_Stats[MAX_PLAYERS][1];
-new PlayerBar:HUD_Stats_Bar[MAX_PLAYERS][2];
+new PlayerBar:HUD_Stats_Bar[MAX_PLAYERS][3];
 
 new Text:TD_JamTanggal[2];
 /*
@@ -845,20 +848,6 @@ new Iterator:montirL_Veh<MAX_VEHICLES>,
 	montirL_Tiang[MAX_PLAYERS] = {-1},
 	montirL_TiangProses[MAX_PLAYERS] = {-1, ...},
 	montirL_TiangCap[MAX_PLAYERS];
-
-/* Ojol */
-new ojol_Job[MAX_PLAYERS],
-    ojol_Id[MAX_VEHICLES] = {-1, ...},
-    ojol_Veh[MAX_PLAYERS] = {-1, ...},
-    ojol_Passenger[MAX_PLAYERS] = {-1, ...},
-	ojol_AppShow[MAX_PLAYERS],
-	ojol_AppTimer[MAX_PLAYERS] = {-1, ...},
-	Float:ojol_startX[MAX_PLAYERS],
-	Float:ojol_startY[MAX_PLAYERS],
-	Float:ojol_startZ[MAX_PLAYERS],
-	Float:ojol_endX[MAX_PLAYERS],
-	Float:ojol_endY[MAX_PLAYERS],
-	Float:ojol_endZ[MAX_PLAYERS];
 
 new ambulance_Veh[2];
 

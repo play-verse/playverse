@@ -4,109 +4,138 @@ Nickk888 is the author of the NTD script
 */
 
 //Variables
-new Text:HUD_Stats_PB[5];
-new PlayerText:HUD_Stats[MAX_PLAYERS][1];
-new PlayerBar:HUD_Stats_Bar[MAX_PLAYERS][2];
+new Text:PublicTD[7];
+new PlayerText:PlayerTD[MAX_PLAYERS][1];
+new PlayerBar:PlayerProgressBar[MAX_PLAYERS][3];
 
 //Textdraws
-HUD_Stats_PB[0] = TextDrawCreate(502.000000, 344.000000, "Lapar");
-TextDrawFont(HUD_Stats_PB[0], 1);
-TextDrawLetterSize(HUD_Stats_PB[0], 0.400000, 1.649999);
-TextDrawTextSize(HUD_Stats_PB[0], 400.000000, 17.000000);
-TextDrawSetOutline(HUD_Stats_PB[0], 1);
-TextDrawSetShadow(HUD_Stats_PB[0], 0);
-TextDrawAlignment(HUD_Stats_PB[0], 1);
-TextDrawColor(HUD_Stats_PB[0], -1);
-TextDrawBackgroundColor(HUD_Stats_PB[0], 255);
-TextDrawBoxColor(HUD_Stats_PB[0], 50);
-TextDrawUseBox(HUD_Stats_PB[0], 0);
-TextDrawSetProportional(HUD_Stats_PB[0], 1);
-TextDrawSetSelectable(HUD_Stats_PB[0], 0);
+PublicTD[0] = TextDrawCreate(502.000000, 337.000000, "Lapar");
+TextDrawFont(PublicTD[0], 1);
+TextDrawLetterSize(PublicTD[0], 0.400000, 1.649999);
+TextDrawTextSize(PublicTD[0], 400.000000, 17.000000);
+TextDrawSetOutline(PublicTD[0], 1);
+TextDrawSetShadow(PublicTD[0], 0);
+TextDrawAlignment(PublicTD[0], 1);
+TextDrawColor(PublicTD[0], -1);
+TextDrawBackgroundColor(PublicTD[0], 255);
+TextDrawBoxColor(PublicTD[0], 50);
+TextDrawUseBox(PublicTD[0], 0);
+TextDrawSetProportional(PublicTD[0], 1);
+TextDrawSetSelectable(PublicTD[0], 0);
 
-HUD_Stats_PB[1] = TextDrawCreate(562.000000, 344.000000, "HUD:radar_pizza");
-TextDrawFont(HUD_Stats_PB[1], 4);
-TextDrawLetterSize(HUD_Stats_PB[1], 0.600000, 2.000000);
-TextDrawTextSize(HUD_Stats_PB[1], 15.500000, 14.000000);
-TextDrawSetOutline(HUD_Stats_PB[1], 1);
-TextDrawSetShadow(HUD_Stats_PB[1], 0);
-TextDrawAlignment(HUD_Stats_PB[1], 1);
-TextDrawColor(HUD_Stats_PB[1], -1);
-TextDrawBackgroundColor(HUD_Stats_PB[1], 255);
-TextDrawBoxColor(HUD_Stats_PB[1], 50);
-TextDrawUseBox(HUD_Stats_PB[1], 1);
-TextDrawSetProportional(HUD_Stats_PB[1], 1);
-TextDrawSetSelectable(HUD_Stats_PB[1], 0);
+PublicTD[1] = TextDrawCreate(562.000000, 338.000000, "HUD:radar_pizza");
+TextDrawFont(PublicTD[1], 4);
+TextDrawLetterSize(PublicTD[1], 0.600000, 2.000000);
+TextDrawTextSize(PublicTD[1], 15.500000, 14.000000);
+TextDrawSetOutline(PublicTD[1], 1);
+TextDrawSetShadow(PublicTD[1], 0);
+TextDrawAlignment(PublicTD[1], 1);
+TextDrawColor(PublicTD[1], -1);
+TextDrawBackgroundColor(PublicTD[1], 255);
+TextDrawBoxColor(PublicTD[1], 50);
+TextDrawUseBox(PublicTD[1], 1);
+TextDrawSetProportional(PublicTD[1], 1);
+TextDrawSetSelectable(PublicTD[1], 0);
 
-HUD_Stats_PB[2] = TextDrawCreate(502.000000, 391.000000, "Haus");
-TextDrawFont(HUD_Stats_PB[2], 1);
-TextDrawLetterSize(HUD_Stats_PB[2], 0.400000, 1.649999);
-TextDrawTextSize(HUD_Stats_PB[2], 400.000000, 17.000000);
-TextDrawSetOutline(HUD_Stats_PB[2], 1);
-TextDrawSetShadow(HUD_Stats_PB[2], 0);
-TextDrawAlignment(HUD_Stats_PB[2], 1);
-TextDrawColor(HUD_Stats_PB[2], -1);
-TextDrawBackgroundColor(HUD_Stats_PB[2], 255);
-TextDrawBoxColor(HUD_Stats_PB[2], 50);
-TextDrawUseBox(HUD_Stats_PB[2], 0);
-TextDrawSetProportional(HUD_Stats_PB[2], 1);
-TextDrawSetSelectable(HUD_Stats_PB[2], 0);
+PublicTD[2] = TextDrawCreate(502.000000, 374.000000, "Haus");
+TextDrawFont(PublicTD[2], 1);
+TextDrawLetterSize(PublicTD[2], 0.400000, 1.649999);
+TextDrawTextSize(PublicTD[2], 400.000000, 17.000000);
+TextDrawSetOutline(PublicTD[2], 1);
+TextDrawSetShadow(PublicTD[2], 0);
+TextDrawAlignment(PublicTD[2], 1);
+TextDrawColor(PublicTD[2], -1);
+TextDrawBackgroundColor(PublicTD[2], 255);
+TextDrawBoxColor(PublicTD[2], 50);
+TextDrawUseBox(PublicTD[2], 0);
+TextDrawSetProportional(PublicTD[2], 1);
+TextDrawSetSelectable(PublicTD[2], 0);
 
-HUD_Stats_PB[3] = TextDrawCreate(562.000000, 391.000000, "HUD:radar_diner");
-TextDrawFont(HUD_Stats_PB[3], 4);
-TextDrawLetterSize(HUD_Stats_PB[3], 0.600000, 2.000000);
-TextDrawTextSize(HUD_Stats_PB[3], 15.500000, 14.000000);
-TextDrawSetOutline(HUD_Stats_PB[3], 1);
-TextDrawSetShadow(HUD_Stats_PB[3], 0);
-TextDrawAlignment(HUD_Stats_PB[3], 1);
-TextDrawColor(HUD_Stats_PB[3], -1);
-TextDrawBackgroundColor(HUD_Stats_PB[3], 255);
-TextDrawBoxColor(HUD_Stats_PB[3], 50);
-TextDrawUseBox(HUD_Stats_PB[3], 1);
-TextDrawSetProportional(HUD_Stats_PB[3], 1);
-TextDrawSetSelectable(HUD_Stats_PB[3], 0);
+PublicTD[3] = TextDrawCreate(562.000000, 375.000000, "HUD:radar_diner");
+TextDrawFont(PublicTD[3], 4);
+TextDrawLetterSize(PublicTD[3], 0.600000, 2.000000);
+TextDrawTextSize(PublicTD[3], 15.500000, 14.000000);
+TextDrawSetOutline(PublicTD[3], 1);
+TextDrawSetShadow(PublicTD[3], 0);
+TextDrawAlignment(PublicTD[3], 1);
+TextDrawColor(PublicTD[3], -1);
+TextDrawBackgroundColor(PublicTD[3], 255);
+TextDrawBoxColor(PublicTD[3], 50);
+TextDrawUseBox(PublicTD[3], 1);
+TextDrawSetProportional(PublicTD[3], 1);
+TextDrawSetSelectable(PublicTD[3], 0);
 
-HUD_Stats_PB[4] = TextDrawCreate(567.000000, 328.000000, "_");
-TextDrawFont(HUD_Stats_PB[4], 1);
-TextDrawLetterSize(HUD_Stats_PB[4], 0.600000, 13.800003);
-TextDrawTextSize(HUD_Stats_PB[4], 178.500000, 148.500000);
-TextDrawSetOutline(HUD_Stats_PB[4], 1);
-TextDrawSetShadow(HUD_Stats_PB[4], 0);
-TextDrawAlignment(HUD_Stats_PB[4], 2);
-TextDrawColor(HUD_Stats_PB[4], -1);
-TextDrawBackgroundColor(HUD_Stats_PB[4], 255);
-TextDrawBoxColor(HUD_Stats_PB[4], 135);
-TextDrawUseBox(HUD_Stats_PB[4], 1);
-TextDrawSetProportional(HUD_Stats_PB[4], 1);
-TextDrawSetSelectable(HUD_Stats_PB[4], 0);
+PublicTD[4] = TextDrawCreate(532.000000, 325.000000, "Preview_Model");
+TextDrawFont(PublicTD[4], 5);
+TextDrawLetterSize(PublicTD[4], 0.600000, 2.000000);
+TextDrawTextSize(PublicTD[4], 153.500000, 165.000000);
+TextDrawSetOutline(PublicTD[4], 0);
+TextDrawSetShadow(PublicTD[4], 0);
+TextDrawAlignment(PublicTD[4], 1);
+TextDrawColor(PublicTD[4], -1);
+TextDrawBackgroundColor(PublicTD[4], 0);
+TextDrawBoxColor(PublicTD[4], 255);
+TextDrawUseBox(PublicTD[4], 0);
+TextDrawSetProportional(PublicTD[4], 1);
+TextDrawSetSelectable(PublicTD[4], 0);
+TextDrawSetPreviewModel(PublicTD[4], 0);
+TextDrawSetPreviewRot(PublicTD[4], -10.000000, 0.000000, -20.000000, 1.000000);
+TextDrawSetPreviewVehCol(PublicTD[4], 1, 1);
 
-HUD_Stats[playerid][0] = CreatePlayerTextDraw(playerid, 532.000000, 325.000000, "Preview_Model");
-PlayerTextDrawFont(HUD_Stats[playerid][0], 5);
-PlayerTextDrawLetterSize(HUD_Stats[playerid][0], 0.600000, 2.000000);
-PlayerTextDrawTextSize(HUD_Stats[playerid][0], 153.500000, 165.000000);
-PlayerTextDrawSetOutline(HUD_Stats[playerid][0], 0);
-PlayerTextDrawSetShadow(HUD_Stats[playerid][0], 0);
-PlayerTextDrawAlignment(HUD_Stats[playerid][0], 1);
-PlayerTextDrawColor(HUD_Stats[playerid][0], -1);
-PlayerTextDrawBackgroundColor(HUD_Stats[playerid][0], 0);
-PlayerTextDrawBoxColor(HUD_Stats[playerid][0], 255);
-PlayerTextDrawUseBox(HUD_Stats[playerid][0], 0);
-PlayerTextDrawSetProportional(HUD_Stats[playerid][0], 1);
-PlayerTextDrawSetSelectable(HUD_Stats[playerid][0], 0);
-PlayerTextDrawSetPreviewModel(HUD_Stats[playerid][0], 0);
-PlayerTextDrawSetPreviewRot(HUD_Stats[playerid][0], -10.000000, 0.000000, -20.000000, 1.000000);
-PlayerTextDrawSetPreviewVehCol(HUD_Stats[playerid][0], 1, 1);
+PublicTD[5] = TextDrawCreate(502.000000, 408.000000, "Energi");
+TextDrawFont(PublicTD[5], 1);
+TextDrawLetterSize(PublicTD[5], 0.400000, 1.649999);
+TextDrawTextSize(PublicTD[5], 400.000000, 17.000000);
+TextDrawSetOutline(PublicTD[5], 1);
+TextDrawSetShadow(PublicTD[5], 0);
+TextDrawAlignment(PublicTD[5], 1);
+TextDrawColor(PublicTD[5], -1);
+TextDrawBackgroundColor(PublicTD[5], 255);
+TextDrawBoxColor(PublicTD[5], 50);
+TextDrawUseBox(PublicTD[5], 0);
+TextDrawSetProportional(PublicTD[5], 1);
+TextDrawSetSelectable(PublicTD[5], 0);
+
+PublicTD[6] = TextDrawCreate(562.000000, 409.000000, "HUD:radar_gym");
+TextDrawFont(PublicTD[6], 4);
+TextDrawLetterSize(PublicTD[6], 0.600000, 2.000000);
+TextDrawTextSize(PublicTD[6], 15.500000, 14.000000);
+TextDrawSetOutline(PublicTD[6], 1);
+TextDrawSetShadow(PublicTD[6], 0);
+TextDrawAlignment(PublicTD[6], 1);
+TextDrawColor(PublicTD[6], -1);
+TextDrawBackgroundColor(PublicTD[6], 255);
+TextDrawBoxColor(PublicTD[6], 50);
+TextDrawUseBox(PublicTD[6], 1);
+TextDrawSetProportional(PublicTD[6], 1);
+TextDrawSetSelectable(PublicTD[6], 0);
 
 
 //Player Textdraws
-
+PlayerTD[playerid][0] = CreatePlayerTextDraw(playerid, 567.000000, 328.000000, "_");
+PlayerTextDrawFont(playerid, PlayerTD[playerid][0], 1);
+PlayerTextDrawLetterSize(playerid, PlayerTD[playerid][0], 0.600000, 13.800003);
+PlayerTextDrawTextSize(playerid, PlayerTD[playerid][0], 178.500000, 148.500000);
+PlayerTextDrawSetOutline(playerid, PlayerTD[playerid][0], 1);
+PlayerTextDrawSetShadow(playerid, PlayerTD[playerid][0], 0);
+PlayerTextDrawAlignment(playerid, PlayerTD[playerid][0], 2);
+PlayerTextDrawColor(playerid, PlayerTD[playerid][0], -1);
+PlayerTextDrawBackgroundColor(playerid, PlayerTD[playerid][0], 255);
+PlayerTextDrawBoxColor(playerid, PlayerTD[playerid][0], 135);
+PlayerTextDrawUseBox(playerid, PlayerTD[playerid][0], 1);
+PlayerTextDrawSetProportional(playerid, PlayerTD[playerid][0], 1);
+PlayerTextDrawSetSelectable(playerid, PlayerTD[playerid][0], 0);
 
 
 /*Player Progress Bars
 Requires "progress2" include by Southclaws
 Download: https://github.com/Southclaws/progress2/releases */
-HUD_Stats_Bar[playerid][0] = CreatePlayerProgressBar(playerid, 503.000000, 365.000000, 81.500000, 7.000000, -65281, 100.000000, 0);
-SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][0], 50.000000);
+PlayerProgressBar[playerid][0] = CreatePlayerProgressBar(playerid, 503.000000, 356.000000, 81.500000, 7.000000, -65281, 100.000000, 0);
+SetPlayerProgressBarValue(playerid, PlayerProgressBar[playerid][0], 50.000000);
 
-HUD_Stats_Bar[playerid][1] = CreatePlayerProgressBar(playerid, 503.000000, 412.000000, 81.500000, 7.000000, 1097458175, 100.000000, 0);
-SetPlayerProgressBarValue(playerid, HUD_Stats_Bar[playerid][1], 50.000000);
+PlayerProgressBar[playerid][1] = CreatePlayerProgressBar(playerid, 503.000000, 393.000000, 81.500000, 7.000000, 1097458175, 100.000000, 0);
+SetPlayerProgressBarValue(playerid, PlayerProgressBar[playerid][1], 50.000000);
+
+PlayerProgressBar[playerid][2] = CreatePlayerProgressBar(playerid, 503.000000, 427.000000, 81.500000, 7.000000, 9109759, 100.000000, 0);
+SetPlayerProgressBarValue(playerid, PlayerProgressBar[playerid][2], 50.000000);
 

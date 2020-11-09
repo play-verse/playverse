@@ -98,6 +98,7 @@ public OnPlayerConnect(playerid)
 
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
 	SELECT a.*, \
+		UNIX_TIMESTAMP(last_active) as last_active_unix,\
 		sum(b.jumlah) as limit_item \
 	FROM `user` a \
 	LEFT JOIN user_item_limit b \
@@ -1992,7 +1993,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 				for(new i = 0; i < MAX_HOUSES; i++){
 					if(housePickup[i] != -1){
-						new beliRate = getHousePrice(i, "beli");
+						new beliRate = houseInfo[i][hHarga];
 						new ownerId = INVALID_PLAYER_ID;
 						foreach(new j : Player){
 							if(houseInfo[i][hOwner] == PlayerInfo[j][pID]){
@@ -2055,7 +2056,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new pmsg[256], userId;
 				inline responseQuery(){
 					if(cache_num_rows()){
-						new beliRate = getHousePrice(id, "beli");
+						new beliRate = houseInfo[id][hHarga];
 						cache_get_value_name_int(0, "id_user", userId);
 						
 						mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, userId);
@@ -2117,7 +2118,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				for(new i = 0; i < MAX_HOUSES; i++){
 					if(housePickup[i] != -1){
-						new beliRate = getHousePrice(i, "beli");
+						new beliRate = houseInfo[i][hHarga];
 						new ownerId = INVALID_PLAYER_ID;
 						foreach(new j : Player){
 							if(PlayerInfo[j][pID] == houseInfo[i][hOwner]){
@@ -2165,7 +2166,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				GetPVarString(playerid, "info_rumah", infoRumah, 128);
 				id = houseId[lastHousePickup[playerid]];
 				houseLevel = houseInfo[id][hLevel];
-				beliRate = getHousePrice(id, "beli");
+				beliRate = houseInfo[id][hHarga];
 				if(sama("set_harga_rumah", infoRumah)){
 					if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_INFO_RUMAH, DIALOG_STYLE_INPUT, "Ubah Harga Rumah", RED"Harga tidak boleh kosong!\n"WHITE"Silahkan input harga berupa angka.", "Jual", "Batal");
 					if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_INFO_RUMAH, DIALOG_STYLE_INPUT, "Ubah Harga Rumah", RED"Harga tidak valid!\n"WHITE"Anda harus menginput harga berupa angka.", "Jual", "Batal");
@@ -2189,7 +2190,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						case 2:
 						{
-							goto label_upgrade_rumah;
+							format(pDialog[playerid], sizePDialog, 
+								WHITE"Anda akan mengupgrade rumah menjadi "GREEN"level %d\n\
+								"WHITE"Dengan biaya:\n\
+								- Uang : "GREEN"$%d\n\
+								"WHITE"- Kayu : "ORANGE"%d\n\
+								"WHITE"- Besi : "ORANGE"%d\n\
+								"WHITE"- Batu Bata : "ORANGE"%d\n\n\
+								"WHITE"Apakah anda bersedia untuk mengupgradenya?",
+								houseInfo[id][hLevel] + 1,
+								houseInfo[id][hLevel] * HARGA_UPGRADE_RUMAH_PER_LEVEL,
+								getKayuForUpgradeHouse(houseInfo[id][hLevel]),
+								getBesiForUpgradeHouse(houseInfo[id][hLevel]),
+								getBatuBataForUpgradeHouse(houseInfo[id][hLevel]));
+							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_UPGRADE_RUMAH, DIALOG_STYLE_MSGBOX, "Konfirmasi Upgrade Rumah", pDialog[playerid], "Upgrade", "Batal");
+							SetPVarInt(playerid, "temp_id", id);
 						}
 						case 3:
 						{
@@ -2230,38 +2245,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						case 2:
 						{
-							label_upgrade_rumah:							    
-							if(houseLevel < MAX_HOUSES_LEVEL){
-								new upgradeRate = getHousePrice(id, "upgrade");
-								if(getUangPlayer(playerid) < upgradeRate) return SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf uang anda tidak mencukupi!");
-
-								inline responseQuery(){
-									new terpasang;
-									cache_get_value_name_int(0, "terpasang", terpasang);
-									if(GetJumlahItemPlayer(playerid, ID_KAYU) < getKayuForUpgradeHouse(houseInfo[id][hLevel]) || GetJumlahItemPlayer(playerid, ID_BESI) < getBesiForUpgradeHouse(houseInfo[id][hLevel]) || GetJumlahItemPlayer(playerid, ID_BATU_BATA) < getBatuBataForUpgradeHouse(houseInfo[id][hLevel]))
-										return sendPesan(playerid, COLOR_ORANGE, TAG_RUMAH" "WHITE"Anda harus memiliki %d kayu, %d besi, dan %d batu bata untuk upgrade ke level selanjutnya.", getKayuForUpgradeHouse(houseInfo[id][hLevel]), getBesiForUpgradeHouse(houseInfo[id][hLevel]), getBatuBataForUpgradeHouse(houseInfo[id][hLevel]));
-									
-									if(!terpasang){
-										givePlayerUang(playerid, -upgradeRate);
-										tambahItemPlayer(playerid, 25, -getKayuForUpgradeHouse(houseInfo[id][hLevel]));
-
-										houseInfo[id][hLevel] = houseLevel + 1;
-
-										mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `level` = '%d'", houseInfo[id][hLevel]);
-										mysql_tquery(koneksi, pQuery[playerid]);
-										reloadHouseLabel(id);
-										sendPesan(playerid, COLOR_GREEN, TAG_RUMAH" "WHITE"Anda berhasil mengupgrade rumah ke level %d.", houseInfo[id][hLevel]);
-										sendPesan(playerid, COLOR_YELLOW, "[INFO] "WHITE"Anda telah dikenakan harga "GREEN"$%d", upgradeRate);
-										return 1;
-									}else{
-										return sendPesan(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Anda harus melepas semua furniture di dalam rumah terlebih dahulu!");
-									}
-								}
-								MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT COUNT(*) as terpasang FROM house_furniture WHERE id_house = '%d'", id);
-							}else{
-								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf level rumah anda sudah maksimal!");
-							}
-							DeletePVar(playerid, "info_rumah");
+							format(pDialog[playerid], sizePDialog, 
+								WHITE"Anda akan mengupgrade rumah menjadi "GREEN"level %d\n\
+								"WHITE"Dengan biaya:\n\
+								- Uang : "GREEN"$%d\n\
+								"WHITE"- Kayu : "ORANGE"%d\n\
+								"WHITE"- Besi : "ORANGE"%d\n\
+								"WHITE"- Batu Bata : "ORANGE"%d\n\n\
+								"WHITE"Apakah anda bersedia untuk mengupgradenya?",
+								houseInfo[id][hLevel] + 1,
+								houseInfo[id][hLevel] * HARGA_UPGRADE_RUMAH_PER_LEVEL,
+								getKayuForUpgradeHouse(houseInfo[id][hLevel]),
+								getBesiForUpgradeHouse(houseInfo[id][hLevel]),
+								getBatuBataForUpgradeHouse(houseInfo[id][hLevel]));
+							ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_UPGRADE_RUMAH, DIALOG_STYLE_MSGBOX, "Konfirmasi Upgrade Rumah", pDialog[playerid], "Upgrade", "Batal");
+							SetPVarInt(playerid, "temp_id", id);
 						}
 						case 3:
 						{
@@ -4444,6 +4442,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(!Tree_BeingEdited(tid) && !DTree[tid][treeTumbang] && DTree[tid][treeSecs] < 1){
 									if(IsPlayerInDynamicCP(playerid, DTree[tid][treeCP])){
 										if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return error_command(playerid, "Tidak dapat memotong dalam keadaan sekarang.");
+										if(getStatusEnergiPemain(playerid) < STATUS_ENERGI_BERKURANG_SAAT_POTONG_POHON) 
+											return error_command(playerid, "Anda kehabisan energi, silahkan istirahat untuk mengisinya.");
 										SetPlayerLookAt(playerid, DTree[tid][treeX], DTree[tid][treeY]);
 										Streamer_SetIntData(STREAMER_TYPE_3D_TEXT_LABEL, DTree[tid][treeLabel], E_STREAMER_COLOR, COLOR_WHITE);
 										CuttingTimer[playerid] = SetPreciseTimer("CutTree", 1000, true, "i", playerid);
@@ -5178,13 +5178,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 
 						ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 1, 1, 0, 0, 1);
-						DestroyTime(plant_Id);
-						// Random 9 - 18
 						randomDrop = random(9) + 10;
 						tambahItemPlayer(playerid, DFarm[plant_Id][plantItemID], randomDrop);
-						DFarm[plant_Id][plantItemID] = -1;
+
+						// Random 9 - 18
 						format(pDialog[playerid], sizePDialog, WHITE"Anda berhasil memanen Tanaman %s (id:"YELLOW"%d"WHITE") dan mendapatkan %s sebanyak %d.", DFarm[plant_Id][plantName], plant_Id, DFarm[plant_Id][plantName], randomDrop);
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Farm System", pDialog[playerid], "Ok", "");
+						
+						DestroyTime(plant_Id);
+						DFarm[plant_Id][plantItemID] = -1;
 						// Exp Score
 						TambahExpScore(playerid, EXP_TAMBAH_PANEN);
 					}
@@ -5796,6 +5798,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(GetJumlahItemPlayer(playerid, ID_ROTI_UMPAN_IKAN) <= 0){
 							return error_command(playerid, "Anda tidak memiliki umpan untuk melakukan mancing.");
 						}
+
+						if(getStatusEnergiPemain(playerid) < STATUS_ENERGI_BERKURANG_SAAT_MANCING) 
+							return error_command(playerid, "Anda kehabisan energi, silahkan istirahat untuk mengisinya.");
+
 						tambahItemPlayer(playerid, 43, -1);
 						TogglePlayerControllable(playerid , 0);
 						SetPlayerArmedWeapon(playerid, 0);
@@ -10055,6 +10061,22 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_KONFIRMASI_UPGRADE_RUMAH:
+		{
+			if(response){
+				new id = GetPVarInt(playerid, "temp_id");
+				if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
+					if(getUangPlayer(playerid) < houseInfo[id][hLevel] * HARGA_UPGRADE_RUMAH_PER_LEVEL) 
+						return SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf uang anda tidak mencukupi!");
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT COUNT(*) as terpasang FROM house_furniture WHERE id_house = '%d'", id);
+					mysql_tquery(koneksi, pQuery[playerid], "konfirmasiUpgradeRumah", "ii", playerid, id);
+				}else{
+					SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf level rumah anda sudah maksimal!");
+				}
+				DeletePVar(playerid, "info_rumah");
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -10066,16 +10088,6 @@ public OnPlayerClickPlayer(playerid, clickedplayerid, source)
 		tampilkanTextDrawMyInfo(playerid);
 	}
     return 1;
-}
-
-public OnPlayerClickMap(playerid, Float:fX, Float:fY, Float:fZ)
-{
- 	// Ojol - klik map marker
-	if(ojol_AppShow[playerid] == 1){
-		DeletePreciseTimer(ojol_AppTimer[playerid]);
-		ojol_AppShow[playerid] = 0;
-		ojol_AppTimer[playerid] = -1;
-	}
 }
 
 public OnPlayerClickTextDraw(playerid, Text:clickedid){
@@ -10429,7 +10441,12 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 					return showDialogPesan(playerid, RED"Inventory anda penuh", WHITE"Silahkan sisakan minimal 1 slot item anda terlebih dahulu.\nPengosongan berguna untuk menyisakan tempat untuk hasil yang didapat nantinya.");
 				}
 
-				if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+				if(IsPlayerInAnyVehicle(playerid)) 
+					return error_command(playerid, "Anda harus keluar dari dalam kendaraan.");
+
+				if(getStatusEnergiPemain(playerid) < STATUS_ENERGI_BERKURANG_SAAT_MANCING) 
+					return error_command(playerid, "Anda kehabisan energi, silahkan istirahat untuk mengisinya.");
+
 				if(nombakDelay[playerid] < gettime()){
 					nombakDelay[playerid] = gettime() + 10;
 					nombakDepth[playerid] = depth2;
@@ -12109,6 +12126,8 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 	}else if(pickupid >= PU_tempatKeluarRumah[0] && pickupid <= PU_tempatKeluarRumah[1]){
 		new id_rumah = PlayerInfo[playerid][inHouse];
 		pindahkanPemain(playerid, houseInfo[id_rumah][icon_x], houseInfo[id_rumah][icon_y], houseInfo[id_rumah][icon_z], houseInfo[id_rumah][last_a], 0, 0, true);
+		// Reset Variable
+		PlayerInfo[playerid][inHouse] = 0;
 		return 1;
 	}else if(pickupid == PU_policeDept_in[0]){
 		pindahkanPemain(playerid, 246.6298,64.2289,1003.6406,6.9548, 6, 1, false);

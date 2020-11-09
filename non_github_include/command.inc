@@ -771,14 +771,16 @@ CMD:cook(playerid, params[]){
 
 CMD:bc(playerid, params[]){
     new pesan[256];
-    if(PlayerInfo[playerid][ePhone] == 0) return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
-    if(!IsPemainPunyaNomorAktif(playerid)) return error_command(playerid, "Maaf anda harus memiliki nomor hp yang aktif untuk dapat menggunakan fitur ini.");
+    if(PlayerInfo[playerid][ePhone] == 0) 
+        return error_command(playerid, "Maaf anda harus menggunakan ponsel terlebih dahulu, untuk dpt menggunakan fitur ini.");
+    if(!IsPemainPunyaNomorAktif(playerid)) 
+        return error_command(playerid, "Maaf anda harus memiliki nomor hp yang aktif untuk dapat menggunakan fitur ini.");
 	if(sscanf(params, "s[256]", pesan)) return error_syntax(playerid, "/bc [pesan]");
     if(gettime() - PlayerInfo[playerid][lastGlobalChat] < (2 * 60)){
         format(msg, sizeof(msg), "Anda hanya dapat mengirim pesan broadcast 2 menit sekali, anda harus menunggu %d detik lagi!", 2 * 60 + PlayerInfo[playerid][lastGlobalChat] - gettime());
         return error_command(playerid, msg);
     }
-    format(msg, sizeof(msg), "**[BROADCAST] ("BLUE"+%s"WHITE") : %s", PlayerInfo[playerid][nomorHP], pesan);
+    format(msg, sizeof(msg), "BC "BLUE"(+%s)"WHITE": %s", PlayerInfo[playerid][nomorHP], pesan);
     SendClientMessageToAll(COLOR_WHITE, msg);
     PlayerInfo[playerid][lastGlobalChat] = gettime();
     return 1;
@@ -905,8 +907,10 @@ CMD:suicide(playerid, params[]){
 }
 
 CMD:house(playerid, params[]){
-    if(SS_GetPlayerInterior(playerid) == 0) return error_command(playerid, "Anda tidak di dalam rumah manapun.");
-    if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] != PlayerInfo[playerid][pID]) return error_command(playerid, "Anda bukan pemilik rumah.");
+    if(SS_GetPlayerInterior(playerid) == 0 || PlayerInfo[playerid][inHouse] == 0) 
+        return error_command(playerid, "Anda tidak di dalam rumah manapun.");
+    if(houseInfo[PlayerInfo[playerid][inHouse]][hOwner] != PlayerInfo[playerid][pID]) 
+        return error_command(playerid, "Anda bukan pemilik rumah.");
     ShowPlayerDialog(playerid, DIALOG_MENU_RUMAH, DIALOG_STYLE_LIST, "Menu Rumah : ", "Inventory Rumah\nSemua Furniture", "Pilih", "Tutup");
     return 1;
 }
@@ -927,7 +931,7 @@ CMD:houseinfo(playerid, const params[]){
         format(string, sizeof(string), "Tentang Rumah\nTaruh Pizza");
     }else{
         if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
-            new upgradeRate = getHousePrice(id, "upgrade");
+            new upgradeRate = houseInfo[id][hLevel] * HARGA_UPGRADE_RUMAH_PER_LEVEL;
             if(houseInfo[id][hJual] == 1){
                 SetPVarString(playerid, "info_rumah", "batal_jual");
                 if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
@@ -1082,7 +1086,11 @@ CMD:dig(playerid, params[]){
     if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT)
         return error_command(playerid, "Anda harus berjalan kaki untuk dapat melakukan hal ini."); 
 
-    if(getStatusMakanPemain(playerid) <= 15.0) return error_command(playerid, "Anda kehabisan energi, silahkan makan terlebih dahulu untuk dapat bekerja kembali.");
+    if(getStatusMakanPemain(playerid) <= 15.0) 
+        return error_command(playerid, "Anda kelaparan, silahkan makan terlebih dahulu untuk dapat bekerja kembali.");
+
+    if(getStatusEnergiPemain(playerid) < STATUS_ENERGI_BERKURANG_SAAT_NAMBANG) 
+        return error_command(playerid, "Anda kehabisan energi, silahkan istirahat untuk mengisinya.");
 
     static const kapasitas_unpredict = 5; // Asumsikan dia mendapatkan item dengan kapasitas terbesar yang bisa didapat pada tambang yaitu 5 (berlian)
     if(GetSlotInventoryPlayer(playerid) + kapasitas_unpredict > PlayerInfo[playerid][limitItem]){	
@@ -1899,13 +1907,15 @@ CMD:ooc(playerid, params[]){
 }
 
 CMD:refreshme(playerid, params[]){
-    SS_GetPlayerInterior(playerid);
-    SS_GetPlayerVirtualWorld(playerid);
+    new intTemp = SS_GetPlayerInterior(playerid),
+        intVw = SS_GetPlayerVirtualWorld(playerid);
 
-    new Float:tempPos[3];
-    GetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
-    CA_FindZ_For2DCoord(tempPos[0], tempPos[1], tempPos[2]);
-    SetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+    if(intTemp == 0 && intVw == 0){
+        new Float:tempPos[3];
+        GetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+        CA_FindZ_For2DCoord(tempPos[0], tempPos[1], tempPos[2]);
+        SetPlayerPos(playerid, tempPos[0], tempPos[1], tempPos[2]);
+    }
     return 1;
 }
 
