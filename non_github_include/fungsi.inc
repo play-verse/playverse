@@ -499,6 +499,14 @@ spawnPemain(playerid, dari_callback = 0)
 	new house_Id = PlayerInfo[playerid][sHouse];
 	EnableHealthBarForPlayer(playerid, true);
 
+	// Check Android
+    if(IsPlayerAndroid(playerid)){
+		if(Android_Check[playerid] < 3){
+			// Delay 1 menit
+			Android_Timer[playerid] = SetPreciseTimer("timerCheckAndroid", 1 * 60000, false, "i", playerid);
+		}
+    }
+
 	// Instant respawn
 	if(PlayerInfo[playerid][inDie] == 1){
 		dari_callback = 1;
@@ -5977,4 +5985,18 @@ createTiang(tiang_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:
 		print("Tiang mencapai limit!");
 	}
 	return 0;
+}
+
+publicFor:timerCheckAndroid(playerid){
+	DeletePreciseTimer(Android_Timer[playerid]);
+	Android_Timer[playerid] = -1;
+	// Check Android
+    if(IsPlayerAndroid(playerid)){
+		Android_Check[playerid]++;
+        if(Android_Official[playerid] != 1){
+			SendClientMessage(playerid, COLOR_RED, "Anda harus menggunakan Android Client resmi dari server kami!");
+			KickEx(playerid);
+		}
+    }
+	return 1;
 }

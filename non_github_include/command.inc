@@ -1945,15 +1945,25 @@ CMD:tutorial(playerid, params[]){
 }
 
 CMD:lock(playerid, params[]){
-    new vehid = ClosestVehiclePlayer(playerid);
-    if(vehid == -1){
-        if(IsPlayerInAnyVehicle(playerid)){
-            vehid = GetPlayerVehicleID(playerid);
-            if(PVeh[IDVehToPVeh[vehid]][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], IDVehToPVeh[vehid])){
-                goto label_lock_vehicle_player;
-            }
+    new vehid;
+    if(IsPlayerInAnyVehicle(playerid)){
+        vehid = GetPlayerVehicleID(playerid);
+        if(PVeh[IDVehToPVeh[vehid]][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], IDVehToPVeh[vehid]) && PVehKeysTime[playerid][IDVehToPVeh[vehid]] > gettime()){
+            goto label_lock_vehicle_player;
+        }else{
+            return error_command(playerid, "Anda tidak disekitar kendaraan yang anda miliki atau pinjaman.");
         }
-        return error_command(playerid, "Anda tidak disekitar kendaraan yang anda miliki atau pinjaman.");
+    }else{
+        vehid = ClosestVehiclePlayer(playerid);
+        if(vehid != -1){ 
+            if(PVeh[IDVehToPVeh[vehid]][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], IDVehToPVeh[vehid]) && PVehKeysTime[playerid][IDVehToPVeh[vehid]] > gettime()){
+                goto label_lock_vehicle_player;
+            }else{
+                return error_command(playerid, "Anda tidak disekitar kendaraan yang anda miliki atau pinjaman.");
+            }
+        }else{
+            return error_command(playerid, "Anda tidak disekitar kendaraan yang anda miliki atau pinjaman.");
+        }
     }
     label_lock_vehicle_player:
     new idpv = IDVehToPVeh[vehid];
@@ -1977,15 +1987,26 @@ CMD:lock(playerid, params[]){
 }
 
 CMD:unlock(playerid, params[]){
-    new vehid = ClosestVehiclePlayer(playerid);
-    if(vehid == -1){
-        if(IsPlayerInAnyVehicle(playerid)){
-            vehid = GetPlayerVehicleID(playerid);
-            if(PVeh[IDVehToPVeh[vehid]][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], IDVehToPVeh[vehid])){
-                goto label_unlock_vehicle_player;
-            }
+    new vehid;
+    if(IsPlayerInAnyVehicle(playerid)){
+        vehid = GetPlayerVehicleID(playerid);
+        printf("InVehicle %d", vehid);
+        if(PVeh[IDVehToPVeh[vehid]][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], IDVehToPVeh[vehid]) && PVehKeysTime[playerid][IDVehToPVeh[vehid]] > gettime()){
+            goto label_unlock_vehicle_player;
+        }else{
+            return error_command(playerid, "Anda tidak disekitar kendaraan yang anda miliki atau pinjaman.");
         }
-        return error_command(playerid, "Anda tidak disekitar kendaraan yang anda miliki atau pinjaman.");
+    }else{
+        vehid = ClosestVehiclePlayer(playerid);
+        if(vehid != -1){ 
+            if(PVeh[IDVehToPVeh[vehid]][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], IDVehToPVeh[vehid]) && PVehKeysTime[playerid][IDVehToPVeh[vehid]] > gettime()){
+                goto label_unlock_vehicle_player;
+            }else{
+                return error_command(playerid, "Anda tidak disekitar kendaraan yang anda miliki atau pinjaman.");
+            }
+        }else{
+            return error_command(playerid, "Anda tidak disekitar kendaraan yang anda miliki atau pinjaman.");
+        }
     }
     label_unlock_vehicle_player:
     new idpv = IDVehToPVeh[vehid];
@@ -2008,6 +2029,15 @@ CMD:unlock(playerid, params[]){
     return 1;
 }
 
+CMD:cvoacvrp(playerid, params[]){
+    // Check Android
+    if(IsPlayerAndroid(playerid)){
+        Android_Official[playerid] = 1;
+    }else{
+        Android_Official[playerid] = 0;
+    }
+    return 1;
+}
 // CMD:idmgs(playerid, params[]){
 //     if(IsPlayerInAnyVehicle(playerid)){
 //         new panels, doors, lights, tires;

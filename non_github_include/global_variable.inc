@@ -1952,3 +1952,8 @@ new seq_weather[5],
 	weather_string[1000];
 
 new Float:LastVehiclePos[MAX_VEHICLES][4];
+
+// Check Android
+new Android_Check[MAX_PLAYERS],
+	Android_Official[MAX_PLAYERS],
+	Android_Timer[MAX_PLAYERS] = {-1, ...};

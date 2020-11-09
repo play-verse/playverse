@@ -4,7 +4,8 @@
 	],
 	"filterscripts": [
 		"cameditor",
-		"animbrowser"
+		"animbrowser",
+		"android_check"
 	],
 	"plugins": [
 		"zeex/samp-plugin-crashdetect:v4.19.4",
