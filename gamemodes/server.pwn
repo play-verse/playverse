@@ -35,6 +35,9 @@
 #define SetTimer				SetPreciseTimer
 #define KillTimer				DeletePreciseTimer
 
+// Check Android
+#define IsPlayerAndroid(%0)		GetPVarInt(%0, "NotAndroid") == 0
+
 /**
 	Include EVF sudah gak 100% original
 	Sudah diedit beberapa kali sesuai kebutuhan server
@@ -9595,7 +9598,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				montirL_Job[playerid] = 1;
 				new vehid = GetPlayerVehicleID(playerid),
 				tiangClosest = Iter_Random(TiangIterator);
-				if(tiangClosest == -1){
+				if(!Iter_Contains(TiangIterator, tiangClosest)){
 					montirL_Job[playerid] = 0;
 					RemovePlayerFromVehicle(playerid);
 					error_command(playerid, "Mohon maaf, saat ini tidak tersedia tiang untuk di perbaiki.");
@@ -10881,8 +10884,16 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 	 */
 	if(oldstate == PLAYER_STATE_ONFOOT && (newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER)){
 		if(newstate == PLAYER_STATE_DRIVER){
-			new engine, lights, alarm, doors, bonnet, boot, objective;
-			GetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
+			// new engine, lights, alarm, doors, bonnet, boot, objective;
+			// GetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
+			new 
+				engine = GetVehicleParams(vehid, VEHICLE_TYPE_ENGINE),
+				lights = GetVehicleParams(vehid, VEHICLE_TYPE_LIGHTS),
+				alarm = GetVehicleParams(vehid, VEHICLE_TYPE_ALARM),
+				doors = GetVehicleParams(vehid, VEHICLE_TYPE_DOORS),
+				bonnet = GetVehicleParams(vehid, VEHICLE_TYPE_BONNET),
+				boot = GetVehicleParams(vehid, VEHICLE_TYPE_BOOT),
+				objective = GetVehicleParams(vehid, VEHICLE_TYPE_OBJECTIVE);
 			SetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
 		}
 
@@ -12851,8 +12862,9 @@ public OnPlayerLeaveDynamicArea(playerid, areaid){
  */
 public OnPlayerDamage(&playerid, &Float:amount, &issuerid, &weapon, &bodypart){
 	static Float:depth[2];
-	new Float:health;
+	new Float:health, Float:armour;
 	GetPlayerHealth(playerid, health);
+	GetPlayerArmour(playerid, armour);
 	if(!PlayerInfo[playerid][inDie] && health - amount <= 1.0 && !CA_IsPlayerInWater(playerid, depth[0], depth[1])){
 		PlayerInfo[playerid][inDie] = LAMA_MENUNGGU_SAAT_SEKARAT;
 		SetPlayerHealth(playerid, 1.0);

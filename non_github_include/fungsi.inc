@@ -482,6 +482,14 @@ spawnPemain(playerid, dari_callback = 0)
 	new house_Id = PlayerInfo[playerid][sHouse];
 	EnableHealthBarForPlayer(playerid, true);
 
+	// Check Android
+    if(IsPlayerAndroid(playerid)){
+		if(Android_Check[playerid] < 3){
+			// Delay 1 menit
+			Android_Timer[playerid] = SetPreciseTimer("timerCheckAndroid", 1 * 60000, false, "i", playerid);
+		}
+    }
+
 	// Instant respawn
 	if(PlayerInfo[playerid][inDie] == 1){
 		dari_callback = 1;
@@ -5660,7 +5668,7 @@ ClosestVehiclePlayer(playerid, Float: range = 5.0){
     new id = -1, Float: dist = range, Float: tempdist, Float: tempPos[3];
     foreach(new i : PVehIterator){
 		if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID] || Iter_Contains(PVehKeys[playerid], i)) {
-			GetVehiclePos(i, tempPos[0], tempPos[1], tempPos[2]);
+			GetVehiclePos(PVeh[i][pVehicle], tempPos[0], tempPos[1], tempPos[2]);
 			tempdist = GetPlayerDistanceFromPoint(playerid, tempPos[0], tempPos[1], tempPos[2]);
 			if(tempdist > range) continue;
 			if(tempdist <= dist){
@@ -5983,4 +5991,18 @@ createTiang(tiang_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:
 		print("Tiang mencapai limit!");
 	}
 	return 0;
+}
+
+publicFor:timerCheckAndroid(playerid){
+	DeletePreciseTimer(Android_Timer[playerid]);
+	Android_Timer[playerid] = -1;
+	// Check Android
+    if(IsPlayerAndroid(playerid)){
+		Android_Check[playerid]++;
+        if(Android_Official[playerid] != 1){
+			SendClientMessage(playerid, COLOR_RED, "Anda harus menggunakan Android Client resmi dari server kami!");
+			KickEx(playerid);
+		}
+    }
+	return 1;
 }
