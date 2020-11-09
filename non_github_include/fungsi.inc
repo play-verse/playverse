@@ -5756,6 +5756,7 @@ publicFor: re_GarduPadam(){
 		}
 		server_message(i, WHITE"Pemadaman listrik telah selesai diperbaiki, semua akses dapat digunakan kembali.");
 	}
+	montirL_GarduPadamEvent = 0;
 	return 1;
 }
 
