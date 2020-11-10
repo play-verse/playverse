@@ -4269,8 +4269,8 @@ UnloadVehiclePlayer(playerid){
 				new Float:darah;
 				GetVehicleHealth(PVeh[i][pVehicle], darah);
 
-				if(IsVehicleFlipped(PVeh[i][pVehicle]))
-					darah = 260.0;
+				// if(IsVehicleFlipped(PVeh[i][pVehicle]))
+				// 	darah = 260.0;
 
 				GetVehiclePos(PVeh[i][pVehicle], PVeh[i][pVehCoord][0], PVeh[i][pVehCoord][1], PVeh[i][pVehCoord][2]);
 				GetVehicleZAngle(PVeh[i][pVehicle], PVeh[i][pVehCoord][3]);
@@ -5988,8 +5988,12 @@ createTiang(tiang_Id, Float:tX, Float:tY, Float:tZ, Float:tRX, Float:tRY, Float:
 }
 
 publicFor:timerCheckAndroid(playerid){
-	DeletePreciseTimer(Android_Timer[playerid]);
+	if(Android_Timer[playerid] != -1)
+		DeletePreciseTimer(Android_Timer[playerid]);
 	Android_Timer[playerid] = -1;
+
+	if(!IsPlayerConnected(playerid))
+		return 1;
 	// Check Android
     if(IsPlayerAndroid(playerid)){
 		Android_Check[playerid]++;
