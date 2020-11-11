@@ -275,7 +275,7 @@ setStatusMakanPemain(playerid, Float:jumlah){
 
     if(PlayerInfo[playerid][statusMakan] <= 15.0)
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][0], COLOR_RED);
-    else if(PlayerInfo[playerid][statusMakan] <= 30.0)
+    else if(PlayerInfo[playerid][statusMakan] <= 50.0)
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][0], COLOR_ORANGE);
     else
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][0], COLOR_YELLOW);
@@ -305,7 +305,7 @@ setStatusMinumPemain(playerid, Float:jumlah){
 
     if(PlayerInfo[playerid][statusMinum] <= 15.0)
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][1], COLOR_DARK_BLUE);
-    else if(PlayerInfo[playerid][statusMinum] <= 30.0)
+    else if(PlayerInfo[playerid][statusMinum] <= 50.0)
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][1], COLOR_BLUE);
     else
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][1], COLOR_LIGHT_BLUE);
@@ -325,7 +325,7 @@ setStatusEnergiPemain(playerid, Float:jumlah){
 
     if(PlayerInfo[playerid][statusEnergi] <= 15.0)
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][2], COLOR_DARK_GREEN);
-    else if(PlayerInfo[playerid][statusEnergi] <= 30.0)
+    else if(PlayerInfo[playerid][statusEnergi] <= 50.0)
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][2], COLOR_GREEN);
     else
         SetPlayerProgressBarColour(playerid, HUD_Stats_Bar[playerid][2], COLOR_LIGHT_GREEN);

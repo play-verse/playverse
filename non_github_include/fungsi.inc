@@ -2619,7 +2619,7 @@ publicFor: progressNambang(playerid, dari_tambang){
 
 		PlayerInfo[playerid][sisaPalu]--;
 
-		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 1.5);
+		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - 0.2);
 		setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) - STATUS_ENERGI_BERKURANG_SAAT_NAMBANG);
 
 		if(dari_tambang == 1){
@@ -4680,6 +4680,8 @@ publicFor: CutTree(playerid){
             Player_ResetCutting(playerid);
 			setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) - STATUS_ENERGI_BERKURANG_SAAT_POTONG_POHON);
             MoveDynamicObject(DTree[id][treeObjID], DTree[id][treeX], DTree[id][treeY], DTree[id][treeZ] + 0.03, 0.025, DTree[id][treeRX], DTree[id][treeRY] - 80.0, DTree[id][treeRZ]);
+
+			TambahExpScore(playerid, EXP_TAMBAH_LUMBERJACK);
 
             DTree[id][treeSecs] = TREE_RESPAWN;
 			DTree[id][treeAmbil] = false;
