@@ -167,6 +167,12 @@ CMD:slap(playerid, params[]){
     SetPlayerPos(target_id, pos[0], pos[1], pos[2] + 4);
     PlayerPlaySound(target_id, 1130, pos[0], pos[1], pos[2] + 4);
 
+    if(IsPlayerInAnyVehicle(playerid)){
+        new const vehicleid = GetPlayerVehicleID(playerid);
+        GetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
+        GetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+    }
+
     sendPesan(playerid, COLOR_BLUE, TAG_ADMIN" "WHITE"Anda telah men-slap %s.", PlayerInfo[target_id][pPlayerName]);
     SendClientMessage(target_id, COLOR_BLUE, TAG_ADMIN" "WHITE"Anda telah di slap oleh admin.");
     return 1;
@@ -1323,7 +1329,7 @@ CMD:close(playerid, params[]){
         foreach(new vid : Vehicle){
             if(!IsValidVehicle(vid)) continue;
             if(GetVehicleBoot(vid, vpos[0], vpos[1], vpos[2])){
-                if(IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+                if(IsPlayerInRangeOfPoint(playerid, 1.5, vpos[0], vpos[1], vpos[2])){
                     vehid = vid;
                     break;
                 }
@@ -1363,7 +1369,7 @@ CMD:open(playerid, params[]){
         foreach(new vid : Vehicle){
             if(!IsValidVehicle(vid)) continue;
             if(GetVehicleBoot(vid, vpos[0], vpos[1], vpos[2])){
-                if(IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+                if(IsPlayerInRangeOfPoint(playerid, 1.5, vpos[0], vpos[1], vpos[2])){
                     vehid = vid;
                     break;
                 }

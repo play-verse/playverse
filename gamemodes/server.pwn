@@ -5187,6 +5187,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						
 						DestroyTime(plant_Id);
 						DFarm[plant_Id][plantItemID] = -1;
+						Iter_Remove(PlantIterator, plant_Id);
 						// Exp Score
 						TambahExpScore(playerid, EXP_TAMBAH_PANEN);
 					}
@@ -8583,7 +8584,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					Float:vpos[3];
 
 				GetVehicleBoot(vehicleid, vpos[0], vpos[1], vpos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+				if(!IsPlayerInRangeOfPoint(playerid, 1.5, vpos[0], vpos[1], vpos[2])){
 					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan berada menjauh dari anda.");
 				}else if(!GetVehicleParams(vehicleid, VEHICLE_TYPE_BOOT)){
 					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Bagasi kendaraan tertutup.");
@@ -8626,7 +8627,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					Float:vpos[3];
 
 				GetVehicleBoot(vehicleid, vpos[0], vpos[1], vpos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+				if(!IsPlayerInRangeOfPoint(playerid, 1.5, vpos[0], vpos[1], vpos[2])){
 					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan berada menjauh dari anda.");
 				}else if(!GetVehicleParams(vehicleid, VEHICLE_TYPE_BOOT)){
 					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Bagasi kendaraan tertutup.");
@@ -8684,7 +8685,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					Float:vpos[3];
 
 				GetVehicleBoot(vehicleid, vpos[0], vpos[1], vpos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+				if(!IsPlayerInRangeOfPoint(playerid, 1.5, vpos[0], vpos[1], vpos[2])){
 					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan berada menjauh dari anda.");
 				}else if(!GetVehicleParams(vehicleid, VEHICLE_TYPE_BOOT)){
 					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Bagasi kendaraan tertutup.");
@@ -8738,7 +8739,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					Float:vpos[3];
 
 				GetVehicleBoot(vehicleid, vpos[0], vpos[1], vpos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 1.0, vpos[0], vpos[1], vpos[2])){
+				if(!IsPlayerInRangeOfPoint(playerid, 1.5, vpos[0], vpos[1], vpos[2])){
 					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Kendaraan berada menjauh dari anda.");
 				}else if(!GetVehicleParams(vehicleid, VEHICLE_TYPE_BOOT)){
 					return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Bagasi kendaraan tertutup.");
@@ -10784,6 +10785,11 @@ public OnGameModeInit()
 	Iter_Add(vehicleSweeper, vehicleSweeper[0]);
 	Iter_Add(vehicleSweeper, vehicleSweeper[1]);
 	Iter_Add(vehicleSweeper, vehicleSweeper[2]);
+	for(new i = 0; i < 3; i++){
+		SetVehicleParams(vehicleSweeper[i], VEHICLE_TYPE_ENGINE, 0);
+		SetVehicleParams(vehicleSweeper[i], VEHICLE_TYPE_LIGHTS, 0);
+		ToggleVehicleFuel(vehicleSweeper[i], 0);
+	}
 
 	// Trashmaster Vehicle
     trashM_Veh[0] = CreateVehicle(408, 1617.6511, -1554.3311, 13.4784, 0.0000, -1, -1, TIME_TRASHMASTER * 60000);
