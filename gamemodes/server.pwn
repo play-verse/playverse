@@ -12918,8 +12918,18 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
 
 public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_x, Float:new_y, Float:new_z, Float:vel_x, Float:vel_y, Float:vel_z){
 	if(GetVehicleDistanceFromPoint(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]) > 1.0){
-		SetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
-		SetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+		new Float:tempPos[3];
+		GetVehiclePos(vehicleid, tempPos[0], tempPos[1], tempPos[2]);
+		if(CA_RayCastLine(tempPos[0], tempPos[1], tempPos[2], tempPos[0], tempPos[1], tempPos[2]-1.5, tempPos[0], tempPos[1], tempPos[2]))
+		{
+			if(!CA_RayCastLine(LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2], LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]-1.5, tempPos[0], tempPos[1], tempPos[2])){
+				GetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
+				GetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+			}else{
+				SetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
+				SetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+			}
+		}
 	}
 	return 1;
 }

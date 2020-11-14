@@ -1899,7 +1899,7 @@ CMD:sleep(playerid, params[]){
         if(!IsValidDynamicObject(i)) 
             continue;
         Streamer_GetArrayData(STREAMER_TYPE_OBJECT, i, E_STREAMER_EXTRA_ID, data);
-        if(data[fFurnitureID] == 2) { // Semua ID kasur
+        if(data[fHouseID] == PlayerInfo[playerid][inHouse] && data[fFurnitureID] == 2) { // Semua ID kasur
             if(IsPlayerInRangeOfPoint(playerid, 2.5, data[fPosX], data[fPosY], data[fPosZ])){
                 colliate = true;
                 break;
