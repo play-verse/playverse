@@ -1875,8 +1875,8 @@ CMD:sit(playerid, params[]){
 CMD:wave(playerid, params[]){
     if(PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
-	ApplyAnimation(playerid, "ON_LOOKERS", "wave_loop", 4.1, 0, 1, 1, 1, 1, 1); // Wave
-    PlayerInfo[playerid][isOnAnimation] = false; // Wave adalah pereset animasi
+    ApplyAnimation(playerid, "ON_LOOKERS", "wave_loop", 4.1, 1, 0, 0, 0, 0, 1);
+    PlayerInfo[playerid][isOnAnimation] = true; // Wave adalah pereset animasi
 	return 1;
 }
 
