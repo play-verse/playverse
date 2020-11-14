@@ -1488,9 +1488,7 @@ new const POINT_NARKO_ACTOR[][POINT_NARKO_ACTOR_INFO] = {
 
 new Iterator:PlantIterator<MAX_PLANTS>,
     DFarm[MAX_PLANTS][FarmInfo],
-	MrPuyengRand,
-	puyengTimer[MAX_PLAYERS] = {-1, ...},
-	puyengSecs[MAX_PLAYERS];
+	MrPuyengRand;
 
 new PerbaikiTimer[MAX_PLAYERS] = {-1, ...};
 
@@ -1958,3 +1956,6 @@ new Float:LastVehiclePos[MAX_VEHICLES][4];
 new Android_Check[MAX_PLAYERS],
 	Android_Official[MAX_PLAYERS],
 	Android_Timer[MAX_PLAYERS] = {-1, ...};
+
+// Unused Part
+new Float:_unusedDepth[2];

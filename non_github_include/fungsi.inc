@@ -1309,7 +1309,7 @@ pakaiBibit(playerid, const nama_item[], id_bibit, id_buah){
 	if(id == -1 || playerMaxPlant(playerid)) return error_command(playerid, "Tidak dapat menanam bibit lagi, tunggu hingga beberapa tanaman dipanen.");
 	if(plant_Id != -1) return error_command(playerid, "Anda tidak dapat menanam di tempat yang sudah ditanami bibit.");
 	if(IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Tidak dapat menanam bibit di dalam kendaraan.");
-	if(!CA_IsPlayerOnSurface(playerid) || CA_IsPlayerNearWater(playerid)) return error_command(playerid, "Anda tidak berada di permukaan tanah.");
+	if(!CA_IsPlayerOnSurface(playerid) || CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1])) return error_command(playerid, "Anda tidak berada di permukaan tanah.");
 	GetPlayerPos(playerid, x, y, z);
 	new obj = CA_RayCastLine(x, y, z+1.0, x, y, z-2.0, tmp, tmp, tmp);
 	if(IsSurfacePlant(obj)){
@@ -1387,7 +1387,7 @@ publicFor: pakaiBibitLabu(playerid){
 }
 
 publicFor: pakaiLabu(playerid, itemid){
-	if(CA_IsPlayerNearWater(playerid))
+	if(CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1]))
 		return error_command(playerid, "Tidak dapat makan dalam kondisi sekarang");
 
 	tambahItemPlayer(playerid, itemid, -1);
@@ -1398,30 +1398,29 @@ publicFor: pakaiLabu(playerid, itemid){
 	return 1;
 }
 
-pakaiNarko(playerid, const nama_item[], id_item, persen){
-	new Float:depth, Float:depth2, Float:tambahArmour = PlayerInfo[playerid][lastArmour]+persen;
-	if(CA_IsPlayerInWater(playerid, depth, depth2)) return error_command(playerid, "Tidak dapat menggunakan item ini di dalam air.");
-	if(PlayerInfo[playerid][lastArmour] > 0 || tambahArmour <= 50){
+pakaiNarko(playerid, id_item, persen)
+{
+    if(CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1]))
+		return error_command(playerid, "Tidak dapat menggunakan item ini di dalam air.");
+
+	if(GetPlayerArmour(playerid) < 50.0){
 		//ApplyAnimation(playerid,"SMOKING", "m_smkstnd_loop", 4.0, 1, 0, 0, 0, 0);
-		SetPlayerSpecialAction(playerid,SPECIAL_ACTION_SMOKE_CIGGY);
+		SetPlayerSpecialAction(playerid, SPECIAL_ACTION_SMOKE_CIGGY);
 		SetPlayerDrunkLevel (playerid, 5000);
-		puyengSecs[playerid] = 30;
-		puyengTimer[playerid] = SetPreciseTimer("waktuPuyeng", 1000, true, "i", playerid);
-		SetPlayerArmour(playerid, tambahArmour);
-		PlayerInfo[playerid][lastArmour] = tambahArmour;
+		if(GetPlayerArmour(playerid) + float(persen) > 50.0)
+			SetPlayerArmour(playerid, 50.0);
+		else
+			SetPlayerArmour(playerid, GetPlayerArmour(playerid) + float(persen));
 		tambahItemPlayer(playerid, id_item, -1);
-		format(pDialog[playerid], sizePDialog, WHITE"Penggunaan 1 item "YELLOW"%s"WHITE", anda mendapat tambahan Armour sebesar "YELLOW"%d%%"WHITE".", nama_item, persen);
-		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil menggunakan item", pDialog[playerid], "Ok", "");
+		sendPesan(playerid, COLOR_ORANGE, TAG_INFO" "WHITE"Anda menggunakan kangkung ijo 1x, anda mendapatkan +%d persen, dengan maximal 50 persen.", persen);
 	}else{
-		error_command(playerid, "Maaf tidak dapat menggunakan item lagi, ketika keadaan tidak sadar.");
+		SendClientMessage(playerid, COLOR_ORANGE, TAG_INFO" "WHITE"Kangkung ijo hanya dapat menambah darah putih hingga maximal 50 persen, pemakaian tidak akan mendapatkan efek.");
 	}
 	return 1;
 }
 
 publicFor: pakaiNarkoGanja(playerid){
-	new nama_item[50];
-	getNamaByIdItem(ID_KANGKUNG_IJO, nama_item);
-	pakaiNarko(playerid, nama_item, ID_KANGKUNG_IJO, 10);
+	pakaiNarko(playerid, ID_KANGKUNG_IJO, 10);
 	return 1;
 }
 
@@ -3068,7 +3067,7 @@ publicFor: responseUpdateHari(tahun, hari){
 }
 
 publicFor: pakaiMakanan(playerid, itemid){
-	if(CA_IsPlayerNearWater(playerid))
+    if(CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1]))
 		return error_command(playerid, "Tidak dapat makan dalam kondisi sekarang");
 
 	tambahItemPlayer(playerid, itemid, -1);
@@ -3194,7 +3193,7 @@ publicFor: cekSudahPunyaSIM(playerid){
 }
 
 publicFor: pakaiMinuman(playerid, itemid){
-	if(CA_IsPlayerNearWater(playerid))
+    if(CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1]))
 		return error_command(playerid, "Tidak dapat minum dalam kondisi sekarang");
 
 	tambahItemPlayer(playerid, itemid, -1);
@@ -4922,19 +4921,6 @@ publicFor: re_TokoNarko(){
 	return 1;
 }
 
-publicFor: waktuPuyeng(playerid){
-	if(puyengSecs[playerid] >= 0){
-		puyengSecs[playerid]--;
-		if(puyengSecs[playerid] == 0){
-			puyengSecs[playerid] = -1;
-			SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
-			SetPlayerDrunkLevel (playerid, 0);
-			DeletePreciseTimer(puyengTimer[playerid]);
-			puyengTimer[playerid] = -1;
-		}
-	}
-	return 1;
-}
 
 randomIkan(playerid){
 	new angka;
