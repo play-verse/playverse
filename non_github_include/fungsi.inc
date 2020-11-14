@@ -5119,8 +5119,16 @@ publicFor: pemainUpdate(playerid){
 	}
 
 	if(++PlayerInfo[playerid][energyStackedTime] >= 60){
+		// Alasan cuma ambil 10 karena cuma mau cek crckdeth4 dan crckidle2
+		// Tidak usah pedulikan nama lain
+		new anim[1], animname[10];
+		GetAnimationName(GetPlayerAnimationIndex(playerid), anim, 1, animname, 10);
+		// Pakai Huruf Besar
+		if(sama(animname, "CRCKDETH4") || sama(animname, "CRCKIDLE2"))
+			setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) + (STATUS_ENERGI_BERTAMBAH_PER_WAKTU * 2));
+		else
+			setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) + STATUS_ENERGI_BERTAMBAH_PER_WAKTU);
 		PlayerInfo[playerid][energyStackedTime] = 0;
-		setStatusEnergiPemain(playerid, getStatusEnergiPemain(playerid) + STATUS_ENERGI_BERTAMBAH_PER_WAKTU);
 	}
 
 	if(gettime() < PlayerInfo[playerid][masaAktifJamsos]) {

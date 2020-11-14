@@ -1878,6 +1878,57 @@ CMD:wave(playerid, params[]){
 	return 1;
 }
 
+CMD:sleep(playerid, params[]){
+    new sleepid;
+    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
+        return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
+    if(SS_GetPlayerInterior(playerid) == 0 || PlayerInfo[playerid][inHouse] == 0) 
+        return error_command(playerid, "Anda tidak di dalam rumah manapun.");
+        
+    if(sscanf(params, "i", sleepid) || sleepid < 1 || sleepid > 2)
+        return error_syntax(playerid, "/sleep [1-2]");
+    new Float:castPos[6];
+    GetPlayerPos(playerid, castPos[0], castPos[1], castPos[2]);
+
+    new bool:colliate = false;
+    new data[e_furniture];
+    for(new i, maxval = Streamer_GetUpperBound(STREAMER_TYPE_OBJECT); i <= maxval; ++i)
+    {
+        if(!IsValidDynamicObject(i)) 
+            continue;
+        Streamer_GetArrayData(STREAMER_TYPE_OBJECT, i, E_STREAMER_EXTRA_ID, data);
+        if(data[fFurnitureID] == 2) { // Semua ID kasur
+            if(IsPlayerInRangeOfPoint(playerid, 2.5, data[fPosX], data[fPosY], data[fPosZ])){
+                colliate = true;
+                break;
+            }
+        }
+    }
+
+    if(!colliate)
+        return server_message(playerid, "Anda harus berada diatas furniture kasur untuk dapat tidur.");
+
+    switch(sleepid) {
+        case 1: 
+            ApplyAnimation(playerid, "CRACK", "crckdeth4", 4.1, 0, 0, 0, 1, 0, 1);
+        case 2: 
+            ApplyAnimation(playerid, "CRACK", "crckidle2", 4.1, 0, 0, 0, 1, 0, 1);
+        default: {
+            return error_syntax(playerid, "/sleep [1-2]");
+        }
+    }
+    return 1;
+}
+
+CMD:getup(playerid, params[])
+{
+    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
+        return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
+
+	ApplyAnimation(playerid, "PED", "getup", 4.1, 0, 0, 0, 0, 0, 1);
+	return 1;
+}
+
 CMD:stand(playerid, params[]){
     if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
