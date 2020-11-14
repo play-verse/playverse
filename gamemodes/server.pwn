@@ -10494,6 +10494,8 @@ public OnPlayerSpawn(playerid)
 		PreloadAnimLib(playerid,"MEDIC");
 		PreloadAnimLib(playerid,"CAR_CHAT");
 		PreloadAnimLib(playerid,"CASINO");
+		PreloadAnimLib(playerid,"ON_LOOKERS");
+		PreloadAnimLib(playerid,"SWORD");
 		PlayerInfo[playerid][preloadAnim] = 1;
 	}
 

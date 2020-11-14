@@ -1865,16 +1865,21 @@ CMD:cancelrentvehicle(playerid, params[]){
     Animations
  */
 CMD:sit(playerid, params[]){
-	new Float:depth, Float:depth2;
-    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid, depth, depth2))
+    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
     ApplyAnimation(playerid, "PED", "SEAT_DOWN", 4.1, 0, 0, 0, 1, 0, 1);
     return 1;
 }
 
+CMD:wave(playerid, params[]){
+    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
+        return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
+	ApplyAnimation(playerid, "ON_LOOKERS", "wave_loop", 4.1, 0, 1, 1, 1, 1, 1); // Wave
+	return 1;
+}
+
 CMD:stand(playerid, params[]){
-	new Float:depth, Float:depth2;
-    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid, depth, depth2))
+    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
 
     new temp[2][15];
