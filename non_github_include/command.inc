@@ -1035,6 +1035,10 @@ CMD:pizzaboy(playerid, const params[]){
 CMD:electrician(playerid, const params[]){
     if(montirL_Job[playerid] == 0) 
         return error_command(playerid, "Anda bukan Electrician dan tidak dapat menggunakan perintah ini.");
+
+    if(PlayerInfo[playerid][isBusy])
+        return error_command(playerid, "Anda tidak dapat menggunakan perintah ini sekarang.");
+        
     if(montirL_GarduPadamEvent){
         ShowPlayerDialog(playerid, 
             DIALOG_JOB_MONTIR_LISTRIK_CMD, 

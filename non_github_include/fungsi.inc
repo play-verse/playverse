@@ -5932,11 +5932,9 @@ publicFor: waktuPasangTangga(playerid){
 	ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
 	GameTextForPlayer(playerid, "~w~Sedang ~y~memperbaiki...", 3000, 3);
 	ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 1, 0, 0, 1, 0, 1);
-	
-	montirL_Timer[playerid] = SetPreciseTimer("waktuMontirListrik", 1000, true, "i", playerid);
 
-	PlayerInfo[playerid][isOnAnimation] = true;
-	PlayerInfo[playerid][isBusy] = true;
+	waktuMontirListrik(playerid); // Panggil untuk pertama kali
+	montirL_Timer[playerid] = SetPreciseTimer("waktuMontirListrik", 1000, true, "i", playerid);
 	return 1;
 }
 

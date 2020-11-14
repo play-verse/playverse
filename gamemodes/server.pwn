@@ -9718,6 +9718,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							SetPlayerFacingAngle(playerid, rz);
 							ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 1, 1, 1, 1, 1);
 							MoveDynamicObject(montirL_AlatObj[playerid], DTiang[tiangClosest][tiangX], DTiang[tiangClosest][tiangY]-0.5, tempPos[2]+1.5, 0.5, 0.00000, 0.00000, 0.00000);
+							PlayerInfo[playerid][isOnAnimation] = true;
+							PlayerInfo[playerid][isBusy] = true;
 							montirL_Timer[playerid] = SetPreciseTimer("waktuPasangTangga", 7000, false, "i", playerid);
 						}else if(montirL_Job[playerid] == 2){
 							if(montirL_GarduPadamEvent == 0) 
