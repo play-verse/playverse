@@ -1868,13 +1868,15 @@ CMD:sit(playerid, params[]){
     if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
     ApplyAnimation(playerid, "PED", "SEAT_DOWN", 4.1, 0, 0, 0, 1, 0, 1);
+    PlayerInfo[playerid][isOnAnimation] = true;
     return 1;
 }
 
 CMD:wave(playerid, params[]){
-    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
+    if(PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
 	ApplyAnimation(playerid, "ON_LOOKERS", "wave_loop", 4.1, 0, 1, 1, 1, 1, 1); // Wave
+    PlayerInfo[playerid][isOnAnimation] = false; // Wave adalah pereset animasi
 	return 1;
 }
 
@@ -1917,20 +1919,22 @@ CMD:sleep(playerid, params[]){
             return error_syntax(playerid, "/sleep [1-2]");
         }
     }
+    PlayerInfo[playerid][isOnAnimation] = true;
     return 1;
 }
 
 CMD:getup(playerid, params[])
 {
-    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
+    if(PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
 
 	ApplyAnimation(playerid, "PED", "getup", 4.1, 0, 0, 0, 0, 0, 1);
+    PlayerInfo[playerid][isOnAnimation] = false; // Reset Animasi
 	return 1;
 }
 
 CMD:stand(playerid, params[]){
-    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
+    if(PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
 
     new temp[2][15];
@@ -1938,6 +1942,19 @@ CMD:stand(playerid, params[]){
     if(!sama(temp[0], "PED") || !sama(temp[1], "SEAT_DOWN"))
         return server_message(playerid, "Anda sedang tidak duduk.");
     ApplyAnimation(playerid, "PED", "SEAT_UP", 4.1, 0, 0, 0, 0, 0, 1);
+    PlayerInfo[playerid][isOnAnimation] = false; // Reset Animasi
+    return 1;
+}
+
+CMD:clearanim(playerid, const params[]){
+    return cmd_clearanimation(playerid, "");
+}
+
+CMD:clearanimation(playerid, const params[]){
+    if(PlayerInfo[playerid][isBusy] || CA_IsPlayerNearWater(playerid))
+        return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
+    ClearAnimations(playerid);
+    PlayerInfo[playerid][isOnAnimation] = false;
     return 1;
 }
 
