@@ -987,12 +987,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_CONFIRM_BELI_SKIN_NORMAL:
 		{
 			if(response){
-				new id_skin = GetPVarInt(playerid, "skinNormal_idx");
-				DeletePVar(playerid, "skinNormal_idx");
-				if(getUangPlayer(playerid) < 2500) return dialogMsgUangTdkCukup(playerid);
-				givePlayerUang(playerid, -2500);
-				tambahSkinPlayer(playerid, id_skin, 1,false);
-				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil ", GREEN"Anda berhasil mendapatkan skin!\n"WHITE"Silahkan buka inventory untuk melihatnya.", "Ok", "");
+				if(getUangPlayer(playerid) < 2500) 
+					return dialogMsgUangTdkCukup(playerid);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT IFNULL(SUM(jumlah), 0) AS jumlah FROM user_skin WHERE id_user = %d AND jumlah > 0", PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid], "cekJumlahSkin", "i", playerid);
 			}else{
 				DeletePVar(playerid, "skinNormal_idx");
 			}

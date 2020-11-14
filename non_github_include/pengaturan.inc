@@ -35,6 +35,8 @@
 #define MAX_HOUSES_LEVEL 8 // Maksimal level rumah
 #define MAX_HOUSE_PER_PLAYER 1
 
+#define MAX_SKIN_PER_PLAYER 10
+
 #define MAX_RARITY_ITEM 7
 
 #define MAX_BOARDS 100
@@ -706,6 +708,7 @@ new const NAMA_ABJAD[][] = {
 #define TAG_MANCING				"Mancing:"
 #define TAG_GPS					"GPS:"
 #define TAG_LISTRIK				"Listrik:"
+#define TAG_SKIN				"Skin:"
 
 /*
 	Job Define

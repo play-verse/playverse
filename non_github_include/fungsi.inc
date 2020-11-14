@@ -1105,6 +1105,17 @@ publicFor: tambahSkinPlayer(playerid, skinid, jumlah, bool:langsung_gunakan){
 	return 1;
 }
 
+publicFor: cekJumlahSkin(playerid){
+	new jumlah;
+	cache_get_value_name_int(0, "jumlah", jumlah);
+	if(jumlah >= MAX_SKIN_PER_PLAYER)
+		return SendClientMessage(playerid, COLOR_ORANGE, TAG_SKIN" "WHITE"Inventory skin anda telah mencapai batas maksimal.");
+	givePlayerUang(playerid, -2500);
+	tambahSkinPlayer(playerid, GetPVarInt(playerid, "skinNormal_idx"), 1,false);
+	ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil ", GREEN"Anda berhasil mendapatkan skin!\n"WHITE"Silahkan buka inventory untuk melihatnya.", "Ok", "");
+	return 1;
+}
+
 // publicFor: cekJumlahItem(playerid, itemid){
 // 	if(cache_num_rows()){
 // 		new jumlah, keterangan[500];
