@@ -1259,44 +1259,52 @@ publicFor: isPunyaKTP(playerid, punya){
 
 publicFor: pakaiPaluTambang(playerid){
 	if(checkMinimal(playerid, MINIMAL_SCORE, 6)) return 1;
-	if(PlayerInfo[playerid][sisaPalu] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
+	if(PlayerInfo[playerid][sisaPalu] > 0) 
+		return error_command(playerid, "Anda masih memiliki sisa palu, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 8, -1);
-	PlayerInfo[playerid][sisaPalu] += 15;
+	PlayerInfo[playerid][sisaPalu] += BANYAK_ATTEMPT_PALU;
 
 	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item palu tambang"WHITE".");
-	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item palu tambang, "YELLOW"dapat digunakan untuk 15x percobaan menambang.");
+	sendPesan(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item palu tambang, "YELLOW"dapat digunakan untuk %dx percobaan menambang.", BANYAK_ATTEMPT_PALU);
 	return 1;
 }
 
 publicFor: pakaiGergajiMesin(playerid){
-	if(PlayerInfo[playerid][sisaGergaji] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
+	if(PlayerInfo[playerid][sisaGergaji] > 0) 
+		return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, ID_GERGAJI_MESIN, -1);
-	PlayerInfo[playerid][sisaGergaji] += 10;
+	PlayerInfo[playerid][sisaGergaji] += BANYAK_ATTEMPT_GERGAJI;
 
 	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item gergaji mesin"WHITE".");
-	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item gergaji mesin, "YELLOW"dapat digunakan untuk 10x percobaan memotong pohon.");
+	sendPesan(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item gergaji mesin, "YELLOW"dapat digunakan untuk %dx percobaan memotong pohon.", BANYAK_ATTEMPT_GERGAJI);
 	return 1;
 }
 
 publicFor: pakaiTombakIkan(playerid){
-	if(checkMinimal(playerid, MINIMAL_SCORE, 4)) return 1;
-	if(PlayerInfo[playerid][sisaTombak] > 0) return error_command(playerid, "Anda masih memiliki sisa item, silahkan habiskan terlebih dahulu.");
+	if(checkMinimal(playerid, MINIMAL_SCORE, 4)) 
+		return 1;
+	if(PlayerInfo[playerid][sisaTombak] > 0) 
+		return error_command(playerid, "Anda masih memiliki sisa tombak, silahkan habiskan terlebih dahulu.");
 	tambahItemPlayer(playerid, 36, -1);
-	PlayerInfo[playerid][sisaTombak] += 15;
+	PlayerInfo[playerid][sisaTombak] += BANYAK_ATTEMPT_TOMBAK;
 
 	SetPlayerArmedWeapon(playerid, 0);
 	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item tombak ikan"WHITE".");
-	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item tombak ikan, "YELLOW"dapat digunakan untuk 15x percobaan menombak ikan.");
+	sendPesan(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item tombak ikan, "YELLOW"dapat digunakan untuk %dx percobaan menombak ikan.", BANYAK_ATTEMPT_TOMBAK);
 	return 1;
 }
 
 publicFor: pakaiJoranPancing(playerid){
-	if(checkMinimal(playerid, MINIMAL_SCORE, 1)) return 1;
+	if(checkMinimal(playerid, MINIMAL_SCORE, 1)) 
+		return 1;
+	if(PlayerInfo[playerid][sisaJoran] > 0) 
+		return error_command(playerid, "Anda masih memiliki sisa joran, silahkan habiskan terlebih dahulu.");
+
 	tambahItemPlayer(playerid, ID_JORAN_PANCING, -1);
-	PlayerInfo[playerid][sisaJoran] += 10;
+	PlayerInfo[playerid][sisaJoran] += BANYAK_ATTEMPT_JORAN;
 
 	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item joran pancing"WHITE".");
-	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item joran pancing, "YELLOW"dapat digunakan untuk 10x percobaan memancing.");
+	sendPesan(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item joran pancing, "YELLOW"dapat digunakan untuk %dx percobaan memancing.", BANYAK_ATTEMPT_JORAN);
 	return 1;
 }
 
