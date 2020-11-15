@@ -1410,15 +1410,15 @@ pakaiNarko(playerid, id_item, persen)
 		return error_command(playerid, "Tidak dapat menggunakan item ini di dalam air.");
 
 	if(GetPlayerArmour(playerid) < 50.0){
-		//ApplyAnimation(playerid,"SMOKING", "m_smkstnd_loop", 4.0, 1, 0, 0, 0, 0);
-		SetPlayerSpecialAction(playerid, SPECIAL_ACTION_SMOKE_CIGGY);
+		ApplyAnimation(playerid,"SMOKING", "m_smkstnd_loop", 4.1, 0, 0, 0, 0, 0, 1);
+		// SetPlayerSpecialAction(playerid, SPECIAL_ACTION_SMOKE_CIGGY);
 		SetPlayerDrunkLevel (playerid, 5000);
 		if(GetPlayerArmour(playerid) + float(persen) > 50.0)
 			SetPlayerArmour(playerid, 50.0);
 		else
 			SetPlayerArmour(playerid, GetPlayerArmour(playerid) + float(persen));
 		tambahItemPlayer(playerid, id_item, -1);
-		sendPesan(playerid, COLOR_ORANGE, TAG_INFO" "WHITE"Anda menggunakan kangkung ijo 1x, anda mendapatkan +%d persen, dengan maximal 50 persen.", persen);
+		sendPesan(playerid, COLOR_ORANGE, TAG_INFO" "WHITE"Anda menggunakan kangkung ijo 1x, anda mendapatkan +%d persen darah putih.", persen);
 	}else{
 		SendClientMessage(playerid, COLOR_ORANGE, TAG_INFO" "WHITE"Kangkung ijo hanya dapat menambah darah putih hingga maximal 50 persen, pemakaian tidak akan mendapatkan efek.");
 	}

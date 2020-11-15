@@ -11099,7 +11099,7 @@ public OnPlayerText(playerid, text[]){
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
 
-	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation] && !PlayerInfo[playerid][inDie]) PlayerTalking(playerid);
+	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation] && !PlayerInfo[playerid][inDie] && !CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1])) PlayerTalking(playerid);
 
 	/**
 		Filter Actor
@@ -12913,20 +12913,20 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
 }
 
 public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_x, Float:new_y, Float:new_z, Float:vel_x, Float:vel_y, Float:vel_z){
-	if(GetVehicleDistanceFromPoint(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]) > 1.0){
-		new Float:tempPos[3];
-		GetVehiclePos(vehicleid, tempPos[0], tempPos[1], tempPos[2]);
-		if(CA_RayCastLine(tempPos[0], tempPos[1], tempPos[2], tempPos[0], tempPos[1], tempPos[2]-1.5, tempPos[0], tempPos[1], tempPos[2]))
-		{
-			if(!CA_RayCastLine(LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2], LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]-1.5, tempPos[0], tempPos[1], tempPos[2])){
-				GetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
-				GetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
-			}else{
-				SetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
-				SetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
-			}
-		}
-	}
+	// if(GetVehicleDistanceFromPoint(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]) > 1.0){
+	// 	new Float:tempPos[3];
+	// 	GetVehiclePos(vehicleid, tempPos[0], tempPos[1], tempPos[2]);
+	// 	if(CA_RayCastLine(tempPos[0], tempPos[1], tempPos[2], tempPos[0], tempPos[1], tempPos[2]-1.5, tempPos[0], tempPos[1], tempPos[2]))
+	// 	{
+	// 		if(!CA_RayCastLine(LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2], LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]-1.5, tempPos[0], tempPos[1], tempPos[2])){
+	// 			GetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
+	// 			GetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+	// 		}else{
+	// 			SetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
+	// 			SetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+	// 		}
+	// 	}
+	// }
 	return 1;
 }
 
