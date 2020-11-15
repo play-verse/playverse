@@ -1932,6 +1932,12 @@ CMD:getup(playerid, params[])
     if(PlayerInfo[playerid][isBusy] || CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1]))
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
 
+    new anim[1], animname[10];
+    GetAnimationName(GetPlayerAnimationIndex(playerid), anim, 1, animname, 10);
+    // Pakai Huruf Besar
+    if(!sama(animname, "CRCKDETH4") || !sama(animname, "CRCKIDLE2"))
+        return server_message(playerid, "Anda sedang tidak tidur.");
+
 	ApplyAnimation(playerid, "PED", "getup", 4.1, 0, 0, 0, 0, 0, 1);
     PlayerInfo[playerid][isOnAnimation] = false; // Reset Animasi
 	return 1;
