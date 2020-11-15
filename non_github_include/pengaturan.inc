@@ -163,7 +163,6 @@
 #define PIZZA_ATTACH_INDEX 0
 #define ALAT_ATTACH_INDEX 0
 
-#define TOMBAK_ATTACH_INDEX 1
 #define PANCINGAN_ATTACH_INDEX 2
 
 #define MASK_ATTACH_INDEX 3 // Helmet dan Mask Gak Boleh di satuin

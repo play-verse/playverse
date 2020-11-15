@@ -1285,8 +1285,6 @@ publicFor: pakaiTombakIkan(playerid){
 	PlayerInfo[playerid][sisaTombak] += 15;
 
 	SetPlayerArmedWeapon(playerid, 0);
-	SetPlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX, 11716, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
-
 	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan "YELLOW"1 item tombak ikan"WHITE".");
 	SendClientMessage(playerid, COLOR_YELLOW, TAG_NOTE" "WHITE"Penggunaan 1 item tombak ikan, "YELLOW"dapat digunakan untuk 15x percobaan menombak ikan.");
 	return 1;
@@ -4931,10 +4929,6 @@ randomIkan(playerid){
 		angka = random(140);
 	}else if(PlayerInfo[playerid][sisaTombak] > 0){ // Pakai tombak keberuntungan +14%
 		PlayerInfo[playerid][sisaTombak]--;
-		if(PlayerInfo[playerid][sisaTombak] == 0){
-			if(IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) 
-				RemovePlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX);
-		}
 		angka = random(115);
 	}else{
 		angka = 0;

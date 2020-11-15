@@ -10505,12 +10505,6 @@ public OnPlayerSpawn(playerid)
 
 	// Tambang
 	if(IsPlayerAttachedObjectSlotUsed(playerid, MINING_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, MINING_ATTACH_INDEX);
-	// Mancing
-	if(PlayerInfo[playerid][sisaTombak] > 0){
-		if(!IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) SetPlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX, 11716, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
-	}else{
-		if(IsPlayerAttachedObjectSlotUsed(playerid, TOMBAK_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, TOMBAK_ATTACH_INDEX);
-	}
 	
 	PlayerInfo[playerid][onSelectedTextdraw] = false;
 
