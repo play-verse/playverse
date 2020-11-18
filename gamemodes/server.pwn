@@ -10875,27 +10875,6 @@ public OnGameModeExit(){
 	return 1;
 }
 
-//----------------------------------------------------------
-
-public OnPlayerUpdate(playerid)
-{
-	if(!IsPlayerConnected(playerid)) return 0;
-	if(IsPlayerNPC(playerid)) return 1;
-	
-	// No weapons in interiors
-	//if(SS_GetPlayerInterior(playerid) != 0 && GetPlayerWeapon(playerid) != 0) {
-	    //SetPlayerArmedWeapon(playerid,0); // fists
-	    //return 0; // no syncing until they change their weapon
-	//}
-
-	// Don't allow minigun
-	if(GetPlayerWeapon(playerid) == WEAPON_MINIGUN) {
-		Kick(playerid);
-		return 0;
-	}
-	return 1;
-}
-
 public OnPlayerStateChange(playerid, newstate, oldstate){
 	new const vehid = GetPlayerVehicleID(playerid);	
 	/*
@@ -12882,16 +12861,22 @@ public OnPlayerLeaveDynamicArea(playerid, areaid){
  * IMPORTANT : issuerid perlu dicek apakah INVALID_PLAYER_ID
  */
 public OnPlayerDamage(&playerid, &Float:amount, &issuerid, &weapon, &bodypart){
-	static Float:depth[2];
 	new Float:health, Float:armour;
 	GetPlayerHealth(playerid, health);
 	GetPlayerArmour(playerid, armour);
-	if(!PlayerInfo[playerid][inDie] && health - amount <= 1.0 && !CA_IsPlayerInWater(playerid, depth[0], depth[1])){
+	// Jika jatuh ataupun hampir mati
+	if(!PlayerInfo[playerid][inDie] && health - amount <= 1.0 && !CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1])){
 		PlayerInfo[playerid][inDie] = LAMA_MENUNGGU_SAAT_SEKARAT;
 		SetPlayerHealth(playerid, 1.0);
 		animasiSekarat(playerid);
 		return 0;
 	}
+	
+	// Don't allow minigun
+	// if(weapon == WEAPON_MINIGUN) {
+	// 	Kick(issuerid);
+	// 	return 0;
+	// }	
 	return 1;
 }
 
@@ -12912,7 +12897,7 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
 	return 1;
 }
 
-public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_x, Float:new_y, Float:new_z, Float:vel_x, Float:vel_y, Float:vel_z){
+// public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_x, Float:new_y, Float:new_z, Float:vel_x, Float:vel_y, Float:vel_z){
 	// if(GetVehicleDistanceFromPoint(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]) > 1.0){
 	// 	new Float:tempPos[3];
 	// 	GetVehiclePos(vehicleid, tempPos[0], tempPos[1], tempPos[2]);
@@ -12927,8 +12912,8 @@ public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_
 	// 		}
 	// 	}
 	// }
-	return 1;
-}
+// 	return 1;
+// }
 
 // public OnIncomingPacket(playerid, packetid, BitStream:bs){
 // 	printf("OnIncomingPacket %d %d", playerid, packetid);

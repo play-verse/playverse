@@ -2665,14 +2665,14 @@ publicFor: progressNambang(playerid, dari_tambang){
 				tambahItemPlayer(playerid, ID_ALUMINIUM, 1);
 				// Achievement
 				PlayerInfo[playerid][ach_Aluminium]++;
-			}else if(angka >= 20001 && angka <= 120000){ // Kemungkinan 10%
+			}else if(angka >= 88001 && angka <= 188000){ // Kemungkinan 10%
 				SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "SILVER"besi.");
 				SendClientMessage(playerid, COLOR_YELLOW, TAG_INFO" "WHITE"Besi sangat berguna untuk banyak hal, kerja bagus.");
 				tambahItemPlayer(playerid, ID_BESI, 1);
 				// Achievement
 				PlayerInfo[playerid][ach_Besi]++;
 			}
-			else if(angka >= 120001 && angka <= 370000){ // Kemungkinan 25%
+			else if(angka >= 188001 && angka <= 438000){ // Kemungkinan 25%
 				new const rand = random(100) + 1;
 				if(rand >= 1 && rand <= 2){ // 2% 
 					SendClientMessage(playerid, COLOR_GREEN, TAG_NAMBANG" "WHITE"Anda mendapatkan "LIGHT_BLUE"serbuk berlian.");
