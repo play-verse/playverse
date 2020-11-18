@@ -2021,7 +2021,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `id_user` = -1, `level` = 1, `kunci` = 1, `jual` = 1");
 				mysql_tquery(koneksi, pQuery[playerid]);
-				mysql_tquery(koneksi, "UPDATE `user` SET `save_house` = 0");
 
 				loadAllHouse();
 
@@ -2072,9 +2071,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								givePlayerUang(ownerId, beliRate);
 							}else{
 								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
-								mysql_tquery(koneksi, pQuery[playerid]);
-
-								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
 								mysql_tquery(koneksi, pQuery[playerid]);
 							}
 						}
@@ -2151,7 +2147,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 				}
 
-				mysql_tquery(koneksi, "UPDATE `user` SET `save_house` = 0");
 				mysql_tquery(koneksi, "TRUNCATE TABLE `house`");
 				SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil menghapus semua rumah!");
 			}
@@ -2162,7 +2157,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new infoRumah[128], id, houseLevel, beliRate;
 				GetPVarString(playerid, "info_rumah", infoRumah, 128);
+				if(lastHousePickup[playerid] < 0 || lastHousePickup[playerid] >= MAX_HOUSES) return 1;
 				id = houseId[lastHousePickup[playerid]];
+				if(id == -1) return 1; // Return jika invalid house id
 				houseLevel = houseInfo[id][hLevel];
 				beliRate = houseInfo[id][hHarga];
 				if(sama("set_harga_rumah", infoRumah)){
@@ -2209,10 +2206,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							goto label_kunci_rumah;
 						}
 						case 4:
-						{
-							goto label_spawn_rumah;
-						}
-						case 5:
 						{
 							goto label_masuk_rumah;
 						}
@@ -2277,23 +2270,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						case 4:
 						{
-							label_spawn_rumah:
-							new saveId = PlayerInfo[playerid][sHouse];
-							if(saveId == id){
-								PlayerInfo[playerid][sHouse] = 0;
-								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
-							    mysql_tquery(koneksi, pQuery[playerid]);
-								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil membatalkan spawn disini!");
-							}else{
-								PlayerInfo[playerid][sHouse] = id;
-								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = '%d' WHERE `id` = '%d'", id, PlayerInfo[playerid][pID]);
-							    mysql_tquery(koneksi, pQuery[playerid]);
-								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil menyimpan spawn disini!");
-							}
-							DeletePVar(playerid, "info_rumah");
-						}
-						case 5:
-						{
 							goto label_masuk_rumah;
 						}
 					}
@@ -2333,9 +2309,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									givePlayerUang(ownerId, beliRate);
 								}else{
 									mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
-									mysql_tquery(koneksi, pQuery[playerid]);
-									
-									mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
 									mysql_tquery(koneksi, pQuery[playerid]);
 								}
 							}
@@ -2387,10 +2360,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							label_masuk_rumah:
 							new id_level = houseInfo[id][hLevel];
 							if(houseInfo[id][hKunci] != 1){
+								PlayerInfo[playerid][inHouse] = id;
 								pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
 								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil masuk rumah!");
 							}else{
 								if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
+									PlayerInfo[playerid][inHouse] = id;
 									pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
 									SendClientMessage(playerid, COLOR_YELLOW, "Rumah: "WHITE"Ketik "YELLOW"/house "WHITE"untuk mengelola inventory & furniture rumah.");
 								}else{
