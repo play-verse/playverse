@@ -11,7 +11,7 @@
 #define UCP_URL			"https://ucp.playverse.org/"
 
 #define NAMA_SERVER			"Playverse"
-#define NAMA_GAMEMODE 		"VRP v0.7.6b Alpha"
+#define NAMA_GAMEMODE 		"VRP v0.7.7 Alpha"
 #define RULES_SERVER		"\n\
 							1. Dilarang menggunakan cheat apapun.\n\
 							2. Dilarang menggunakan modifikasi (mod) yang dapat merugikan player lain.\n\
@@ -24,7 +24,7 @@
 							9. Usahakan ketika bermain di server kami selalu membahas segala sesuatu dengan IC.\n\
 							10. Diperbolehkan membahas OOC ketika kalian sedang bermain di server kami, Usahakan seminimal mungkin!"
 
-#define MAX_SERVER_ITEM 85 // Diatur sesuai dengan banyak data didatabase 
+#define MAX_SERVER_ITEM 99 // Diatur sesuai dengan banyak data didatabase
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -713,6 +713,7 @@ new const NAMA_ABJAD[][] = {
 #define TAG_GPS					"GPS:"
 #define TAG_LISTRIK				"Listrik:"
 #define TAG_SKIN				"Skin:"
+#define TAG_WEAPON				"Weapon:"
 
 /*
 	Job Define
@@ -809,6 +810,23 @@ new const NAMA_ABJAD[][] = {
 #define ID_PIL_DARAH_MERAH_50	57
 #define ID_PIL_DARAH_MERAH_100	58
 
+// Weapon
+#define ID_COLT_45					86
+#define ID_SILENCED_COLT_45			87
+#define ID_DEAGLE					88
+#define ID_SHOTGUN					89
+#define ID_SAWNOFF_SG				90
+#define ID_COMBAT_SG				91
+#define ID_UZI						92
+#define ID_MP5						93
+#define ID_TEC_9					94
+#define ID_AK_47					95
+#define ID_M4						96
+
+#define ID_AMMO_4_55MM				97
+#define ID_AMMO_7_55MM				98
+#define ID_AMMO_12_55MM				99
+
 /*
  * End Defining Constant for ID item
  */
@@ -857,3 +875,8 @@ new const NAMA_ABJAD[][] = {
 #define HALLOWEEN_EVENT	false
 
 // End event settings
+
+// WEAPON CRAFT
+#define AMMO_4_5MM_PER_CRAFT		20
+#define AMMO_7_5MM_PER_CRAFT		5
+#define AMMO_12_5MM_PER_CRAFT		10

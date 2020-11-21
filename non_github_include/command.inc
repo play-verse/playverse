@@ -480,7 +480,7 @@ CMD:removepolice(playerid, params[]){
         PlayerInfo[target_id][skinDuty] = 0;
     }
     SetPlayerDutyPolice(target_id, 0);
-    ResetPlayerWeapons(target_id);
+    // ResetPlayerWeapons(target_id);
     SetPlayerColor(target_id, COLOR_WHITE);    
 
     sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat polisi %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
@@ -1235,6 +1235,28 @@ CMD:removemask(playerid, params[]){
 /**
  * End Lepas Helm dan Mask
  */
+
+CMD:removeweapon(playerid, params[]){
+    if(PlayerInfo[playerid][usedWeapon] == 0)
+        return error_command(playerid, "Anda tidak sedang menggunakan senjata.");
+    
+	new weaponid = getWeaponIdByItemId(PlayerInfo[playerid][usedWeapon]);
+	if(weaponid == -1)
+		return error_command(playerid, "Terjadi kesalahan saat proses. Silahkan coba lagi.");
+	
+	new ammoid = getAmmoIdByIdItemWeapon(PlayerInfo[playerid][usedWeapon]);
+	if(ammoid == -1)
+		return error_command(playerid, "Terjadi kesalahan saat proses. Silahkan coba lagi.");
+
+	tambahItemPlayer(playerid, PlayerInfo[playerid][usedWeapon], 1);
+    if(PlayerInfo[playerid][usedAmmo] > 0)
+        tambahItemPlayer(playerid, ammoid, PlayerInfo[playerid][usedAmmo]);
+    PlayerInfo[playerid][usedWeaponId] = 0;
+    PlayerInfo[playerid][usedWeapon] = 0;
+    PlayerInfo[playerid][usedAmmo] = 0;
+    ResetPlayerWeapons(playerid);
+    return 1;
+}
 
 CMD:call(playerid, params[])
 {

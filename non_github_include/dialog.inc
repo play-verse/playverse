@@ -495,7 +495,7 @@ dialogKonfirmasiBuatItemBs(playerid, const barang_barang[][], banyak_barang = si
         nama_item[50];
     getNamaByIdItem(GetPVarInt(playerid, "bs_buat_id_item"), nama_item);
 
-    format(pDialog[playerid], sizePDialog, WHITE"Anda akan membuat "GREEN"%s"WHITE". Dengan bahan yang diperlukan:\n\n");
+    format(pDialog[playerid], sizePDialog, WHITE"Anda akan membuat "GREEN"%s"WHITE" sebanyak "ORANGE"%d "WHITE"pcs.\nDengan bahan yang diperlukan:\n\n", nama_item, GetPVarInt(playerid, "bs_buat_jumlah"));
     for(new i=0;i<banyak_barang; i++){
         getNamaByIdItem(barang_barang[i][0], nama_item);
         strcatEx(pDialog[playerid], sizePDialog, "- %s sebanyak %dx\n", nama_item, barang_barang[i][1]);

@@ -87,6 +87,11 @@ publicFor: isRegistered(playerid)
 
 		cache_get_value_name_int(0, "on_mask", PlayerInfo[playerid][isOnMask]);
 
+		cache_get_value_name_int(0, "used_weapon", PlayerInfo[playerid][usedWeapon]);
+		cache_get_value_name_int(0, "used_ammo", PlayerInfo[playerid][usedAmmo]);
+		if(PlayerInfo[playerid][usedWeapon] != 0)
+			PlayerInfo[playerid][usedWeaponId] = getWeaponIdByItemId(PlayerInfo[playerid][usedWeapon]);
+
 		// Get Player Position
 		cache_get_value_name(0, "last_x", temp_value);
 		PlayerInfo[playerid][last_x] = floatstr(temp_value);
@@ -265,6 +270,10 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][levelAdmin] = 0;
 	
     PlayerInfo[playerid][nomorRekening][0] = EOS;
+
+	PlayerInfo[playerid][usedWeapon] = 0;
+	PlayerInfo[playerid][usedAmmo] = 0;
+	PlayerInfo[playerid][usedWeaponId] = 0;
 
 	PlayerInfo[playerid][preloadAnim] = 0;
 	PlayerInfo[playerid][lastGlobalChat] = 0;
@@ -671,7 +680,53 @@ spawnPemain(playerid, dari_callback = 0)
 
 publicFor: GantiSkinSaatSpawn(playerid){
 	TogglePlayerControllable(playerid, 1);
-	ubahSkinPemain(playerid, PlayerInfo[playerid][skinID]);
+	if(PlayerInfo[playerid][usedWeapon] != 0)
+		GivePlayerWeapon(playerid, PlayerInfo[playerid][usedWeaponId], PlayerInfo[playerid][usedAmmo]);
+
+	if(IsPlayerOnDutyPolice(playerid)){
+		if(PlayerInfo[playerid][skinDuty] > 0)
+			ubahSkinPemain(playerid, PlayerInfo[playerid][skinDuty]);
+		else
+			ubahSkinPemain(playerid, PlayerInfo[playerid][skinID]);
+
+		SetPlayerColor(playerid, COLOR_POLISI);
+		// switch(GetPlayerPoliceLevel(playerid)){
+		// 	case 1:
+		// 	{
+		// 		GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+		// 		GivePlayerWeapon(playerid, WEAPON_COLT45, 50);
+		// 	}
+		// 	case 2:
+		// 	{
+		// 		GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+		// 		GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
+		// 	}
+		// 	case 3:
+		// 	{
+		// 		GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+		// 		GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
+		// 		GivePlayerWeapon(playerid, WEAPON_MP5, 100);
+		// 		GivePlayerWeapon(playerid, WEAPON_M4, 150);
+		// 	}
+		// 	case 4:
+		// 	{
+		// 		GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+		// 		GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
+		// 		GivePlayerWeapon(playerid, WEAPON_MP5, 100);
+		// 		GivePlayerWeapon(playerid, WEAPON_M4, 150);
+		// 	}
+		// }
+	}else if(IsPlayerOnDutyMedic(playerid)){
+		SetPlayerColor(playerid, COLOR_MEDIC);
+
+		if(PlayerInfo[playerid][skinDuty] > 0)
+			ubahSkinPemain(playerid, PlayerInfo[playerid][skinDuty]);
+		else
+			ubahSkinPemain(playerid, PlayerInfo[playerid][skinID]);
+	}else{
+		ubahSkinPemain(playerid, PlayerInfo[playerid][skinID]);
+	}
+
 	// Cek jika player skarat
 	if(PlayerInfo[playerid][inDie]){
 		ClearAnimations(playerid);
@@ -1078,6 +1133,18 @@ publicFor: tambahItemPlayer(playerid, itemid, jumlah){
 	return 1;
 }
 
+tambahItemSPPlayer(playerid, itemid, extra_amount = 0, expired_menit = 0){
+	if(expired == 0){
+		// Pakai trigger procedure
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_item_sp(id_item_sp,id_user,original_user,original_created,amount) VALUES(%d,%d,'%s',NOW(),%d)",itemid,PlayerInfo[playerid][pID], PlayerInfo[playerid][pPlayerName],extra_amount);
+		return mysql_tquery(koneksi, pQuery[playerid]);
+	}else{
+		// Pakai trigger procedure
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_item_sp(id_item_sp,id_user,original_user,original_created,amount,expired) VALUES(%d,%d,'%s',NOW(),%d,NOW() + INTERVAL %d MINUTE)", itemid, PlayerInfo[playerid][pID], PlayerInfo[playerid][pPlayerName], extra_amount, expired_menit);
+		return mysql_tquery(koneksi, pQuery[playerid]);
+	}
+}
+
 publicFor: tambahItemVehicle(vehicleid, itemid, jumlah){
 	SetJumlahItemVehicle(vehicleid, itemid, GetJumlahItemVehicle(vehicleid, itemid) + jumlah);
 
@@ -1401,6 +1468,69 @@ publicFor: pakaiLabu(playerid, itemid){
 
 	setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) + 5.0);
 	setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) + 10.0);
+	return 1;
+}
+
+publicFor: pakaiWeapon(playerid, itemid){
+	if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT)
+		return error_command(playerid, "Tidak dapat menggunakan item dalam kondisi sekarang");
+
+	if(PlayerInfo[playerid][usedWeapon] != 0)
+		return SendClientMessage(playerid, COLOR_RED, TAG_WEAPON" "WHITE"Anda harus melepas senjata anda terlebih dahulu.");
+	
+	new weaponid = getWeaponIdByItemId(itemid);
+	if(weaponid == -1)
+		return error_command(playerid, "Terjadi kesalahan saat penggunaan item. Silahkan coba lagi.");
+	
+	new ammoid = getAmmoIdByIdItemWeapon(itemid);
+	if(ammoid == -1)
+		return error_command(playerid, "Terjadi kesalahan saat penggunaan item. Silahkan coba lagi.");
+	
+	new jumlah_ammo = GetJumlahItemPlayer(playerid, ammoid);
+	if(jumlah_ammo <= 0){
+		new nama_item[50];
+		getNamaByIdItem(ammoid, nama_item);
+		return sendPesan(playerid, COLOR_RED, TAG_WEAPON" "WHITE"Anda tidak memiliki peluru "ORANGE"%s "WHITE"tersedia untuk digunakan.", nama_item);
+	}
+
+	GivePlayerWeapon(playerid, weaponid, jumlah_ammo);
+	tambahItemPlayer(playerid, ammoid, -jumlah_ammo);
+	tambahItemPlayer(playerid, itemid, -1);
+	PlayerInfo[playerid][usedWeapon] = itemid;
+	PlayerInfo[playerid][usedAmmo] = jumlah_ammo;
+	PlayerInfo[playerid][usedWeaponId] = weaponid;
+
+	ApplyAnimation(playerid, "RIFLE", "RIFLE_LOAD", 4.1, 0, 0, 0, 0, 0, 1);
+	return 1;
+}
+
+publicFor: pakaiAmmo(playerid, itemid){
+	if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT)
+		return error_command(playerid, "Tidak dapat menggunakan item dalam kondisi sekarang");
+
+	if(PlayerInfo[playerid][usedWeapon] == 0)
+		return SendClientMessage(playerid, COLOR_RED, TAG_WEAPON" "WHITE"Anda harus menggunakan senjata anda terlebih dahulu.");
+		
+	new weaponid = getWeaponIdByItemId(PlayerInfo[playerid][usedWeapon]);
+	if(weaponid == -1)
+		return error_command(playerid, "Terjadi kesalahan saat penggunaan item. Silahkan coba lagi.");
+
+	new ammoid = getAmmoIdByIdItemWeapon(PlayerInfo[playerid][usedWeapon]);
+	if(ammoid == -1)
+		return error_command(playerid, "Terjadi kesalahan saat penggunaan item. Silahkan coba lagi.");
+
+	if(ammoid != itemid){
+		new nama_item[50];
+		getNamaByIdItem(ammoid, nama_item);
+		return sendPesan(playerid, COLOR_RED, TAG_WEAPON" "WHITE"Anda harus menggunakan peluru "ORANGE"%s "WHITE" untuk senjata ini.", nama_item);
+	}
+
+	new jumlah_ammo = GetJumlahItemPlayer(playerid, itemid);
+	ResetPlayerWeapons(playerid);
+	GivePlayerWeapon(playerid, weaponid, PlayerInfo[playerid][usedAmmo] + jumlah_ammo);
+	tambahItemPlayer(playerid, itemid, -jumlah_ammo);
+	PlayerInfo[playerid][usedAmmo] += jumlah_ammo;
+	ApplyAnimation(playerid, "RIFLE", "RIFLE_LOAD", 4.1, 0, 0, 0, 0, 0, 1);
 	return 1;
 }
 
@@ -2403,7 +2533,7 @@ publicFor: progressBuatItemBlacksmith(playerid){
 		new nama_item[50];
 		getNamaByIdItem(id_item, nama_item);
 		if(rand <= rate_sukses){
-			tambahItemPlayer(playerid, id_item, 1); // Beri item
+			tambahItemPlayer(playerid, id_item, GetPVarInt(playerid, "bs_buat_jumlah")); // Beri item
 
 			sendPesan(playerid, COLOR_GREEN, TAG_CRAFT" "WHITE"Berhasil membuat "YELLOW"%s"WHITE", dengan menggunakan skill blacksmith.", nama_item);
 
@@ -3306,7 +3436,7 @@ updateOnPlayerDisconnect(playerid){
 
 	new lama_bermain = getTotalLamaBermain(playerid);
 
-	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', last_stats_energi = '%f', playtime = '%d', in_house = '%d', in_die = %d, last_active = NOW() WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, temp_stats_energi, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][inDie], PlayerInfo[playerid][pID]);
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET last_x = '%f', last_y = '%f', last_z = '%f',last_a = '%f', last_int = '%d', last_vw = '%d', last_hp = '%f', last_armour = '%f', last_stats_makan = '%f', last_stats_minum = '%f', last_stats_energi = '%f', playtime = '%d', in_house = '%d', in_die = %d, last_active = NOW(),used_weapon=%d, used_ammo=%d WHERE id = '%d'", last_spawn_info_x, last_spawn_info_y, last_spawn_info_z, last_spawn_info_a, last_spawn_info_int, last_spawn_info_vw, last_hp, last_armour, temp_stats_makan, temp_stats_minum, temp_stats_energi, lama_bermain, PlayerInfo[playerid][inHouse], PlayerInfo[playerid][inDie], PlayerInfo[playerid][usedWeapon], PlayerInfo[playerid][usedAmmo], PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, pQuery[playerid]);
 
 	new query_temp_str[1000];
@@ -3445,6 +3575,65 @@ loadAllItem(){
 
 		if(id_item - 1 != idx){
 			printf("PENGATURAN SERVER: id_item pada database tidak berurut. ditemukan id item %d dan selanjutnya %d.", idx, id_item);
+			SendRconCommand("exit");
+			break;
+		}
+
+		idx++;
+	}
+	cache_delete(result);
+}
+
+loadAllItemSP(){
+	new id_item, 
+		model_id, 
+		nama_item[256], 
+		keterangan_item[500],
+		rarity,
+		fungsi[101], 
+		bool:is_null;
+
+	new Cache:result, row, idx = 0;
+	result = mysql_query(koneksi, "SELECT * FROM `item_sp`");
+	cache_get_row_count(row);
+
+	while(idx < row){
+		// iIt = Id Item > Menyimpan model id item
+		// mIt = Model Item > Menyimpan id item
+		// nIt = Nama Item > Menyimpan nama item diget dari id item
+		// kIt = Keterangan Item > Menyimpan keterangan Item diget dari id item
+		cache_get_value_name_int(idx, "id", id_item);
+		cache_get_value_name_int(idx, "id_rarity", rarity);
+		cache_get_value_name_int(idx, "model_id", model_id);
+		cache_get_value_name(idx, "nama_item", nama_item);
+		cache_get_value_name(idx, "keterangan", keterangan_item);
+
+		// Simpan value is null
+		cache_is_value_name_null(idx, "fungsi", is_null);
+		if(!is_null) cache_get_value_name(idx, "fungsi", fungsi);
+
+		format(msg, sizeof(msg), "iIts_%d", id_item);
+		SetSVarInt(msg, model_id);
+
+		format(msg, sizeof(msg), "rIts_%d", id_item);
+		SetSVarInt(msg, rarity);
+
+		format(msg, sizeof(msg), "nIts_%d", id_item);
+		SetSVarString(msg, nama_item);
+
+		format(msg, sizeof(msg), "kIts_%d", id_item);
+		SetSVarString(msg, keterangan_item);
+
+		format(msg, sizeof(msg), "fIts_%d", id_item);
+		if(is_null) SetSVarString(msg, "itemTidakDapatDipakai");
+		else SetSVarString(msg, fungsi);
+
+		#if DEBUG_SERVER_LOAD == true
+			printf("Item load id(%d) - %s", id_item, nama_item);
+		#endif
+
+		if(id_item - 1 != idx){
+			printf("PENGATURAN SERVER: id_item SP pada database tidak berurut. ditemukan id item %d dan selanjutnya %d.", idx, id_item);
 			SendRconCommand("exit");
 			break;
 		}

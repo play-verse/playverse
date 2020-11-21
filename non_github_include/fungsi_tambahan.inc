@@ -227,6 +227,36 @@ getFungsiByIdItem(id_item, destinasi[], len = sizeof(destinasi)){
     GetSVarString(nama_variabel, destinasi, len);
 }
 
+// Spesial Item
+getModelByIdItemSP(id_item){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "iIts_%d", id_item);
+    return GetSVarInt(nama_variabel);
+}
+
+getRarityByIdItemSP(id_item){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "rIts_%d", id_item);
+    return GetSVarInt(nama_variabel);
+}
+
+getKeteranganByIdItemSP(id_item, destinasi[], len = sizeof(destinasi)){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "kIts_%d", id_item);
+    GetSVarString(nama_variabel, destinasi, len);
+}
+
+getNamaByIdItemSP(id_item, destinasi[], len = sizeof(destinasi)){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "nIts_%d", id_item);
+    GetSVarString(nama_variabel, destinasi, len);
+}
+
+getFungsiByIdItemSP(id_item, destinasi[], len = sizeof(destinasi)){
+    new nama_variabel[50];
+    format(nama_variabel, sizeof(nama_variabel), "fIts_%d", id_item);
+    GetSVarString(nama_variabel, destinasi, len);
+}
 /**
     End function manipulasi item menggunakan SVar
  */
@@ -1270,3 +1300,43 @@ GetWeatherName(weatherid, destinasi[], len = sizeof(destinasi)){
 #define getKayuForUpgradeHouse(%0)  (%0 * JUMLAH_KAYU_PER_UPGRADE)
 #define getBatuBataForUpgradeHouse(%0)  (%0 * JUMLAH_BATU_BATA_PER_UPGRADE)
 #define getBesiForUpgradeHouse(%0)  (%0 * JUMLAH_BESI_PER_UPGRADE)
+
+getWeaponIdByItemId(itemid){
+	switch(itemid){
+		case ID_COLT_45:
+			return WEAPON_COLT45;
+        case ID_SILENCED_COLT_45:
+            return WEAPON_SILENCED;
+        case ID_DEAGLE:
+            return WEAPON_DEAGLE;
+        case ID_SHOTGUN:
+            return WEAPON_SHOTGUN;
+        case ID_SAWNOFF_SG:
+            return WEAPON_SAWEDOFF;
+        case ID_COMBAT_SG:
+            return WEAPON_SHOTGSPA;
+        case ID_UZI:
+            return WEAPON_UZI;
+        case ID_MP5:
+            return WEAPON_MP5;
+        case ID_TEC_9:
+            return WEAPON_TEC9;
+        case ID_AK_47:
+            return WEAPON_AK47;
+        case ID_M4:
+            return WEAPON_M4;
+	}
+    return -1;
+}
+
+getAmmoIdByIdItemWeapon(itemid){
+    switch(itemid){
+		case ID_COLT_45, ID_SILENCED_COLT_45, ID_UZI, ID_MP5, ID_TEC_9:
+            return ID_AMMO_4_55MM;
+        case ID_SHOTGUN, ID_SAWNOFF_SG, ID_COMBAT_SG, ID_DEAGLE:
+            return ID_AMMO_7_55MM;
+        case ID_AK_47, ID_M4:
+            return ID_AMMO_12_55MM;
+	}
+    return -1;
+}
