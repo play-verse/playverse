@@ -12,3 +12,5 @@ ApplyAnimation(playerid, "CAR_CHAT", "CAR_SC4_FR", 4.1, false, false, false, fal
 ApplyAnimation(playerid, "PED", "SEAT_DOWN", 4.1, false, false, false, true, 0, false); // duduk
 ApplyAnimation(playerid, "PED", "SEAT_UP", 4.1, false, false, false, true, 0, false); // berdiri
 ApplyAnimation(playerid, "PED", "IDLE_TIRED", 4.1, false, false, false, false, 0, false); // idle tired
+ApplyAnimation(playerid, "RIFLE", "RIFLE_CROUCHLOAD", 4.1, false, false, false, false, 0, false); // crouch reload rifle
+ApplyAnimation(playerid, "RIFLE", "RIFLE_LOAD", 4.1, false, false, false, false, 0, false); // stand reload rifle

@@ -4424,7 +4424,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										SetPlayerProgressBarValue(playerid, CuttingBar[playerid], 0.0);
 										ShowPlayerProgressBar(playerid, CuttingBar[playerid]);
 										TogglePlayerControllable(playerid, 0);
-										SetPlayerArmedWeapon(playerid, WEAPON_CHAINSAW);
 										GameTextForPlayer(playerid, "~w~Sedang ~y~memotong...", 3000, 3);
 										SetPlayerAttachedObject(playerid, CUTTING_ATTACH_INDEX, 341, 6, 0.048, 0.029, 0.103, -80.0, 80.0, 0.0);
 										ApplyAnimation(playerid, "CHAINSAW", "WEAPON_csaw", 4.1, 1, 0, 0, 1, 0, 1);
@@ -6437,32 +6436,32 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					ubahSkinPemain(playerid, PlayerInfo[playerid][skinDuty]);
 				}
 
-				switch(GetPlayerPoliceLevel(playerid)){
-					case 1:
-					{
-						GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
-						GivePlayerWeapon(playerid, WEAPON_COLT45, 50);
-					}
-					case 2:
-					{
-						GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
-						GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
-					}
-					case 3:
-					{
-						GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
-						GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
-						GivePlayerWeapon(playerid, WEAPON_MP5, 100);
-						GivePlayerWeapon(playerid, WEAPON_M4, 150);
-					}
-					case 4:
-					{
-						GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
-						GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
-						GivePlayerWeapon(playerid, WEAPON_MP5, 100);
-						GivePlayerWeapon(playerid, WEAPON_M4, 150);
-					}
-				}
+				// switch(GetPlayerPoliceLevel(playerid)){
+				// 	case 1:
+				// 	{
+				// 		GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+				// 		GivePlayerWeapon(playerid, WEAPON_COLT45, 50);
+				// 	}
+				// 	case 2:
+				// 	{
+				// 		GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+				// 		GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
+				// 	}
+				// 	case 3:
+				// 	{
+				// 		GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+				// 		GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
+				// 		GivePlayerWeapon(playerid, WEAPON_MP5, 100);
+				// 		GivePlayerWeapon(playerid, WEAPON_M4, 150);
+				// 	}
+				// 	case 4:
+				// 	{
+				// 		GivePlayerWeapon(playerid, WEAPON_NITESTICK, 1); // Tongkat Pukul
+				// 		GivePlayerWeapon(playerid, WEAPON_DEAGLE, 50);
+				// 		GivePlayerWeapon(playerid, WEAPON_MP5, 100);
+				// 		GivePlayerWeapon(playerid, WEAPON_M4, 150);
+				// 	}
+				// }
 
 				SetPlayerDutyPolice(playerid, 1);
 				SetPlayerColor(playerid, COLOR_POLISI);
@@ -6480,7 +6479,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 
 				SetPlayerDutyPolice(playerid, 0);
-				ResetPlayerWeapons(playerid);
+				// ResetPlayerWeapons(playerid);
 				SetPlayerColor(playerid, COLOR_WHITE);
 				SendClientMessage(playerid, COLOR_ORANGE, TAG_POLICE" "WHITE"Anda telah mengakiri shift anda sebagai polisi.");
 			}
@@ -7086,6 +7085,20 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						strcat(pDialog[playerid], "\nPil Darah Merah 20");
 						strcat(pDialog[playerid], "\nPil Darah Merah 50");
 						strcat(pDialog[playerid], "\nPil Darah Merah 100");
+						strcat(pDialog[playerid], "\nColt 45");
+						strcat(pDialog[playerid], "\nSilenced Colt 45");
+						strcat(pDialog[playerid], "\nDesert Eagle");
+						strcat(pDialog[playerid], "\nShotgun");
+						strcat(pDialog[playerid], "\nSawnoff Shotgun");
+						strcat(pDialog[playerid], "\nCombat Shotgun");
+						strcat(pDialog[playerid], "\nUzi");
+						strcat(pDialog[playerid], "\nMP5");
+						strcat(pDialog[playerid], "\nTEC-9");
+						strcat(pDialog[playerid], "\nM4");
+						strcat(pDialog[playerid], "\nAK-47");
+						strcat(pDialog[playerid], "\nAmmo 4,5 mm");
+						strcat(pDialog[playerid], "\nAmmo Bold 7,5 mm");
+						strcat(pDialog[playerid], "\nAmmo 12,5 mm");
 						
 						ShowPlayerDialog(playerid, DIALOG_PILIH_SKILL_BLACKSMITH_ILEGAL, DIALOG_STYLE_LIST, "Skill blacksmith : ", pDialog[playerid], "Pilih", "Batal");
 					}
@@ -7104,6 +7117,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
 						SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
 				 */
+				SetPVarInt(playerid, "bs_buat_jumlah", 1); // Default Value 
 				switch(listitem){
 					case 0: // Craft joran pancing
 					{
@@ -7130,6 +7144,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							``` RESPONSE DIALOG_KONFIRMASI_BUAT_ITEM ```
 						SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
 				 */
+				SetPVarInt(playerid, "bs_buat_jumlah", 1); // Default Value 
 				switch(listitem){
 					case 0: // Craft Bubuk Herbal
 					{
@@ -7154,6 +7169,93 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SetPVarInt(playerid, "bs_buat_id_item", ID_PIL_DARAH_MERAH_100); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka 
 						dialogKonfirmasiBuatItemBs(playerid, bahan_pil_darah_merah_100);
+					}
+					case 4: // Colt 45
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_COLT_45); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_colt_45);
+					}
+					case 5: // Silenced Colt 45
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_SILENCED_COLT_45); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_s_colt_45);
+					}
+					case 6: // Desert Eagle
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_DEAGLE); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_deagle);
+					}					
+					case 7: // Shotgun
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_SHOTGUN); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_sg);
+					}					
+					case 8: // Sawn Shotgun
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_SAWNOFF_SG); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_sawn_sg);
+					}					
+					case 9: // Combat Shotgun
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_COMBAT_SG); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_combat_sg);
+					}
+					case 10: // Uzi
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_UZI); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_uzi);
+					}
+					case 11: // MP5
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_MP5); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_mp5);
+					}
+					case 12: // TEC 9
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_TEC_9); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_tec);
+					}
+					case 13: // M4
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_M4); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_m4);
+					}
+					case 14: // AK-47
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_AK_47); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_ak47);
+					}
+					case 15: // Ammo 4,5
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_AMMO_4_55MM); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						SetPVarInt(playerid, "bs_buat_jumlah", AMMO_4_5MM_PER_CRAFT);
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_ammo45);
+					}
+					case 16: // Ammo 7,5
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_AMMO_7_55MM); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						SetPVarInt(playerid, "bs_buat_jumlah", AMMO_7_5MM_PER_CRAFT);
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_ammo75);
+					}
+					case 17: // Ammo 12,5
+					{
+						SetPVarInt(playerid, "bs_buat_id_item", ID_AMMO_12_55MM); 
+						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+						SetPVarInt(playerid, "bs_buat_jumlah", AMMO_12_5MM_PER_CRAFT);
+						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_ammo125);
 					}
 				}
 			}
@@ -7213,7 +7315,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						PASTIKAN UNTUK SELALU MENAMBAHKAN PADA BAGIAN INI 
 						SETIAP MENAMBAH ITEM BARU PADA BLACKSMITH
 				 */
-				if(!CekJikaInventoryPlayerMuat(playerid, GetPVarInt(playerid, "bs_buat_id_item"), 1)){
+				if(!CekJikaInventoryPlayerMuat(playerid, GetPVarInt(playerid, "bs_buat_id_item"), GetPVarInt(playerid, "bs_buat_jumlah"))){
 					new nama_item[50];
 					getNamaByIdItem(GetPVarInt(playerid, "bs_buat_id_item"), nama_item);
 
@@ -7270,6 +7372,118 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								tambahItemPlayer(playerid, bahan_pil_darah_merah_100[i][0], -bahan_pil_darah_merah_100[i][1]);
 						}
 					}
+					case ID_COLT_45:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_colt_45);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_colt_45);i++)
+								tambahItemPlayer(playerid, bahan_weapon_colt_45[i][0], -bahan_weapon_colt_45[i][1]);
+						}
+					}
+					case ID_SILENCED_COLT_45:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_s_colt_45);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_s_colt_45);i++)
+								tambahItemPlayer(playerid, bahan_weapon_s_colt_45[i][0], -bahan_weapon_s_colt_45[i][1]);
+						}
+					}
+					case ID_DEAGLE:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_deagle);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_deagle);i++)
+								tambahItemPlayer(playerid, bahan_weapon_deagle[i][0], -bahan_weapon_deagle[i][1]);
+						}
+					}
+					case ID_SHOTGUN:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_sg);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_sg);i++)
+								tambahItemPlayer(playerid, bahan_weapon_sg[i][0], -bahan_weapon_sg[i][1]);
+						}
+					}
+					case ID_SAWNOFF_SG:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_sawn_sg);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_sawn_sg);i++)
+								tambahItemPlayer(playerid, bahan_weapon_sawn_sg[i][0], -bahan_weapon_sawn_sg[i][1]);
+						}
+					}
+					case ID_COMBAT_SG:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_combat_sg);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_combat_sg);i++)
+								tambahItemPlayer(playerid, bahan_weapon_combat_sg[i][0], -bahan_weapon_combat_sg[i][1]);
+						}
+					}
+					case ID_UZI:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_uzi);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_uzi);i++)
+								tambahItemPlayer(playerid, bahan_weapon_uzi[i][0], -bahan_weapon_uzi[i][1]);
+						}
+					}
+					case ID_MP5:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_mp5);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_mp5);i++)
+								tambahItemPlayer(playerid, bahan_weapon_mp5[i][0], -bahan_weapon_mp5[i][1]);
+						}
+					}
+					case ID_TEC_9:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_tec);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_tec);i++)
+								tambahItemPlayer(playerid, bahan_weapon_tec[i][0], -bahan_weapon_tec[i][1]);
+						}
+					}
+					case ID_M4:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_m4);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_m4);i++)
+								tambahItemPlayer(playerid, bahan_weapon_m4[i][0], -bahan_weapon_m4[i][1]);
+						}
+					}
+					case ID_AK_47:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_ak47);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_ak47);i++)
+								tambahItemPlayer(playerid, bahan_weapon_ak47[i][0], -bahan_weapon_ak47[i][1]);
+						}
+					}
+					case ID_AMMO_4_55MM:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_ammo45);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_ammo45);i++)
+								tambahItemPlayer(playerid, bahan_weapon_ammo45[i][0], -bahan_weapon_ammo45[i][1]);
+						}
+					}
+					case ID_AMMO_7_55MM:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_ammo75);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_ammo75);i++)
+								tambahItemPlayer(playerid, bahan_weapon_ammo75[i][0], -bahan_weapon_ammo75[i][1]);
+						}
+					}
+					case ID_AMMO_12_55MM:
+					{
+						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_ammo125);
+						if(ret){
+							for(new i=0;i<sizeof(bahan_weapon_ammo125);i++)
+								tambahItemPlayer(playerid, bahan_weapon_ammo125[i][0], -bahan_weapon_ammo125[i][1]);
+						}
+					}			
 					default:
 						return 1;
 				}
@@ -10473,6 +10687,7 @@ public OnPlayerSpawn(playerid)
 		PreloadAnimLib(playerid,"CASINO");
 		PreloadAnimLib(playerid,"ON_LOOKERS");
 		PreloadAnimLib(playerid,"SWORD");
+		PreloadAnimLib(playerid,"RIFLE");
 		PlayerInfo[playerid][preloadAnim] = 1;
 	}
 
@@ -10498,7 +10713,7 @@ public OnPlayerDeath(playerid, killerid, reason)
 
 	SetPlayerDutyMedic(playerid, 0);
 	SetPlayerDutyPolice(playerid, 0);
-	ResetPlayerWeapons(playerid);
+	// ResetPlayerWeapons(playerid);
 
 	/*
 	 * Hilangkan Mask jika sedang terpakai
@@ -10612,6 +10827,10 @@ public OnGameModeInit()
 	printf("[ITEM RARITY] Load semua item rarity...");
 	loadAllRarity();
 	printf("[ITEM RARITY] Sukses load item rarity!");
+
+	printf("[ITEM] Load semua item SP...");
+	loadAllItemSP();
+	printf("[ITEM] Sukses load item SP!");
 
 	printf("[PICKUP] Load semua pickup...");
 	loadAllPickup();
@@ -10850,27 +11069,6 @@ public OnGameModeExit(){
 	return 1;
 }
 
-//----------------------------------------------------------
-
-public OnPlayerUpdate(playerid)
-{
-	if(!IsPlayerConnected(playerid)) return 0;
-	if(IsPlayerNPC(playerid)) return 1;
-	
-	// No weapons in interiors
-	//if(SS_GetPlayerInterior(playerid) != 0 && GetPlayerWeapon(playerid) != 0) {
-	    //SetPlayerArmedWeapon(playerid,0); // fists
-	    //return 0; // no syncing until they change their weapon
-	//}
-
-	// Don't allow minigun
-	if(GetPlayerWeapon(playerid) == WEAPON_MINIGUN) {
-		Kick(playerid);
-		return 0;
-	}
-	return 1;
-}
-
 public OnPlayerStateChange(playerid, newstate, oldstate){
 	new const vehid = GetPlayerVehicleID(playerid);	
 	/*
@@ -11074,7 +11272,7 @@ public OnPlayerText(playerid, text[]){
 	format(msg,sizeof(msg), "berkata: %s", text);
 	SetPlayerChatBubble(playerid, msg, -1, 40.0, 5000);
 
-	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation] && !PlayerInfo[playerid][inDie]) PlayerTalking(playerid);
+	if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && !PlayerInfo[playerid][isOnAnimation] && !PlayerInfo[playerid][inDie] && !CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1])) PlayerTalking(playerid);
 
 	/**
 		Filter Actor
@@ -12857,16 +13055,22 @@ public OnPlayerLeaveDynamicArea(playerid, areaid){
  * IMPORTANT : issuerid perlu dicek apakah INVALID_PLAYER_ID
  */
 public OnPlayerDamage(&playerid, &Float:amount, &issuerid, &weapon, &bodypart){
-	static Float:depth[2];
 	new Float:health, Float:armour;
 	GetPlayerHealth(playerid, health);
 	GetPlayerArmour(playerid, armour);
-	if(!PlayerInfo[playerid][inDie] && health - amount <= 1.0 && !CA_IsPlayerInWater(playerid, depth[0], depth[1])){
+	// Jika jatuh ataupun hampir mati
+	if(!PlayerInfo[playerid][inDie] && health - amount <= 1.0 && !CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1])){
 		PlayerInfo[playerid][inDie] = LAMA_MENUNGGU_SAAT_SEKARAT;
 		SetPlayerHealth(playerid, 1.0);
 		animasiSekarat(playerid);
 		return 0;
 	}
+	
+	// Don't allow minigun
+	// if(weapon == WEAPON_MINIGUN) {
+	// 	Kick(issuerid);
+	// 	return 0;
+	// }	
 	return 1;
 }
 
@@ -12887,23 +13091,56 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid){
 	return 1;
 }
 
-public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_x, Float:new_y, Float:new_z, Float:vel_x, Float:vel_y, Float:vel_z){
-	if(GetVehicleDistanceFromPoint(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]) > 1.0){
-		new Float:tempPos[3];
-		GetVehiclePos(vehicleid, tempPos[0], tempPos[1], tempPos[2]);
-		if(CA_RayCastLine(tempPos[0], tempPos[1], tempPos[2], tempPos[0], tempPos[1], tempPos[2]-1.5, tempPos[0], tempPos[1], tempPos[2]))
+public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY, Float:fZ){
+	if(weaponid == 0)
+		return 1;
+	
+	if(weaponid == PlayerInfo[playerid][usedWeaponId]){
+		PlayerInfo[playerid][usedAmmo]--;
+		if(GetPlayerAmmo(playerid) == 1 || PlayerInfo[playerid][usedAmmo] <= 0) // If player shot with the last ammo
 		{
-			if(!CA_RayCastLine(LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2], LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]-1.5, tempPos[0], tempPos[1], tempPos[2])){
-				GetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
-				GetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
-			}else{
-				SetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
-				SetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
-			}
+			ResetPlayerWeapons(playerid);
+			tambahItemPlayer(playerid, PlayerInfo[playerid][usedWeapon], 1);
+			PlayerInfo[playerid][usedWeapon] = 0;
+			PlayerInfo[playerid][usedWeaponId] = 0;
+			PlayerInfo[playerid][usedAmmo] = 0;
+			SendClientMessage(playerid, COLOR_RED, "** Peluru habis, senjata kembali ke inventory.");
 		}
+	}else{
+		ResetPlayerWeapons(playerid);
+		if(PlayerInfo[playerid][usedWeapon] != 0)
+			GivePlayerWeapon(playerid, PlayerInfo[playerid][usedWeaponId], PlayerInfo[playerid][usedAmmo]);
 	}
 	return 1;
 }
+
+// Leave it alone
+// Wiki Streamer - Callback OnPlayerShootDynamicObject
+// ```
+// 	Return 0 / Not Declared it - Will prevent OnPlayerWeaponShot from being called, when object getting hitted
+// 	Return 1 - Will make OnPlayerWeaponShot called
+// ```
+public OnPlayerShootDynamicObject(playerid, weaponid, objectid, Float:x, Float:y, Float:z){
+	return 1;
+}
+
+// public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_x, Float:new_y, Float:new_z, Float:vel_x, Float:vel_y, Float:vel_z){
+	// if(GetVehicleDistanceFromPoint(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]) > 1.0){
+	// 	new Float:tempPos[3];
+	// 	GetVehiclePos(vehicleid, tempPos[0], tempPos[1], tempPos[2]);
+	// 	if(CA_RayCastLine(tempPos[0], tempPos[1], tempPos[2], tempPos[0], tempPos[1], tempPos[2]-1.5, tempPos[0], tempPos[1], tempPos[2]))
+	// 	{
+	// 		if(!CA_RayCastLine(LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2], LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]-1.5, tempPos[0], tempPos[1], tempPos[2])){
+	// 			GetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
+	// 			GetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+	// 		}else{
+	// 			SetVehiclePos(vehicleid, LastVehiclePos[vehicleid][0], LastVehiclePos[vehicleid][1], LastVehiclePos[vehicleid][2]);
+	// 			SetVehicleZAngle(vehicleid, LastVehiclePos[vehicleid][3]);
+	// 		}
+	// 	}
+	// }
+// 	return 1;
+// }
 
 // public OnIncomingPacket(playerid, packetid, BitStream:bs){
 // 	printf("OnIncomingPacket %d %d", playerid, packetid);

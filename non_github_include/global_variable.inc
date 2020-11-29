@@ -29,6 +29,9 @@ enum pInfo
     limitItem, // Menyimpan limit dari inventory
 	expScore,
 	pScore,
+	usedWeapon,
+	usedWeaponId,
+	usedAmmo,
 
 	levelAdmin,
 
@@ -1685,6 +1688,89 @@ new const bahan_pil_darah_merah_100[][2] = {
 	{ID_BUBUK_HERBAL, 7},
 	{ID_JAHE, 27},
 	{ID_TEMULAWAK, 27}
+};
+
+new const bahan_weapon_colt_45[][2] = {
+	{ID_BESI, 25},
+	{ID_ALUMINIUM, 25}
+};
+
+new const bahan_weapon_s_colt_45[][2] = {
+	{ID_BESI, 25},
+	{ID_ALUMINIUM, 25},
+	{ID_PERAK, 5}
+};
+
+new const bahan_weapon_deagle[][2] = {
+	{ID_BESI, 30},
+	{ID_ALUMINIUM, 25},
+	{ID_PERAK, 30}
+};
+
+new const bahan_weapon_sg[][2] = {
+	{ID_BESI, 30},
+	{ID_ALUMINIUM, 30},
+	{ID_PERAK, 10}
+};
+
+new const bahan_weapon_sawn_sg[][2] = {
+	{ID_BESI, 40},
+	{ID_ALUMINIUM, 30},
+	{ID_PERAK, 10}
+};
+
+new const bahan_weapon_combat_sg[][2] = {
+	{ID_BESI, 40},
+	{ID_ALUMINIUM, 30},
+	{ID_PERAK, 10}
+};
+
+new const bahan_weapon_uzi[][2] = {
+	{ID_BESI, 20},
+	{ID_ALUMINIUM, 30},
+	{ID_PERAK, 20}
+};
+
+new const bahan_weapon_mp5[][2] = {
+	{ID_BESI, 20},
+	{ID_ALUMINIUM, 30},
+	{ID_PERAK, 30}
+};
+
+new const bahan_weapon_tec[][2] = {
+	{ID_BESI, 20},
+	{ID_ALUMINIUM, 30},
+	{ID_PERAK, 20}
+};
+
+new const bahan_weapon_m4[][2] = {
+	{ID_BESI, 40},
+	{ID_ALUMINIUM, 50},
+	{ID_PERAK, 30}
+};
+
+new const bahan_weapon_ak47[][2] = {
+	{ID_BESI, 40},
+	{ID_ALUMINIUM, 50},
+	{ID_PERAK, 30}
+};
+
+new const bahan_weapon_ammo45[][2] = {
+	{ID_BESI, 2},
+	{ID_ALUMINIUM, 2},
+	{ID_BATU_BARA, 10}
+};
+
+new const bahan_weapon_ammo75[][2] = {
+	{ID_BESI, 2},
+	{ID_ALUMINIUM, 2},
+	{ID_BATU_BARA, 10}
+};
+
+new const bahan_weapon_ammo125[][2] = {
+	{ID_BESI, 5},
+	{ID_ALUMINIUM, 5},
+	{ID_BATU_BARA, 10}
 };
 
 new const bahan_besi_utuh[][2] = {
