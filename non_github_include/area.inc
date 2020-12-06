@@ -127,7 +127,7 @@ loadAllArea(){
     }
 
      // Buat SIM
-    AREA_simRegis[0] = buatSPDanLabel(253.9280,69.7131,1003.6406, "Polisi Metro Los Santos\nPelayanan SIM\n"GREEN"Registrasi", 1.0);
+    AREA_simRegis[0] = buatSPDanLabel(253.9280,69.7131,1003.6406, "Polisi Metro Los Santos\nPelayanan Umum\n"GREEN"Administrasi", 1.0);
     AREA_simPraktik[0] = buatSPDanLabel(1384.8374,-1654.8419,13.5393, "Polisi Metro Los Santos\nPelayanan SIM\n"GREEN"Praktik", 1.0);
 
     AREA_pusatProperti[0] = buatSPDanLabel(1087.9688,-1529.9100,22.7421, "Pusat Properti cabang LS Mall\n"GREEN"Hubungi disini.", 1.0);

@@ -752,7 +752,8 @@ new	todoFinish[MAX_PLAYERS],
 	todoTimer[MAX_PLAYERS] = {-1, ...},
 	todoTimeout[MAX_PLAYERS],
 	removedVeh[MAX_PLAYERS],
-	removedTimer[MAX_PLAYERS] = {-1, ...};
+	removedTimer[MAX_PLAYERS] = {-1, ...},
+	playerJob_Id[MAX_VEHICLES] = {-1, ...};
 
 /* Sweeper */
 new Iterator:vehicleSweeper<MAX_VEHICLES>,
@@ -995,7 +996,12 @@ enum PlayerVehicleInfo
     pVehMod[14],
     pVehPaintJob,
     Float:pVehDarah,
-    pVehIsReparasi // Status Reparasi : 0 - kendaraan baik-baik aja, 1 - kendaraan rusak dan sedang dalam reparasi (harus diambil dari tempat reparasi), 2 - Kendaraan telah diperbaiki dan siap diambil
+    pVehIsReparasi, // Status Reparasi : 0 - kendaraan baik-baik aja, 1 - kendaraan rusak dan sedang dalam reparasi (harus diambil dari tempat reparasi), 2 - Kendaraan telah diperbaiki dan siap diambil
+	pVehPlatAlias[8],
+	pVehPlatNo[8],
+	pVehPlatBuat[16], // Tanggal plat dibuat
+	pVehPlatTempo[16], // Tanggal plat dapat mulai dibayar (15 hari)
+	pVehPlatExp[16] // Tanggal plat kadaluarsa
 }
 new 
     Iterator:DVehIterator<MAX_VEHICLES>, // Nyimpan Iterator vehicle

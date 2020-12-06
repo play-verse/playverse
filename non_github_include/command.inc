@@ -1844,6 +1844,48 @@ CMD:checksuspect(playerid, params[]){
     return 1;
 }
 
+CMD:checkplat(playerid, params[]){
+    new vehid = INVALID_VEHICLE_ID;
+    new Float:vpos[3];
+
+    foreach(new vid : Vehicle){
+        if(!IsValidVehicle(vid)) continue;
+        if(GetVehicleBoot(vid, vpos[0], vpos[1], vpos[2])){
+            if(IsPlayerInRangeOfPoint(playerid, 1.5, vpos[0], vpos[1], vpos[2])){
+                vehid = vid;
+                break;
+            }
+        }
+        if(vehid == INVALID_VEHICLE_ID){
+            if(GetVehicleHood(vid, vpos[0], vpos[1], vpos[2])){
+                if(IsPlayerInRangeOfPoint(playerid, 1.5, vpos[0], vpos[1], vpos[2])){
+                    vehid = vid;
+                    break;
+                }
+            }
+        }
+    }
+    
+    if(vehid == INVALID_VEHICLE_ID) 
+        return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda harus berada di bagian depan atau belakang kendaraan pribadi.");
+
+    if(Iter_Contains(IDVehToPVehIterator, vehid)){
+        new idpv = IDVehToPVeh[vehid], tmp_exp[16];
+        if(PVeh[idpv][pVehPlatExp] == 0)
+            format(tmp_exp, sizeof(tmp_exp), "Tidak Terdata");
+        else
+            format(tmp_exp, sizeof(tmp_exp), "%s", PVeh[idpv][pVehPlatExp]);
+
+        format(pDialog[playerid], sizePDialog,
+            WHITE"Plat Nomor : "GREEN"%s %s\n\
+            "WHITE"Berlaku hingga : "GREEN"%s", PVeh[idpv][pVehPlatAlias], PVeh[idpv][pVehPlatNo], tmp_exp);
+        ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Plat Kendaraan", pDialog[playerid], "Tutup", "");
+    }else{
+        return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda harus berada di dekat kendaraan pribadi.");
+    }
+    return 1;
+}
+
 // Ini dapat dilakukan semua orang
 CMD:checkinventory(playerid, params[]){
 
