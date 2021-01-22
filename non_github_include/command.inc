@@ -828,7 +828,7 @@ CMD:skill(playerid, const params[]){
 }
 
 CMD:v(playerid, const params[]){
-    if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak menggunakan perintah ini saat tidak di dalam kendaraan.");
+    if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak dapat menggunakan perintah ini saat tidak di dalam kendaraan.");
 
     new vehid = GetPlayerVehicleID(playerid),
         string[300];
@@ -1267,7 +1267,7 @@ CMD:call(playerid, params[])
     // if(!IsPemainPunyaNomorAktif(playerid)) return error_command(playerid, "Maaf anda harus memiliki nomor hp yang aktif untuk dapat menggunakan fitur ini.");
 	// if(number == PlayerInfo[playerid][nomorHP]) return error_command(playerid, "Tidak dapat melakukan panggilan ke nomor hp pribadi.");
     if(number == 123){
-        format(pDialog[playerid], sizePDialog, WHITE"Nomor Resmi yang tersedia :\n123 - Pusat Bantuan Panggilan\n911 - Panggilan Darurat (Medis/Polisi)", PlayerInfo[playerid][pPlayerName]);
+        format(pDialog[playerid], sizePDialog, WHITE"Nomor Resmi yang tersedia :\n123 - Pusat Bantuan Panggilan\n911 - Panggilan Darurat (Medis/Polisi)");
         ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Pusat Bantuan Panggilan", pDialog[playerid], "Ok", "");	
 		return 1;
 	}else if(number == 911){
@@ -1870,15 +1870,20 @@ CMD:checkplat(playerid, params[]){
         return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda harus berada di bagian depan atau belakang kendaraan pribadi.");
 
     if(Iter_Contains(IDVehToPVehIterator, vehid)){
-        new idpv = IDVehToPVeh[vehid], tmp_exp[16];
+        new idpv = IDVehToPVeh[vehid], tmp_exp[16], tmp_plat[16];
+        if(sama("-", PVeh[IDVehToPVeh[vehid]][pVehPlatAlias]))
+            format(tmp_plat, sizeof(tmp_plat), "None");
+        else
+            format(tmp_plat, sizeof(tmp_plat), "%s %s", PVeh[idpv][pVehPlatAlias], PVeh[idpv][pVehPlatNo]);
+        
         if(PVeh[idpv][pVehPlatExp] == 0)
-            format(tmp_exp, sizeof(tmp_exp), "Tidak Terdata");
+            format(tmp_exp, sizeof(tmp_exp), "None");
         else
             format(tmp_exp, sizeof(tmp_exp), "%s", PVeh[idpv][pVehPlatExp]);
 
         format(pDialog[playerid], sizePDialog,
-            WHITE"Plat Nomor : "GREEN"%s %s\n\
-            "WHITE"Berlaku hingga : "GREEN"%s", PVeh[idpv][pVehPlatAlias], PVeh[idpv][pVehPlatNo], tmp_exp);
+            WHITE"Plat Nomor : "GREEN"%s\n\
+            "WHITE"Berlaku hingga : "GREEN"%s", tmp_plat, tmp_exp);
         ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Plat Kendaraan", pDialog[playerid], "Tutup", "");
     }else{
         return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda harus berada di dekat kendaraan pribadi.");
@@ -2191,6 +2196,7 @@ CMD:cvoacvrp(playerid, params[]){
     }
     return 1;
 }
+
 // CMD:idmgs(playerid, params[]){
 //     if(IsPlayerInAnyVehicle(playerid)){
 //         new panels, doors, lights, tires;

@@ -357,29 +357,34 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 2: // Kendaraan
 					{
-						new string[250 * BANYAK_DATA_PER_PAGE + 200];
+						new string[250 * BANYAK_DATA_PER_PAGE + 200], tmp_plat[16];
 						format(string, sizeof(string), "Kode\tNama\tJarak\tSisa Waktu Kunci\n");
 						
 						foreach(new i : PVehIterator){
+							if(sama("-", PVeh[i][pVehPlatAlias]))
+								format(tmp_plat, sizeof(tmp_plat), "None");
+							else
+								format(tmp_plat, sizeof(tmp_plat), "%s %s", PVeh[i][pVehPlatAlias], PVeh[i][pVehPlatNo]);
+								
 							if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID]){
 								if(PVeh[i][pVehIsReparasi] == 1){ // Jika mobil sedang dalam reparasi (telah rusak) dan belum diperbaiki dan dibayar
-									format(string, sizeof(string), "%s%d\t%s\t"RED"Rusak total\t"GREEN"Milik Sendiri\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]));
+									format(string, sizeof(string), "%s%s\t%s\t"RED"Rusak total\t"GREEN"Milik Sendiri\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]));
 								}else if(PVeh[i][pVehIsReparasi] == 2){ // Jika mobil sedang dalam reparasi namun telah siap diambil
-									format(string, sizeof(string), "%s%d\t%s\t"YELLOW"Telah direcovery\t"GREEN"Milik Sendiri\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]));
+									format(string, sizeof(string), "%s%s\t%s\t"YELLOW"Telah direcovery\t"GREEN"Milik Sendiri\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]));
 								}else{
 									new Float:pos[3];
 									GetVehiclePos(PVeh[i][pVehicle], pos[0], pos[1], pos[2]);
-									format(string, sizeof(string), "%s%d\t%s\t%.2fm\t"GREEN"Milik Sendiri\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]));
+									format(string, sizeof(string), "%s%s\t%s\t%.2fm\t"GREEN"Milik Sendiri\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]));
 								}
 							}else if(Iter_Contains(PVehKeys[playerid], i) && PVehKeysTime[playerid][i] > gettime()){
 								if(PVeh[i][pVehIsReparasi] == 1){ // Jika mobil sedang dalam reparasi (telah rusak) dan belum diperbaiki dan dibayar
-									format(string, sizeof(string), "%s%d\t%s\t"RED"Rusak total\t"YELLOW"%i menit\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]), (PVehKeysTime[playerid][i] - gettime()) / 60);
+									format(string, sizeof(string), "%s%s\t%s\t"RED"Rusak total\t"YELLOW"%i menit\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]), (PVehKeysTime[playerid][i] - gettime()) / 60);
 								}else if(PVeh[i][pVehIsReparasi] == 2){ // Jika mobil sedang dalam reparasi namun telah siap diambil
-									format(string, sizeof(string), "%s%d\t%s\t"YELLOW"Telah direcovery\t"YELLOW"%i menit\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]), (PVehKeysTime[playerid][i] - gettime()) / 60);
+									format(string, sizeof(string), "%s%s\t%s\t"YELLOW"Telah direcovery\t"YELLOW"%i menit\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]), (PVehKeysTime[playerid][i] - gettime()) / 60);
 								}else{
 									new Float:pos[3];
 									GetVehiclePos(PVeh[i][pVehicle], pos[0], pos[1], pos[2]);
-									format(string, sizeof(string), "%s%d\t%s\t%.2fm\t"YELLOW"%i menit\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]), (PVehKeysTime[playerid][i] - gettime()) / 60);
+									format(string, sizeof(string), "%s%s\t%s\t%.2fm\t"YELLOW"%i menit\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]), (PVehKeysTime[playerid][i] - gettime()) / 60);
 								}
 							}
 						}
@@ -2801,13 +2806,18 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 3: // Bayar Biaya Perbaiki Kendaraan
 					{
-						new string[250 * BANYAK_DATA_PER_PAGE + 200];
+						new string[250 * BANYAK_DATA_PER_PAGE + 200], tmp_plat[16];
 						format(string, sizeof(string), "Kode\tNama\tBiaya\n");
 						
 						foreach(new i : PVehIterator){
+							if(sama("-", PVeh[i][pVehPlatAlias]))
+								format(tmp_plat, sizeof(tmp_plat), "None");
+							else
+								format(tmp_plat, sizeof(tmp_plat), "%s %s", PVeh[i][pVehPlatAlias], PVeh[i][pVehPlatNo]);
+								
 							if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID] && PVeh[i][pVehIsReparasi] == 1){
 								// Jika mobil sedang dalam reparasi (telah rusak) dan belum dibayar
-								format(string, sizeof(string), "%s%d\t%s\t$%d\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]), BIAYA_PERBAIKI_KENDARAAN);
+								format(string, sizeof(string), "%s%s\t%s\t$%d\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]), BIAYA_PERBAIKI_KENDARAAN);
 							}
 						}
 
@@ -3913,9 +3923,24 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch((kendaraan_berpemilik ? (listitem) : (listitem + 1))){
 					case 0: // Info Vehicle
 					{
+						new tmp_exp[16], tmp_plat[16];
+						if(sama("-", PVeh[IDVehToPVeh[vehid]][pVehPlatAlias]))
+							format(tmp_plat, sizeof(tmp_plat), "None");
+						else
+							format(tmp_plat, sizeof(tmp_plat), "%s %s", PVeh[IDVehToPVeh[vehid]][pVehPlatAlias], PVeh[IDVehToPVeh[vehid]][pVehPlatNo]);
+						
+						if(PVeh[IDVehToPVeh[vehid]][pVehPlatExp] == 0)
+							format(tmp_exp, sizeof(tmp_exp), "None");
+						else
+							format(tmp_exp, sizeof(tmp_exp), "%s", PVeh[IDVehToPVeh[vehid]][pVehPlatExp]);
+
 						format(pDialog[playerid], sizePDialog, WHITE"Info Kendaraan "YELLOW"%s "WHITE":\n\n", GetVehicleModelName(PVeh[IDVehToPVeh[vehid]][pVehModel]));
 
 						format(pDialog[playerid], sizePDialog, "%s"WHITE"Pemilik\t\t: "GREEN"%s\n\n", pDialog[playerid], PVeh[IDVehToPVeh[vehid]][pVehNamaPemilik]);
+
+						format(pDialog[playerid], sizePDialog, "%s"WHITE"Plat Nomor\t\t: "GREEN"%s\n\n", pDialog[playerid], tmp_plat);
+						
+						format(pDialog[playerid], sizePDialog, "%s"WHITE"Berlaku hingga\t: "GREEN"%s\n\n", pDialog[playerid], tmp_exp);
 
 						format(pDialog[playerid], sizePDialog, "%s"YELLOW"Anda dapat menghidupkan/mematikan kendaraan jika anda memiliki kuncinya.", pDialog[playerid]);
 
@@ -8317,6 +8342,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/v "WHITE"- Perintah kendaraan\n"\
 							YELLOW"/lock "WHITE"- Mengunci kendaraan\n"\
 							YELLOW"/unlock "WHITE"- Membuka kunci kendaraan\n"\
+							YELLOW"/checkplat "WHITE"- Memeriksa plat kendaraan\n"\
 							YELLOW"/cancelrentvehicle "WHITE"- Membatalkan sewa kendaraan\n"\
 							YELLOW"/removehelmet "WHITE"- Melepas helm\n"\
 							YELLOW"/removemask "WHITE"- Melepas topeng\n"\
@@ -10926,7 +10952,7 @@ public OnPlayerRequestSpawn(playerid){
 main() {}
 
 public OnGameModeInit()
-{	
+{
 	// Initializing map andreas
 	CA_Init();
 
