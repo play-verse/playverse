@@ -255,7 +255,7 @@ new EditingObject[MAX_PLAYERS] = {EDITING_NONE, ...};
 /**
     Textdraw Variable For Player
 */
-new PlayerText:showItem[MAX_PLAYERS][6];
+new PlayerText:showItem[MAX_PLAYERS][7];
 new PlayerText:myInfo[MAX_PLAYERS][9];
 // new PlayerText:RadarUang[MAX_PLAYERS][2];
 

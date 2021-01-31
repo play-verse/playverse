@@ -399,19 +399,21 @@ unloadTextdrawGlobal(){
 }
 
 // Show Item Textdraw
-tampilkanTextDrawShowItem(playerid, model_id, jumlah, keterangan[], nama_pemilik[]){
+tampilkanTextDrawShowItem(playerid, model_id, jumlah, keterangan[], nama_pemilik[], nama_item[]){
 	new string[128];
 	// Atur
 	PlayerTextDrawSetPreviewModel(playerid, showItem[playerid][0], model_id);
 	
-	format(string, sizeof(string), "Info Item Milik ~g~ %s", nama_pemilik);
+	format(string, sizeof(string), "Info Item Milik ~r~%s", nama_pemilik);
 	PlayerTextDrawSetString(playerid, showItem[playerid][1], string);
 
+	format(string, sizeof(string), "Nama Item : ~y~%s", nama_item);
+	PlayerTextDrawSetString(playerid, showItem[playerid][6], string);	
 
-	format(string, sizeof(string), "Jumlah Item : ~g~ %d", jumlah);
+	format(string, sizeof(string), "Jumlah Item : ~p~%d", jumlah);
 	PlayerTextDrawSetString(playerid, showItem[playerid][2], string);	
 
-	format(string, sizeof(string), "Keterangan : ~n~%s", keterangan);
+	format(string, sizeof(string), "Keterangan : %s", keterangan);
 	PlayerTextDrawSetString(playerid, showItem[playerid][3], string);	
 
 	// Tampilkan
@@ -421,6 +423,7 @@ tampilkanTextDrawShowItem(playerid, model_id, jumlah, keterangan[], nama_pemilik
 	PlayerTextDrawShow(playerid, showItem[playerid][3]);
 	PlayerTextDrawShow(playerid, showItem[playerid][4]);
 	PlayerTextDrawShow(playerid, showItem[playerid][5]);
+	PlayerTextDrawShow(playerid, showItem[playerid][6]);
 
 	SelectTextDraw(playerid, COLOR_RED);
 	PlayerInfo[playerid][onSelectedTextdraw] = true; 
@@ -434,6 +437,7 @@ hideTextDrawShowItem(playerid){
 	PlayerTextDrawHide(playerid, showItem[playerid][3]);
 	PlayerTextDrawHide(playerid, showItem[playerid][4]);
 	PlayerTextDrawHide(playerid, showItem[playerid][5]);
+	PlayerTextDrawHide(playerid, showItem[playerid][6]);
 	return 1;
 }
 // End Show Item Textdraw
@@ -519,8 +523,8 @@ loadTextDrawPemain(playerid){
 	PlayerTextDrawSetPreviewRot(playerid, showItem[playerid][0], -10.000000, 0.000000, -20.000000, 1.000000);
 	PlayerTextDrawSetPreviewVehCol(playerid, showItem[playerid][0], 1, 1);
 
-	showItem[playerid][1] = CreatePlayerTextDraw(playerid, 143.000000, 110.000000, "INFO ITEM ~G~ COSINUS");
-	PlayerTextDrawFont(playerid, showItem[playerid][1], 2);
+	showItem[playerid][1] = CreatePlayerTextDraw(playerid, 143.000000, 110.000000, "Info Item ~g~Cosinus");
+	PlayerTextDrawFont(playerid, showItem[playerid][1], 3);
 	PlayerTextDrawLetterSize(playerid, showItem[playerid][1], 0.412499, 2.199999);
 	PlayerTextDrawTextSize(playerid, showItem[playerid][1], 484.500000, 17.000000);
 	PlayerTextDrawSetOutline(playerid, showItem[playerid][1], 1);
@@ -533,37 +537,37 @@ loadTextDrawPemain(playerid){
 	PlayerTextDrawSetProportional(playerid, showItem[playerid][1], 1);
 	PlayerTextDrawSetSelectable(playerid, showItem[playerid][1], 0);
 
-	showItem[playerid][2] = CreatePlayerTextDraw(playerid, 284.000000, 167.000000, "Jumlah Item");
+	showItem[playerid][2] = CreatePlayerTextDraw(playerid, 284.000000, 176.000000, "Jumlah Item : ");
 	PlayerTextDrawFont(playerid, showItem[playerid][2], 2);
-	PlayerTextDrawLetterSize(playerid, showItem[playerid][2], 0.245830, 1.799998);
-	PlayerTextDrawTextSize(playerid, showItem[playerid][2], 404.000000, 15.000000);
+	PlayerTextDrawLetterSize(playerid, showItem[playerid][2], 0.216663, 1.299997);
+	PlayerTextDrawTextSize(playerid, showItem[playerid][2], 492.000000, 36.500000);
 	PlayerTextDrawSetOutline(playerid, showItem[playerid][2], 1);
 	PlayerTextDrawSetShadow(playerid, showItem[playerid][2], 0);
 	PlayerTextDrawAlignment(playerid, showItem[playerid][2], 1);
 	PlayerTextDrawColor(playerid, showItem[playerid][2], -1);
 	PlayerTextDrawBackgroundColor(playerid, showItem[playerid][2], 255);
 	PlayerTextDrawBoxColor(playerid, showItem[playerid][2], 50);
-	PlayerTextDrawUseBox(playerid, showItem[playerid][2], 0);
+	PlayerTextDrawUseBox(playerid, showItem[playerid][2], 1);
 	PlayerTextDrawSetProportional(playerid, showItem[playerid][2], 1);
 	PlayerTextDrawSetSelectable(playerid, showItem[playerid][2], 0);
 
-	showItem[playerid][3] = CreatePlayerTextDraw(playerid, 284.000000, 212.000000, "Keterangan");
+	showItem[playerid][3] = CreatePlayerTextDraw(playerid, 284.000000, 201.000000, "Keterangan :");
 	PlayerTextDrawFont(playerid, showItem[playerid][3], 2);
-	PlayerTextDrawLetterSize(playerid, showItem[playerid][3], 0.258332, 1.600000);
-	PlayerTextDrawTextSize(playerid, showItem[playerid][3], 483.500000, 140.500000);
+	PlayerTextDrawLetterSize(playerid, showItem[playerid][3], 0.216663, 1.299997);
+	PlayerTextDrawTextSize(playerid, showItem[playerid][3], 492.000000, 36.500000);
 	PlayerTextDrawSetOutline(playerid, showItem[playerid][3], 1);
 	PlayerTextDrawSetShadow(playerid, showItem[playerid][3], 0);
 	PlayerTextDrawAlignment(playerid, showItem[playerid][3], 1);
 	PlayerTextDrawColor(playerid, showItem[playerid][3], -1);
 	PlayerTextDrawBackgroundColor(playerid, showItem[playerid][3], 255);
 	PlayerTextDrawBoxColor(playerid, showItem[playerid][3], 50);
-	PlayerTextDrawUseBox(playerid, showItem[playerid][3], 0);
+	PlayerTextDrawUseBox(playerid, showItem[playerid][3], 1);
 	PlayerTextDrawSetProportional(playerid, showItem[playerid][3], 1);
 	PlayerTextDrawSetSelectable(playerid, showItem[playerid][3], 0);
 
-	showItem[playerid][4] = CreatePlayerTextDraw(playerid, 310.000000, 315.000000, "TUTUP");
+	showItem[playerid][4] = CreatePlayerTextDraw(playerid, 319.000000, 347.000000, "TUTUP");
 	PlayerTextDrawFont(playerid, showItem[playerid][4], 2);
-	PlayerTextDrawLetterSize(playerid, showItem[playerid][4], 0.258332, 1.750000);
+	PlayerTextDrawLetterSize(playerid, showItem[playerid][4], 0.258332, 1.550000);
 	PlayerTextDrawTextSize(playerid, showItem[playerid][4], 16.500000, 90.500000);
 	PlayerTextDrawSetOutline(playerid, showItem[playerid][4], 1);
 	PlayerTextDrawSetShadow(playerid, showItem[playerid][4], 0);
@@ -575,6 +579,19 @@ loadTextDrawPemain(playerid){
 	PlayerTextDrawSetProportional(playerid, showItem[playerid][4], 1);
 	PlayerTextDrawSetSelectable(playerid, showItem[playerid][4], 1);
 
+	showItem[playerid][6] = CreatePlayerTextDraw(playerid, 284.000000, 148.000000, "Nama Item : ");
+	PlayerTextDrawFont(playerid, showItem[playerid][6], 2);
+	PlayerTextDrawLetterSize(playerid, showItem[playerid][6], 0.216663, 1.299997);
+	PlayerTextDrawTextSize(playerid, showItem[playerid][6], 492.000000, 36.500000);
+	PlayerTextDrawSetOutline(playerid, showItem[playerid][6], 1);
+	PlayerTextDrawSetShadow(playerid, showItem[playerid][6], 0);
+	PlayerTextDrawAlignment(playerid, showItem[playerid][6], 1);
+	PlayerTextDrawColor(playerid, showItem[playerid][6], -1);
+	PlayerTextDrawBackgroundColor(playerid, showItem[playerid][6], 255);
+	PlayerTextDrawBoxColor(playerid, showItem[playerid][6], 50);
+	PlayerTextDrawUseBox(playerid, showItem[playerid][6], 1);
+	PlayerTextDrawSetProportional(playerid, showItem[playerid][6], 1);
+	PlayerTextDrawSetSelectable(playerid, showItem[playerid][6], 0);
 	// End Show Item
 
     // My Info

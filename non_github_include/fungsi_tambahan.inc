@@ -275,13 +275,8 @@ getUangPlayer(playerid)
     return PlayerInfo[playerid][uang];
 }
 
-givePlayerUang(playerid, jumlah, bool:simpanDb = true){
+givePlayerUang(playerid, jumlah, const pesan[] = "", {Float,_}:...){
     PlayerInfo[playerid][uang] += jumlah;
-
-    if(simpanDb){
-        mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
-        mysql_tquery(koneksi, pQuery[playerid]);
-    }
 
     // Hanya tampilan untuk default
     // Money bawaan tidak ada efek sama sekali karena tidak akan menjadi acuan
@@ -291,6 +286,9 @@ givePlayerUang(playerid, jumlah, bool:simpanDb = true){
     // new stringUang[50];
     // valstr(stringUang, PlayerInfo[playerid][uang]);
     // PlayerTextDrawSetString(playerid, RadarUang[playerid][1], stringUang);
+
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", jumlah, PlayerInfo[playerid][pID]);
+    return mysql_tquery(koneksi, pQuery[playerid]);
 }
 
 #define getStatusMakanPemain(%0)        PlayerInfo[%0][statusMakan]
@@ -1339,4 +1337,16 @@ getAmmoIdByIdItemWeapon(itemid){
             return ID_AMMO_12_55MM;
 	}
     return -1;
+}
+
+// Catat Current Money Before Affected, Money After Affected, Amount Affected
+// Current Time dan Keterangan 
+LogUangPlayer(playerid, money_current, amount, const keterangan[]){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO log_money(id_user,money_current,amount,keterangan) VALUES(%d,%d,%d,'%e')", PlayerInfo[playerid][pID],money_current,amount,keterangan);
+    return mysql_tquery(koneksi, pQuery[playerid]);
+}
+
+LogItemPlayer(playerid, id_item, item_current, jumlah, const keterangan[]){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO log_item(id_user,id_item,item_current,jumlah,keterangan) VALUES(%d,%d,%d,%d,'%e')", PlayerInfo[playerid][pID],id_item,item_current,jumlah,keterangan);
+    return mysql_tquery(koneksi, pQuery[playerid]);
 }

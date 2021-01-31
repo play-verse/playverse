@@ -76,6 +76,11 @@ showDialogListFurniturePemain(playerid){
     mysql_tquery(koneksi, pQuery[playerid], "tampilInventoryFurniturePlayer", "i", playerid);
 }
 
+showDialogListItemSPPemain(playerid){
+    mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT ui.*, UNIX_TIMESTAMP(ui.expired) AS expired_date, i.nama_item, i.model_id, i.id_rarity, i.keterangan, i.fungsi FROM user_item_sp ui INNER JOIN item_sp i ON i.id = ui.id_item_sp WHERE ui.id_user = '%d' LIMIT %i, %i", PlayerInfo[playerid][pID], BANYAK_DATA_PER_PAGE * GetPVarInt(playerid, "halaman"), BANYAK_DATA_PER_PAGE);
+    mysql_tquery(koneksi, pQuery[playerid], "tampilInventorySPPlayer", "i", playerid);
+}
+
 showDialogResepsionisKTP(playerid){
     return ShowPlayerDialog(playerid, DIALOG_RESEPSIONIS_PILIH_KTP, DIALOG_STYLE_LIST, "Pilihan tindakan KTP", "Buat KTP\nAmbil KTP yang sudah selesai", "Pilih", "Kembali");
 }
@@ -135,13 +140,18 @@ showDialogAmbilMobilReparasi(playerid){
 }
 
 showDialogMenuInventory(playerid){
-    if(GetSlotInventoryPlayer(playerid) >= PlayerInfo[playerid][limitItem]){
-        format(pDialog[playerid], 200, WHITE"Item\t"RED"(%i/%i)\nSkin\nKendaraan\nFurniture\nRumah", GetSlotInventoryPlayer(playerid), PlayerInfo[playerid][limitItem]);
-        ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", pDialog[playerid], "Pilih", "Batal");
-    }else{
-        format(pDialog[playerid], 200, WHITE"Item\t"GREEN"(%i/%i)\nSkin\nKendaraan\nFurniture\nRumah", GetSlotInventoryPlayer(playerid), PlayerInfo[playerid][limitItem]);
-        ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", pDialog[playerid], "Pilih", "Batal");
-    }
+    format(pDialog[playerid], 200, 
+        WHITE"Item\t%s(%i/%i)\n\
+        Item Special\n\
+        Skin\n\
+        Kendaraan\n\
+        Furniture\n\
+        Rumah", 
+        ((GetSlotInventoryPlayer(playerid) >= PlayerInfo[playerid][limitItem]) ? RED : GREEN),
+        GetSlotInventoryPlayer(playerid), 
+        PlayerInfo[playerid][limitItem]
+    );
+    ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_LIST, "Inventory", pDialog[playerid], "Pilih", "Batal");
 }
 
 showDialogEPhone(playerid){

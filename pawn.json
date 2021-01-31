@@ -33,7 +33,7 @@
 				"./non_github_include/"
 			],
 			"constants": {
-				"MAX_PLAYERS": "10"
+				"MAX_PLAYERS": "100"
 			}
 		},
 		{
@@ -48,7 +48,7 @@
 				"./non_github_include/"
 			],
 			"constants": {
-				"MAX_PLAYERS": "50"
+				"MAX_PLAYERS": "100"
 			}
 		}
 	],

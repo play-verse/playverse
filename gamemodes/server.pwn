@@ -350,12 +350,17 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SetPVarInt(playerid, "halaman", 0);
 						showDialogListItem(playerid);
 					}
-					case 1: // Skin
+					case 1: // Item Spesial
+					{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListItemSPPemain(playerid);
+					}
+					case 2: // Skin
 					{
 						mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM `user_skin` WHERE `id_user` = '%d' AND `jumlah` > 0", PlayerInfo[playerid][pID]);
 						mysql_tquery(koneksi, pQuery[playerid], "tampilInventorySkinPlayer", "i", playerid);
 					}
-					case 2: // Kendaraan
+					case 3: // Kendaraan
 					{
 						new string[250 * BANYAK_DATA_PER_PAGE + 200];
 						format(string, sizeof(string), "Kode\tNama\tJarak\tSisa Waktu Kunci\n");
@@ -389,12 +394,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}else
 							ShowPlayerDialog(playerid, DIALOG_PILIH_KENDARAAN, DIALOG_STYLE_TABLIST_HEADERS, "Kendaraan yang anda miliki.", string, "Pilih", "Kembali");
 					}
-					case 3: // Furniture
+					case 4: // Furniture
 					{
 						SetPVarInt(playerid, "halaman", 0);
 						showDialogListFurniturePemain(playerid);
 					}
-					case 4:
+					case 5:
 					{
 						inline responseQuery(){
 							new rows;
@@ -1023,21 +1028,22 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			new target_id;
 			if(response){
-				if(sscanf(inputtext, "u", target_id)) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Invalid playerid, silahkan masukan kembali! "WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+				if(sscanf(inputtext, "u", target_id)) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Invalid playerid, silahkan masukan kembali!\n"WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
 
-				if(!IsPlayerConnected(target_id)) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Player dengan id tersebut tidak ada, silahkan masukan kembali! "WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+				if(!IsPlayerConnected(target_id)) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Player dengan id tersebut tidak ada, silahkan masukan kembali!\n"WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
 				
-				if(target_id == playerid) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Anda tidak dapat memasukan ID anda sendiri, silahkan masukan kembali! "WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+				if(target_id == playerid) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Anda tidak dapat memasukan ID anda sendiri, silahkan masukan kembali!\n"WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
 
 				new Float:me_x, Float:me_y, Float:me_z;
 				GetPlayerPos(playerid, me_x, me_y, me_z);
 
-				if(!IsPlayerInRangeOfPoint(target_id, 8.0, me_x, me_y, me_z)) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Player tersebut tidak berada di dekat anda, silahkan masukan kembali! "WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+				if(!IsPlayerInRangeOfPoint(target_id, 8.0, me_x, me_y, me_z)) return ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",RED"Player tersebut tidak berada di dekat anda, silahkan masukan kembali!\n"WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
 
 				// Tampilkan Textdraw
-				new string[500];
+				new string[500], nama_item[50];
 				GetPVarString(playerid, "inv_keterangan", string, sizeof(string));
-				tampilkanTextDrawShowItem(target_id, GetPVarInt(playerid, "inv_model"), 1, string, PlayerInfo[playerid][pPlayerName]);
+				GetPVarString(playerid, "inv_nama_item", nama_item, sizeof(nama_item));
+				tampilkanTextDrawShowItem(target_id, GetPVarInt(playerid, "inv_model"), 1, string, PlayerInfo[playerid][pPlayerName], nama_item);
 
 				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil", WHITE"Anda "GREEN"berhasil "WHITE"menampilkan info item anda ke player tertuju!", "Ok", "");
 				resetPVarInventory(playerid);
@@ -1134,6 +1140,245 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_PILIH_ITEM_SP:
+		{
+			if(response){
+				if(strcmp(inputtext, STRING_SELANJUTNYA) == 0){
+					SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") + 1);
+					showDialogListItemSPPemain(playerid);
+					return 1;
+				}else if(strcmp(inputtext, STRING_SEBELUMNYA) == 0){
+					if(GetPVarInt(playerid, "halaman") > 0){
+						SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);					
+						showDialogListItemSPPemain(playerid);
+					}else{
+						SetPVarInt(playerid, "halaman", 0);
+						showDialogListItemSPPemain(playerid);
+					}
+					return 1;
+				}
+
+				SetPVarInt(playerid, "inv_indexlist", listitem);
+				format(pDialog[playerid], sizePDialog, GREEN"Pakai Item\n"WHITE"Beritahu Item\nInfo Item\nBeri Item\n"RED"Buang Item");
+
+				ShowPlayerDialog(playerid, DIALOG_OPTION_ITEM_SP_INVENTORY, DIALOG_STYLE_LIST, WHITE"Pilih aksi", pDialog[playerid], "Ok", "Keluar");
+			}else{
+				showDialogMenuInventory(playerid);
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_OPTION_ITEM_SP_INVENTORY:
+		{
+			if(response){
+				switch(listitem){
+					case 0:
+					{
+						new fungsi[50], bool:is_null, id_item_sp;
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_is_value_name_null(GetPVarInt(playerid, "inv_indexlist"), "fungsi", is_null);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item_sp", id_item_sp);
+						if(is_null)
+							format(fungsi, sizeof(fungsi), "itemTidakDapatDipakai");
+						else
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "fungsi", fungsi);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+						CallRemoteFunction(fungsi, "ii", playerid, id_item_sp);
+						resetPVarInventory(playerid);
+					}
+					case 1:
+					{
+						new modelid, id_item_sp, keterangan[50];
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item_sp", id_item_sp);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "model_id", modelid);
+						if(id_item_sp == ID_SP_KTP){
+							new original_user[MAX_PLAYER_NAME + 1],
+								original_created[30];
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_user", original_user);
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_created", original_created);
+							format(keterangan, sizeof(keterangan), "KTP atas nama ~g~%s~w~, tanggal dibuat %s", original_user, original_created);
+						}else
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+						SetPVarString(playerid, "inv_keterangan", keterangan);
+						SetPVarInt(playerid, "inv_model", modelid);
+
+						ShowPlayerDialog(playerid, DIALOG_SHOW_ITEM_FOR_PLAYER, DIALOG_STYLE_INPUT,""WHITE"ID player tujuan",WHITE"Masukan ID player yang akan kamu tampilkan item.","Show","Keluar");
+					}
+					case 2:
+					{
+						new modelid, id_item_sp, keterangan[100], nama_item[50];
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item_sp", id_item_sp);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "model_id", modelid);
+						if(id_item_sp == ID_SP_KTP){
+							new original_user[MAX_PLAYER_NAME + 1],
+								original_created[30];
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_user", original_user);
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_created", original_created);
+							format(keterangan, sizeof(keterangan), "KTP atas nama %s, tanggal dibuat %s", original_user, original_created);
+						}else
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+						tampilkanTextDrawShowItem(playerid, modelid, 1, keterangan, PlayerInfo[playerid][pPlayerName], nama_item);
+
+						resetPVarInventory(playerid);
+					}
+					case 3: // Beri Item
+					{
+						new id_item_sp, id;
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item_sp", id_item_sp);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id", id);
+						cache_delete(PlayerInfo[playerid][tempCache]);
+						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+						
+						SetPVarInt(playerid, "beri_item_id_item_user", id);
+						SetPVarInt(playerid, "beri_item_id_item", id_item_sp);
+						
+						ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_SP_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi",  WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", "Beri", "Batal");
+					}
+					case 4: // Buang item SP
+					{
+						new id_item_sp, keterangan[100], nama_item[50];
+						cache_set_active(PlayerInfo[playerid][tempCache]);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item_sp", id_item_sp);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+						if(id_item_sp == ID_SP_KTP){
+							new original_user[MAX_PLAYER_NAME + 1],
+								original_created[30];
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_user", original_user);
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_created", original_created);
+							format(keterangan, sizeof(keterangan), "KTP atas nama %s, tanggal dibuat %s", original_user, original_created);
+						}else
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
+						cache_unset_active();
+
+						format(pDialog[playerid], sizePDialog, WHITE"Apakah anda yakin ingin membuang item ini?.\n\nNama Item : "PINK"%s\n"WHITE"Keterangan Item : "GREEN"%s", nama_item, keterangan);
+
+						strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item special,\n"RED"Item yang telah dibuang tidak dapat dikembalikan lagi.\n\n"RED"Kata konfirmasi tidak sesuai.\n"WHITE"Ketik \"konfirmasi\" untuk membuang.");
+						ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUANG_ITEM_SP, DIALOG_STYLE_INPUT, "Membuang Item", pDialog[playerid], "Buang", "Batal");
+					}
+				}
+			}else{
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_BERI_ITEM_SP_ID_PLAYER:
+		{
+			if(response){
+				new target_id;
+				if(sscanf(inputtext, "u", target_id)) {
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_SP_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"ID pemain invalid.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", "Beri", "Batal");
+				}
+				if(!IsPlayerConnected(target_id) || target_id == INVALID_PLAYER_ID || target_id == playerid) {
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_SP_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"ID pemain invalid.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", "Beri", "Batal");
+				}
+
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				if(!IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+					return ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_SP_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi", RED"Pemain harus berada didekat anda.\n"WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", "Beri", "Batal");
+				}
+
+				SetPVarInt(playerid, "beri_item_target_id", target_id);
+
+				new id_item = GetPVarInt(playerid, "beri_item_id_item");
+
+				new nama_item[50];
+				getNamaByIdItemSP(id_item, nama_item);
+
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan memberikan item dengan spesifikasi.\n\nNama Item : "PINK"%s\n"WHITE"Pemain yang ingin diberi : "ORANGE"%s\n", nama_item, PlayerInfo[target_id][pPlayerName]);
+				strcat(pDialog[playerid], WHITE"\nApakah anda yakin ?");
+				strcat(pDialog[playerid], WHITE"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.\n* Pastikan orang yang diberikan adalah orang terpecaya, jika melakukan transaksi.");
+
+				return ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BERI_ITEM_SP, DIALOG_STYLE_MSGBOX, ORANGE"Konfirmasi pemberian", pDialog[playerid], "Beri", "Batal");
+			}else
+				resetPVarInventory(playerid);
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BERI_ITEM_SP:
+		{
+			if(response){
+				new id_item_user = GetPVarInt(playerid, "beri_item_id_item_user"),
+					id_item = GetPVarInt(playerid, "beri_item_id_item"),
+					target_id = GetPVarInt(playerid, "beri_item_target_id");
+
+				if(!IsPlayerConnected(target_id)) {
+					resetPVarInventory(playerid);
+					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal memberi item", WHITE"Pemain yang anda tuju telah offline dan meninggalkan server.\nAnda dapat memberi item lagi nanti.", "Ok", "");
+				}
+
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				if(!IsPlayerInRangeOfPoint(target_id, 2.0, pos[0], pos[1], pos[2])){
+					return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal memberi item", WHITE"Pemain yang anda tuju tidak berada disekitar anda.\nAnda hanya dapat memberi item kepada pemain yang berada disekitar anda.", "Ok", "");
+				}
+
+				new nama_item[50];
+				getNamaByIdItemSP(id_item, nama_item);
+
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE user_item_sp SET id_user = %d WHERE id = %d", PlayerInfo[target_id][pID], id_item_user);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				PlayerGivesAnimation(playerid);
+				PlayerTakesAnimation(target_id); 
+
+				sendPesan(target_id, COLOR_GREEN, "Item: "WHITE"Anda telah mendapatkan item "PINK"%s "WHITE"dari "ORANGE"%s.", nama_item, PlayerInfo[playerid][pPlayerName]);
+
+				sendPesan(playerid, COLOR_ORANGE, "Item: "WHITE"Berhasil memberi item "PINK"%s "WHITE"ke "ORANGE"%s", nama_item, PlayerInfo[target_id][pPlayerName]);
+				resetPVarInventory(playerid);
+			}else
+				resetPVarInventory(playerid);
+			return 1;
+		}
+		case DIALOG_KONFIRMASI_BUANG_ITEM_SP:
+		{
+			if(response){
+				if(sama(inputtext, "konfirmasi", true)){
+					new id_user_item_sp, nama_item[50];
+					cache_set_active(PlayerInfo[playerid][tempCache]);
+					cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id", id_user_item_sp);
+					cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+					cache_delete(PlayerInfo[playerid][tempCache]);
+					PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
+
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM user_item_sp WHERE id = %d", id_user_item_sp);
+					mysql_tquery(koneksi, pQuery[playerid]);
+					sendPesan(playerid, COLOR_ORANGE, TAG_ITEM" "WHITE"Berhasil membuang %s dari inventory.", nama_item);
+				}else{
+					new id_item_sp, keterangan[100], nama_item[50];
+					cache_set_active(PlayerInfo[playerid][tempCache]);
+					cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item_sp", id_item_sp);
+					cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
+					if(id_item_sp == ID_SP_KTP){
+						new original_user[MAX_PLAYER_NAME + 1],
+							original_created[30];
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_user", original_user);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_created", original_created);
+						format(keterangan, sizeof(keterangan), "KTP atas nama %s, tanggal dibuat %s", original_user, original_created);
+					}else
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
+					cache_unset_active();
+
+					format(pDialog[playerid], sizePDialog, WHITE"Apakah anda yakin ingin membuang item ini?.\n\nNama Item : "PINK"%s\n"WHITE"Keterangan Item : "GREEN"%s", nama_item, keterangan);
+					strcat(pDialog[playerid], YELLOW"\n\nPastikan anda mengetahui konsekuensi dari membuang item special,\n"RED"Item yang telah dibuang tidak dapat dikembalikan lagi.\n\n"RED"Kata konfirmasi tidak sesuai.\n"WHITE"Ketik \"konfirmasi\" untuk membuang.");
+					ShowPlayerDialog(playerid, DIALOG_KONFIRMASI_BUANG_ITEM_SP, DIALOG_STYLE_INPUT, "Membuang Item", pDialog[playerid], "Buang", "Batal");
+				}
+			}else{
+				resetPVarInventory(playerid);
+			}
+			return 1;
+		}
 		case DIALOG_PILIH_FURNITURE:
 		{
 			if(response){
@@ -1222,15 +1467,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 2:
 					{
-						new modelid, keterangan[100], jumlah;
+						new modelid, keterangan[100], jumlah, nama_item[50];
 						cache_set_active(PlayerInfo[playerid][tempCache]);
 						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_object", modelid);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_furniture", nama_item);
 						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "jumlah", jumlah);
 						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
 						cache_delete(PlayerInfo[playerid][tempCache]);
 						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
 
-						tampilkanTextDrawShowItem(playerid, modelid, jumlah, keterangan, PlayerInfo[playerid][pPlayerName]);
+						tampilkanTextDrawShowItem(playerid, modelid, jumlah, keterangan, PlayerInfo[playerid][pPlayerName], nama_item);
 
 						resetPVarInventory(playerid);
 					}
@@ -1313,10 +1559,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 2:
 					{
 						new keterangan[100], 
-							id_item = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")]
+							id_item = TempPlayerDialog[playerid][GetPVarInt(playerid, "inv_indexlist")],
+							nama_item[50]
 						;
+						getNamaByIdItem(id_item, nama_item);
 						getKeteranganByIdItem(id_item, keterangan);
-						tampilkanTextDrawShowItem(playerid, getModelByIdItem(id_item), GetJumlahItemPlayer(playerid, id_item), keterangan, PlayerInfo[playerid][pPlayerName]);
+						tampilkanTextDrawShowItem(playerid, getModelByIdItem(id_item), GetJumlahItemPlayer(playerid, id_item), keterangan, PlayerInfo[playerid][pPlayerName], nama_item);
 
 						resetPVarInventory(playerid);
 					}
@@ -1487,7 +1735,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SetPVarInt(playerid, "beri_item_jumlah", input_jumlah);
 				SetPVarInt(playerid, "beri_item_id_item", item_id);
 
-				ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi",  WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", LIGHT_BLUE"Beri", "Batal");
+				ShowPlayerDialog(playerid, DIALOG_BERI_ITEM_ID_PLAYER, DIALOG_STYLE_INPUT, ORANGE"ID Pemain yang akan diberi",  WHITE"Masukan id pemain yang ingin anda berikan item."YELLOW"\n\nPastikan anda teliti dalam mengecek item yang diberikan,\n"RED"untuk menghindari penipuan dan kesalahan.", "Beri", "Batal");
 			}else{
 				resetPVarInventory(playerid);
 			}

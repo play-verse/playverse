@@ -985,6 +985,48 @@ publicFor: tampilInventoryFurniturePlayer(playerid){
 	return 1; // For deleteing cache tquery
 }
 
+publicFor: tampilInventorySPPlayer(playerid){
+	new rows, extra_amount, nama_item[100], rarity, expired[50], bool:is_not_expired, expired_timestamp;
+	cache_get_row_count(rows);
+	new string[1500] = "Nama\tExtra Amount\tExpired\n"WHITE;
+	if(rows){
+		for(new i = 0; i < rows; i++){
+			cache_get_value_name_int(i, "id_rarity", rarity);
+			cache_get_value_name_int(i, "amount", extra_amount);
+			cache_is_value_name_null(i, "expired_date", is_not_expired);
+			if(is_not_expired)
+				format(expired, sizeof(expired), "No Expired");
+			else{
+				cache_get_value_name_int(i, "expired_date", expired_timestamp);
+				cache_get_value_name(i, "expired", expired);
+			}
+			if(!is_not_expired && expired_timestamp > gettime())
+				is_not_expired = true;
+			cache_get_value_name(i, "nama_item", nama_item);
+			strcatEx(string, sizeof(string), "%s%s\t%i\t%s%s\n", GetColorRarity(rarity), nama_item, extra_amount, is_not_expired ? GREEN : RED, expired);
+		}
+		strcat(string, ORANGE""STRING_SEBELUMNYA"\n"GREEN""STRING_SELANJUTNYA"\n");
+
+		// Save cache
+		// IMPORTANT - PASTIKAN UNTUK SELALU MENGHAPUS SEBELUM MENYIMPAN CACHE YANG BARU
+		if(cache_is_valid(PlayerInfo[playerid][tempCache])) cache_delete(PlayerInfo[playerid][tempCache]);
+		PlayerInfo[playerid][tempCache] = cache_save();
+
+		new subString[64];
+		format(subString, 64, WHITE"Pilih item spesial anda : "GREEN"(page : %d)", GetPVarInt(playerid, "halaman") + 1);
+		ShowPlayerDialog(playerid, DIALOG_PILIH_ITEM_SP, DIALOG_STYLE_TABLIST_HEADERS, subString, string, "Pilih", "Kembali");
+	}else{
+		if(GetPVarInt(playerid, "halaman") < 1)
+			ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Inventory spesial "RED"kosong", WHITE"Maaf saat ini inventory spesial anda tidak berisi apapun!\n"YELLOW"Anda bisa mendapatkan spesial dari berbelanja ataupun saling bertukar spesial kepada player lain!", "Ok", "");
+		else{ // Kembalikan ke halaman sebelumnya
+			SetPVarInt(playerid, "halaman", GetPVarInt(playerid, "halaman") - 1);
+			showDialogListItemSPPemain(playerid);
+		}
+	}
+
+	return 1; // For deleteing cache tquery
+}
+
 publicFor: tampilInventoryBarangPlayer(playerid){
 	new rows;
 	cache_get_row_count(rows);
@@ -1135,12 +1177,10 @@ publicFor: tambahItemPlayer(playerid, itemid, jumlah){
 
 tambahItemSPPlayer(playerid, itemid, extra_amount = 0, expired_menit = 0){
 	if(expired == 0){
-		// Pakai trigger procedure
-		mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_item_sp(id_item_sp,id_user,original_user,original_created,amount) VALUES(%d,%d,'%s',NOW(),%d)",itemid,PlayerInfo[playerid][pID], PlayerInfo[playerid][pPlayerName],extra_amount);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_item_sp(id_item_sp,id_user,original_user,original_created,amount) VALUES(%d,%d,'%e',NOW(),%d)",itemid,PlayerInfo[playerid][pID], PlayerInfo[playerid][pPlayerName],extra_amount);
 		return mysql_tquery(koneksi, pQuery[playerid]);
 	}else{
-		// Pakai trigger procedure
-		mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_item_sp(id_item_sp,id_user,original_user,original_created,amount,expired) VALUES(%d,%d,'%s',NOW(),%d,NOW() + INTERVAL %d MINUTE)", itemid, PlayerInfo[playerid][pID], PlayerInfo[playerid][pPlayerName], extra_amount, expired_menit);
+		mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_item_sp(id_item_sp,id_user,original_user,original_created,amount,expired) VALUES(%d,%d,'%e',NOW(),%d,NOW() + INTERVAL %d MINUTE)", itemid, PlayerInfo[playerid][pID], PlayerInfo[playerid][pPlayerName], extra_amount, expired_menit);
 		return mysql_tquery(koneksi, pQuery[playerid]);
 	}
 }
@@ -6199,4 +6239,8 @@ publicFor:timerCheckAndroid(playerid){
 		}
     }
 	return 1;
+}
+
+publicFor: cekItemSpecial(playerid, id_item){
+	
 }
