@@ -1196,10 +1196,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "model_id", modelid);
 						if(id_item_sp == ID_SP_KTP){
 							new original_user[MAX_PLAYER_NAME + 1],
-								original_created[30];
+								original_created[30],
+								expired_date[30];
 							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_user", original_user);
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "expired", expired_date);
 							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_created", original_created);
-							format(keterangan, sizeof(keterangan), "KTP atas nama ~g~%s~w~, tanggal dibuat %s", original_user, original_created);
+							format(keterangan, sizeof(keterangan), "KTP atas nama ~g~%s~w~, dibuat pada %s, expired pada %s", original_user, original_created, expired_date);
 						}else
 							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
 						cache_delete(PlayerInfo[playerid][tempCache]);
@@ -1219,10 +1221,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "model_id", modelid);
 						if(id_item_sp == ID_SP_KTP){
 							new original_user[MAX_PLAYER_NAME + 1],
-								original_created[30];
+								original_created[30],
+								expired_date[30];
 							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_user", original_user);
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "expired", expired_date);
 							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_created", original_created);
-							format(keterangan, sizeof(keterangan), "KTP atas nama %s, tanggal dibuat %s", original_user, original_created);
+							format(keterangan, sizeof(keterangan), "KTP atas nama ~g~%s~w~, dibuat pada %s, expired pada %s", original_user, original_created, expired_date);
 						}else
 							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
 						cache_delete(PlayerInfo[playerid][tempCache]);
@@ -1254,10 +1258,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
 						if(id_item_sp == ID_SP_KTP){
 							new original_user[MAX_PLAYER_NAME + 1],
-								original_created[30];
+								original_created[30],
+								expired_date[30];
 							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_user", original_user);
+							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "expired", expired_date);
 							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_created", original_created);
-							format(keterangan, sizeof(keterangan), "KTP atas nama %s, tanggal dibuat %s", original_user, original_created);
+							format(keterangan, sizeof(keterangan), "KTP atas nama ~g~%s~w~, dibuat pada %s, expired pada %s", original_user, original_created, expired_date);
 						}else
 							cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
 						cache_unset_active();
@@ -1362,10 +1368,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "nama_item", nama_item);
 					if(id_item_sp == ID_SP_KTP){
 						new original_user[MAX_PLAYER_NAME + 1],
-							original_created[30];
+							original_created[30],
+							expired_date[30];
 						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_user", original_user);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "expired", expired_date);
 						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_created", original_created);
-						format(keterangan, sizeof(keterangan), "KTP atas nama %s, tanggal dibuat %s", original_user, original_created);
+						format(keterangan, sizeof(keterangan), "KTP atas nama ~g~%s~w~, dibuat pada %s, expired pada %s", original_user, original_created, expired_date);
 					}else
 						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "keterangan", keterangan);
 					cache_unset_active();
