@@ -89,6 +89,7 @@ publicFor: isRegistered(playerid)
 
 		cache_get_value_name_int(0, "used_weapon", PlayerInfo[playerid][usedWeapon]);
 		cache_get_value_name_int(0, "used_ammo", PlayerInfo[playerid][usedAmmo]);
+		cache_get_value_name_int(0, "used_ktp", PlayerInfo[playerid][usedKtp]);
 		if(PlayerInfo[playerid][usedWeapon] != 0)
 			PlayerInfo[playerid][usedWeaponId] = getWeaponIdByItemId(PlayerInfo[playerid][usedWeapon]);
 
@@ -6243,4 +6244,23 @@ publicFor:timerCheckAndroid(playerid){
 
 publicFor: cekItemSpecial(playerid, id_item){
 	
+}
+
+/**
+ * Callback untuk item special
+ */ 
+publicFor: pakaiKTP(playerid, id_item_sp, id_item_player, expired_timestamp, const original_user[]){
+	if(expired_timestamp < gettime())
+		return error_command(playerid, "KTP ini telah expired.");
+	if(!sama(PlayerInfo[playerid][pPlayerName], original_user))
+		return error_command(playerid, "Tidak dapat menggunakan KTP yang bukan nama anda.");
+	
+	PlayerInfo[playerid][usedKtp] = id_item_player;
+
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
+		UPDATE `user` SET used_ktp='%d' WHERE id = '%d'", id_item_player, PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, pQuery[playerid]);
+
+	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan KTP.");
+	return 1;
 }

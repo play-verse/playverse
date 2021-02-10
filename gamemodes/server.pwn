@@ -1174,10 +1174,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch(listitem){
 					case 0:
 					{
-						new fungsi[50], bool:is_null, id_item_sp;
+						new fungsi[50], bool:is_null, id_item_sp, id_item_player, expired_timestamp, original_user[MAX_PLAYER_NAME + 1];
 						cache_set_active(PlayerInfo[playerid][tempCache]);
 						cache_is_value_name_null(GetPVarInt(playerid, "inv_indexlist"), "fungsi", is_null);
 						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id_item_sp", id_item_sp);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "id", id_item_player);
+						cache_get_value_name_int(GetPVarInt(playerid, "inv_indexlist"), "expired_date", expired_timestamp);
+						cache_get_value_name(GetPVarInt(playerid, "inv_indexlist"), "original_user", original_user);
 						if(is_null)
 							format(fungsi, sizeof(fungsi), "itemTidakDapatDipakai");
 						else
@@ -1185,7 +1188,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						cache_delete(PlayerInfo[playerid][tempCache]);
 						PlayerInfo[playerid][tempCache] = MYSQL_INVALID_CACHE;
 
-						CallRemoteFunction(fungsi, "ii", playerid, id_item_sp);
+						CallRemoteFunction(fungsi, "iiiis", playerid, id_item_sp, id_item_player, expired_timestamp, original_user);
 						resetPVarInventory(playerid);
 					}
 					case 1:

@@ -32,6 +32,7 @@ enum pInfo
 	usedWeapon,
 	usedWeaponId,
 	usedAmmo,
+	usedKtp,
 
 	levelAdmin,
 
