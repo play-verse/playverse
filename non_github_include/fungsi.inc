@@ -5294,7 +5294,7 @@ TerminateInteraksi_Alt(actorid){
 
 publicFor: DecreaseDieCount(playerid, dari){
 	if(PlayerInfo[playerid][inDie] > 0) {
-		PlayerInfo[playerid][inDie]--;
+		PlayerInfo[playerid][inDie] = PlayerInfo[playerid][inDie] + 1;
 
 		new str_temp[70];
 		format(str_temp, sizeof(str_temp), "~w~Anda sedang sekarat~n~\
@@ -5325,18 +5325,21 @@ publicFor: pemainUpdate(playerid){
 		return 1;
 	}
 
+	PlayerInfo[playerid][hungryStackedTime] = PlayerInfo[playerid][hungryStackedTime] + 1;
 	// Setiap 180 detik sekali kurangi status makan sebanyak constanta STATUS_MAKAN_BERKURANG_PER_WAKTU
-	if(++PlayerInfo[playerid][hungryStackedTime] >= 180){
+	if(PlayerInfo[playerid][hungryStackedTime] >= 180){
 		PlayerInfo[playerid][hungryStackedTime] = 0;
 		setStatusMakanPemain(playerid, getStatusMakanPemain(playerid) - STATUS_MAKAN_BERKURANG_PER_WAKTU);
 	}
 
-	if(++PlayerInfo[playerid][thirstyStackedTime] >= 90){
+	PlayerInfo[playerid][thirstyStackedTime] = PlayerInfo[playerid][thirstyStackedTime] + 1;
+	if(PlayerInfo[playerid][thirstyStackedTime] >= 90){
 		PlayerInfo[playerid][thirstyStackedTime] = 0;
 		setStatusMinumPemain(playerid, getStatusMinumPemain(playerid) - STATUS_MINUM_BERKURANG_PER_WAKTU);
 	}
 
-	if(++PlayerInfo[playerid][energyStackedTime] >= 60){
+	PlayerInfo[playerid][energyStackedTime]= PlayerInfo[playerid][energyStackedTime] + 1;
+	if(PlayerInfo[playerid][energyStackedTime] >= 60){
 		// Alasan cuma ambil 10 karena cuma mau cek crckdeth4 dan crckidle2
 		// Tidak usah pedulikan nama lain
 		new anim[1], animname[10];
@@ -5350,7 +5353,7 @@ publicFor: pemainUpdate(playerid){
 	}
 
 	if(gettime() < PlayerInfo[playerid][masaAktifJamsos]) {
-		PlayerInfo[playerid][ucnt_Payday]++;
+		PlayerInfo[playerid][ucnt_Payday] = PlayerInfo[playerid][ucnt_Payday] + 1;
 		if(PlayerInfo[playerid][ucnt_Payday] == 3600 || PlayerInfo[playerid][ucnt_Payday] == 3600 * 2 || PlayerInfo[playerid][ucnt_Payday] == 3600 * 3) {
 			new keterangan[50];
 			format(keterangan, sizeof(keterangan), "Jaminan sosial ke-%d", floatround(float(PlayerInfo[playerid][ucnt_Payday]) / 3600.0));
@@ -5372,7 +5375,7 @@ publicFor: pemainUpdate(playerid){
 		}
 		else
 			format(str_temp, 70, "~w~Sisa masa tahanan ~r~%d ~w~detik", PlayerInfo[playerid][inPenjara]);
-		PlayerInfo[playerid][inPenjara]--;
+		PlayerInfo[playerid][inPenjara] = PlayerInfo[playerid][inPenjara] - 1;
 		GameTextForPlayer(playerid, str_temp, 1000, 3);
 	}
 	return 1;
