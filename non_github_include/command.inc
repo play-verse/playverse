@@ -255,6 +255,16 @@ CMD:setadmin(playerid, params[]){
     return 1;
 }
 
+CMD:reloadsetup(playerid, params[]){
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2 && !IsPlayerAdmin(playerid))
+        return 0;
+
+    mysql_format(koneksi, sQuery, sizeSQuery, "SELECT * FROM `setup`");
+	mysql_tquery(koneksi, sQuery, "loadSetup");
+    return 1;
+}
+
 CMD:unban(playerid, params[]){
     // Jika bukan admin level 1 (bukan admin)
     if(GetLevelAdminPlayer(playerid) < 1) return 0;

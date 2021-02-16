@@ -11179,6 +11179,11 @@ public OnGameModeInit()
 	loadAllTiang();
 	printf("[TIANG] Sukses load semua tiang.");
 
+	printf("[SETUP] Load setup");
+	mysql_format(koneksi, sQuery, sizeSQuery, "SELECT * FROM `setup`");
+	mysql_tquery(koneksi, sQuery, "loadSetup");
+	printf("[SETUP] Sukses load setup");
+
 	printf("[ELECTRICIAN] Load timer gardu padam..");
 	montirL_GarduStart = SetPreciseTimer("GarduPadam", 2 * 60 * 60000, false);
 

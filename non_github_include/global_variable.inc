@@ -2046,3 +2046,15 @@ new Android_Check[MAX_PLAYERS],
 
 // Unused Part
 new Float:_unusedDepth[2];
+
+/**
+	Setup Variable
+ */
+new 
+	GAJI_SWEEPER,
+	GAJI_PIZZABOY,
+	GAJI_TRASHMASTER,
+	GAJI_MONTIR_LISTRIK,
+	TAGIHAN_MATI_RS,
+	TAGIHAN_DENDA_SEWA_KENDARAAN,
+	TAGIHAN_REVIVE;

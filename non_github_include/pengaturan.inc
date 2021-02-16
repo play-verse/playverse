@@ -726,11 +726,6 @@ new const NAMA_ABJAD[][] = {
 */
 
 /** Bonus atau Gaji */
-#define GAJI_SWEEPER			150
-#define GAJI_TRASHMASTER		20
-#define GAJI_PIZZABOY			15
-#define GAJI_MONTIR_LISTRIK		15
-
 #define BONUS_MENGHANCURKAN_GANJA 	(floatround(float(MENU_BIBIT_NARKO[0][hargaBibit]) * 0.75))
 #define BONUS_REVIVE				floatround(float(TAGIHAN_REVIVE) * 0.75)
 /** End bonus dan gaji */
@@ -872,10 +867,6 @@ new const NAMA_ABJAD[][] = {
 #define JENIS_TAGIHAN_RUMAH_SAKIT				1
 #define JENIS_TAGIHAN_KANTOR_POLISI				2
 #define JENIS_TAGIHAN_DENDA_SEWA_KENDARAAN		3
-
-#define TAGIHAN_REVIVE						400
-#define TAGIHAN_MATI_RS						600
-#define TAGIHAN_DENDA_SEWA_KENDARAAN		25
 
 #define METODE_BAYAR_CASH	 		0
 #define METODE_BAYAR_EBANKING	 	1

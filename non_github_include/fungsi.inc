@@ -6267,3 +6267,34 @@ publicFor: pakaiKTP(playerid, id_item_sp, id_item_player, expired_timestamp, con
 	SendClientMessage(playerid, COLOR_GREEN, TAG_ITEM" "WHITE"Berhasil menggunakan KTP.");
 	return 1;
 }
+
+publicFor: loadSetup(){
+	new rows, idx = 0, nama_setup[51], loaded = 0;
+	cache_get_row_count(rows);
+	while(idx < rows)
+	{
+		cache_get_value_name(idx, "nama_setup", nama_setup);
+		if(sama(nama_setup, "GAJI_SWEEPER") && cache_get_value_name_int(idx, "value_integer", GAJI_SWEEPER))
+			loaded++;
+		else if(sama(nama_setup, "GAJI_PIZZABOY") && cache_get_value_name_int(idx, "value_integer", GAJI_PIZZABOY))
+			loaded++;
+		else if(sama(nama_setup, "GAJI_TRASHMASTER") && cache_get_value_name_int(idx, "value_integer", GAJI_TRASHMASTER))
+			loaded++;
+		else if(sama(nama_setup, "GAJI_MONTIR_LISTRIK") && cache_get_value_name_int(idx, "value_integer", GAJI_MONTIR_LISTRIK))
+			loaded++;
+		else if(sama(nama_setup, "TAGIHAN_MATI_RS") && cache_get_value_name_int(idx, "value_integer", TAGIHAN_MATI_RS))
+			loaded++;
+		else if(sama(nama_setup, "TAGIHAN_DENDA_SEWA_KENDARAAN") && cache_get_value_name_int(idx, "value_integer", TAGIHAN_DENDA_SEWA_KENDARAAN))
+			loaded++;
+		else if(sama(nama_setup, "TAGIHAN_REVIVE") && cache_get_value_name_int(idx, "value_integer", TAGIHAN_REVIVE))
+			loaded++;
+		idx++;
+	}
+	new pesan[144];
+	format(pesan, sizeof(pesan), TAG_ADMIN" "WHITE"Setup diload kembali %d/%d.", loaded, rows);
+    foreach(new i : Player){
+        if(GetLevelAdminPlayer(i) > 0) 
+			SendClientMessage(i, COLOR_RED, pesan);
+    }
+	printf("loaded %d/%d", loaded, rows);
+}
