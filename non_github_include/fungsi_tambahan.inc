@@ -1350,3 +1350,104 @@ LogItemPlayer(playerid, id_item, item_current, jumlah, const keterangan[]){
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO log_item(id_user,id_item,item_current,jumlah,keterangan) VALUES(%d,%d,%d,%d,'%e')", PlayerInfo[playerid][pID],id_item,item_current,jumlah,keterangan);
     return mysql_tquery(koneksi, pQuery[playerid]);
 }
+
+stock strexplode(output[][], const input[], const delimiter[] = !",", limit = cellmax, bool:trim = true, bool:ignorecase = false, size1 = sizeof(output), size2 = sizeof(output[])) {
+	if (!size1 || !size2) {
+		printf("(strexplode) ERROR: size1 = %d, size2 = %d. Can't be 0.", size1, size2);
+		
+		return 0;
+	}
+	
+	if (isnull(delimiter)) {
+		print(!"(strexplode) ERROR: delimiter is empty.");
+		
+		return 0;
+	}
+	
+	if (trim) {
+		new i = -1;
+		
+		if (ispacked(input)) {
+			while (input{++i}) {
+				if (input{i} > ' ') {
+					i = -1;
+					
+					break;
+				}
+			}
+		} else {
+			while (input[++i]) {
+				if (input[i] > ' ') {
+					i = -1;
+					
+					break;
+				}
+			}
+		}
+		
+		if (i != -1)
+			return 0;
+	} else if (isnull(input)) {
+		return 0;
+	}
+	
+	if (limit == 0) {
+		return 0;
+	} else if (limit == cellmax) {
+		limit = 0;
+	}
+	
+	new
+		     pos = 0,
+		     next,
+		bool:packed = ispacked(input),
+		     dlen = strlen(delimiter),
+		     count = 0,
+		     end
+	;
+	
+	while (pos != -1) {
+		++count;
+		
+		if (limit > 0 && count >= limit) {
+			next = -1;
+		} else {
+			next = strfind(input, delimiter, ignorecase, pos);
+		}
+		
+		end = (next == -1) ? cellmax : next;
+		
+		if (trim) {
+			if (end == cellmax)
+				end = strlen(input);
+			
+			if (packed) {
+				while (0 < input{pos} <= ' ') pos++;
+				while (end > 0 && input{end - 1} <= ' ') end--;
+			} else {
+				while (0 < input[pos] <= ' ') pos++;
+				while (end > 0 && input[end - 1] <= ' ') end--;
+			}
+		}
+		
+		strmid(output[count - 1], input, pos, end, size2);
+		
+		if (count >= size1 || next == -1 || (limit < 0 && count >= -limit))
+			break;
+		
+		pos = next + dlen;
+	}
+	
+	return count;
+}
+
+alphanumeric(strength){
+    new alpha_numeric[80], random_string[64], random_character[12], split_seq[34][2];
+    format(alpha_numeric, sizeof(alpha_numeric), "0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z");
+    strexplode(split_seq, alpha_numeric, ",");
+    for(new i = 0; i < strength; i++){
+        format(random_character, sizeof(random_character), "%s", split_seq[random(33)]);
+        format(random_string, sizeof(random_string), "%s%s", random_string, random_character);
+    }
+    return random_string;
+}

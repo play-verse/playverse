@@ -1365,6 +1365,99 @@ publicFor: isPunyaKTP(playerid, punya){
 	return 1;
 }
 
+// Plat Nomor
+
+publicFor: cekKetersediaanBuatPlat(playerid, cukup){
+    new hasil;
+    cache_get_value_name_int(0, "hasil", hasil);
+    if(cukup){
+		new idpv = GetPVarInt(playerid, "id_vehicle_plat"),
+			plat_alias[8], plat_mid[8], plat_last[8], mix_plat[16];
+
+		label_plat_not_available:
+		format(plat_alias, sizeof(plat_alias), "S"); // Santos, Fierro, Venturas
+		format(plat_mid, sizeof(plat_mid), "%s", alphanumeric(4));
+		format(plat_last, sizeof(plat_last), "%s", alphanumeric(2));
+		format(mix_plat, sizeof(mix_plat), "%s %s", plat_mid, plat_last);
+
+		inline responseQuery(){
+			if(cache_num_rows()){
+				goto label_plat_not_available;
+			}else{
+				new tahun, bulan, hari;
+				getdate(tahun, bulan, hari);
+
+				sendPesan(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Kendaraan anda "GREEN"%s"WHITE" telah berhasil di pasang Plat Nomor dengan nomor "GREEN"%s %s"WHITE".", GetVehicleModelName(PVeh[idpv][pVehModel]), plat_alias, mix_plat);
+
+				tambahItemPlayer(playerid, 5, -1);
+				tambahItemPlayer(playerid, 6, -1);
+				givePlayerUang(playerid, -300);
+				
+				format(PVeh[idpv][pVehPlatAlias], 8, "%s", plat_alias);
+				format(PVeh[idpv][pVehPlatNo], 16, "%s", mix_plat);
+				format(mix_plat, sizeof(mix_plat), "%s %s", plat_alias, mix_plat);
+				SetVehicleNumberPlate(PVeh[idpv][pVehicle], mix_plat);
+
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle SET plat_alias = '%s', plat_nomor = '%s',  plat_tanggal_buat = NOW(), plat_tanggal_tempo = NOW() + INTERVAL 75 DAY, plat_tanggal_exp = NOW() + INTERVAL 90 DAY WHERE id = '%d'", PVeh[idpv][pVehPlatAlias], PVeh[idpv][pVehPlatNo], PVeh[idpv][pVehID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				inline updateQuery(){
+					if(cache_num_rows()){
+						cache_get_value_name(0, "plat_tanggal_buat", PVeh[idpv][pVehPlatBuat]);
+						cache_get_value_name(0, "plat_tanggal_tempo", PVeh[idpv][pVehPlatTempo]);
+						cache_get_value_name(0, "plat_tanggal_exp", PVeh[idpv][pVehPlatExp]);
+
+						sendPesan(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda dikenakan biaya sebesar "GREEN"$300"WHITE", Plat Nomor berlaku hingga 3 bulan kedepan ("GREEN"%s"WHITE").", PVeh[idpv][pVehPlatExp]);
+						SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda dapat memperpanjang Plat Nomor, 15 hari sebelum tanggal kadaluarsa dengan biaya "GREEN"$100"WHITE".");
+					}
+				}
+				MySQL_TQueryInline(koneksi, using inline updateQuery, "SELECT * FROM `vehicle` WHERE `id` = '%d'", PVeh[idpv][pVehID]);
+			}
+		}
+		MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM `vehicle` WHERE `plat_nomor` = '%s'", mix_plat);
+    }else{
+        ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal membuat Plat Nomor", WHITE"Maaf item yang diperlukan tidak mencukupi.", "Ok", "");
+	}
+    return 1;
+}
+
+publicFor: cekKetersediaanExtendPlat(playerid, punya){
+	if(punya){
+		new idpv = GetPVarInt(playerid, "id_vehicle_plat");
+		
+		inline responseQuery(){
+			if(cache_num_rows()){
+				new tahun, bulan, hari;
+				getdate(tahun, bulan, hari);
+				
+				sendPesan(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Kendaraan anda "GREEN"%s"WHITE" dengan Plat Nomor "GREEN"%s %s"WHITE" berhasil diperpanjang", GetVehicleModelName(PVeh[idpv][pVehModel]), PVeh[idpv][pVehPlatAlias], PVeh[idpv][pVehPlatNo]);
+				
+				givePlayerUang(playerid, -300);
+
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle SET plat_tanggal_tempo = plat_tanggal_exp + INTERVAL 75 DAY, plat_tanggal_exp = plat_tanggal_exp + INTERVAL 90 DAY WHERE id = '%d'", PVeh[idpv][pVehID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				inline updateQuery(){
+					if(cache_num_rows()){
+						cache_get_value_name(0, "plat_tanggal_tempo", PVeh[idpv][pVehPlatTempo]);
+						cache_get_value_name(0, "plat_tanggal_exp", PVeh[idpv][pVehPlatExp]);
+
+						sendPesan(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda dikenakan biaya sebesar "GREEN"$100"WHITE", Plat Nomor berlaku hingga 3 bulan kedepan ("GREEN"%s"WHITE").", PVeh[idpv][pVehPlatExp]);
+						SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda dapat memperpanjang Plat Nomor, 15 hari sebelum tanggal kadaluarsa dengan biaya "GREEN"$100"WHITE".");
+					}
+				}
+				MySQL_TQueryInline(koneksi, using inline updateQuery, "SELECT * FROM `vehicle` WHERE `id` = '%d'", PVeh[idpv][pVehID]);
+			}else{
+				showDialogPesan(playerid, RED"Plat Nomor belum jatuh tempo", WHITE"Kendaraan yang anda pilih belum dapat diperpanjang,\nkarena masa berlaku Plat Nomor belum jatuh tempo.\nSilahkan pilih kendaraan lain dengan durasi\n15 hari sebelum tanggal kadaluarsa Plat Nomor.");
+			}
+		}
+		MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM `vehicle` WHERE `id` = '%d' AND CAST(NOW() as date) >= `plat_tanggal_tempo`", PVeh[idpv][pVehID]);
+	}else{
+		ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, RED"Gagal perpanjang Plat Nomor", WHITE"Maaf anda tidak memiliki KTP.", "Ok", "");
+	}
+	return 1;
+}
+
 publicFor: pakaiPaluTambang(playerid){
 	if(checkMinimal(playerid, MINIMAL_SCORE, 6)) return 1;
 	if(PlayerInfo[playerid][sisaPalu] > 0) 
@@ -3571,7 +3664,7 @@ loadAllItem(){
 	cache_get_row_count(row);
 
 	if(row != MAX_SERVER_ITEM){
-		printf("PENGATURAN SERVER: MAX_SERVER_ITEM != jumlah_item_di_database. MAX_SERVER_ITEM = %d dan row ", id_item, nama_item);
+		printf("PENGATURAN SERVER: MAX_SERVER_ITEM != jumlah_item_di_database (MAX_SERVER_ITEM = %d - jumlah_item_di_database  = %d).", MAX_SERVER_ITEM, row);
 		SendRconCommand("exit");
 	}
 
@@ -3978,7 +4071,7 @@ updatePVehReparasi(primary_id, status){
 	mysql_tquery(koneksi, temp_query);
 }
 
-publicFor: resetPlayerToDo(playerid){
+resetOnJob(playerid){
 	if(sweeperJob[playerid] == 1){
 		if(todoFinish[playerid] != 1){
 			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Pekerjaan saat ini sudah berakhir!");
@@ -4007,6 +4100,7 @@ publicFor: resetPlayerToDo(playerid){
 		todoTimer[playerid] = -1;
 		todoTimeout[playerid] = -1;
 		todoFinish[playerid] = 0;
+		playerJob_Id[trashM_Id[playerid]] = -1;
 		trashM_Job[playerid] = 0;
 		trashM_Used[trashM_Id[playerid]] = 0;
 		trashM_BagCap[playerid] = 0;
@@ -4028,6 +4122,7 @@ publicFor: resetPlayerToDo(playerid){
 		todoTimer[playerid] = -1;
 		todoTimeout[playerid] = -1;
 		todoFinish[playerid] = 0;
+		playerJob_Id[pizza_Id[playerid]] = -1;
 		pizza_Job[playerid] = 0;
 		pizza_Used[pizza_Id[playerid]] = 0;
 		pizza_Carry[playerid] = 0;
@@ -4038,7 +4133,7 @@ publicFor: resetPlayerToDo(playerid){
 	}
 	if(testSim[playerid] == 1){
 		if(todoFinish[playerid] != 1){
-			SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Anda telah gagal melalukan Ujian Praktik SIM, silahkan coba lagi!");
+			SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "RED"Praktik SIM sudah berakhir, silahkan coba lagi!");
 		}
 		SetVehicleToRespawn(vehicleIdSIM[playerid]);
 		DisablePlayerRaceCheckpoint(playerid);
@@ -4046,13 +4141,13 @@ publicFor: resetPlayerToDo(playerid){
 		DeletePreciseTimer(todoTimeout[playerid]);
 		todoTimer[playerid] = -1;
 		todoTimeout[playerid] = -1;
+		todoFinish[playerid] = 0;
+		playerJob_Id[vehicleIdSIM[playerid]] = -1;
 		testSim[playerid] = 0;
 		poinSim[playerid] = 0;
 		limitVehSIM[vehicleIdSIM[playerid]] = 0;
 		vehicleIdSIM[playerid] = -1;
-		todoFinish[playerid] = 0;
 	}
-
 	if(montirL_Job[playerid] != 0){
 		if(todoFinish[playerid] != 1){
 			SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "RED"Pekerjaan saat ini sudah berakhir!");
@@ -4071,6 +4166,7 @@ publicFor: resetPlayerToDo(playerid){
 		todoTimer[playerid] = -1;
 		todoTimeout[playerid] = -1;
 		todoFinish[playerid] = 0;
+		playerJob_Id[montirL_Id[playerid]] = -1;
 		montirL_Job[playerid] = 0;
 		montirL_Used[montirL_Id[playerid]] = 0;
 		montirL_Id[playerid] = -1;
@@ -4082,12 +4178,20 @@ publicFor: resetPlayerToDo(playerid){
 		montirL_Tiang[playerid] = -1;
 		montirL_TiangCap[playerid] = 0;
 	}
+	jobSallary[playerid] = 0;
+	jobDistance[playerid] = 0.0;
+	for(new i = 0; i < JOB_MAX_TASK; i++){
+		jobHouseTake[playerid][i] = -1;
+	}
+}
 
+publicFor: resetPlayerToDo(playerid){
+	// Player Job
+	resetOnJob(playerid);
 	if(CuttingTreeID[playerid] != -1){
 		CuttingTreeID[playerid] = -1;
 		treeEditID[playerid] = -1;
 	}
-
 	// CuttingBar dipindahkan ke load player text draw
     if(CuttingTimer[playerid] != -1){
         DeletePreciseTimer(CuttingTimer[playerid]);
@@ -4107,18 +4211,11 @@ publicFor: resetPlayerToDo(playerid){
 		DeletePreciseTimer(removedTimer[playerid]);
 		removedTimer[playerid] = -1;
 	}
-
 	PlayerInfo[playerid][hungryStackedTime] = 0;
 	PlayerInfo[playerid][thirstyStackedTime] = 0;
 	PlayerInfo[playerid][energyStackedTime] = 0;
 	PlayerInfo[playerid][inHelp] = 0;
 	RentVehEdit[playerid] = 0;
-	jobSallary[playerid] = 0;
-	jobDistance[playerid] = 0.0;
-
-	for(new i = 0; i < JOB_MAX_TASK; i++){
-		jobHouseTake[playerid][i] = -1;
-	}
 	return 1;
 }
 
@@ -4134,6 +4231,7 @@ mulaiPraktikSIM(playerid){
 					poinSim[playerid] = 100;
 					PutPlayerInVehicle(playerid, v, 0);
 					vehicleIdSIM[playerid] = v;
+					playerJob_Id[v] = playerid;
 					limitVehSIM[v] = 1;
 					SetPlayerRaceCheckpoint(playerid, 0, CP_simLS1, CP_simLS2, 3.0);
 					SendClientMessage(playerid, COLOR_GREEN, "[HALO Polisi] "WHITE"Anda memiliki waktu 10 menit, jika belum selesai anda akan gagal.");
@@ -4373,6 +4471,32 @@ LoadVehiclePlayer(playerid){
 
 				cache_get_value_name_int(idx, "bensin", bensin);
 
+				cache_get_value_name(idx, "plat_alias", PVeh[idpv][pVehPlatAlias]);
+				cache_get_value_name(idx, "plat_nomor", PVeh[idpv][pVehPlatNo]);
+
+				new bool:is_null_plat = true;
+				// Tanggal buat
+				cache_is_value_name_null(idx, "plat_tanggal_buat", is_null_plat);
+				if(is_null_plat){
+					PVeh[idpv][pVehPlatBuat] = 0;
+				}else{
+					cache_get_value_name(idx, "plat_tanggal_buat", PVeh[idpv][pVehPlatBuat]);
+				}
+				// Tanggal tempo
+				cache_is_value_name_null(idx, "plat_tanggal_tempo", is_null_plat);
+				if(is_null_plat){
+					PVeh[idpv][pVehPlatTempo] = 0;
+				}else{
+					cache_get_value_name(idx, "plat_tanggal_tempo", PVeh[idpv][pVehPlatTempo]);
+				}
+				// Tanggal expired
+				cache_is_value_name_null(idx, "plat_tanggal_exp", is_null_plat);
+				if(is_null_plat){
+					PVeh[idpv][pVehPlatExp] = 0;
+				}else{
+					cache_get_value_name(idx, "plat_tanggal_exp", PVeh[idpv][pVehPlatExp]);
+				}
+
 				format(PVeh[idpv][pVehNamaPemilik], MAX_PLAYER_NAME, "%s", PlayerInfo[playerid][pPlayerName]);
 
 				if(temp_time != 0){
@@ -4413,6 +4537,11 @@ LoadVehiclePlayer(playerid){
 					// Memakai variable yang sama dengan UpdateVehicleDamageStatus maka di terakhirkan saja, agar tidak ditimpa value nya oleh fungsi getter VehicleParamsEx
 					GetVehicleParamsEx(idveh, engine, lights, alarm, doors, bonnet, boot, objective);
 					SetVehicleParamsEx(idveh, 0, 0, alarm, p_doors, bonnet, boot, objective);
+
+					new mix_plat[10];
+					format(mix_plat, sizeof(mix_plat), "%s %s", PVeh[idpv][pVehPlatAlias], PVeh[idpv][pVehPlatNo]);
+					SetVehicleNumberPlate(idveh, mix_plat);
+
 				}
 
 				Iter_Add(PVehIterator, idpv);
@@ -4677,6 +4806,13 @@ publicFor: prosesBeliKendaraan(playerid, vehid, metode_bayar, nominal, const ket
 	PVeh[idpv][pVehColor][1] = DVeh[vehid][dVehColor][1];
 	PVeh[idpv][pVehDarah] = 1000;
 	SetVehicleHealth(vehid, 1000);
+
+	format(PVeh[idpv][pVehPlatAlias], 16, "-"); // Kota
+	format(PVeh[idpv][pVehPlatNo], 16, "---- --"); // Random
+	PVeh[idpv][pVehPlatBuat] = 0;
+	PVeh[idpv][pVehPlatTempo] = 0;
+	PVeh[idpv][pVehPlatExp] = 0;
+	SetVehicleNumberPlate(vehid, "- ---- --");
 
 	format(pDialog[playerid], sizePDialog, CYAN"*********************************************************************************\n\n", pDialog[playerid]);
 	format(pDialog[playerid], sizePDialog, "%s"ORANGE"Selamat anda berhasil membeli kendaraan dengan spesifikasi sebagai berikut :\n\n", pDialog[playerid]);

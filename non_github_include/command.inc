@@ -838,7 +838,7 @@ CMD:skill(playerid, const params[]){
 }
 
 CMD:v(playerid, const params[]){
-    if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak menggunakan perintah ini saat tidak di dalam kendaraan.");
+    if(!IsPlayerInAnyVehicle(playerid)) return error_command(playerid, "Anda tidak dapat menggunakan perintah ini saat tidak di dalam kendaraan.");
 
     new vehid = GetPlayerVehicleID(playerid),
         string[300];
@@ -953,29 +953,29 @@ CMD:houseinfo(playerid, const params[]){
                 if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
                     if(houseInfo[id][hKunci] == 1){
                         if(PlayerInfo[playerid][sHouse] == id){
-                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nBatal Spawn Disini\nMasuk Rumah", upgradeRate);
+                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nMasuk Rumah", upgradeRate);
                         }else{
-                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nSpawn Disini\nMasuk Rumah", upgradeRate);
+                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nMasuk Rumah", upgradeRate);
                         }
                     }else{
                         if(PlayerInfo[playerid][sHouse] == id){
-                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nBatal Spawn Disini\nMasuk Rumah", upgradeRate);
+                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nMasuk Rumah", upgradeRate);
                         }else{
-                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nSpawn Disini\nMasuk Rumah", upgradeRate);
+                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nMasuk Rumah", upgradeRate);
                         }
                     }
                 }else{
                     if(houseInfo[id][hKunci] == 1){
                         if(PlayerInfo[playerid][sHouse] == id){
-                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nBatal Spawn Disini\nMasuk Rumah");
+                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nMasuk Rumah");
                         }else{
-                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nSpawn Disini\nMasuk Rumah");
+                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nMasuk Rumah");
                         }
                     }else{
                         if(PlayerInfo[playerid][sHouse] == id){
-                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nBatal Spawn Disini\nMasuk Rumah");
+                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nMasuk Rumah");
                         }else{
-                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nSpawn Disini\nMasuk Rumah");
+                            format(string, sizeof(string), "Tentang Rumah\nBatal Jual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nMasuk Rumah");
                         }
                     }
                 }
@@ -984,29 +984,29 @@ CMD:houseinfo(playerid, const params[]){
                 if(houseInfo[id][hLevel] < MAX_HOUSES_LEVEL){
                     if(houseInfo[id][hKunci] == 1){
                         if(PlayerInfo[playerid][sHouse] == id){
-                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nBatal Spawn Disini\nMasuk Rumah", upgradeRate);
+                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nMasuk Rumah", upgradeRate);
                         }else{
-                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nSpawn Disini\nMasuk Rumah", upgradeRate);
+                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nBatal Kunci Rumah\nMasuk Rumah", upgradeRate);
                         }
                     }else{
                         if(PlayerInfo[playerid][sHouse] == id){
-                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nBatal Spawn Disini\nMasuk Rumah", upgradeRate);
+                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nMasuk Rumah", upgradeRate);
                         }else{
-                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nSpawn Disini\nMasuk Rumah", upgradeRate);
+                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (%d)\nKunci Rumah\nMasuk Rumah", upgradeRate);
                         }
                     }
                 }else{
                     if(houseInfo[id][hKunci] == 1){
                         if(PlayerInfo[playerid][sHouse] == id){
-                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nBatal Spawn Disini\nMasuk Rumah");
+                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nMasuk Rumah");
                         }else{
-                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nSpawn Disini\nMasuk Rumah");
+                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nBatal Kunci Rumah\nMasuk Rumah");
                         }
                     }else{
                         if(PlayerInfo[playerid][sHouse] == id){
-                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nBatal Spawn Disini\nMasuk Rumah");
+                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nMasuk Rumah");
                         }else{
-                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nSpawn Disini\nMasuk Rumah");
+                            format(string, sizeof(string), "Tentang Rumah\nJual Rumah\nUpgrade Rumah (Maksimal)\nKunci Rumah\nMasuk Rumah");
                         }
                     }
                 }
@@ -1277,7 +1277,7 @@ CMD:call(playerid, params[])
     // if(!IsPemainPunyaNomorAktif(playerid)) return error_command(playerid, "Maaf anda harus memiliki nomor hp yang aktif untuk dapat menggunakan fitur ini.");
 	// if(number == PlayerInfo[playerid][nomorHP]) return error_command(playerid, "Tidak dapat melakukan panggilan ke nomor hp pribadi.");
     if(number == 123){
-        format(pDialog[playerid], sizePDialog, WHITE"Nomor Resmi yang tersedia :\n123 - Pusat Bantuan Panggilan\n911 - Panggilan Darurat (Medis/Polisi)", PlayerInfo[playerid][pPlayerName]);
+        format(pDialog[playerid], sizePDialog, WHITE"Nomor Resmi yang tersedia :\n123 - Pusat Bantuan Panggilan\n911 - Panggilan Darurat (Medis/Polisi)");
         ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, WHITE"Pusat Bantuan Panggilan", pDialog[playerid], "Ok", "");	
 		return 1;
 	}else if(number == 911){
@@ -1854,6 +1854,53 @@ CMD:checksuspect(playerid, params[]){
     return 1;
 }
 
+CMD:checkplat(playerid, params[]){
+    new vehid = INVALID_VEHICLE_ID;
+    new Float:vpos[3];
+
+    foreach(new vid : Vehicle){
+        if(!IsValidVehicle(vid)) continue;
+        if(GetVehicleBoot(vid, vpos[0], vpos[1], vpos[2])){
+            if(IsPlayerInRangeOfPoint(playerid, 1.5, vpos[0], vpos[1], vpos[2])){
+                vehid = vid;
+                break;
+            }
+        }
+        if(vehid == INVALID_VEHICLE_ID){
+            if(GetVehicleHood(vid, vpos[0], vpos[1], vpos[2])){
+                if(IsPlayerInRangeOfPoint(playerid, 1.5, vpos[0], vpos[1], vpos[2])){
+                    vehid = vid;
+                    break;
+                }
+            }
+        }
+    }
+    
+    if(vehid == INVALID_VEHICLE_ID) 
+        return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda harus berada di bagian depan atau belakang kendaraan pribadi.");
+
+    if(Iter_Contains(IDVehToPVehIterator, vehid)){
+        new idpv = IDVehToPVeh[vehid], tmp_exp[16], tmp_plat[16];
+        if(sama("-", PVeh[IDVehToPVeh[vehid]][pVehPlatAlias]))
+            format(tmp_plat, sizeof(tmp_plat), "None");
+        else
+            format(tmp_plat, sizeof(tmp_plat), "%s %s", PVeh[idpv][pVehPlatAlias], PVeh[idpv][pVehPlatNo]);
+        
+        if(PVeh[idpv][pVehPlatExp] == 0)
+            format(tmp_exp, sizeof(tmp_exp), "None");
+        else
+            format(tmp_exp, sizeof(tmp_exp), "%s", PVeh[idpv][pVehPlatExp]);
+
+        format(pDialog[playerid], sizePDialog,
+            WHITE"Plat Nomor : "GREEN"%s\n\
+            "WHITE"Berlaku hingga : "GREEN"%s", tmp_plat, tmp_exp);
+        ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Plat Kendaraan", pDialog[playerid], "Tutup", "");
+    }else{
+        return SendClientMessage(playerid, COLOR_RED, TAG_KENDARAAN" "WHITE"Anda harus berada di dekat kendaraan pribadi.");
+    }
+    return 1;
+}
+
 // Ini dapat dilakukan semua orang
 CMD:checkinventory(playerid, params[]){
 
@@ -2159,6 +2206,7 @@ CMD:cvoacvrp(playerid, params[]){
     }
     return 1;
 }
+
 // CMD:idmgs(playerid, params[]){
 //     if(IsPlayerInAnyVehicle(playerid)){
 //         new panels, doors, lights, tires;

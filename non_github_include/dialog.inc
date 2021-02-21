@@ -315,8 +315,8 @@ showDialogBeliPhone(playerid){
     return ShowPlayerDialog(playerid, DIALOG_MENU_BELI_PHONE, DIALOG_STYLE_TABLIST_HEADERS, "Menu Gadget.", str_daftar_phone, "Pilih", "Batal");
 }
 
-showDialogSimRegis(playerid){
-    return ShowPlayerDialog(playerid, DIALOG_SIM_REGIS_MENU, DIALOG_STYLE_LIST, WHITE"Pilihan tindakan SIM", "Buat SIM\nTentang SIM (Tipe Kendaraan)\nAmbil SIM yang sudah selesai", "Pilih", "Batal");
+showDialogUrusPolisi(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_URUS_POLISI, DIALOG_STYLE_LIST, WHITE"Administrasi Kantor Polisi", "SIM Kendaraan\nPlat Nomor Kendaraan", "Pilih", "Kembali");
 }
 
 showDialogSimPraktik(playerid){

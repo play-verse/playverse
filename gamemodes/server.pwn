@@ -362,29 +362,34 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 3: // Kendaraan
 					{
-						new string[250 * BANYAK_DATA_PER_PAGE + 200];
+						new string[250 * BANYAK_DATA_PER_PAGE + 200], tmp_plat[16];
 						format(string, sizeof(string), "Kode\tNama\tJarak\tSisa Waktu Kunci\n");
 						
 						foreach(new i : PVehIterator){
+							if(sama("-", PVeh[i][pVehPlatAlias]))
+								format(tmp_plat, sizeof(tmp_plat), "None");
+							else
+								format(tmp_plat, sizeof(tmp_plat), "%s %s", PVeh[i][pVehPlatAlias], PVeh[i][pVehPlatNo]);
+								
 							if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID]){
 								if(PVeh[i][pVehIsReparasi] == 1){ // Jika mobil sedang dalam reparasi (telah rusak) dan belum diperbaiki dan dibayar
-									format(string, sizeof(string), "%s%d\t%s\t"RED"Rusak total\t"GREEN"Milik Sendiri\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]));
+									format(string, sizeof(string), "%s%s\t%s\t"RED"Rusak total\t"GREEN"Milik Sendiri\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]));
 								}else if(PVeh[i][pVehIsReparasi] == 2){ // Jika mobil sedang dalam reparasi namun telah siap diambil
-									format(string, sizeof(string), "%s%d\t%s\t"YELLOW"Telah direcovery\t"GREEN"Milik Sendiri\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]));
+									format(string, sizeof(string), "%s%s\t%s\t"YELLOW"Telah direcovery\t"GREEN"Milik Sendiri\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]));
 								}else{
 									new Float:pos[3];
 									GetVehiclePos(PVeh[i][pVehicle], pos[0], pos[1], pos[2]);
-									format(string, sizeof(string), "%s%d\t%s\t%.2fm\t"GREEN"Milik Sendiri\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]));
+									format(string, sizeof(string), "%s%s\t%s\t%.2fm\t"GREEN"Milik Sendiri\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]));
 								}
 							}else if(Iter_Contains(PVehKeys[playerid], i) && PVehKeysTime[playerid][i] > gettime()){
 								if(PVeh[i][pVehIsReparasi] == 1){ // Jika mobil sedang dalam reparasi (telah rusak) dan belum diperbaiki dan dibayar
-									format(string, sizeof(string), "%s%d\t%s\t"RED"Rusak total\t"YELLOW"%i menit\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]), (PVehKeysTime[playerid][i] - gettime()) / 60);
+									format(string, sizeof(string), "%s%s\t%s\t"RED"Rusak total\t"YELLOW"%i menit\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]), (PVehKeysTime[playerid][i] - gettime()) / 60);
 								}else if(PVeh[i][pVehIsReparasi] == 2){ // Jika mobil sedang dalam reparasi namun telah siap diambil
-									format(string, sizeof(string), "%s%d\t%s\t"YELLOW"Telah direcovery\t"YELLOW"%i menit\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]), (PVehKeysTime[playerid][i] - gettime()) / 60);
+									format(string, sizeof(string), "%s%s\t%s\t"YELLOW"Telah direcovery\t"YELLOW"%i menit\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]), (PVehKeysTime[playerid][i] - gettime()) / 60);
 								}else{
 									new Float:pos[3];
 									GetVehiclePos(PVeh[i][pVehicle], pos[0], pos[1], pos[2]);
-									format(string, sizeof(string), "%s%d\t%s\t%.2fm\t"YELLOW"%i menit\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]), (PVehKeysTime[playerid][i] - gettime()) / 60);
+									format(string, sizeof(string), "%s%s\t%s\t%.2fm\t"YELLOW"%i menit\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]), GetPlayerDistanceFromPoint(playerid, pos[0], pos[1], pos[2]), (PVehKeysTime[playerid][i] - gettime()) / 60);
 								}
 							}
 						}
@@ -2280,7 +2285,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `house` SET `id_user` = -1, `level` = 1, `kunci` = 1, `jual` = 1");
 				mysql_tquery(koneksi, pQuery[playerid]);
-				mysql_tquery(koneksi, "UPDATE `user` SET `save_house` = 0");
 
 				loadAllHouse();
 
@@ -2331,9 +2335,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								givePlayerUang(ownerId, beliRate);
 							}else{
 								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
-								mysql_tquery(koneksi, pQuery[playerid]);
-
-								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
 								mysql_tquery(koneksi, pQuery[playerid]);
 							}
 						}
@@ -2410,7 +2411,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 				}
 
-				mysql_tquery(koneksi, "UPDATE `user` SET `save_house` = 0");
 				mysql_tquery(koneksi, "TRUNCATE TABLE `house`");
 				SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil menghapus semua rumah!");
 			}
@@ -2421,7 +2421,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response){
 				new infoRumah[128], id, houseLevel, beliRate;
 				GetPVarString(playerid, "info_rumah", infoRumah, 128);
+				if(lastHousePickup[playerid] < 0 || lastHousePickup[playerid] >= MAX_HOUSES) return 1;
 				id = houseId[lastHousePickup[playerid]];
+				if(id == -1) return 1; // Return jika invalid house id
 				houseLevel = houseInfo[id][hLevel];
 				beliRate = houseInfo[id][hHarga];
 				if(sama("set_harga_rumah", infoRumah)){
@@ -2468,10 +2470,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							goto label_kunci_rumah;
 						}
 						case 4:
-						{
-							goto label_spawn_rumah;
-						}
-						case 5:
 						{
 							goto label_masuk_rumah;
 						}
@@ -2536,23 +2534,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 						case 4:
 						{
-							label_spawn_rumah:
-							new saveId = PlayerInfo[playerid][sHouse];
-							if(saveId == id){
-								PlayerInfo[playerid][sHouse] = 0;
-								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `id` = '%d'", PlayerInfo[playerid][pID]);
-							    mysql_tquery(koneksi, pQuery[playerid]);
-								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil membatalkan spawn disini!");
-							}else{
-								PlayerInfo[playerid][sHouse] = id;
-								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = '%d' WHERE `id` = '%d'", id, PlayerInfo[playerid][pID]);
-							    mysql_tquery(koneksi, pQuery[playerid]);
-								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil menyimpan spawn disini!");
-							}
-							DeletePVar(playerid, "info_rumah");
-						}
-						case 5:
-						{
 							goto label_masuk_rumah;
 						}
 					}
@@ -2592,9 +2573,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									givePlayerUang(ownerId, beliRate);
 								}else{
 									mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `uang` = `uang` + '%d' WHERE `id` = '%d'", beliRate, houseInfo[id][hOwner]);
-									mysql_tquery(koneksi, pQuery[playerid]);
-									
-									mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET `save_house` = 0 WHERE `save_house` = '%d'", id);
 									mysql_tquery(koneksi, pQuery[playerid]);
 								}
 							}
@@ -2646,10 +2624,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							label_masuk_rumah:
 							new id_level = houseInfo[id][hLevel];
 							if(houseInfo[id][hKunci] != 1){
+								PlayerInfo[playerid][inHouse] = id;
 								pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
 								SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "YELLOW"Anda berhasil masuk rumah!");
 							}else{
 								if(houseInfo[id][hOwner] == PlayerInfo[playerid][pID]){
+									PlayerInfo[playerid][inHouse] = id;
 									pindahkanPemain(playerid, HouseLevel[id_level][intSpawn][0], HouseLevel[id_level][intSpawn][1], HouseLevel[id_level][intSpawn][2], HouseLevel[id_level][intSpawn][3], HouseLevel[id_level][intSpawnInterior], id);
 									SendClientMessage(playerid, COLOR_YELLOW, "Rumah: "WHITE"Ketik "YELLOW"/house "WHITE"untuk mengelola inventory & furniture rumah.");
 								}else{
@@ -3085,13 +3065,18 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 3: // Bayar Biaya Perbaiki Kendaraan
 					{
-						new string[250 * BANYAK_DATA_PER_PAGE + 200];
+						new string[250 * BANYAK_DATA_PER_PAGE + 200], tmp_plat[16];
 						format(string, sizeof(string), "Kode\tNama\tBiaya\n");
 						
 						foreach(new i : PVehIterator){
+							if(sama("-", PVeh[i][pVehPlatAlias]))
+								format(tmp_plat, sizeof(tmp_plat), "None");
+							else
+								format(tmp_plat, sizeof(tmp_plat), "%s %s", PVeh[i][pVehPlatAlias], PVeh[i][pVehPlatNo]);
+								
 							if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID] && PVeh[i][pVehIsReparasi] == 1){
 								// Jika mobil sedang dalam reparasi (telah rusak) dan belum dibayar
-								format(string, sizeof(string), "%s%d\t%s\t$%d\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]), BIAYA_PERBAIKI_KENDARAAN);
+								format(string, sizeof(string), "%s%s\t%s\t$%d\n", string, tmp_plat, GetVehicleModelName(PVeh[i][pVehModel]), BIAYA_PERBAIKI_KENDARAAN);
 							}
 						}
 
@@ -3604,6 +3589,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new vehid = GetPlayerVehicleID(playerid);
 				sweeperJob[playerid] = 1;
 				sweeperId[playerid] = vehid;
+				playerJob_Id[vehid] = playerid;
 				usedSweeper[vehid] = 1;
 				SetPlayerRaceCheckpoint(playerid, 0, CP_sweeper1, CP_sweeper2, 3.0);
 				SendClientMessage(playerid, COLOR_GREEN, TAG_JOB" "YELLOW"Anda berhasil bekerja sebagai "GREEN"Sweeper"YELLOW"!");
@@ -3654,6 +3640,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT tanggal_buat FROM `pengambilan_sim` WHERE id_user = '%d' AND tanggal_buat IS NOT NULL", PlayerInfo[playerid][pID]);
 					}
 				}
+			}else{
+				showDialogUrusPolisi(playerid);
 			}
 			return 1;
 		}
@@ -4194,9 +4182,24 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				switch((kendaraan_berpemilik ? (listitem) : (listitem + 1))){
 					case 0: // Info Vehicle
 					{
+						new tmp_exp[16], tmp_plat[16];
+						if(sama("-", PVeh[IDVehToPVeh[vehid]][pVehPlatAlias]))
+							format(tmp_plat, sizeof(tmp_plat), "None");
+						else
+							format(tmp_plat, sizeof(tmp_plat), "%s %s", PVeh[IDVehToPVeh[vehid]][pVehPlatAlias], PVeh[IDVehToPVeh[vehid]][pVehPlatNo]);
+						
+						if(PVeh[IDVehToPVeh[vehid]][pVehPlatExp] == 0)
+							format(tmp_exp, sizeof(tmp_exp), "None");
+						else
+							format(tmp_exp, sizeof(tmp_exp), "%s", PVeh[IDVehToPVeh[vehid]][pVehPlatExp]);
+
 						format(pDialog[playerid], sizePDialog, WHITE"Info Kendaraan "YELLOW"%s "WHITE":\n\n", GetVehicleModelName(PVeh[IDVehToPVeh[vehid]][pVehModel]));
 
 						format(pDialog[playerid], sizePDialog, "%s"WHITE"Pemilik\t\t: "GREEN"%s\n\n", pDialog[playerid], PVeh[IDVehToPVeh[vehid]][pVehNamaPemilik]);
+
+						format(pDialog[playerid], sizePDialog, "%s"WHITE"Plat Nomor\t\t: "GREEN"%s\n\n", pDialog[playerid], tmp_plat);
+						
+						format(pDialog[playerid], sizePDialog, "%s"WHITE"Berlaku hingga\t: "GREEN"%s\n\n", pDialog[playerid], tmp_exp);
 
 						format(pDialog[playerid], sizePDialog, "%s"YELLOW"Anda dapat menghidupkan/mematikan kendaraan jika anda memiliki kuncinya.", pDialog[playerid]);
 
@@ -6381,6 +6384,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				trashM_Y[playerid] = houseInfo[houseClosest][icon_y];
 				trashM_Z[playerid] = houseInfo[houseClosest][icon_z];
 				trashM_Id[playerid] = vehid;
+				playerJob_Id[vehid] = playerid;
 				trashM_Used[vehid] = 1;
 				TogglePlayerAllDynamicCPs(playerid, 0);
 				SetPlayerCheckpoint(playerid, trashM_X[playerid], trashM_Y[playerid], trashM_Z[playerid], 3.0);
@@ -6484,6 +6488,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				pizza_Used[vehid] = 1;
 				pizza_VehCap[vehid] = VEH_PIZZA_LIMIT;
 				pizza_Id[playerid] = vehid;
+				playerJob_Id[vehid] = playerid;
 				TogglePlayerAllDynamicCPs(playerid, 0);
 				SetPlayerCheckpoint(playerid, pizza_X[playerid], pizza_Y[playerid], pizza_Z[playerid], 3.0);
 				PlayerInfo[playerid][activeMarker] = true;
@@ -8596,6 +8601,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/v "WHITE"- Perintah kendaraan\n"\
 							YELLOW"/lock "WHITE"- Mengunci kendaraan\n"\
 							YELLOW"/unlock "WHITE"- Membuka kunci kendaraan\n"\
+							YELLOW"/checkplat "WHITE"- Memeriksa plat kendaraan\n"\
 							YELLOW"/cancelrentvehicle "WHITE"- Membatalkan sewa kendaraan\n"\
 							YELLOW"/removehelmet "WHITE"- Melepas helm\n"\
 							YELLOW"/removemask "WHITE"- Melepas topeng\n"\
@@ -10088,6 +10094,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				montirL_Y[playerid] = DTiang[tiangClosest][tiangY];
 				montirL_Z[playerid] = DTiang[tiangClosest][tiangZ];
 				montirL_Id[playerid] = vehid;
+				playerJob_Id[vehid] = playerid;
 				montirL_Used[vehid] = 1;
 				TogglePlayerAllDynamicCPs(playerid, 0);
 				SetPlayerCheckpoint(playerid, montirL_X[playerid], montirL_Y[playerid], montirL_Z[playerid], 3.0);
@@ -10548,6 +10555,133 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					SendClientMessage(playerid, COLOR_GREEN, TAG_RUMAH" "RED"Maaf level rumah anda sudah maksimal!");
 				}
 				DeletePVar(playerid, "info_rumah");
+			}
+			return 1;
+		}
+		case DIALOG_URUS_POLISI:
+		{
+			if(response){
+				switch(listitem){
+					// SIM Kendaraan
+					case 0:
+					{
+						ShowPlayerDialog(playerid, DIALOG_SIM_REGIS_MENU, DIALOG_STYLE_LIST, WHITE"Pilihan tindakan SIM", "Buat SIM\nTentang SIM (Tipe Kendaraan)\nAmbil SIM yang sudah selesai", "Pilih", "Kembali");
+					}
+					// Plat Nomor Kendaraan
+					case 1:
+					{
+						ShowPlayerDialog(playerid, DIALOG_PLAT_REGIS_MENU, DIALOG_STYLE_LIST, WHITE"Pilihan tindakan Plat Nomor", "Buat Plat Nomor\nPerpanjang Plat Nomor", "Pilih", "Kembali");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_PLAT_REGIS_MENU:
+		{
+			if(response){
+				switch(listitem){
+					// Buat Plat
+					case 0:
+					{
+						new string[250 * BANYAK_DATA_PER_PAGE + 200];
+						format(string, sizeof(string), "Kode\tNama\n");
+
+						foreach(new i : PVehIterator){
+							if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID]){
+								format(string, sizeof(string), "%s%d\t%s\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]));
+							}
+						}
+
+						if(strcmp(string, "Kode\tNama\n") == 0){
+							showDialogPesan(playerid, RED"Tidak terdapat kendaraan", WHITE"Tidak terdapat kendaraan apapun yang anda miliki.\nPastikan untuk memiliki kendaraan untuk dapat membuat plat nomor.");
+						}else{
+							ShowPlayerDialog(playerid, DIALOG_PLAT_PILIH_VEH, DIALOG_STYLE_TABLIST_HEADERS, "Pilihan kendaraan pribadi", string, "Pilih", "Kembali");
+						}
+					}
+					// Perpanjang Plat
+					case 1:
+					{
+						new string[250 * BANYAK_DATA_PER_PAGE + 200];
+						format(string, sizeof(string), "Kode\tNama\n");
+
+						foreach(new i : PVehIterator){
+							if(PVeh[i][pVehPemilik] == PlayerInfo[playerid][pID]){
+								format(string, sizeof(string), "%s%d\t%s\n", string, i, GetVehicleModelName(PVeh[i][pVehModel]));
+							}
+						}
+
+						if(strcmp(string, "Kode\tNama\n") == 0){
+							showDialogPesan(playerid, RED"Tidak terdapat kendaraan", WHITE"Tidak terdapat kendaraan apapun yang anda miliki.\nPastikan untuk memiliki kendaraan untuk dapat memperpanjang plat nomor.");
+						}else{
+							ShowPlayerDialog(playerid, DIALOG_PLAT_EXTEND_VEH, DIALOG_STYLE_TABLIST_HEADERS, "Pilihan kendaraan pribadi", string, "Pilih", "Kembali");
+						}
+					}
+				}
+			}else{
+				ShowPlayerDialog(playerid, DIALOG_PLAT_REGIS_MENU, DIALOG_STYLE_LIST, WHITE"Pilihan tindakan Plat Nomor", "Buat Plat Nomor\nPerpanjang Plat Nomor", "Pilih", "Kembali");
+			}
+			return 1;
+		}
+		case DIALOG_PLAT_PILIH_VEH:
+		{
+			if(response){
+				new idpv = strval(inputtext);
+				if(PVeh[idpv][pVehPlatExp] == 0){
+					SetPVarInt(playerid, "id_vehicle_plat", idpv);
+					format(pDialog[playerid], sizePDialog, WHITE"Anda akan membuat Plat Nomor untuk kendaraan "GREEN"%s"WHITE" dengan persyaratan:\n\
+						- KTP\n\
+						- 1 Pas Foto\n\
+						- 1 Materai\n\
+						- Biaya "GREEN"$300\n\n\
+						"WHITE"Apakah anda ingin membuat Plat Nomor?", GetVehicleModelName(PVeh[idpv][pVehModel]));
+					ShowPlayerDialog(playerid, DIALOG_PLAT_KONFIRM_VEH, DIALOG_STYLE_MSGBOX, "Konfirmasi Pembuatan Plat Nomor", pDialog[playerid], "Ok", "Batal");
+				}else{
+					showDialogPesan(playerid, RED"Kendaraan memiliki Plat Nomor", WHITE"Kendaraan yang anda pilih telah memiliki plat nomor kendaraan.\nSilahkan pilih kendaraan lain yang belum terdapat Plat Nomor.");
+				}
+			}else{
+				showDialogUrusPolisi(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_PLAT_KONFIRM_VEH:
+		{
+			if(response){
+				if(getUangPlayer(playerid) < 300) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Gagal membuat Plat Nomor", WHITE"Maaf uang yang diperlukan tidak mencukupi.", "Ok", "");
+
+				static const barang_barang[3][3] = {
+					{5, 1}, // Pas foto - 1 biji
+					{6, 1},  // Materai - 1 biji
+					{7, 1}  // KTP
+				};
+				cekKetersediaanMassiveItem(playerid, barang_barang, "cekKetersediaanBuatPlat");
+			}
+			return 1;
+		}
+		case DIALOG_PLAT_EXTEND_VEH:
+		{
+			if(response){
+				new idpv = strval(inputtext);
+				if(PVeh[idpv][pVehPlatExp] != 0){
+					SetPVarInt(playerid, "id_vehicle_plat", idpv);
+					format(pDialog[playerid], sizePDialog, WHITE"Anda akan memperpanjang Plat Nomor untuk kendaraan "GREEN"%s"WHITE" dengan persyaratan:\n\
+						- KTP\n\
+						- Biaya "GREEN"$100\n\n\
+						"WHITE"Apakah anda ingin memperpanjang Plat Nomor?", GetVehicleModelName(PVeh[idpv][pVehModel]));
+					ShowPlayerDialog(playerid, DIALOG_PLAT_KONFIRM_EXTEND, DIALOG_STYLE_MSGBOX, "Konfirmasi Perpanjang Plat Nomor", pDialog[playerid], "Ok", "Batal");
+				}else{
+					showDialogPesan(playerid, RED"Kendaraan tidak memiliki Plat Nomor", WHITE"Kendaraan yang anda pilih tidak memiliki plat nomor kendaraan.\nSilahkan pilih kendaraan lain yang terdapat Plat Nomor.");
+				}
+			}else{
+				showDialogUrusPolisi(playerid);
+			}
+			return 1;
+		}
+		case DIALOG_PLAT_KONFIRM_EXTEND:
+		{
+			if(response){
+				if(getUangPlayer(playerid) < 100) return ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Gagal membuat Plat Nomor", WHITE"Maaf uang yang diperlukan tidak mencukupi.", "Ok", "");
+
+				cekKetersediaanItem(playerid, 7, 1, "cekKetersediaanExtendPlat");
 			}
 			return 1;
 		}
@@ -11077,7 +11211,7 @@ public OnPlayerRequestSpawn(playerid){
 main() {}
 
 public OnGameModeInit()
-{	
+{
 	// Initializing map andreas
 	CA_Init();
 
@@ -12958,6 +13092,10 @@ public OnVehicleDeath(vehicleid, killerid){
 		addTagihanPemain(Pid, TAGIHAN_DENDA_SEWA_KENDARAAN, pDialog[Pid], JENIS_TAGIHAN_DENDA_SEWA_KENDARAAN);
 		unloadRentPlayerVeh(Pid, 1);
 	}
+	// Reset Job
+	if(playerJob_Id[vehicleid] != -1){
+		resetOnJob(playerJob_Id[vehicleid]);
+	}
 	return 1;
 }
 
@@ -13286,7 +13424,7 @@ public OnPlayerEnterDynamicArea(playerid, areaid){
 		showDialogTempatMakan(playerid);
 		return 1;
 	}else if(areaid == AREA_simRegis[0]){
-		showDialogSimRegis(playerid);
+		showDialogUrusPolisi(playerid);
 		return 1;
 	}else if(areaid == AREA_simPraktik[0]){
 		showDialogSimPraktik(playerid);
