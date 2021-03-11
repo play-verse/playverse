@@ -94,6 +94,7 @@ public OnPlayerConnect(playerid)
     SendClientCheck(playerid, 0x48, 0, 0, 2);
     /* Voice Chat */
 	PlayerVoice[playerid][status_mic] = 0;
+	PlayerVoice[playerid][last_mic] = 0;
     return 1;
 }
 
@@ -105,6 +106,7 @@ public OnPlayerDisconnect(playerid, reason)
         local_stream[playerid] = SV_NULL;
     }
     PlayerVoice[playerid][status_mic] = 0;
+	PlayerVoice[playerid][last_mic] = 0;
 	return 1;
 }
 
