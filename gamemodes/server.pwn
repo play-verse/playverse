@@ -21,6 +21,7 @@
 #define YSI_NO_VERSION_CHECK
 #include <YSI_Data\y_iterate>
 #include <YSI_Coding\y_inline>
+#include <YSI_Extra\y_inline_mysql>
 
 #include <progress2>
 
@@ -34,9 +35,6 @@
 #define SetTimerEx				SetPreciseTimer
 #define SetTimer				SetPreciseTimer
 #define KillTimer				DeletePreciseTimer
-
-// Check Android
-#define IsPlayerAndroid(%0)		GetPVarInt(%0, "NotAndroid") == 0
 
 /**
 	Include EVF sudah gak 100% original
@@ -95,6 +93,9 @@ public OnPlayerConnect(playerid)
 	new nama[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, nama, sizeof(nama));
 	PlayerInfo[playerid][pPlayerName] = nama;
+
+	// Custom nametag
+	c_nametag[playerid] = CreateDynamic3DTextLabel("Loading...", 0xFFFFFFFF, 0.0, 0.0, 0.1, 25.0, .attachedplayer = playerid, .testlos = 1);
 
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
 	SELECT a.*, \
@@ -178,6 +179,8 @@ public OnPlayerDisconnect(playerid, reason){
 	if(RentPlayerVehUser[playerid] != -1){
 		unloadRentPlayerVeh(playerid, 0);		
 	}
+	// Custom nametag
+	if(IsValidDynamic3DTextLabel(c_nametag[playerid])) DestroyDynamic3DTextLabel(c_nametag[playerid]);
 	return 1;
 }
 
@@ -256,6 +259,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 					format(msg, sizeof(msg), "~w~Selamat datang ~g~kembali~w~!~n~Anda masuk yang ke - ~g~ %i ~w~!", PlayerInfo[playerid][loginKe]);
 					GameTextForPlayer(playerid, msg, 4000, 3);
+
+					// Load player voice
+					CallRemoteFunction("checkPlayerVoice", "i", playerid);
+					if(PlayerInfo[playerid][voice_mute] == 1){
+						CallRemoteFunction("controlPlayerVoice", "ii", playerid, 1);
+					}else{
+						CallRemoteFunction("controlPlayerVoice", "ii", playerid, 0);
+					}
 					return 1;
 				}
 				else
@@ -9751,7 +9762,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					WHITE"actor tersebut akan membalas dan kamu dapat melanjutkan\n\
 					dengan beberapa sapaan, beberapa panduan actor tersedia di\n\
 					titik actor tersebut atau kamu dapat mengunjungi wiki kami\n\
-					"GREEN"wiki.playverse.org"WHITE" untuk lebih lanjutnya.");
+					"GREEN WIKI_URL WHITE" untuk lebih lanjutnya.");
 					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Fitur) :", pDialog[playerid], "Lanjut", "Tutup");
 				}
 				// Masuk panduan bermain 26
@@ -9861,10 +9872,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(pDialog[playerid], sizePDialog, 
 					WHITE"Anda sudah membaca penjelasa singkat yang perlu di ketahui, fitur\n\
 					dan tempat akan terus bertambah dengan berjalannya waktu, untuk itu anda\n\
-					perlu mengunjungi wiki kami di "GREEN"wiki.playverse.org"WHITE" untuk panduan\n\
+					perlu mengunjungi wiki kami di "GREEN WIKI_URL WHITE" untuk panduan\n\
 					lebih lengkapnya dan untuk menu bantuan anda dapat mengakses perintah "GREEN"/help"WHITE".\n\n\
 					Jika anda memiliki pertanyaan atau saran anda dapat mengunjungi forum kami\n\
-					"GREEN"forum.playverse.org"WHITE", jangan sungkan untuk berdiskusi bersama kami,\n\
+					"GREEN FORUM_URL WHITE", jangan sungkan untuk berdiskusi bersama kami,\n\
 					terima kasih.");
 					return ShowPlayerDialog(playerid, DIALOG_TUTORIAL, DIALOG_STYLE_MSGBOX, "Panduan Bermain (Akhir) :", pDialog[playerid], "", "Selesai");
 				}
@@ -10685,6 +10696,178 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_ADMIN_VOICE:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Channel
+					{
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_CHANNEL, DIALOG_STYLE_LIST, ORANGE"Channel untuk Admin", "Normal (Local Voice)\nSemua Pemain (Global Voice)\nKhusus Admin (Only Admin)", "Pilih", "Batal");
+					}
+					case 1: // Kontrol
+					{
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_CONTROL, DIALOG_STYLE_LIST, ORANGE"Kontrol Player Voice", "Bisukan Pemain\nBatal Bisukan Pemain", "Pilih", "Batal");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VOICE_CHANNEL:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Normal
+					{
+						CallRemoteFunction("joinVoiceAdmin", "ii", playerid, listitem);
+					}
+					case 1: // Global
+					{
+						CallRemoteFunction("joinVoiceAdmin", "ii", playerid, listitem);
+					}
+					case 2: // Only Admin
+					{
+						CallRemoteFunction("joinVoiceAdmin", "ii", playerid, listitem);
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VOICE_CONTROL:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Bisukan
+					{
+						SetPVarInt(playerid, "bisukan_voice", 1);
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_ID, DIALOG_STYLE_INPUT, "Kontrol Player Voice", WHITE"Masukan ID pemain yang ingin anda batal bisukan.", "Lanjut", "Batal");
+					}
+					case 1: // Batal bisukan
+					{
+						SetPVarInt(playerid, "bisukan_voice", 0);
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_ID, DIALOG_STYLE_INPUT, "Kontrol Player Voice", WHITE"Masukan ID pemain yang ingin anda bisukan.", "Lanjut", "Batal");
+						
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VOICE_ID:
+		{
+			if(response){
+				new idpid = strval(inputtext);
+				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_ID, DIALOG_STYLE_INPUT, "Kontrol Player Voice", RED"Input tidak boleh kosong!\n"WHITE"Silahkan masukan ID pemain yang ingin anda bisukan.", "Lanjut", "Batal");
+				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_ID, DIALOG_STYLE_INPUT, "Kontrol Player Voice", RED"ID tidak valid!\n"WHITE"Anda harus menginput ID berupa angka.", "Lanjut", "Batal");
+				if(!IsPlayerConnected(idpid)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_ID, DIALOG_STYLE_INPUT, "Kontrol Player Voice", RED"Pemain tujuan tidak valid!\n"WHITE"Silahkan masukan ID pemain yang ingin anda bisukan.", "Lanjut", "Batal");
+				
+				new bisukan = GetPVarInt(playerid, "bisukan_voice");
+				SetPVarInt(playerid, "id_bisukan_voice", idpid);
+				if(bisukan == 1){
+					ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_WAKTU, DIALOG_STYLE_LIST, ORANGE"Pilih jenis waktu bisukan :", "Jam\nHari", "Pilih", "Batal");
+					DeletePVar(playerid, "bisukan_voice");
+				}else{
+					if(PlayerInfo[idpid][voice_mute] == 0) return ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_ID, DIALOG_STYLE_INPUT, "Kontrol Player Voice", RED"Pemain tujuan tidak dalam keadaan bisu!\n"WHITE"Silahkan masukan ID pemain lain yang ingin anda batal bisukan.", "Lanjut", "Batal");
+					
+					PlayerInfo[idpid][voice_mute] = 0;
+					CallRemoteFunction("controlPlayerVoice", "ii", idpid, 0);
+					sendPesan(playerid, COLOR_BLUE, TAG_ADMIN" "WHITE"Berhasil membuka kembali voice untuk pemain %s.", PlayerInfo[idpid][pPlayerName]);
+					SendClientMessage(idpid, COLOR_BLUE, TAG_ADMIN" "WHITE"Voice anda telah dibuka kembali oleh admin.");
+
+					mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE user SET voice_mute = NULL WHERE id = %d", PlayerInfo[idpid][pID]);
+					mysql_tquery(koneksi, pQuery[playerid]);
+
+					DeletePVar(playerid, "bisukan_voice");
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VOICE_WAKTU:
+		{
+			if(response){
+				switch(listitem){
+					// Jam
+					case 0:
+					{
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_WAKTU_JAM, DIALOG_STYLE_INPUT, "Pilih durasi waktu bisukan :", WHITE"Berapa lama durasi waktu untuk membisukan voice pemain ini?", "Lanjut", "Batal");
+					}
+					// Hari
+					case 1:
+					{
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_WAKTU_HARI, DIALOG_STYLE_INPUT, "Pilih durasi waktu bisukan :", WHITE"Berapa lama durasi waktu untuk membisukan voice pemain ini?", "Lanjut", "Batal");
+					}
+				}
+			}else{
+				DeletePVar(playerid, "id_bisukan_voice");
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VOICE_WAKTU_JAM:
+		{
+			if(response){
+				new input_jam = strval(inputtext);
+				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_WAKTU_JAM, DIALOG_STYLE_INPUT, "Masukan durasi waktu bisukan :", RED"Input tidak boleh kosong!\n"WHITE"Silahkan masukan durasi jam yang anda inginkan.", "Lanjut", "Batal");
+				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_WAKTU_JAM, DIALOG_STYLE_INPUT, "Masukan durasi waktu bisukan :", RED"Durasi waktu tidak valid!\n"WHITE"Silahkan masukan durasi jam dengan benar.", "Lanjut", "Batal");
+				if(input_jam < 0 || input_jam > 23) return ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_WAKTU_JAM, DIALOG_STYLE_INPUT, ORANGE"Masukan durasi waktu bisukan :", RED"Durasi jam berkisar 1 hingga 23\n"WHITE"Silahkan masukan durasi jam.", "Lanjut", "Batal");
+
+				new id_bisukan = GetPVarInt(playerid, "id_bisukan_voice");
+				SetPVarInt(playerid, "durasi_bisukan_voice", input_jam);
+				SetPVarInt(playerid, "jenis_bisukan_voice", 0);
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan membisukan voice pemain sebagai berikut.\n\
+				"WHITE"Nama Pemain : "GREEN"%s\n\
+				"WHITE"Lama Durasi : "GREEN"%d jam", PlayerInfo[id_bisukan][pPlayerName], input_jam);
+				ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_KONFIRMASI, DIALOG_STYLE_MSGBOX, GREEN"Kontrol Player Voice", pDialog[playerid], "Setuju", "Batal");
+			}else{
+				DeletePVar(playerid, "id_bisukan_voice");
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VOICE_WAKTU_HARI:
+		{
+			if(response){
+				new input_hari = strval(inputtext);
+				if(isnull(inputtext)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_WAKTU_HARI, DIALOG_STYLE_INPUT, "Masukan durasi waktu bisukan :", RED"Input tidak boleh kosong!\n"WHITE"Silahkan masukan durasi hari yang anda inginkan.", "Lanjut", "Batal");
+				if(!isnumeric(inputtext)) return ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_WAKTU_HARI, DIALOG_STYLE_INPUT, "Masukan durasi waktu bisukan :", RED"Durasi waktu tidak valid!\n"WHITE"Silahkan masukan durasi hari dengan benar.", "Lanjut", "Batal");
+
+				new id_bisukan = GetPVarInt(playerid, "id_bisukan_voice");
+				SetPVarInt(playerid, "durasi_bisukan_voice", input_hari*24);
+				SetPVarInt(playerid, "jenis_bisukan_voice", 1);
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan membisukan voice pemain sebagai berikut.\n\
+				"WHITE"Nama Pemain : "GREEN"%s\n\
+				"WHITE"Lama Durasi : "GREEN"%d hari", PlayerInfo[id_bisukan][pPlayerName], input_hari);
+				ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE_KONFIRMASI, DIALOG_STYLE_MSGBOX, GREEN"Kontrol Player Voice", pDialog[playerid], "Setuju", "Batal");
+			}else{
+				DeletePVar(playerid, "id_bisukan_voice");
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VOICE_KONFIRMASI:
+		{
+			if(response){
+				new format_jenis[8],
+					id_bisukan = GetPVarInt(playerid, "id_bisukan_voice"),
+					durasi_bisukan = GetPVarInt(playerid, "durasi_bisukan_voice"),
+					jenis_bisukan = GetPVarInt(playerid, "jenis_bisukan_voice"),
+					durasi_total = gettime()+(durasi_bisukan*3600);
+
+				if(jenis_bisukan == 0){
+					format(format_jenis, sizeof(format_jenis), "jam");
+				}else{
+					format(format_jenis, sizeof(format_jenis), "hari");
+				}
+
+				inline responseQuery(){
+					PlayerInfo[id_bisukan][voice_mute] = 1;
+					CallRemoteFunction("controlPlayerVoice", "ii", id_bisukan, 1);
+					sendPesan(playerid, COLOR_BLUE, TAG_ADMIN" "WHITE"Berhasil membisukan voice untuk pemain %s.", PlayerInfo[id_bisukan][pPlayerName]);
+	 				sendPesan(id_bisukan, COLOR_BLUE, TAG_ADMIN" "WHITE"Voice anda telah dibisukan oleh admin selama "GREEN"%d %s", durasi_bisukan, format_jenis);
+				}
+				MySQL_TQueryInline(koneksi, using inline responseQuery, "UPDATE user SET voice_mute = %d WHERE id = %d", durasi_total, PlayerInfo[id_bisukan][pID]);
+			}else{
+				DeletePVar(playerid, "id_bisukan_voice");
+				DeletePVar(playerid, "durasi_bisukan_voice");
+
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -11138,9 +11321,9 @@ public OnPlayerDeath(playerid, killerid, reason)
 	 */
 	if(PlayerInfo[playerid][isOnMask]){
 		PlayerInfo[playerid][isOnMask] = 0;
-		if(PlayerInfo[playerid][tidak_dikenali] != 0)
-			Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
-		PlayerInfo[playerid][tidak_dikenali] = 0;
+		// if(PlayerInfo[playerid][tidak_dikenali] != 0)
+		// 	Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+		// PlayerInfo[playerid][tidak_dikenali] = 0;
 		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
 		mysql_tquery(koneksi, pQuery[playerid]);
 
@@ -11331,7 +11514,8 @@ public OnGameModeInit()
 	// Setting up Game mode
 	SetGameModeText(NAMA_GAMEMODE);
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
-	ShowNameTags(1);
+	// Set 0 untuk mask/topeng
+	ShowNameTags(0);
 	SetNameTagDrawDistance(40.0);
 	EnableStuntBonusForAll(0);
 	DisableInteriorEnterExits();
@@ -11369,6 +11553,8 @@ public OnGameModeInit()
 	gantiCuaca(100);
 
 	worldTimer = SetPreciseTimer("updateWorldTime", 1000, true);
+	// Timer untuk custom nametag
+	nametagTimer = SetPreciseTimer("updateNametag", 1000, true);
 
 	#if defined LOAD_VEHICLE_FROM_FILES
 	// SPECIAL
@@ -11488,6 +11674,7 @@ public OnGameModeExit(){
 	unloadAllRentVeh();
 	unloadAllRentVehPlace();
 	DeletePreciseTimer(worldTimer);
+	DeletePreciseTimer(nametagTimer);
 	mysql_close(koneksi);
 	return 1;
 }
@@ -11679,17 +11866,10 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 
 public OnPlayerText(playerid, text[]){
 	if(PlayerInfo[playerid][isOnMask]){
-		switch(PlayerInfo[playerid][isOnMask]){
-			case ID_ITEM_HELM:
-				format(msg,sizeof(msg), "Helm#%d: %s", PlayerInfo[playerid][tidak_dikenali], text);
-			case ID_ITEM_MASK:
-				format(msg,sizeof(msg), "Topeng#%d: %s", PlayerInfo[playerid][tidak_dikenali], text);
-			default:
-				format(msg,sizeof(msg), "Tidak dikenali#%d: %s", PlayerInfo[playerid][tidak_dikenali], text);
-		}
-	}
-	else
+		format(msg, sizeof(msg), "%s: %s", playerNameMasked(playerid), text);
+	}else{
 		format(msg,sizeof(msg), "%s: %s", PlayerInfo[playerid][pPlayerName], text);
+	}
 
 	ProxDetector(30.0, playerid, msg, COLOR_WHITE);
 	format(msg,sizeof(msg), "berkata: %s", text);
@@ -13229,6 +13409,16 @@ publicFor: updateWorldTime()
 	return 1;
 }
 
+publicFor: updateNametag()
+{
+	foreach(new i : Player){
+		if(IsPlayerConnected(i)){
+			updatePlayerNameTag(i);
+		}
+	}
+	return 1;
+}
+
 public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)
 {
 	new idx = bEditID[playerid];
@@ -13502,8 +13692,8 @@ public OnPlayerDamage(&playerid, &Float:amount, &issuerid, &weapon, &bodypart){
 }
 
 public OnPlayerStreamIn(playerid, forplayerid){
-	if(PlayerInfo[playerid][isOnMask])
-		ShowPlayerNameTagForPlayer(playerid, forplayerid, 0);
+	// if(PlayerInfo[playerid][isOnMask])
+	// 	ShowPlayerNameTagForPlayer(playerid, forplayerid, 0);
 	return 1;
 }
 

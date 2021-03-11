@@ -3,30 +3,40 @@
 #include <colors>
 #include <sscanf2>
 #include <zcmd>
-#include <samp-precise-timers>
+
+#define publicFor:%0(%1) forward %0(%1); public %0(%1)
 
 /* Android Check */
 native SendClientCheck(playerid, type, arg, offset, size);
-forward OnClientCheckResponse(playerid, type, arg, response);
 
-#define IsPlayerAndroid(%0)		GetPVarInt(%0, "NotAndroid") == 0
-
-forward LoadPlayerVoice(playerid, Float:distance);
-forward DelayVoiceNotice(playerid);
-forward AksesPlayerData(playerid);
+#define IsPlayerAndroid(%0) GetPVarInt(%0, "NotAndroid") == 0
 
 /* Voice Chat */
+
 #define Local_Distance 30.0
+
+// Channel Voice
+#define LOCAL_TO_LOCAL		0
+#define ADMIN_TO_GLOBAL		1
+#define ADMIN_TO_ADMIN		2
+#define POLICE_TO_POLICE	3
+#define MEDIC_TO_MEDIC		4
+#define PUBLIC_TO_PUBLIC	5
 
 enum vInfo
 {
+	toggle_mic,
     status_mic,
     last_mic[32]
 }
 
-new PlayerVoice[MAX_PLAYERS][vInfo];
-new SV_GSTREAM:gstream = SV_NULL;
-new SV_LSTREAM:lstream[MAX_PLAYERS] = { SV_NULL, ... };
+new PlayerVoice[MAX_PLAYERS][vInfo],
+	SV_LSTREAM:local_stream[MAX_PLAYERS] = { SV_NULL, ... }, // Untuk lokal ke lokal
+	SV_GSTREAM:aglobal_stream = SV_NULL, // Untuk admin ke global
+	SV_GSTREAM:alocal_stream = SV_NULL, // Untuk admin ke admin
+	SV_GSTREAM:police_radio = SV_NULL, // Untuk polisi ke polisi
+	SV_GSTREAM:medic_radio = SV_NULL, // Untuk medis ke medis
+	SV_GSTREAM:public_radio = SV_NULL; // Untuk publik
 
 /* Stock */
 stock FormatJam(temp_jam = 0, temp_menit = 0){
@@ -52,70 +62,54 @@ stock FormatJam(temp_jam = 0, temp_menit = 0){
 
 public OnFilterScriptInit()
 {
-    print("[Fitur Tambahan] Berhasil load sistem!");
-    // Voice Chat
-    // Uncomment the line to enable debug mode
-    // SvDebug(SV_TRUE);
-    gstream = SvCreateGStream(0xffff0000, "Global");
+    /* Voice Chat */
+	/** Warna 
+	 * Merah	= 0xff0000ff
+	 * Biru		= 0xffff0000
+	 */
+	aglobal_stream = SvCreateGStream(0xff0000ff, "Global");
+	alocal_stream = SvCreateGStream(0xffff0000, "Admin");
+	police_radio = SvCreateGStream(0xffff0000, "Police");
+	medic_radio = SvCreateGStream(0xffff0000, "Medic");
+	public_radio = SvCreateGStream(0xffff0000, "Public");
+	print("[Fitur Tambahan] Berhasil load sistem!");
 	return 1;
 }
 
 public OnFilterScriptExit()
 {
-    // Voice Chat
-    if(gstream) SvDeleteStream(gstream);
-    print("[Fitur Tambahan] Berhasil unload sistem!");
+    /* Voice Chat */
+	if(aglobal_stream) SvDeleteStream(aglobal_stream);
+	if(alocal_stream) SvDeleteStream(alocal_stream);
+	if(police_radio) SvDeleteStream(police_radio);
+	if(medic_radio) SvDeleteStream(medic_radio);
+	if(public_radio) SvDeleteStream(public_radio);
+	print("[Fitur Tambahan] Berhasil unload sistem!");
     return 1;
 }
 
 public OnPlayerConnect(playerid)
 {
-	// Android Check
+	/* Android Check */
     SendClientCheck(playerid, 0x48, 0, 0, 2);
-    // Voice Chat
-    LoadPlayerVoice(playerid, Local_Distance);
-    SetPreciseTimer("DelayVoiceNotice", 120000, false, "i", playerid);
+    /* Voice Chat */
+	PlayerVoice[playerid][status_mic] = 0;
     return 1;
 }
 
-public LoadPlayerVoice(playerid, Float:distance){
-    // Checking for plugin availability
-    if(SvGetVersion(playerid) == SV_NULL){
-    	PlayerVoice[playerid][status_mic] = 1;
+public OnPlayerDisconnect(playerid, reason)
+{
+    /* Voice Chat */
+    if(local_stream[playerid]){
+        SvDeleteStream(local_stream[playerid]);
+        local_stream[playerid] = SV_NULL;
     }
-    // Checking for a microphone
-    else if(SvHasMicro(playerid) == SV_FALSE){
-    	PlayerVoice[playerid][status_mic] = 2;
-    }
-    // Create a local stream with an audibility distance of distance value, an unlimited number of listeners
-    // and the name 'Local' (the name 'Local' will be displayed in red in the players' speakerlist)
-    else if((lstream[playerid] = SvCreateDLStreamAtPlayer(distance, SV_INFINITY, playerid, 0xff0000ff, "Local"))){
-        PlayerVoice[playerid][status_mic] = 3;
-        // Attach the player to the global stream as a listener
-        if(gstream) SvAttachListenerToStream(gstream, playerid);
-        // Assign microphone activation keys to the player
-        SvAddKey(playerid, 0x42); // Key B (Local)
-    }
-	return 1;
-}
-
-public DelayVoiceNotice(playerid){
-    	// Voice Chat
-	if(PlayerVoice[playerid][status_mic] == 1){
-		SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Tidak dapat menemukan plugin Voice Chat.");
-	}else if(PlayerVoice[playerid][status_mic] == 2){
-        SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Microphone tidak ditemukan, silahkan pasang atau beri akses pada perangkat anda.");
-	}else if(PlayerVoice[playerid][status_mic] == 3){
-        if(IsPlayerAndroid(playerid) == false){
-			SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Tekan "GREEN"B"WHITE" untuk menggunakan Voice Chat.");
-		}
-	}
-	SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Laporkan pemain jika menyalahgunakan Voice Chat ("GREEN"/report"WHITE").");
+    PlayerVoice[playerid][status_mic] = 0;
 	return 1;
 }
 
 /* Android Check */
-public OnClientCheckResponse(playerid, type, arg, response)
+publicFor:OnClientCheckResponse(playerid, type, arg, response)
 {
     switch(type){
         case 0x48:
@@ -126,86 +120,302 @@ public OnClientCheckResponse(playerid, type, arg, response)
     return 1;
 }
 
-public OnPlayerDisconnect(playerid, reason)
-{
-    // Voice Chat
-    // Removing the player's local stream after disconnecting
-    if(lstream[playerid]){
-        SvDeleteStream(lstream[playerid]);
-        lstream[playerid] = SV_NULL;
-    }
-    PlayerVoice[playerid][status_mic] = 0;
-    return 1;
-}
-
 /* Voice Chat */
+/** Key
+ * B 	= 0x42
+ * Z 	= 0x5A
+ * Caps	= 0x14
+ */
 public SV_VOID:OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid)
 {
-    // Attach player to local stream as speaker if 'B' key is pressed
-    if(keyid == 0x42 && lstream[playerid]) SvAttachSpeakerToStream(lstream[playerid], playerid);
-	// Attach the player to the global stream as a speaker if the 'Z' key is pressed
-    if(keyid == 0x5A && gstream) SvAttachSpeakerToStream(gstream, playerid);
+    if(keyid == 0x42){
+		// Switch mic sesuai toggle
+		if(PlayerVoice[playerid][toggle_mic] == LOCAL_TO_LOCAL){
+			if(local_stream[playerid]) SvAttachSpeakerToStream(local_stream[playerid], playerid);
+		}else if(PlayerVoice[playerid][toggle_mic] == ADMIN_TO_GLOBAL){
+			if(aglobal_stream) SvAttachSpeakerToStream(aglobal_stream, playerid);
+		}else if(PlayerVoice[playerid][toggle_mic] == ADMIN_TO_ADMIN){
+			if(alocal_stream) SvAttachSpeakerToStream(alocal_stream, playerid);
+		}else if(PlayerVoice[playerid][toggle_mic] == POLICE_TO_POLICE){
+			if(police_radio) SvAttachSpeakerToStream(police_radio, playerid);
+		}else if(PlayerVoice[playerid][toggle_mic] == MEDIC_TO_MEDIC){
+			if(medic_radio) SvAttachSpeakerToStream(medic_radio, playerid);
+		}else if(PlayerVoice[playerid][toggle_mic] == PUBLIC_TO_PUBLIC){
+			if(public_radio) SvAttachSpeakerToStream(public_radio, playerid);
+		}
+	}
 }
 
 public SV_VOID:OnPlayerActivationKeyRelease(SV_UINT:playerid, SV_UINT:keyid)
 {
     new temp_jam, temp_menit, temp_detik;
-    // Detach the player from the local stream if the 'B' key is released
-    if (keyid == 0x42 && lstream[playerid]){
-		SvDetachSpeakerFromStream(lstream[playerid], playerid);
+    if(keyid == 0x42){
+		// Dapatkan histori terakhir mic
 		gettime(temp_jam, temp_menit, temp_detik);
 		format(PlayerVoice[playerid][last_mic], 32, "%s", FormatJam(temp_jam, temp_menit));
-	}
-	// Detach the player from the global stream if the 'Z' key is released
-    if (keyid == 0x5A && gstream){
-		SvDetachSpeakerFromStream(gstream, playerid);
-		gettime(temp_jam, temp_menit, temp_detik);
-		format(PlayerVoice[playerid][last_mic], 32, "%s", FormatJam(temp_jam, temp_menit));
+		if(PlayerVoice[playerid][toggle_mic] == LOCAL_TO_LOCAL){
+			if(local_stream[playerid]) SvDetachSpeakerFromStream(local_stream[playerid], playerid);
+		}else if(PlayerVoice[playerid][toggle_mic] == ADMIN_TO_GLOBAL){
+			if(aglobal_stream) SvDetachSpeakerFromStream(aglobal_stream, playerid);
+		}else if(PlayerVoice[playerid][toggle_mic] == ADMIN_TO_ADMIN){
+			if(alocal_stream) SvDetachSpeakerFromStream(alocal_stream, playerid);
+		}else if(PlayerVoice[playerid][toggle_mic] == POLICE_TO_POLICE){
+			if(police_radio) SvDetachSpeakerFromStream(police_radio, playerid);
+		}else if(PlayerVoice[playerid][toggle_mic] == MEDIC_TO_MEDIC){
+			if(medic_radio) SvDetachSpeakerFromStream(medic_radio, playerid);
+		}else if(PlayerVoice[playerid][toggle_mic] == PUBLIC_TO_PUBLIC){
+			if(public_radio) SvDetachSpeakerFromStream(public_radio, playerid);
+		}
 	}
 }
 
-CMD:avoice(playerid, params[]){
-	if(!IsPlayerAdmin(playerid)) return 0;
-	SvAddKey(playerid, 0x5A); // Key Z (Global)
-	SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Tekan "GREEN"Z"WHITE" untuk menggunakan Voice Chat (Global).");
+loadPlayerVoice(playerid, Float:distance){
+    // Checking for plugin availability
+    if(SvGetVersion(playerid) == SV_NULL){
+    	PlayerVoice[playerid][status_mic] = 1;
+    }
+    // Checking for a microphone
+    else if(SvHasMicro(playerid) == SV_FALSE){
+    	PlayerVoice[playerid][status_mic] = 2;
+    }
+    // Create a local stream with an audibility distance of distance value, an unlimited number of listeners
+    // and the name 'Local' (the name 'Local' will be displayed in red in the players' speakerlist)
+    else if((local_stream[playerid] = SvCreateDLStreamAtPlayer(distance, SV_INFINITY, playerid, 0xff0000ff, "Local"))){
+        PlayerVoice[playerid][status_mic] = 3;
+        // Assign microphone activation keys to the player
+        SvAddKey(playerid, 0x42);
+		// Pasang lstener ke player
+		SvAttachListenerToStream(aglobal_stream, playerid); // Admin > Global
+    }
+}
+
+delayVoiceNotice(playerid){
+    /* Voice Chat */
+	if(PlayerVoice[playerid][status_mic] == 1){
+		SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Tidak dapat menemukan plugin Voice Chat.");
+	}else if(PlayerVoice[playerid][status_mic] == 2){
+        SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Microphone tidak ditemukan, silahkan pasang atau beri akses pada perangkat anda.");
+	}else if(PlayerVoice[playerid][status_mic] == 3){
+        if(IsPlayerAndroid(playerid) == false){
+			SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Tekan "GREEN"B"WHITE" untuk menggunakan Voice Chat.");
+		}
+	}
+	SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Laporkan pemain jika menyalahgunakan Voice Chat ("GREEN"/report"WHITE").");
+}
+
+detachListenerGlobal(playerid){
+	if(SvHasListenerInStream(alocal_stream, playerid)){
+		SvDetachListenerFromStream(alocal_stream, playerid);
+	}else if(SvHasListenerInStream(police_radio, playerid)){
+		SvDetachListenerFromStream(police_radio, playerid);
+	}else if(SvHasListenerInStream(medic_radio, playerid)){
+		SvDetachListenerFromStream(medic_radio, playerid);
+	}else if(SvHasListenerInStream(public_radio, playerid)){
+		SvDetachListenerFromStream(public_radio, playerid);
+	}
+}
+
+detachSpeakerGlobal(playerid){
+	if(SvHasSpeakerInStream(aglobal_stream, playerid)){
+		SvDetachSpeakerFromStream(aglobal_stream, playerid);
+	}else if(SvHasSpeakerInStream(alocal_stream, playerid)){
+		SvDetachSpeakerFromStream(alocal_stream, playerid);
+	}else if(SvHasSpeakerInStream(police_radio, playerid)){
+		SvDetachSpeakerFromStream(police_radio, playerid);
+	}else if(SvHasSpeakerInStream(medic_radio, playerid)){
+		SvDetachSpeakerFromStream(medic_radio, playerid);
+	}else if(SvHasSpeakerInStream(public_radio, playerid)){
+		SvDetachSpeakerFromStream(public_radio, playerid);
+	}
+}
+
+publicFor:checkPlayerVoice(playerid){
+	loadPlayerVoice(playerid, Local_Distance);
+	delayVoiceNotice(playerid);
 	return 1;
 }
 
-CMD:checkdevice(playerid, params[]){
-	if(IsPlayerAdmin(playerid)){
-		new idtujuan;
-
-		if(sscanf(params, "u", idtujuan))
-	        return SendClientMessage(playerid, COLOR_RED, "Invalid: "GREY"Gunakan "WHITE"/checkdevice [id tujuan]");
-
-		if(idtujuan == INVALID_PLAYER_ID || !IsPlayerConnected(idtujuan))
-	        return SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Pemain tujuan tidak valid.");
-
-	    new msg[156], device_info[16], mic_status[16], nama_tujuan[MAX_PLAYER_NAME];
-		GetPlayerName(idtujuan, nama_tujuan, sizeof(nama_tujuan));
-	    // Check Device
-	    if(IsPlayerAndroid(idtujuan)){
-	        format(device_info, sizeof(device_info), "Android");
-	    }else{
-	        format(device_info, sizeof(device_info), "PC");
-	    }
-	    // Check Microphone
-	    if(PlayerVoice[idtujuan][status_mic] == 3){
-	        format(mic_status, sizeof(mic_status), "Tersedia");
-	    }else{
-	        format(mic_status, sizeof(mic_status), "Tidak Tersedia");
-	    }
-	    // Check Last Voice
-		if(isnull(PlayerVoice[idtujuan][last_mic])) format(PlayerVoice[idtujuan][last_mic], 32, "Tidak Terdata");
-		else format(PlayerVoice[idtujuan][last_mic], 32, "Jam %s", PlayerVoice[idtujuan][last_mic]);
-		// Print
-	    format(msg, sizeof(msg), WHITE\
-	    "Nama: "GREEN"%s"WHITE"\n\
-	    Device: "GREEN"%s"WHITE"\n\
-	    Microphone: "GREEN"%s"WHITE"\n\
-		Last Voice: "GREEN"%s", nama_tujuan, device_info, mic_status, PlayerVoice[idtujuan][last_mic]);
-	    ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, WHITE"Player Status Device", msg, "Ok", "");
-	    return 1;
-	}
-	return 0;
+resetGlobalVoice(playerid){
+	PlayerVoice[playerid][toggle_mic] = LOCAL_TO_LOCAL;
+	SvMutePlayerEnable(playerid);
+	detachListenerGlobal(playerid);
+	detachSpeakerGlobal(playerid);
+	SvMutePlayerDisable(playerid);
 }
+
+publicFor:checkAccessVoice(playerid){
+	// Cek akses voice
+	if(PlayerVoice[playerid][toggle_mic] == ADMIN_TO_GLOBAL || PlayerVoice[playerid][toggle_mic] == ADMIN_TO_ADMIN){
+		resetGlobalVoice(playerid);
+	}else if(PlayerVoice[playerid][toggle_mic] == POLICE_TO_POLICE){
+		resetGlobalVoice(playerid);
+	}else if(PlayerVoice[playerid][toggle_mic] == MEDIC_TO_MEDIC){
+		resetGlobalVoice(playerid);
+	}
+	return 1;
+}
+
+publicFor:checkStatusMic(playerid){
+	new mic_status[16], last_voice[16];
+	if(PlayerVoice[playerid][status_mic] == 3){
+		format(mic_status, 16, "Tersedia");
+	}else{
+		format(mic_status, 16, "Tidak Tersedia");
+	}
+	if(isnull(PlayerVoice[playerid][last_mic])){
+		format(last_voice, 16, "Tidak Terdata");
+	}else{
+		format(last_voice, 16, "Jam %s", PlayerVoice[playerid][last_mic]);
+	}
+	SetPVarString(playerid, "mic_status", mic_status);
+	SetPVarString(playerid, "last_voice", last_voice);
+	return 1;
+}
+
+
+publicFor:joinVoiceAdmin(playerid, type){
+	switch(type){
+		case 0:
+		{
+			if(local_stream[playerid]){
+				if(PlayerVoice[playerid][toggle_mic] == LOCAL_TO_LOCAL){
+					SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Anda tidak berada di channel admin manapun.");
+				}else{
+					PlayerVoice[playerid][toggle_mic] = LOCAL_TO_LOCAL;
+					detachListenerGlobal(playerid);
+					SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Anda telah berhasil menonaktifkan voice admin.");
+				}
+			}else{
+				SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Terjadi kesalahan pada sistem voice chat.");
+			}
+		}
+		case 1:
+		{
+			if(aglobal_stream){
+				if(PlayerVoice[playerid][toggle_mic] == ADMIN_TO_GLOBAL){
+					SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Anda sudah mengaktifkan voice admin (Publik).");
+				}else{
+					PlayerVoice[playerid][toggle_mic] = ADMIN_TO_GLOBAL;
+					SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Anda telah berhasil mengaktifkan voice admin (Publik).");
+				}
+			}else{
+				SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Terjadi kesalahan pada sistem voice chat.");
+			}
+
+		}
+		case 2:
+		{
+			if(alocal_stream){
+				if(PlayerVoice[playerid][toggle_mic] == ADMIN_TO_ADMIN){
+					SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Anda sudah mengaktifkan voice admin (Khusus Admin).");
+				}else{
+					PlayerVoice[playerid][toggle_mic] = ADMIN_TO_ADMIN;
+					SvAttachListenerToStream(alocal_stream, playerid);
+					SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Anda telah berhasil mengaktifkan voice admin (Khusus Admin).");
+				}
+			}else{
+				SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Terjadi kesalahan pada sistem voice chat.");
+			}
+		}
+		default:
+		{
+			new msg[128];
+			format(msg, sizeof(msg), GREY\
+			"Usage "WHITE"/avoice [type 0-2]\n\n\
+			List Type:\n\
+			0 - Disable / Normal (Lokal)\n\
+			1 - Semua pemain (Publik)\n\
+			2 - Khusus admin");
+			ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, WHITE"Voice Admin Channel", msg, "Ok", "");
+		}
+	}
+	return 1;
+}
+
+publicFor:joinRadio(playerid, const freq[]){
+	if(sama("off", freq)){
+		// Nonaktifkan radio
+		if(local_stream[playerid]){
+			if(PlayerVoice[playerid][toggle_mic] == LOCAL_TO_LOCAL){
+				SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Anda tidak berada di radio manapun.");
+			}else{
+				PlayerVoice[playerid][toggle_mic] = LOCAL_TO_LOCAL;
+				detachListenerGlobal(playerid);
+				SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Anda telah berhasil menonaktifkan radio.");
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Terjadi kesalahan pada sistem radio.");
+		}
+	}else if(sama("01.00", freq)){
+		// Police
+		if(police_radio){
+			if(PlayerVoice[playerid][toggle_mic] == POLICE_TO_POLICE){
+				SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Anda sudah terhubung ke radio polisi.");
+			}else{
+				PlayerVoice[playerid][toggle_mic] = POLICE_TO_POLICE;
+				detachListenerGlobal(playerid);
+				SvAttachListenerToStream(police_radio, playerid);
+				SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Anda telah berhasil terhubung ke radio polisi.");
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Terjadi kesalahan pada sistem radio.");
+		}
+	}else if(sama("02.00", freq)){
+		// Medis
+		if(medic_radio){
+			if(PlayerVoice[playerid][toggle_mic] == MEDIC_TO_MEDIC){
+				SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Anda sudah terhubung ke radio medis.");
+				SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Ketik "GREEN"/radio off "WHITE"untuk menonaktfikan radio.");
+			}else{
+				PlayerVoice[playerid][toggle_mic] = MEDIC_TO_MEDIC;
+				detachListenerGlobal(playerid);
+				SvAttachListenerToStream(medic_radio, playerid);
+				SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Anda telah berhasil terhubung ke radio medis.");
+				SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Ketik "GREEN"/radio off "WHITE"untuk menonaktfikan radio.");
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Terjadi kesalahan pada sistem radio.");
+		}
+	}else if(sama("101.00", freq)){
+		// Test radio player
+		if(public_radio){
+			if(PlayerVoice[playerid][toggle_mic] == PUBLIC_TO_PUBLIC){
+				SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Anda sudah terhubung ke radio publik.");
+			}else{
+				PlayerVoice[playerid][toggle_mic] = PUBLIC_TO_PUBLIC;
+				detachListenerGlobal(playerid);
+				SvAttachListenerToStream(public_radio, playerid);
+				SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Anda telah berhasil terhubung ke radio publik.");
+				SendClientMessage(playerid, COLOR_BLUE, "Info: "WHITE"Ketik "GREEN"/radio off "WHITE"untuk menonaktfikan radio.");
+			}
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Terjadi kesalahan pada sistem radio.");
+		}
+	}else{
+		new msg[165];
+		format(msg, sizeof(msg), GREY\
+        "Usage "WHITE"/radio [frekuensi]\n\n\
+        List Frekuensi:\n\
+		off - Menonaktifkan radio\n\
+        00.00 s/d 99.99 - Non Publik\n\
+		100.00 s/d 999.99 - Publik\n\n\
+		Silahkan mengunjungi "GREEN"https://wiki.playverse.org/"WHITE" untuk lebih lengkap.");
+        ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, WHITE"Radio Channel Frequency", msg, "Ok", "");
+	}
+	return 1;
+}
+
+publicFor:controlPlayerVoice(playerid, status){
+	if(status == 1){
+		// Bisukan player
+		SvMutePlayerEnable(playerid);
+	}else{
+		// Batal biuskan player
+		SvMutePlayerDisable(playerid);
+	}
+	return 1;
+}
+/* End Voice Chat */
+
+sama(const kata1[], const kata2[], bool:ignorecase=false)
+    return (!strcmp(kata1, kata2, ignorecase) && !isnull(kata1) && !isnull(kata2));

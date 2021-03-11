@@ -2,7 +2,8 @@
     GLOBAL VARIABEL FOR SERVER
 */
 new last_hari,
-	worldTimer;
+	worldTimer,
+	nametagTimer;
 
 /*
 	GLOBAL DEFINITION VARIABLE FOR MYSQL
@@ -96,7 +97,7 @@ enum pInfo
     // Tambang
     sisaPalu,
     bool:activeMarker,
-	tidak_dikenali,
+	//tidak_dikenali,
 
     // Settings
     bool:tampilHUDStats,
@@ -164,7 +165,10 @@ enum pInfo
 	ach_MontirListrik,
 
 	// User Count
-	ucnt_Payday
+	ucnt_Payday,
+
+	// Player voice mute
+	voice_mute
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 
@@ -2064,3 +2068,6 @@ new
 	TAGIHAN_MATI_RS,
 	TAGIHAN_DENDA_SEWA_KENDARAAN,
 	TAGIHAN_REVIVE;
+
+// Custom nametag
+new Text3D:c_nametag[MAX_PLAYERS];

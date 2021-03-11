@@ -8,6 +8,9 @@
 *.asm
 *.zip
 
+# Pawn directory
+pawno/
+
 # Vendor directory for dependencies
 dependencies/
 

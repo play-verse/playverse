@@ -331,6 +331,10 @@ showDialogAdminVehicle(playerid){
     return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk kendaraan", "Buat Kendaraan\nParkir Kendaraan Dealer\nRespawn Semua kendaraan Dealer\nHapus Kendaraan Dealer ini\nRespawn kendaraan statis", "Pilih", "Batal");
 }
 
+showDialogAdminVoice(playerid){
+    return ShowPlayerDialog(playerid, DIALOG_ADMIN_VOICE, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk Voice", "Channel untuk Admin\nKontrol Player Voice", "Pilih", "Batal");
+}
+
 showDialogBeliPerabot(playerid){
     static str_daftar_perabot[sizeof(PERABOT_DIJUAL) * 100 + 100];
     if(str_daftar_perabot[0] == EOS){

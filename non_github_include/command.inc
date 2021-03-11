@@ -252,6 +252,11 @@ CMD:setadmin(playerid, params[]){
     
     sendPesan(target_id, COLOR_BLUE, TAG_ADMIN" "WHITE"Level admin anda telah diset menjadi "ORANGE"%d "WHITE"oleh %s.", level_admin, PlayerInfo[playerid][pPlayerName]);
     sendPesan(playerid, COLOR_GREEN, TAG_ADMIN" "WHITE"Berhasil mengganti level admin %s menjadi "ORANGE"%d "WHITE".", PlayerInfo[target_id][pPlayerName], level_admin);
+    
+    // Cek akses voice
+    if(PlayerInfo[target_id][levelAdmin] == 0){
+        CallRemoteFunction("checkAccessVoice", "i", target_id);
+    }
     return 1;
 }
 
@@ -381,6 +386,11 @@ CMD:setmedic(playerid, params[]){
         sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi medic dengan level %d dengan jangka waktu permanen.", level);
 
     sendPesan(target_id, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda sekarang dapat bekerja pada rumah sakit sebagai %s.", GetNamaLevelMedic(level));
+
+    // Cek akses voice
+    if(PlayerInfo[target_id][levelMedic] == 0){
+        CallRemoteFunction("checkAccessVoice", "i", target_id);
+    }
     return 1;
 }
 
@@ -415,6 +425,11 @@ CMD:removemedic(playerid, params[]){
     sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat medic %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
 
     sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari medic.");
+
+    // Cek akses voice
+    if(PlayerInfo[target_id][levelMedic] == 0){
+        CallRemoteFunction("checkAccessVoice", "i", target_id);
+    }
     return 1;
 }
 
@@ -461,6 +476,11 @@ CMD:setpolice(playerid, params[]){
         sendPesan(target_id, COLOR_GREEN, TAG_FACTION" "WHITE"Kamu telah diangkat menjadi polisi dengan level %d dengan jangka waktu permanen.", level);
 
     sendPesan(target_id, COLOR_YELLOW, TAG_NOTE" "WHITE"Anda sekarang dapat bekerja pada kantor polisi dengan jabatan sebagai %s.", GetNamaLevelPolice(level));
+
+    // Cek akses voice
+    if(PlayerInfo[target_id][levelPolice] == 0){
+        CallRemoteFunction("checkAccessVoice", "i", target_id);
+    }
     return 1;
 }
 
@@ -496,6 +516,11 @@ CMD:removepolice(playerid, params[]){
     sendPesan(playerid, COLOR_GREEN, TAG_FACTION" "WHITE"Berhasil memecat polisi %s(%d).", PlayerInfo[target_id][pPlayerName], target_id);
 
     sendPesan(target_id, COLOR_RED, TAG_FACTION" "WHITE"Kamu telah dipecat dari polisi.");
+
+    // Cek akses voice
+    if(PlayerInfo[target_id][levelPolice] == 0){
+        CallRemoteFunction("checkAccessVoice", "i", target_id);
+    }
     return 1;
 }
 
@@ -719,6 +744,79 @@ CMD:specoff(playerid, const params[]) {
 	return 1;
 }
 
+CMD:checkmask(playerid, params[]){
+    // Jika bukan admin level 1
+    if(GetLevelAdminPlayer(playerid) < 1 && !IsPlayerAdmin(playerid))
+        return 0;
+
+    new mask_name[128];
+    if(sscanf(params, "s[128]", mask_name)) 
+        return error_syntax(playerid, "/checkmask [helm/mask name]");
+
+    new p_name[MAX_PLAYER_NAME+1], p_id, mask_exist;
+    foreach(new i : Player){
+        if(IsPlayerConnected(i)){
+			GetPlayerName(i, p_name, sizeof(p_name));
+            if(sama(mask_name, p_name, true)){
+                mask_exist = 1;
+                p_id = i;
+                goto label_player_mask;
+            }else{
+                mask_exist = 0;
+            }
+        }
+    }
+    label_player_mask:
+    if(mask_exist == 1 && PlayerInfo[p_id][isOnMask]){
+        format(msg, sizeof(msg), WHITE\
+        "Mask Name: "GREEN"%s"WHITE"\n\
+        Player Name: "GREEN"%s"WHITE"\n\
+        Player ID: "GREEN"%d", mask_name, PlayerInfo[p_id][pPlayerName], p_id);
+        ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, WHITE"Check Player Mask", msg, "Ok", "");
+    }else{
+        error_command(playerid, "Tidak terdapat player yang menggunakan helm/mask tersebut.");
+    }
+    return 1;
+}
+
+CMD:checkdevice(playerid, params[]){
+	if(PlayerInfo[playerid][levelAdmin] == 0) return 0;
+
+	new idtujuan;
+	if(sscanf(params, "u", idtujuan))
+        return error_syntax(playerid, "/checkdevice [id tujuan]");
+
+	if(idtujuan == INVALID_PLAYER_ID || !IsPlayerConnected(idtujuan))
+        return error_command(playerid, "Pemain tujuan tidak valid.");
+
+	new text[172], device_info[16], nama_tujuan[MAX_PLAYER_NAME], mic_status[16], last_voice[16];
+	GetPlayerName(idtujuan, nama_tujuan, sizeof(nama_tujuan));
+	// Check Device
+	if(IsPlayerAndroid(idtujuan)){
+		format(device_info, sizeof(device_info), "Android");
+	}else{
+		format(device_info, sizeof(device_info), "PC");
+	}
+    // Check Mic
+    CallRemoteFunction("checkStatusMic", "i", idtujuan);
+    GetPVarString(idtujuan, "mic_status", mic_status, 16);
+    GetPVarString(idtujuan, "last_voice", last_voice, 16);
+
+	format(text, sizeof(text), WHITE\
+	"Nama: "GREEN"%s"WHITE"\n\
+	Device: "GREEN"%s"WHITE"\n\
+	Microphone: "GREEN"%s"WHITE"\n\
+	Last Voice: "GREEN"%s", nama_tujuan, device_info, mic_status, last_voice);
+	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, WHITE"Player Status Device", text, "Ok", "");
+	return 1;
+}
+
+CMD:avoice(playerid, params[]){
+    if(PlayerInfo[playerid][levelAdmin] == 0) return 0;
+
+    showDialogAdminVoice(playerid);
+    return 1;
+}
 /**
     End Admin Command
 */
@@ -1202,9 +1300,9 @@ CMD:removehelmet(playerid, params[]){
     }
     tambahItemPlayer(playerid, PlayerInfo[playerid][isOnMask], 1);
     
-    if(PlayerInfo[playerid][tidak_dikenali] != 0)
-        Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
-    PlayerInfo[playerid][tidak_dikenali] = 0;
+    // if(PlayerInfo[playerid][tidak_dikenali] != 0)
+    //     Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+    // PlayerInfo[playerid][tidak_dikenali] = 0;
 
     PlayerInfo[playerid][isOnMask] = 0;
     RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX); // Lepas Object
@@ -1228,9 +1326,9 @@ CMD:removemask(playerid, params[]){
     }
     tambahItemPlayer(playerid, PlayerInfo[playerid][isOnMask], 1);
 
-    if(PlayerInfo[playerid][tidak_dikenali] != 0)
-        Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
-    PlayerInfo[playerid][tidak_dikenali] = 0;
+    // if(PlayerInfo[playerid][tidak_dikenali] != 0)
+    //     Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+    // PlayerInfo[playerid][tidak_dikenali] = 0;
 
     PlayerInfo[playerid][isOnMask] = 0;
     RemovePlayerAttachedObject(playerid, MASK_ATTACH_INDEX); // Lepas Object
@@ -2204,6 +2302,46 @@ CMD:cvoacvrp(playerid, params[]){
     }else{
         Android_Official[playerid] = 0;
     }
+    return 1;
+}
+
+CMD:radio(playerid, params[]){
+    new freq[8], text[256];
+    if(sscanf(params, "s[8]", freq)){
+		label_radio_freq:
+        format(text, sizeof(text), GREY\
+        "Usage "WHITE"/radio [frekuensi]\n\n\
+        List Frekuensi:\n\
+        off - Menonaktifkan radio\n\
+        00.00 s/d 99.99 - Non Publik\n\
+		100.00 s/d 999.99 - Publik\n\n\
+		Silahkan mengunjungi "GREEN"https://wiki.playverse.org/"WHITE" untuk lebih lengkap.");
+        return ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, WHITE"Radio Channel Frequency", text, "Ok", "");
+	}
+
+	if(sama("off", freq)){
+		// Nonaktifkan radio
+        CallRemoteFunction("joinRadio", "is", playerid, freq);
+	}else if(sama("01.00", freq)){
+		// Police
+		if(PlayerInfo[playerid][levelPolice] > 0){
+			CallRemoteFunction("joinRadio", "is", playerid, freq);
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Anda tidak memiliki akses untuk terhubung.");
+		}
+	}else if(sama("02.00", freq)){
+		// Medis
+        if(PlayerInfo[playerid][levelMedic] > 0){
+			CallRemoteFunction("joinRadio", "is", playerid, freq);
+		}else{
+			SendClientMessage(playerid, COLOR_RED, "Error: "WHITE"Anda tidak memiliki akses untuk terhubung.");
+		}
+	}else if(sama("101.00", freq)){
+		// Test radio player
+        CallRemoteFunction("joinRadio", "is", playerid, freq);
+	}else{
+		goto label_radio_freq;
+	}
     return 1;
 }
 

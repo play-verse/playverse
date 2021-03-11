@@ -124,6 +124,21 @@ publicFor: isRegistered(playerid)
 		cache_get_value_name_int(0, "in_die", PlayerInfo[playerid][inDie]);
 		cache_get_value_name_int(0, "in_penjara", PlayerInfo[playerid][inPenjara]);
 
+		cache_is_value_name_null(0, "voice_mute", is_null);
+		if(!is_null){
+			cache_get_value_name_int(0, "voice_mute", temp_int);
+			if(gettime() > temp_int){
+				PlayerInfo[playerid][voice_mute] = 0;
+
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE user SET voice_mute = NULL WHERE id = %d", PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+			}else{
+				PlayerInfo[playerid][voice_mute] = 1;
+			}
+		}else{
+			PlayerInfo[playerid][voice_mute] = 0;
+		}
+
 		// IMPORTANT: Pastikan untuk LoadPlayerSkill dan sebagainya setelah load semua cache di atas
 		// agar tidak terjadi hal yang tidak diinginkan (lebih dari satu cache active secara bersamaan)
 		loadPlayerSkill(playerid);
@@ -259,9 +274,9 @@ resetPlayerVariable(playerid, dari_callback){
 
 	PlayerInfo[playerid][inHouse] = 0;
 
-	if(PlayerInfo[playerid][tidak_dikenali] != 0)
-		Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
-	PlayerInfo[playerid][tidak_dikenali] = 0;
+	// if(PlayerInfo[playerid][tidak_dikenali] != 0)
+	// 	Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+	// PlayerInfo[playerid][tidak_dikenali] = 0;
 
 	EditingATMID[playerid] = -1;
 
@@ -645,19 +660,19 @@ spawnPemain(playerid, dari_callback = 0)
 	 * Jika menggunakan mask maka hide name tag
 	 */
 	if(PlayerInfo[playerid][isOnMask] && IsMaskOrHelmet(PlayerInfo[playerid][isOnMask])){
-		if(PlayerInfo[playerid][tidak_dikenali] != 0)
-			Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
-		PlayerInfo[playerid][tidak_dikenali] = Iter_Free(TidakDikenali);
+		// if(PlayerInfo[playerid][tidak_dikenali] != 0)
+		// 	Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+		// PlayerInfo[playerid][tidak_dikenali] = Iter_Free(TidakDikenali);
 
-		Iter_Add(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+		// Iter_Add(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
 
 		HidePlayerMarker(playerid);
 		AttachHelmetOrMask(playerid, PlayerInfo[playerid][isOnMask]);
 	}
 	else{
-		if(PlayerInfo[playerid][tidak_dikenali] != 0)
-			Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
-		PlayerInfo[playerid][tidak_dikenali] = 0;
+		// if(PlayerInfo[playerid][tidak_dikenali] != 0)
+		// 	Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+		// PlayerInfo[playerid][tidak_dikenali] = 0;
 
 		PlayerInfo[playerid][isOnMask] = 0;
 		ShowPlayerMarker(playerid);
@@ -1293,9 +1308,9 @@ publicFor: pakaiHelm(playerid, itemid){
 		return server_message(playerid, "Anda telah menggunakan masker/helm silahkan lepas terlebih dahulu.");
 
 	if(!IsMaskOrHelmet(itemid)) { // Jika ID item lain
-		if(PlayerInfo[playerid][tidak_dikenali] != 0)
-			Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
-		PlayerInfo[playerid][tidak_dikenali] = 0;
+		// if(PlayerInfo[playerid][tidak_dikenali] != 0)
+		// 	Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+		// PlayerInfo[playerid][tidak_dikenali] = 0;
 
 		PlayerInfo[playerid][isOnMask] = 0;
 		mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = 0 WHERE id = %d", PlayerInfo[playerid][pID]);
@@ -1303,14 +1318,14 @@ publicFor: pakaiHelm(playerid, itemid){
 		return 1;
 	}
 
-	if(PlayerInfo[playerid][tidak_dikenali] != 0)
-		Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
-	PlayerInfo[playerid][tidak_dikenali] = Iter_Free(TidakDikenali);
+	// if(PlayerInfo[playerid][tidak_dikenali] != 0)
+	// 	Iter_Remove(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+	// PlayerInfo[playerid][tidak_dikenali] = Iter_Free(TidakDikenali);
 
-	if(PlayerInfo[playerid][tidak_dikenali] == -1)
-		printf("[ERROR] Iter_Free pada tidak_dikenali return -1, pada playerid %d.", playerid);
+	// if(PlayerInfo[playerid][tidak_dikenali] == -1)
+	// 	printf("[ERROR] Iter_Free pada tidak_dikenali return -1, pada playerid %d.", playerid);
 	
-	Iter_Add(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
+	// Iter_Add(TidakDikenali, PlayerInfo[playerid][tidak_dikenali]);
 
 	PlayerInfo[playerid][isOnMask] = itemid;
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `user` SET on_mask = %d WHERE id = %d", itemid, PlayerInfo[playerid][pID]);
@@ -6433,4 +6448,98 @@ publicFor: loadSetup(){
 			SendClientMessage(i, COLOR_RED, pesan);
     }
 	printf("loaded %d/%d", loaded, rows);
+}
+
+playerNameMasked(playerid){
+	new mask_name[MAX_PLAYER_NAME], mask_id = 3000+PlayerInfo[playerid][pID];
+	switch(PlayerInfo[playerid][isOnMask]){
+		case ID_ITEM_HELM:
+			format(mask_name, sizeof(mask_name), "Helm#%d", mask_id);
+		case ID_ITEM_MASK:
+			format(mask_name, sizeof(mask_name), "Topeng#%d", mask_id);
+		default:
+			format(mask_name, sizeof(mask_name), "Tidak_dikenali#%d", mask_id);
+	}
+	return mask_name;
+}
+
+getHealthStrips(playerid){
+    new strips[64], Float: health;
+    GetPlayerHealth(playerid, health);
+    if(health >= 100)
+        strips = "||||||||||";
+    else if(health >= 90)
+        strips = "|||||||||{660000}|";
+    else if(health >= 80)
+        strips = "||||||||{660000}||";
+    else if(health >= 70)
+        strips = "|||||||{660000}|||";
+    else if(health >= 60)
+        strips = "||||||{660000}||||";
+    else if(health >= 50)
+        strips = "|||||{660000}|||||";
+    else if(health >= 40)
+        strips = "||||{660000}||||||";
+    else if(health >= 30)
+        strips = "|||{660000}|||||||";
+    else if(health >= 20)
+        strips = "||{660000}||||||||";
+    else if(health >= 10)
+        strips = "|{660000}|||||||||";
+    else if(health >= 0)
+        strips = "{660000}||||||||||";
+    return strips;
+}
+
+getArmorStrips(playerid){
+    new strips[64], Float: armour;
+    GetPlayerArmour(playerid, armour);
+    if(armour >= 100)
+        strips = "||||||||||";
+    else if(armour >= 90)
+        strips = "|||||||||{666666}|";
+    else if(armour >= 80)
+        strips = "||||||||{666666}||";
+    else if(armour >= 70)
+        strips = "|||||||{666666}|||";
+    else if(armour >= 60)
+        strips = "||||||{666666}||||";
+    else if(armour >= 50)
+        strips = "|||||{666666}|||||";
+    else if(armour >= 40)
+        strips = "||||{666666}||||||";
+    else if(armour >= 30)
+        strips = "|||{666666}|||||||";
+    else if(armour >= 20)
+        strips = "||{666666}||||||||";
+    else if(armour >= 10)
+        strips = "|{666666}|||||||||";
+    else if(armour >= 0)
+        strips = "{666666}||||||||||";
+    return strips;
+}
+
+publicFor:updatePlayerNameTag(playerid){
+	new nametag[128], playername[MAX_PLAYER_NAME], Float:armour;
+	GetPlayerArmour(playerid, armour);
+	if(PlayerInfo[playerid][isOnMask]){
+		format(playername, sizeof(playername), "%s", playerNameMasked(playerid));
+	}else{
+		GetPlayerName(playerid, playername, sizeof(playername));
+	}
+	if(armour > 1.0){
+		if(PlayerInfo[playerid][isOnMask]){
+			format(nametag, sizeof(nametag), "{%06x}%s\n{FFFFFF}%s\n{FF0000}%s", GetPlayerColor(playerid) >>> 8, playername, getArmorStrips(playerid), getHealthStrips(playerid));
+		}else{
+			format(nametag, sizeof(nametag), "{%06x}%s {FFFFFF}(%i)\n{FFFFFF}%s\n{FF0000}%s", GetPlayerColor(playerid) >>> 8, playername, playerid, getArmorStrips(playerid), getHealthStrips(playerid));
+		}
+	}else{
+		if(PlayerInfo[playerid][isOnMask]){
+			format(nametag, sizeof(nametag), "{%06x}%s\n{FF0000}%s", GetPlayerColor(playerid) >>> 8, playername, getHealthStrips(playerid));
+		}else{
+			format(nametag, sizeof(nametag), "{%06x}%s {FFFFFF}(%i)\n{FF0000}%s", GetPlayerColor(playerid) >>> 8, playername, playerid, getHealthStrips(playerid));
+		}
+	}
+	UpdateDynamic3DTextLabelText(c_nametag[playerid], 0xFFFFFFFF, nametag);
+	return 1;
 }

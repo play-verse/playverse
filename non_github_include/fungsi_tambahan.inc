@@ -926,19 +926,22 @@ AttachHelmetToPlayerFixed(playerid)
 }
 
 HidePlayerMarker(playerid){
-    if(!IsPlayerConnected(playerid)) return; 
-    foreach(new i : Player){
-        if(i != playerid)
-            ShowPlayerNameTagForPlayer(i, playerid, 0);
-    } 
+    if(!IsPlayerConnected(playerid)) return;
+    // foreach(new i : Player){
+    //     if(i != playerid)
+    //         ShowPlayerNameTagForPlayer(i, playerid, 0);
+    // }
+    updatePlayerNameTag(playerid);
+    
 }
 
 ShowPlayerMarker(playerid){
-    if(!IsPlayerConnected(playerid)) return; 
-    foreach(new i : Player) {
-        if(i != playerid)
-            ShowPlayerNameTagForPlayer(i, playerid, 1);
-    }
+    if(!IsPlayerConnected(playerid)) return;
+    // foreach(new i : Player) {
+    //     if(i != playerid)
+    //         ShowPlayerNameTagForPlayer(i, playerid, 1);
+    // }
+    updatePlayerNameTag(playerid);
 }
 
 

@@ -557,6 +557,14 @@
 #define DIALOG_PLAT_KONFIRM_VEH 308
 #define DIALOG_PLAT_EXTEND_VEH 309
 #define DIALOG_PLAT_KONFIRM_EXTEND 310
+#define DIALOG_ADMIN_VOICE 311
+#define DIALOG_ADMIN_VOICE_CHANNEL 312
+#define DIALOG_ADMIN_VOICE_CONTROL 313
+#define DIALOG_ADMIN_VOICE_ID 314
+#define DIALOG_ADMIN_VOICE_WAKTU 315
+#define DIALOG_ADMIN_VOICE_WAKTU_JAM 316
+#define DIALOG_ADMIN_VOICE_WAKTU_HARI 317
+#define DIALOG_ADMIN_VOICE_KONFIRMASI 318
 
 #define ENTER_PICKUP 0 // ENTER PICKUP ADALAH PICKUP YANG ADA DI PINTU MASUK
 #define EXIT_PICKUP 1 // EXIT PICKUP ADALAH PICKUP YANG ADA DI DALAM INTERIOR
@@ -608,6 +616,9 @@ new const NAMA_ABJAD[][] = {
 #define publicFor:%0(%1) forward %0(%1); public %0(%1)
 
 #define KickEx(%0) SetPreciseTimer("keluarkanPlayer", 1, 0, "d", %0) 
+
+// Check Android
+#define IsPlayerAndroid(%0) GetPVarInt(%0, "NotAndroid") == 0
 
 /*
 	Sweeper Job
