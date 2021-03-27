@@ -3626,6 +3626,12 @@ updateOnPlayerDisconnect(playerid){
 	mysql_tquery(koneksi, query_temp_str);
 
 	// Update User Count
+	
+	// Note kenapa tidak di update sesuai tanggal, 
+	// sehingga tidak terjadi bug pada saat pergantian hari? seperti last_tanggal >= atau = DATE(NOW)
+	// Answer:
+	// Dikarenakan pada saat login adalah bagian yang terpenting,
+	// pada saat login sudah dilakukan load data hanya pada hari sekarang, sehingga jika pun hari berganti dan save terakhir merupakan akumulasi hari sebelumnya + jam setelah hari berganti, mereka tetap tidak dapat save-an semalam karena savean tersebut disimpan pada field hari semalam.
 	mysql_format(koneksi, query_temp_str, sizeof(query_temp_str), "UPDATE user_count SET cnt_payday = %d WHERE id_user = %d", PlayerInfo[playerid][ucnt_Payday], PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, query_temp_str);
 
