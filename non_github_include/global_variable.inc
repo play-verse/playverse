@@ -164,7 +164,9 @@ enum pInfo
 	ach_MontirListrik,
 
 	// User Count
-	ucnt_Payday
+	ucnt_Payday,
+	ucnt_Medic,
+	ucnt_Police
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 
