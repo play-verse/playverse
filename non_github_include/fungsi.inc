@@ -347,6 +347,8 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][ach_MontirListrik] = 0;
 
 	PlayerInfo[playerid][ucnt_Payday] = 0;
+	PlayerInfo[playerid][ucnt_Medic] = 0;
+	PlayerInfo[playerid][ucnt_Police] = 0;
 
 	PlayerInfo[playerid][lamaBermain] = 0;
 	PlayerInfo[playerid][waktuSaatLogin] = 0;
@@ -3639,7 +3641,17 @@ updateOnPlayerDisconnect(playerid){
 	mysql_tquery(koneksi, query_temp_str);
 
 	// Update User Count
+	
+	// Note kenapa tidak di update sesuai tanggal, 
+	// sehingga tidak terjadi bug pada saat pergantian hari? seperti last_tanggal >= atau = DATE(NOW)
+	// Answer:
+	// Dikarenakan pada saat login adalah bagian yang terpenting,
+	// pada saat login sudah dilakukan load data hanya pada hari sekarang, sehingga jika pun hari berganti dan save terakhir merupakan akumulasi hari sebelumnya + jam setelah hari berganti, mereka tetap tidak dapat save-an semalam karena savean tersebut disimpan pada field hari semalam.
 	mysql_format(koneksi, query_temp_str, sizeof(query_temp_str), "UPDATE user_count SET cnt_payday = %d WHERE id_user = %d", PlayerInfo[playerid][ucnt_Payday], PlayerInfo[playerid][pID]);
+	mysql_tquery(koneksi, query_temp_str);
+
+	// Update User Count a Week
+	mysql_format(koneksi, query_temp_str, sizeof(query_temp_str), "UPDATE user_count_a_week SET cnt_medic = %d, cnt_police = %d WHERE id_user = %d", PlayerInfo[playerid][ucnt_Medic], PlayerInfo[playerid][ucnt_Police], PlayerInfo[playerid][pID]);
 	mysql_tquery(koneksi, query_temp_str);
 	return 1;
 }
@@ -5512,6 +5524,20 @@ publicFor: pemainUpdate(playerid){
 		}
 	}
 
+	if(IsPlayerOnDutyMedic(playerid)) {
+		PlayerInfo[playerid][ucnt_Medic] = PlayerInfo[playerid][ucnt_Medic] + 1;
+		if(PlayerInfo[playerid][ucnt_Medic] == 3600 * PLAYTIME_MINGGUAN_MEDIC) { // Onduty gameplay
+			addGajiPemain(playerid, GAJI_MINGGUAN_MEDIC, "Gaji mingguan medis");
+		}
+	}
+
+	if(IsPlayerOnDutyPolice(playerid)) {
+		PlayerInfo[playerid][ucnt_Police] = PlayerInfo[playerid][ucnt_Police] + 1;
+		if(PlayerInfo[playerid][ucnt_Police] == 3600 * PLAYTIME_MINGGUAN_POLICE) { // Onduty gameplay
+			addGajiPemain(playerid, GAJI_MINGGUAN_POLICE, "Gaji mingguan polisi");
+		}
+	}
+
 	if(PlayerInfo[playerid][inPenjara] > 0 && IsPlayerInAnyAreaPenjara(playerid)){
 		new str_temp[70];
 		if(PlayerInfo[playerid][inPenjara] == 1){
@@ -6111,6 +6137,20 @@ loadPlayerCount(playerid){
 		}
 	}
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM user_count WHERE id_user = %d AND last_tanggal = DATE(NOW())", PlayerInfo[playerid][pID]);
+
+	inline responseQuery2(){
+		new rows;
+		cache_get_row_count(rows);
+		if(rows){
+			cache_get_value_name_int(0, "cnt_medic", PlayerInfo[playerid][ucnt_Medic]);
+			cache_get_value_name_int(0, "cnt_police", PlayerInfo[playerid][ucnt_Police]);
+		}else{
+			// IMPORTANT NOTE: JANGAN LUPA UPDATE QUERY INI UNTUK RESET FIELD COUNT
+			mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO user_count_a_week(id_user, last_tanggal) VALUES(%d, NOW() + INTERVAL ( SELECT (CASE WHEN DAYOFWEEK( NOW() ) = 1 THEN 0 ELSE ( 8 - DAYOFWEEK( NOW() )) END) ) DAY) ON DUPLICATE KEY UPDATE last_tanggal = NOW() + INTERVAL ( SELECT (CASE WHEN DAYOFWEEK( NOW() ) = 1 THEN 0 ELSE ( 8 - DAYOFWEEK( NOW() )) END) ) DAY, cnt_medic = 0, cnt_police = 0", PlayerInfo[playerid][pID]);
+			mysql_tquery(koneksi, pQuery[playerid]);
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery2, "SELECT * FROM user_count_a_week WHERE id_user = %d AND last_tanggal >= DATE(NOW())", PlayerInfo[playerid][pID]);
 }
 
 checkMinimal(playerid, kondisi, level){
@@ -6542,4 +6582,19 @@ publicFor:updatePlayerNameTag(playerid){
 	}
 	UpdateDynamic3DTextLabelText(c_nametag[playerid], 0xFFFFFFFF, nametag);
 	return 1;
+}
+
+publicFor: RemoveDynamicBuilding(playerid){
+	new rows, idx = 0, object_id, Float:pos[4];
+	cache_get_row_count(rows);
+	while(idx < rows)
+	{
+		cache_get_value_name_int(idx, "object_id", object_id);
+		cache_get_value_name_float(idx, "pos_x", pos[0]);
+		cache_get_value_name_float(idx, "pos_y", pos[1]);
+		cache_get_value_name_float(idx, "pos_z", pos[2]);
+		cache_get_value_name_float(idx, "radius", pos[3]);
+		RemoveBuildingForPlayer(playerid, object_id, pos[0], pos[1], pos[2], pos[3]);
+		idx++;
+	}
 }

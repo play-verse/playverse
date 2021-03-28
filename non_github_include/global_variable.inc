@@ -166,6 +166,8 @@ enum pInfo
 
 	// User Count
 	ucnt_Payday,
+	ucnt_Medic,
+	ucnt_Police,
 
 	// Player voice mute
 	voice_mute
