@@ -96,6 +96,12 @@ public OnPlayerConnect(playerid)
 	GetPlayerName(playerid, nama, sizeof(nama));
 	PlayerInfo[playerid][pPlayerName] = nama;
 
+	// Load removed building
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
+	SELECT m.object_id, m.pos_x, m.pos_y, m.pos_z, m.radius \
+	FROM mapping m INNER JOIN mapping_parent mp ON mp.mapping_name = m.mapping_name WHERE mp.loaded = 1 AND m.is_object = 0");
+	mysql_tquery(koneksi, pQuery[playerid], "RemoveDynamicBuilding", "i", playerid);
+
     mysql_format(koneksi, pQuery[playerid], sizePQuery, "\
 	SELECT a.*, \
 		UNIX_TIMESTAMP(last_active) as last_active_unix,\

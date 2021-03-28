@@ -59,7 +59,7 @@
 		"rcon_password": "kodokhijau99",
 		"port": 7777,
 		"hostname": "SA-MP Server",
-		"maxplayers": 50,
+		"maxplayers": 100,
 		"language": "",
 		"mapname": "San Andreas",
 		"weburl": "www.sa-mp.com",

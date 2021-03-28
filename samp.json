@@ -4,8 +4,7 @@
 	],
 	"filterscripts": [
 		"cameditor",
-		"animbrowser",
-		"fitur_tambahan"
+		"animbrowser"
 	],
 	"plugins": [
 		"zeex/samp-plugin-crashdetect:v4.19.4",
@@ -23,5 +22,5 @@
 	"rcon_password": "kodokhijau99",
 	"port": 7777,
 	"hostname": "Playverse - Alpha Version",
-	"maxplayers": 32
+	"maxplayers": 100
 }
