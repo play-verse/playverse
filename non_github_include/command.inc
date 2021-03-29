@@ -745,8 +745,8 @@ CMD:specoff(playerid, const params[]) {
 }
 
 CMD:checkmask(playerid, params[]){
-    // Jika bukan admin level 1
-    if(GetLevelAdminPlayer(playerid) < 1 && !IsPlayerAdmin(playerid))
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
         return 0;
 
     new mask_name[128];
@@ -780,7 +780,8 @@ CMD:checkmask(playerid, params[]){
 }
 
 CMD:checkdevice(playerid, params[]){
-	if(PlayerInfo[playerid][levelAdmin] == 0) return 0;
+	// Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
 
 	new idtujuan;
 	if(sscanf(params, "u", idtujuan))
@@ -812,7 +813,8 @@ CMD:checkdevice(playerid, params[]){
 }
 
 CMD:avoice(playerid, params[]){
-    if(PlayerInfo[playerid][levelAdmin] == 0) return 0;
+    // Jika bukan admin level 1 (bukan admin)
+    if(GetLevelAdminPlayer(playerid) < 1) return 0;
 
     showDialogAdminVoice(playerid);
     return 1;

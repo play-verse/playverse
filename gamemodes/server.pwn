@@ -21,7 +21,7 @@
 #define YSI_NO_VERSION_CHECK
 #include <YSI_Data\y_iterate>
 #include <YSI_Coding\y_inline>
-// #include <YSI_Extra\y_inline_mysql>
+// #include <YSI_Extra\y_inline_mysql> // Untuk YSI terbaru
 
 #include <progress2>
 
@@ -8626,12 +8626,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/stand "WHITE"- Animasi berdiri\n"\
 							YELLOW"/sit "WHITE"- Animasi duduk\n"\
 							YELLOW"/checkinventory "WHITE"- Memeriksa inventory pemain lain\n"\
+							YELLOW"/checkplat "WHITE"- Memeriksa plat nomor kendaraan\n"\
 							YELLOW"/ephone "WHITE"- Akses ponsel pribadi\n"\
 							YELLOW"/call "WHITE"- Memanggil pemain atau organisasi\n"\
 							YELLOW"/bc "WHITE"- Iklan teks\n"\
 							YELLOW"/exit "WHITE"- Aksi untuk keluar bangunan\n"\
 							YELLOW"/skill "WHITE"- Daftar kemampuan\n"\
-							YELLOW"/suicide "WHITE"- Akhiri hidup");
+							YELLOW"/suicide "WHITE"- Akhiri hidup\n"\
+							YELLOW"/radio "WHITE"- Mengakses channel radio\n"");
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Umum):", str_guide, "Ok", "");
 					}
 					// Pekerjaan
@@ -8684,7 +8686,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/pma "WHITE"- Chat admin ke pemain\n"\
 							YELLOW"/pmall "WHITE"- Chat admin ke semua pemain\n"\
 							YELLOW"/announce "WHITE"- Announce text ke pemain\n"\
-							YELLOW"/announceall "WHITE"- Announce text ke semua pemain\n");
+							YELLOW"/announceall "WHITE"- Announce text ke semua pemain\n"\
+							YELLOW"/spec "WHITE"- Mengaktifkan spec pemain\n"\
+							YELLOW"/specoff "WHITE"- Menonaktifkan spec pemain\n"\
+							YELLOW"/checkmask "WHITE"- Mengecek mask / helm pemain\n"\
+							YELLOW"/checkdevice "WHITE"- Mengecek device pemain\n"\
+							YELLOW"/avoice "WHITE"- Mengakses fitur voice\n");
 						}
 						if(GetLevelAdminPlayer(playerid) >= 2){
 							strcatEx(str_guide, sizeof(str_guide), \
