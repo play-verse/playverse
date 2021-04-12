@@ -6598,3 +6598,105 @@ publicFor: RemoveDynamicBuilding(playerid){
 		idx++;
 	}
 }
+
+loadAllFactionVeh(){
+	new idveh, factionid, modelid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle;
+	new Cache:result, row, idx = 0;
+	result = mysql_query(koneksi, "SELECT * FROM `vehicle_faction`");
+	cache_get_row_count(row);
+	while(idx < row){
+		result = cache_save();
+		cache_get_value_name_int(idx, "id", idveh);
+		cache_get_value_name_int(idx, "id_faction", factionid);
+		cache_get_value_name_int(idx, "id_model", modelid);
+		cache_get_value_name_float(idx, "pos_x", spawn_x);
+		cache_get_value_name_float(idx, "pos_y", spawn_y);
+		cache_get_value_name_float(idx, "pos_z", spawn_z);
+		cache_get_value_name_float(idx, "pos_a", z_angle);
+		createFactionVeh(idveh, factionid, modelid, spawn_x, spawn_y, spawn_z, z_angle);
+		cache_set_active(result);
+		
+		#if DEBUG_SERVER_LOAD == true
+			printf("Vehicle Faction load id(%d)", idveh);
+		#endif
+
+		idx++;
+	}
+	cache_delete(result);
+}
+
+unloadAllFactionVeh(){
+	foreach(new i : FactionVehIterator){
+		new vehid = FactionVeh[i][VehID];
+		FactionVehID[vehid] = -1;
+		FactionVeh[i][VehID] = -1;
+		FactionVeh[i][VehType] = 0;
+		FactionVeh[i][VehModel] = -1;
+		FactionVeh[i][VehModel] = -1;
+		FactionVeh[i][VehPos][0] = 0;
+		FactionVeh[i][VehPos][1] = 0;
+		FactionVeh[i][VehPos][2] = 0;
+		FactionVeh[i][VehPos][3] = 0;
+		DestroyVehicle(vehid);
+		Iter_SafeRemove(FactionVehIterator, i, i);
+	}
+}
+
+/*
+    idveh = ID pada database
+    factionid = ID fraksi
+    modelid = Model ID kendaraan
+*/
+createFactionVeh(idveh, factionid, modelid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle){
+	new id = CreateVehicle(modelid, spawn_x, spawn_y, spawn_z, z_angle, -1, -1, -1);
+	if(id < MAX_VEHICLES){
+		FactionVehID[id] = idveh;
+		FactionVeh[idveh][VehID] = id;
+		FactionVeh[idveh][VehType] = factionid;
+		FactionVeh[idveh][VehModel] = modelid;
+		FactionVeh[idveh][VehPos][0] = spawn_x;
+		FactionVeh[idveh][VehPos][1] = spawn_y;
+		FactionVeh[idveh][VehPos][2] = spawn_z;
+		FactionVeh[idveh][VehPos][3] = z_angle;
+		Iter_Add(FactionVehIterator, idveh);
+		SetVehicleToRespawn(id);
+		return 1;
+	}else{
+		DestroyVehicle(id);
+		print("Vehicle Faction mencapai limit!");
+	}
+	return 0;
+}
+
+respawnFactionVeh(playerid, vehicleid, idveh){
+	new Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle;
+	GetVehiclePos(vehicleid, spawn_x, spawn_y, spawn_z);
+	GetVehicleZAngle(vehicleid, z_angle);
+
+	DestroyVehicle(FactionVeh[idveh][VehID]);
+	createFactionVeh(idveh, FactionVeh[idveh][VehType], FactionVeh[idveh][VehModel], spawn_x, spawn_y, spawn_z, z_angle);
+	
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_faction SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f' WHERE id = '%d'", spawn_x, spawn_y, spawn_z, z_angle, idveh);
+	mysql_tquery(koneksi, pQuery[playerid]);
+	return 1;
+}
+
+insertFactionVeh(playerid, factionid, modelid){
+	new Float: x, Float: y, Float: z, Float: a;
+	GetPlayerPos(playerid, x, y, z);
+	GetPlayerFacingAngle(playerid, a);
+	x += (3.0 * floatsin(-a, degrees));
+	y += (3.0 * floatcos(-a, degrees));
+	inline responseQuery(){
+		new id = cache_insert_id(),
+			create = createFactionVeh(id, factionid, modelid, x, y, z, a);
+		if(create){
+			SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda telah berhasil membuat kendaraan fraksi.");
+		}else{
+			mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `vehicle_faction` WHERE `id` = '%d'", id);
+			mysql_tquery(koneksi, pQuery[playerid]);
+			error_command(playerid, "Tidak dapat membuat vehicle rent lagi.");
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `vehicle_faction` (id_faction, id_model, pos_x, pos_y, pos_z, pos_a) VALUES ('%d', '%d', '%f', '%f', '%f', '%f')", factionid, modelid, x, y, z, a);
+}

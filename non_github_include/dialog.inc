@@ -328,7 +328,13 @@ showDialogAdminPapan(playerid){
 }
 
 showDialogAdminVehicle(playerid){
-    return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk kendaraan", "Buat Kendaraan\nParkir Kendaraan Dealer\nRespawn Semua kendaraan Dealer\nHapus Kendaraan Dealer ini\nRespawn kendaraan statis", "Pilih", "Batal");
+    return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk kendaraan", "\
+    Buat Kendaraan\n\
+    Parkir Kendaraan Dealer\n\
+    Respawn Semua kendaraan Dealer\n\
+    Hapus Kendaraan Dealer ini\n\
+    Respawn Kendaraan Statis\n\
+    Kendaraan Fraksi", "Pilih", "Batal");
 }
 
 showDialogAdminVoice(playerid){
@@ -733,4 +739,43 @@ showDialogJualItemBuah(playerid){
         }
     }
     return ShowPlayerDialog(playerid, DIALOG_PENJUAL_BUAH_LIST_JUAL, DIALOG_STYLE_TABLIST_HEADERS, "Jual Hasil Panen", str_daftar_jual_buah, "Pilih", "Batal");
+}
+
+showDialogBeliItemSenjata(playerid){
+    static str_daftar_beli_senjata[sizeof(item_beli_senjata) * 100 + 100], subString[100];
+    if(str_daftar_beli_senjata[0] == EOS){
+        new nama_item[50];
+        strcat(str_daftar_beli_senjata, WHITE"Nama\t"GREEN"Harga\n");
+        for(new i = 0; i < sizeof(item_beli_senjata); i++){
+            getNamaByIdItem(item_beli_senjata[i][idItemMarket], nama_item);
+
+            format(subString, 100, 
+                WHITE"%s\t"GREEN"$%d\n", 
+                nama_item,
+                item_beli_senjata[i][hargaItemMarket]
+            );
+            strcat(str_daftar_beli_senjata, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_SENJATA_LIST, DIALOG_STYLE_TABLIST_HEADERS, "Beli Item Senjata", str_daftar_beli_senjata, "Pilih", "Batal");
+}
+
+showDialogBeliItemPeluru(playerid){
+    static str_daftar_beli_peluru[sizeof(item_beli_peluru) * 100 + 100], subString[100];
+    if(str_daftar_beli_peluru[0] == EOS){
+        new nama_item[50];
+        strcat(str_daftar_beli_peluru, WHITE"Nama\tJumlah Per Stack\tHarga\n");
+        for(new i = 0; i < sizeof(item_beli_peluru); i++){
+            getNamaByIdItem(item_beli_peluru[i][brgId], nama_item);
+
+            format(subString, 100, 
+                WHITE"%s\t"YELLOW"%d\t"GREEN"$%d\n", 
+                nama_item, 
+                item_beli_peluru[i][brgJumlah],
+                item_beli_peluru[i][brgHarga] - floatround(float(item_beli_peluru[i][brgHarga]) * 0.1, floatround_floor)
+            );
+            strcat(str_daftar_beli_peluru, subString);
+        }
+    }
+    return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_PELURU_LIST, DIALOG_STYLE_TABLIST_HEADERS, "Beli Item Peluru", str_daftar_beli_peluru, "Pilih", "Batal");
 }

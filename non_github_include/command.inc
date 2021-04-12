@@ -747,7 +747,6 @@ CMD:specoff(playerid, const params[]) {
 CMD:checkmask(playerid, params[]){
     // Jika bukan admin level 1 (bukan admin)
     if(GetLevelAdminPlayer(playerid) < 1) return 0;
-        return 0;
 
     new mask_name[128];
     if(sscanf(params, "s[128]", mask_name)) 

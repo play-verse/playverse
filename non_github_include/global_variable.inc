@@ -658,7 +658,8 @@ enum {
 	ACTOR_PEMBELI_TAMBANG_1,
 	ACTOR_PEMBELI_KAYU_1,
 	ACTOR_PEMBELI_IKAN,
-	ACTOR_PEMBELI_BUAH
+	ACTOR_PEMBELI_BUAH,
+	ACTOR_PENJUAL_SENJATA_FRAKSI
 };
 
 enum ACT_POSITION_INFO {
@@ -695,7 +696,8 @@ new const ACT_POSITION[][ACT_POSITION_INFO] = {
 	{26, ACTOR_PEMBELI_TAMBANG_1, {-539.1688, -542.0021, 25.5234, 179.2752}, 0, 0, NAMA_ACTOR_PEMBELI_TAMBANG_1},
 	{26, ACTOR_PEMBELI_KAYU_1, {-752.8927, -133.0457, 65.8281, 17.1701}, 0, 0, NAMA_ACTOR_PEMBELI_KAYU_1},
 	{158, ACTOR_PEMBELI_IKAN, {403.8720, -2088.7983, 7.8359, 181.5444}, 0, 0, NAMA_ACTOR_PEMBELI_IKAN},
-	{161, ACTOR_PEMBELI_BUAH, {-1061.4474, -1195.5634, 129.8281, 265.0136}, 0, 0, NAMA_ACTOR_PEMBELI_BUAH}
+	{161, ACTOR_PEMBELI_BUAH, {-1061.4474, -1195.5634, 129.8281, 265.0136}, 0, 0, NAMA_ACTOR_PEMBELI_BUAH},
+	{280, ACTOR_PENJUAL_SENJATA_FRAKSI, {237.8650,71.3585,1005.0391,356.4053}, 6, 1, NAMA_ACTOR_PENJUAL_SENJATA_FRAKSI}
 };
 
 enum INFO_ACT_NPC {
@@ -861,8 +863,6 @@ new Iterator:montirL_Veh<MAX_VEHICLES>,
 	montirL_TiangProses[MAX_PLAYERS] = {-1, ...},
 	montirL_TiangCap[MAX_PLAYERS];
 
-new ambulance_Veh[2];
-
 /* SIM Kendaraan */
 new Iterator:vehicleSIM<MAX_VEHICLES>,
     testSim[MAX_PLAYERS],
@@ -925,7 +925,7 @@ enum RentVehicleInfo
     rentPlayerVehModel,
 	rentPlayerVehPlaceID,
 	rentPlayerVehTime,
-    Float:rentPlayerVehPos[4],
+    Float:rentPlayerVehPos[4]
 }
 
 new Iterator:RentVehIterator<MAX_VEHICLES>,
@@ -1658,6 +1658,22 @@ enum INFO_OBJECT_POLICE
 new OBJECT_POLICE[MAX_OBJECT_POLICE][INFO_OBJECT_POLICE],
 	Iterator:ObjPoliceIterator<MAX_OBJECT_POLICE>,
 	EditingObjPolice[MAX_PLAYERS] = {-1, ...};
+
+
+enum FactionVehInfo
+{
+	VehID,
+	VehType,
+    VehModel,
+	VehPlaceID,
+    Float:VehPos[4]
+}
+
+new Iterator:FactionVehIterator<MAX_VEHICLES>,
+	FactionVeh[MAX_VEHICLES][FactionVehInfo],
+	FactionVehID[MAX_VEHICLES] = {-1, ...};
+
+
 /**
 	End Faction
  */
@@ -1858,6 +1874,26 @@ new const list_barang_tampung_kayu[][INFO_BARANG_DENGAN_JUMLAH] = {
 
 new const item_beli_kayu[][INFO_BARANG_MARKET] = {
 	{ID_GERGAJI_MESIN, 10}
+};
+
+new const item_beli_peluru[][INFO_BARANG_DENGAN_JUMLAH] = {
+	{ID_AMMO_4_55MM, 10, 1},
+	{ID_AMMO_7_55MM, 10, 3},
+	{ID_AMMO_12_55MM, 10, 5}
+};
+
+new const item_beli_senjata[][INFO_BARANG_MARKET] = {
+	{ID_COLT_45, 25},
+ 	{ID_SILENCED_COLT_45, 30},
+ 	{ID_DEAGLE, 35},
+ 	{ID_SHOTGUN, 60},
+ 	{ID_SAWNOFF_SG, 70},
+ 	{ID_COMBAT_SG, 80},
+ 	{ID_UZI, 50},
+	{ID_MP5, 50},
+	{ID_TEC_9, 60},
+	{ID_AK_47, 70},
+	{ID_M4, 80}
 };
 
 /*

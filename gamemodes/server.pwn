@@ -21,7 +21,7 @@
 #define YSI_NO_VERSION_CHECK
 #include <YSI_Data\y_iterate>
 #include <YSI_Coding\y_inline>
-// #include <YSI_Extra\y_inline_mysql> // Untuk YSI terbaru
+#include <YSI_Extra\y_inline_mysql> // Untuk YSI terbaru
 
 #include <progress2>
 
@@ -4033,15 +4033,23 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							SendClientMessage(playerid, COLOR_RED, TAG_ADMIN_DEALER" "WHITE"Kendaraan ini bukan kendaraan dealer yang dapat dihapus!");
 						}
 					}
-					case 4: // Respawn kendaraan Statis
+					case 4: // Respawn Kendaraan Statis
 					{
-						ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_RESPAWN_STATIS, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk kendaraan", "\
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_RESPAWN_STATIS, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk Kendaraan", "\
 						Respawn kendaraan SIM\n\
 						Respawn kendaraan Sweeper\n\
 						Respawn kendaraan Trashmaster\n\
 						Respawn kendaraan Pizzaboy\n\
 						Respawn kendaraan Electric\n\
 						Respawn kendaraan Ambulance", "Pilih", "Batal");
+					}
+					case 5: // Kendaraan Fraksi
+					{
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk Kendaraan Fraksi", "\
+						Buat Kendaraan\n\
+						Simpan Kendaraan\n\
+						Hapus Kendaraan\n\
+						Respawn Kendaraan", "Pilih", "Batal");
 					}
 				}
 			}
@@ -8633,7 +8641,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/exit "WHITE"- Aksi untuk keluar bangunan\n"\
 							YELLOW"/skill "WHITE"- Daftar kemampuan\n"\
 							YELLOW"/suicide "WHITE"- Akhiri hidup\n"\
-							YELLOW"/radio "WHITE"- Mengakses channel radio\n"");
+							YELLOW"/radio "WHITE"- Mengakses channel radio\n");
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Umum):", str_guide, "Ok", "");
 					}
 					// Pekerjaan
@@ -10881,6 +10889,287 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_BELI_ITEM_SENJATA_LIST:
+		{
+			if(response){
+				SetPVarInt(playerid, "index_terpilih", listitem);
+				ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_SENJATA_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_BELI_ITEM_SENJATA_LIST_JUMLAH:
+		{
+			if(response){
+				new banyak_barang;
+				if(sscanf(inputtext, "i", banyak_barang)) 
+					return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_SENJATA_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Jumlah tidak valid.\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+
+				if(banyak_barang < 1 || banyak_barang > 10) 
+					return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_SENJATA_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Jumlah yang dibeli harus antara 1 hingga 10.\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+
+				new idx = GetPVarInt(playerid, "index_terpilih");
+
+				if(!CekJikaInventoryPlayerMuat(playerid, item_beli_senjata[idx][idItemMarket], banyak_barang)){
+					return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_SENJATA_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Inventory tidak muat untuk membeli item sebanyak itu.\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+				}
+
+				new nama_item[50];
+				getNamaByIdItem(item_beli_senjata[idx][idItemMarket], nama_item);
+				
+				SetPVarInt(playerid, "banyak_barang", banyak_barang);
+
+				format(pDialog[playerid], 
+					sizePDialog, 
+					WHITE"Anda akan membeli "YELLOW"%s "WHITE"sebanyak "YELLOW"%d\n\
+					"WHITE"Dengan total harga "GREEN"$%d"WHITE".\n\
+					Apakah anda yakin?", 
+					nama_item, 
+					banyak_barang, 
+					item_beli_senjata[idx][hargaItemMarket] * banyak_barang);
+				
+				ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_SENJATA_LIST_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", pDialog[playerid], "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_BELI_ITEM_SENJATA_LIST_KONFIRMASI:
+		{
+			if(response){
+				new idx = GetPVarInt(playerid, "index_terpilih"),
+					banyak_barang = GetPVarInt(playerid, "banyak_barang"),
+					nama_item[50];
+
+				if(getUangPlayer(playerid) < item_beli_senjata[idx][hargaItemMarket] * banyak_barang)
+					return SendClientMessage(playerid, COLOR_RED, TAG_GAGAL" "WHITE"Uang anda tidak mencukupi untuk membayar.");
+
+				givePlayerUang(playerid, -(item_beli_senjata[idx][hargaItemMarket] * banyak_barang));
+				tambahItemPlayer(playerid, item_beli_senjata[idx][idItemMarket], banyak_barang);
+
+				getNamaByIdItem(item_beli_senjata[idx][idItemMarket], nama_item);
+
+				format(pDialog[playerid], sizePDialog, 
+					WHITE"Anda telah berhasil membeli "GREEN"%s"WHITE" sebanyak %dx.\n\
+					Dengan harga "GREEN"$%d\n\
+					"YELLOW"Silahkan cek inventory kamu.", 
+					nama_item, 
+					banyak_barang, 
+					item_beli_senjata[idx][hargaItemMarket] * banyak_barang);
+				ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, GREEN"Berhasil membeli item", pDialog[playerid], "Ok", "");
+			}
+		}
+		case DIALOG_BELI_ITEM_PELURU_LIST:
+		{
+			if(response){
+				SetPVarInt(playerid, "index_terpilih", listitem);
+				
+				new nama_item[50],
+					i = GetPVarInt(playerid, "index_terpilih");
+				getNamaByIdItem(item_beli_peluru[i][brgId], nama_item);
+				
+				format(pDialog[playerid], sizePDialog, 
+					WHITE"Anda akan membeli "PURPLE"%s "WHITE"dengan harga transaksi per stack.\n\
+					"WHITE"Berapa stack yang anda akan beli?\n\n\
+					"YELLOW"Note: "WHITE"1 stack = %d item = "GREEN"$%d", 
+					nama_item,
+					item_beli_peluru[i][brgJumlah],
+					item_beli_peluru[i][brgHarga]
+					);
+				ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_PELURU_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Banyak stack yang ingin dibeli", pDialog[playerid], "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_BELI_ITEM_PELURU_LIST_JUMLAH:
+		{
+			if(response){				
+				new input_jumlah;
+				new nama_item[50],
+					i = GetPVarInt(playerid, "index_terpilih");
+				getNamaByIdItem(item_beli_peluru[i][brgId], nama_item);
+				
+				if(sscanf(inputtext, "i", input_jumlah)) {
+					new str_temp[500];
+					format(str_temp, 500, 
+						RED"Jumlah stack invalid.\n%s", 
+						pDialog[playerid]);
+					return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_PELURU_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Banyak stack yang ingin dibeli", str_temp, "Beli", "Batal");
+				}
+				if(input_jumlah < 1 || input_jumlah > 50){
+					new str_temp[500];
+					format(str_temp, 500, 
+						RED"Hanya dapat membeli 1 hingga 50 stack dalam sekali pembelian.\n%s", 
+						pDialog[playerid]);
+					return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_PELURU_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Banyak stack yang ingin dibeli", str_temp, "Beli", "Batal");
+				}
+
+				if(!CekJikaInventoryPlayerMuat(playerid, item_beli_senjata[i][idItemMarket], input_jumlah)){
+					return ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_PELURU_LIST_JUMLAH, DIALOG_STYLE_INPUT, "Jumlah dibeli", RED"Inventory tidak muat untuk membeli item sebanyak itu.\n"WHITE"Silahkan input jumlah yang ingin dibeli.", "Beli", "Batal");
+				}
+
+				SetPVarInt(playerid, "jumlah_stack", input_jumlah);
+
+				format(pDialog[playerid], sizePDialog, WHITE"Anda akan membeli %s dengan informasi berikut:\n\
+					"WHITE"Jumlah stack\t\t: "YELLOW"%d\n\
+					"WHITE"Jumlah per stack\t: "YELLOW"%d\n\
+					"WHITE"Jumlah total\t\t: "YELLOW"%d\n\
+					"WHITE"Harga Beli Total\t: "GREEN"$%d\n\n\
+					"WHITE"Apakah anda ingin membeli item ini?", 
+					nama_item,
+					input_jumlah,
+					item_beli_peluru[i][brgJumlah],
+					input_jumlah * item_beli_peluru[i][brgJumlah],
+					input_jumlah * item_beli_peluru[i][brgHarga]);
+				ShowPlayerDialog(playerid, DIALOG_BELI_ITEM_PELURU_LIST_KONFIRMASI, DIALOG_STYLE_MSGBOX, "Konfirmasi pembelian", pDialog[playerid], "Beli", "Batal");
+			}
+			return 1;
+		}
+		case DIALOG_BELI_ITEM_PELURU_LIST_KONFIRMASI:
+		{
+			if(response){
+				new i = GetPVarInt(playerid, "index_terpilih"),
+					jumlah_stack = GetPVarInt(playerid, "jumlah_stack");
+				new id_item = item_beli_peluru[i][brgId];
+				givePlayerUang(playerid, jumlah_stack * item_beli_peluru[i][brgHarga]);
+				tambahItemPlayer(playerid, id_item, (jumlah_stack * item_beli_peluru[i][brgJumlah]));
+
+				PlayerTakesAnimation(playerid);
+
+				new nama_item[50];
+				getNamaByIdItem(id_item, nama_item);
+				sendPesan(playerid, COLOR_GREEN, TAG_INFO" "WHITE"Berhasil membeli %s sebanyak "ORANGE"%d "WHITE"dengan total harga "GREEN"$%d", nama_item, jumlah_stack * item_beli_peluru[i][brgJumlah], jumlah_stack * item_beli_peluru[i][brgHarga]);
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VEHICLE_FRAKSI:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Buat Kendaraan
+					{
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI_TYPE, DIALOG_STYLE_LIST, ORANGE"Pilih jenis kendaraan Fraksi", "Kendaraan Polisi\nKendaraan Medis", "Pilih", "Batal");
+					}
+					case 1: // Simpan Kendaraan
+					{
+
+						if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam kendaraan", WHITE"Anda harus didalam kendaraan yang ingin disimpan.");
+						new vehid = GetPlayerVehicleID(playerid);
+						if(!Iter_Contains(FactionVehIterator, FactionVehID[vehid])) return showDialogPesan(playerid, RED"Kendaraan tidak valid", WHITE"Anda harus didalam kendaraan fraksi.");
+                        respawnFactionVeh(playerid, vehid, FactionVehID[vehid]);
+                        SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda telah berhasil menyimpan kendaraan fraksi.");
+
+					}
+					case 2: // Hapus Kendaraan
+					{
+						new vehid = GetPlayerVehicleID(playerid);
+						if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam kendaraan", WHITE"Anda harus didalam kendaraan yang ingin dihapus.");
+						if(!Iter_Contains(FactionVehIterator, FactionVehID[vehid])) return showDialogPesan(playerid, RED"Kendaraan tidak valid", WHITE"Anda harus didalam kendaraan fraksi.");
+						DestroyVehicle(vehid);
+						FactionVeh[FactionVehID[vehid]][VehID] = -1;
+						FactionVeh[FactionVehID[vehid]][VehType] = 0;
+						FactionVeh[FactionVehID[vehid]][VehModel] = -1;
+						FactionVeh[FactionVehID[vehid]][VehPos][0] = 0;
+						FactionVeh[FactionVehID[vehid]][VehPos][1] = 0;
+						FactionVeh[FactionVehID[vehid]][VehPos][2] = 0;
+						FactionVeh[FactionVehID[vehid]][VehPos][3] = 0;
+						Iter_Remove(FactionVehIterator, FactionVehID[vehid]);
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `vehicle_faction` WHERE `id` = '%d'", FactionVehID[vehid]);
+						mysql_tquery(koneksi, pQuery[playerid]);
+						sendPesan(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda berhasil menghapus kendaraan fraksi (id:"YELLOW"%d"WHITE")!", FactionVehID[vehid]);
+						FactionVehID[vehid] = -1;
+					}
+					case 3: // Respawn Kendaraan
+					{
+						foreach(new i : FactionVehIterator){
+							if(Iter_Contains(FactionVehIterator, i)){
+								SetVehicleToRespawn(FactionVeh[i][VehID]);
+							}
+						}
+						SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Semua kendaraan fraksi telah di respawn.");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VEHICLE_FRAKSI_TYPE:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Kendaraan Polisi
+					{
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI_POLISI, DIALOG_STYLE_LIST, ORANGE"Pilih model kendaraan Polisi", "\
+						Enforcer\n\
+						Police Maverick\n\
+						HPV-1000\n\
+						FBI Truck\n\
+						Cop Car LS\n\
+						Cop Car SF\n\
+						Cop Car LV\n\
+						Ranger\n\
+						Swat Tank", "Pilih", "Batal");
+					}
+					case 1: // Kendaraan Medis
+					{
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI_MEDIS, DIALOG_STYLE_LIST, ORANGE"Pilih model kendaraan Medis", "\
+						Ambulance", "Pilih", "Batal");
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VEHICLE_FRAKSI_POLISI:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Enforcer
+					{
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 427);
+					}
+					case 1: // Police Maverick
+					{
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 497);
+					}
+					case 2: // HPV-1000
+					{
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 523);
+					}
+					case 3: // FBI Truck
+					{
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 528);
+					}
+					case 4: // Cop Car LS
+					{
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 596);
+					}
+					case 5: // Cop Car SF
+					{
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 597);
+					}
+					case 6: // Cop Car LV
+					{
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 598);
+					}
+					case 7: // Ranger
+					{
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 599);
+					}
+					case 8: // Swat Tank
+					{
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 601);
+					}
+				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VEHICLE_FRAKSI_MEDIS:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Ambulance
+					{
+						insertFactionVeh(playerid, ID_FACTION_MEDIC, 416);
+					}
+				}
+			}
+			return 1;
+		}
     }
 	// Wiki-SAMP OnDialogResponse should return 0
     return 0;
@@ -10959,9 +11248,19 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			if(vehhealth <= 260.0)
 				return SendClientMessage(playerid, COLOR_RED, "Kendaraan: "WHITE"Darah kendaraan habis dan rusak total.");
 		}
-		else if(vehid == ambulance_Veh[0] || vehid == ambulance_Veh[1]){
-			if(!IsPlayerOnDutyMedic(playerid))
-				return SendClientMessage(playerid, COLOR_RED, TAG_MEDIC" "WHITE"Anda tidak sedang bertugas sebagai medis.");
+		else if(Iter_Contains(FactionVehIterator, FactionVehID[vehid])){
+			new idpv = FactionVehID[vehid];
+			if(vehid == FactionVeh[idpv][VehID]){
+				if(FactionVeh[idpv][VehType] == ID_FACTION_POLISI){
+					if(!IsPlayerOnDutyPolice(playerid))
+						if(GetLevelAdminPlayer(playerid) < 2)
+							return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak sedang bertugas sebagai polisi.");
+				} else if(FactionVeh[idpv][VehType] == ID_FACTION_MEDIC){
+					if(!IsPlayerOnDutyMedic(playerid))
+						if(GetLevelAdminPlayer(playerid) < 2)
+							return SendClientMessage(playerid, COLOR_RED, TAG_MEDIC" "WHITE"Anda tidak sedang bertugas sebagai medis.");
+				}
+			}
 		}
 
 		if(GetVehicleFuel(vehid) <= 0) 
@@ -11524,6 +11823,10 @@ public OnGameModeInit()
 	}
 	printf("[ELECTRICIAN] Sukses load timer gardu padam!");
 
+	printf("[VEHICLE FACTION] Load kendaraan fraksi..");
+	loadAllFactionVeh();
+	printf("[VEHICLE FACTION] Sukses load kendaraan fraksi!");
+
 	// Setting up Game mode
 	SetGameModeText(NAMA_GAMEMODE);
 	ShowPlayerMarkers(PLAYER_MARKERS_MODE_OFF);
@@ -11617,16 +11920,6 @@ public OnGameModeInit()
 		ToggleVehicleFuel(trashM_Veh[i], 0);
 	}
 
-	// Ambulance Rumah sakit
-	ambulance_Veh[0] = AddStaticVehicleEx(416, 1177.6633, -1308.5510, 14.0078, 268.5052, 1, 3, 30*60000, 1);
-	ambulance_Veh[1] = AddStaticVehicleEx(416, 1179.5927, -1338.8085, 13.9587, 271.2625, 1, 3, 30*60000, 1);
-
-	for(new i = 0; i < 2; i++){
-		ToggleVehicleFuel(ambulance_Veh[i], 0);
-		SetVehicleParams(ambulance_Veh[i], VEHICLE_TYPE_ENGINE, 0);
-		SetVehicleParams(ambulance_Veh[i], VEHICLE_TYPE_LIGHTS, 0);
-	}
-
 	// Pizzaboy Vehicle
 	CreateDynamic3DTextLabel("Tempat Restok Pizza\n"GREEN"Pengantar Pizza (Pizzaboy)", COLOR_WHITE, 2105.00439, -1808.99744, 13.66980, 20.0);
     pizza_Veh[0] = CreateVehicle(448, 2125.2305, -1819.5576, 13.1988, 0.0000, -1, -1, TIME_PIZZABOY * 60000);
@@ -11686,6 +11979,7 @@ public OnGameModeExit(){
 	UnloadBoards();
 	unloadAllRentVeh();
 	unloadAllRentVehPlace();
+	unloadAllFactionVeh();
 	DeletePreciseTimer(worldTimer);
 	DeletePreciseTimer(nametagTimer);
 	mysql_close(koneksi);
@@ -12815,7 +13109,65 @@ public OnPlayerText(playerid, text[]){
 						}
 					}
 				}
-			}			
+			}
+			else if(areaid == ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actArea]){
+				if(ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actUser] == INVALID_PLAYER_ID && (!GetPVarType(playerid, "interaksi_actor") || GetPVarInt(playerid, "interaksi_actor") == -1)){ // Cek Jika Actor sedang tidak interaksi dengan siapapun atau sedang interaksi dengan player tersebut					
+					if(cekPattern(text, "(ha|he).*(lo|y|i)[\\s\\S]"NAMA_ACTOR_PENJUAL_SENJATA_FRAKSI".*")){
+						ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actUser] = playerid;
+						ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actRes] = 0;
+
+						SetPVarInt(playerid, "interaksi_actor", ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actID]);
+						format(pDialog[playerid], sizePDialog, "Halo %s!\nAda yang bisa saya bantu?", PlayerInfo[playerid][pPlayerName]);
+						ActorResponse(ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actID], pDialog[playerid]);
+					}
+					else if(cekPattern(text, ".*(nama\\skamu\\ssiapa|siapa\\snama(\\skamu|mu|nya)).*")){
+						format(pDialog[playerid], sizePDialog, "Halo %s %s!\nPerkenalkan nama saya "NAMA_ACTOR_PENJUAL_SENJATA_FRAKSI, ((PlayerInfo[playerid][jenisKelamin] == 1) ? ("mbak") : ("mas")), PlayerInfo[playerid][pPlayerName]);
+						ActorResetAndProses(ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actID], playerid, pDialog[playerid]);
+					}
+				}else if(ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actUser] == playerid){
+					// Check apakah ini response yang pertama
+					if(ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actRes] == 0){
+						if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\s(weapon|senjata).*")){
+							if(!IsPlayerOnDutyPolice(playerid)){
+								SetPVarInt(playerid, "interaksi_actor", -1);
+								ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actUser] = INVALID_PLAYER_ID;
+								ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actRes] = 0;
+
+								format(pDialog[playerid], sizePDialog, "Maaf %s,\nAnda tidak memiliki wewenang\nsilahkan untuk pergi.", PlayerInfo[playerid][pPlayerName]);
+								ActorResponse(ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actID], pDialog[playerid], 5);
+							}else{
+								showDialogBeliItemSenjata(playerid);
+
+								// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+								ActorResetAndProses(ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actID], playerid);
+							}
+						}
+						else if(cekPattern(text, "(aku|saya)\\s(ingin|pengen|mau)\\s(membeli|beli)\\s(ammo|peluru|amunisi).*")){
+							if(!IsPlayerOnDutyPolice(playerid)){
+								SetPVarInt(playerid, "interaksi_actor", -1);
+								ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actUser] = INVALID_PLAYER_ID;
+								ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actRes] = 0;
+
+								format(pDialog[playerid], sizePDialog, "Maaf %s,\nAnda tidak memiliki wewenang\nsilahkan untuk pergi.", PlayerInfo[playerid][pPlayerName]);
+								ActorResponse(ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actID], pDialog[playerid], 5);
+							}else{
+								showDialogBeliItemPeluru(playerid);
+
+								// Reset Interaksi dan Biarkan player lanjut sendiri dialognya
+								ActorResetAndProses(ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actID], playerid);
+							}
+						}
+						else{
+							SetPVarInt(playerid, "interaksi_actor", -1);
+							ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actUser] = INVALID_PLAYER_ID;
+							ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actRes] = 0;
+
+							format(pDialog[playerid], sizePDialog, "Maaf %s,\nSaya tidak mengerti\napa yang anda bicarakan.", PlayerInfo[playerid][pPlayerName]);
+							ActorResponse(ACT_NPC[ACTOR_PENJUAL_SENJATA_FRAKSI][actID], pDialog[playerid], 5);
+						}
+					}
+				}
+			}	
 		}
 	}
 
