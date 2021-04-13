@@ -34,7 +34,8 @@
 			],
 			"constants": {
 				"MAX_PLAYERS": "100"
-			}
+			},
+			"compiler": {}
 		},
 		{
 			"name": "prod",
@@ -49,7 +50,8 @@
 			],
 			"constants": {
 				"MAX_PLAYERS": "100"
-			}
+			},
+			"compiler": {}
 		}
 	],
 	"runtime": {
