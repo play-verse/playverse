@@ -8624,7 +8624,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/v "WHITE"- Perintah kendaraan\n"\
 							YELLOW"/lock "WHITE"- Mengunci kendaraan\n"\
 							YELLOW"/unlock "WHITE"- Membuka kunci kendaraan\n"\
-							YELLOW"/checkplat "WHITE"- Memeriksa plat kendaraan\n"\
 							YELLOW"/cancelrentvehicle "WHITE"- Membatalkan sewa kendaraan\n"\
 							YELLOW"/removehelmet "WHITE"- Melepas helm\n"\
 							YELLOW"/removemask "WHITE"- Melepas topeng\n"\
