@@ -10,8 +10,8 @@
 #define WIKI_URL		"https://wiki.playverse.org/"
 #define UCP_URL			"https://ucp.playverse.org/"
 
-#define NAMA_SERVER			"Playverse"
-#define NAMA_GAMEMODE 		"VRP v0.7.7 Alpha"
+#define NAMA_SERVER			"Playverse Roleplay"
+#define NAMA_GAMEMODE 		"VRP v1.0 Beta"
 #define RULES_SERVER		"\n\
 							1. Dilarang menggunakan cheat apapun.\n\
 							2. Dilarang menggunakan modifikasi (mod) yang dapat merugikan player lain.\n\

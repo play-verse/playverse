@@ -87,7 +87,7 @@ CMD:padamkangardu(playerid, params[]){
 }
 
 CMD:aveh(playerid, params[]){
-    // Jika level admin < 2
+    // Jika bukan admin level 2
     if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     showDialogAdminVehicle(playerid);
@@ -179,8 +179,8 @@ CMD:slap(playerid, params[]){
 }
 
 CMD:apapan(playerid, params[]){
-    // Jika bukan admin level 1 (bukan admin)
-    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     showDialogAdminPapan(playerid);
     return 1;
@@ -196,8 +196,8 @@ CMD:arumah(playerid, params[]){
 }
 
 CMD:alumber(playerid, params[]){
-    // Jika bukan admin level 1 (bukan admin)
-    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     ShowPlayerDialog(playerid, DIALOG_LUMBER_ADMIN, DIALOG_STYLE_LIST, WHITE"Lumberjack System :", "Buat Pohon\nEdit Pohon\nReset Pohon\nHapus Pohon", "Pilih", "Batal");
     return 1;
@@ -205,7 +205,7 @@ CMD:alumber(playerid, params[]){
 
 CMD:aatm(playerid, params[]){
     // Jika bukan admin level 1 (bukan admin)
-    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     ShowPlayerDialog(playerid, DIALOG_ADMIN_ATM, DIALOG_STYLE_LIST, "Menu admin untuk ATM :", "Buat ATM\nEdit ATM\nHapus ATM", "Pilih", "Batal");    
     return 1;
@@ -220,6 +220,7 @@ CMD:aactor(playerid, params[]){
 }
 
 CMD:arent(playerid, params[]){
+    // Jika bukan admin level 2
     if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     ShowPlayerDialog(playerid, DIALOG_ADMIN_RENT, DIALOG_STYLE_LIST, "Rent System :", "Vehicle", "Pilih", "Batal");
@@ -227,8 +228,8 @@ CMD:arent(playerid, params[]){
 }
 
 CMD:atiang(playerid, params[]){
-    // Jika bukan admin level 1 (bukan admin)
-    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     ShowPlayerDialog(playerid, DIALOG_TIANG_ADMIN, DIALOG_STYLE_LIST, WHITE"Tiang System :", "Buat Tiang\nEdit Tiang\nHapus Tiang", "Pilih", "Batal");
     return 1;
@@ -271,8 +272,8 @@ CMD:reloadsetup(playerid, params[]){
 }
 
 CMD:unban(playerid, params[]){
-    // Jika bukan admin level 1 (bukan admin)
-    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     new username_pemain[MAX_PLAYER_NAME + 1];
     if(sscanf(params, "s[25]", username_pemain)) 
@@ -292,6 +293,13 @@ CMD:ban(playerid, params[]){
 
     if(!IsPlayerConnected(target_id))
         return error_command(playerid, "Player tidak ada.");
+
+    // Hanya admin level 2 yang dapat membanned admin
+    if(GetLevelAdminPlayer(target_id) >= 1){
+        if(GetLevelAdminPlayer(playerid) < 2){
+            return error_command(playerid, "Anda tidak memiliki akses untuk membanned admin.");
+        }
+    }
 
     if(sama("permanent", text_temporary)) status_temp = -1;    
     else if(sama("temporary", text_temporary)) status_temp = 1;
@@ -344,8 +352,8 @@ CMD:asay(playerid, params[]){
 }
 
 CMD:setmedic(playerid, params[]){
-    // Jika bukan admin level 1 (bukan admin)
-    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     new target_id, text_temporary[10], masa_aktif, level, status_temp = 0;
     if(sscanf(params, "us[10]iI(1)", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setmedic [id] [permanent/expired] [level] [masa aktif (hari)]");
@@ -395,8 +403,8 @@ CMD:setmedic(playerid, params[]){
 }
 
 CMD:removemedic(playerid, params[]){
-    // Jika bukan admin level 1 (bukan admin)
-    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     new target_id;
     if(sscanf(params, "u", target_id)) 
@@ -434,8 +442,8 @@ CMD:removemedic(playerid, params[]){
 }
 
 CMD:setpolice(playerid, params[]){
-    // Jika bukan admin level 1 (bukan admin)
-    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     new target_id, text_temporary[10], masa_aktif, level, status_temp = 0;
     if(sscanf(params, "us[10]iI(1)", target_id, text_temporary, level, masa_aktif)) return error_syntax(playerid, "/setpolice [id] [permanent/expired] [level] [masa aktif (hari)]");
@@ -485,8 +493,8 @@ CMD:setpolice(playerid, params[]){
 }
 
 CMD:removepolice(playerid, params[]){
-    // Jika bukan admin level 1 (bukan admin)
-    if(GetLevelAdminPlayer(playerid) < 1) return 0;
+    // Jika bukan admin level 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
 
     new target_id;
     if(sscanf(params, "u", target_id)) 
@@ -2151,10 +2159,10 @@ CMD:clearanimation(playerid, const params[]){
  */
 
 CMD:help(playerid, params[]){
-    if(GetLevelAdminPlayer(playerid) >= 0){
-        ShowPlayerDialog(playerid, DIALOG_HELP_MENU, DIALOG_STYLE_LIST, "Perintah Bantuan :", "Umum\nPekerjaan\nAdmin\nFraksi", "Pilih", "Batal");
+    if(GetLevelAdminPlayer(playerid) >= 1){
+        ShowPlayerDialog(playerid, DIALOG_HELP_MENU, DIALOG_STYLE_LIST, "Perintah Bantuan :", "Umum\nPekerjaan\nFraksi\nAdmin", "Pilih", "Batal");
     }else{
-        if(IsPlayerOnDutyMedic(playerid) || IsPlayerOnDutyPolice(playerid)){
+        if(PlayerInfo[playerid][levelMedic] >= 1 || PlayerInfo[playerid][levelPolice] >= 1){
             ShowPlayerDialog(playerid, DIALOG_HELP_MENU, DIALOG_STYLE_LIST, "Perintah Bantuan :", "Umum\nPekerjaan\nFraksi", "Pilih", "Batal");
         }else{
             ShowPlayerDialog(playerid, DIALOG_HELP_MENU, DIALOG_STYLE_LIST, "Perintah Bantuan :", "Umum\nPekerjaan", "Pilih", "Batal");

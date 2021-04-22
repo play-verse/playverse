@@ -8607,8 +8607,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 0:
 					{
 						new str_guide[2000];
-						SetPVarInt(playerid, "menu_help_page", 0);
-						SetPVarString(playerid, "menu_help_name", "umum");
 						format(str_guide, sizeof(str_guide), \
 							YELLOW"/tutorial "WHITE"- Panduan bermain secara singkat\n"\
 							YELLOW"/stats "WHITE"- Melihat informasi akun\n"\
@@ -8648,8 +8646,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 1:
 					{
 						new str_guide[2000];
-						SetPVarInt(playerid, "menu_help", 0);
-						SetPVarString(playerid, "menu_help_name", "kerja");
 						format(str_guide, sizeof(str_guide), \
 							YELLOW"/cook "WHITE"- Melakukan aksi masak\n"\
 							YELLOW"/lumberjack "WHITE"- Menu perintah pemotong kayu\n"\
@@ -8661,71 +8657,20 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/electrician "WHITE"- Menu perintah montir listrik");
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Pekerjaan):", str_guide, "Ok", "");
 					}
-					// Admin
+					// Fraksi
 					case 2:
 					{
 						new str_guide[2000];
-						SetPVarInt(playerid, "menu_help", 0);
-						SetPVarString(playerid, "menu_help_name", "admin");
 						format(str_guide, sizeof(str_guide), "");
-						if(GetLevelAdminPlayer(playerid) >= 1){
+						if(GetLevelAdminPlayer(playerid) >= 1 || PlayerInfo[playerid][levelMedic] >= 1){
 							strcatEx(str_guide, sizeof(str_guide), \
-							YELLOW"Level 1 :\n"\
-							YELLOW"/kick "WHITE"- Mengeluarkan pemain\n"\
-							YELLOW"/kickall "WHITE"- Mengeluarkan semua pemain\n"\
-							YELLOW"/jetpack "WHITE"- Melakukan aksi jetpack\n"\
-							YELLOW"/spawn "WHITE"- Menghidupkan kembali pemain\n"\
-							YELLOW"/pindahpos "WHITE"- Berpindah sesuai kordinat\n"\
-							YELLOW"/ach "WHITE"- Admin chat\n"\
-							YELLOW"/slap "WHITE"- Menampar pemain\n"\
-							YELLOW"/apapan "WHITE"- Menu perintah papan\n"\
-							YELLOW"/alumber "WHITE"- Menu perintah lumber\n"\
-							YELLOW"/aatm "WHITE"- Menu perintah atm\n"\
-							YELLOW"/aactor "WHITE"- Menu perintah actor\n"\
-							YELLOW"/unban "WHITE"- Membuka blokir pemain\n"\
-							YELLOW"/ban "WHITE"- Memblokir pemain\n"\
-							YELLOW"/setmedic "WHITE"- Mengangkat pemain menjadi medis\n"\
-							YELLOW"/removemedic "WHITE"- Mencopot pemain dari medis\n"\
-							YELLOW"/setpolice "WHITE"- Mengangkat pemain menjadi polisi\n"\
-							YELLOW"/removepolice "WHITE"- Mencopot pemain dari polisi\n"\
-							YELLOW"/tele "WHITE"- Berpindah ke lokasi pemain\n"\
-							YELLOW"/showreport "WHITE"- Menampilkan daftar laporan\n"\
-							YELLOW"/get "WHITE"- Memindahkan pemain ke lokasi sekarang\n"\
-							YELLOW"/pma "WHITE"- Chat admin ke pemain\n"\
-							YELLOW"/pmall "WHITE"- Chat admin ke semua pemain\n"\
-							YELLOW"/announce "WHITE"- Announce text ke pemain\n"\
-							YELLOW"/announceall "WHITE"- Announce text ke semua pemain\n"\
-							YELLOW"/spec "WHITE"- Mengaktifkan spec pemain\n"\
-							YELLOW"/specoff "WHITE"- Menonaktifkan spec pemain\n"\
-							YELLOW"/checkmask "WHITE"- Mengecek mask / helm pemain\n"\
-							YELLOW"/checkdevice "WHITE"- Mengecek device pemain\n"\
-							YELLOW"/avoice "WHITE"- Mengakses fitur voice\n");
-						}
-						if(GetLevelAdminPlayer(playerid) >= 2){
-							strcatEx(str_guide, sizeof(str_guide), \
-							YELLOW"Level 2 :\n"\
-							YELLOW"/aveh "WHITE"- Menu perintah kendaraan\n"\
-							YELLOW"/agiveitem "WHITE"- Beri pemain item\n"\
-							YELLOW"/agivemoney "WHITE"- Beri pemain uang\n"\
-							YELLOW"/arumah "WHITE"- Menu perintah rumah\n"\
-							YELLOW"/arent "WHITE"- Menu perintah sewa\n"\
-							YELLOW"/setadmin "WHITE"- Mengangkat pemain menjadi admin");
-						}
-						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Admin):", str_guide, "Ok", "");
-					}
-					// Fraksi
-					case 3:
-					{
-						new str_guide[2000];
-						SetPVarInt(playerid, "menu_help", 0);
-						SetPVarString(playerid, "menu_help_name", "fraksi");
-						if(GetLevelAdminPlayer(playerid) >= 0 || IsPlayerOnDutyMedic(playerid)){
-							format(str_guide, sizeof(str_guide), \
+							WHITE"Medis :\n"\
 							YELLOW"/skill "WHITE"- Menu perintah kemampuan\n"\
-							YELLOW"/showpatientlocation "WHITE"- Menampilkan lokasi pasien");
+							YELLOW"/showpatientlocation "WHITE"- Menampilkan lokasi pasien\n\n");
 						}
-						if(GetLevelAdminPlayer(playerid) >= 0 || IsPlayerOnDutyPolice(playerid)){
-							format(str_guide, sizeof(str_guide), \
+						if(GetLevelAdminPlayer(playerid) >= 1 || PlayerInfo[playerid][levelPolice] >= 1){
+							strcatEx(str_guide, sizeof(str_guide), \
+							WHITE"Polisi :\n"\
 							YELLOW"/skill "WHITE"- Menu perintah kemampuan\n"\
 							YELLOW"/showvictimlocation "WHITE"- Menampilkan lokasi peminta\n"\
 							YELLOW"/open "WHITE"- Aksi untuk membuka sesuatu\n"\
@@ -8737,9 +8682,59 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/adjust "WHITE"- Aksi untuk mengubah sesuatu\n"\
 							YELLOW"/cuff "WHITE"- Memborgol pemain\n"\
 							YELLOW"/uncuff "WHITE"- Membuka borgol pemain\n"\
-							YELLOW"/checksuspect "WHITE"- Mengecek masa tahanan\n");
+							YELLOW"/checksuspect "WHITE"- Mengecek masa tahanan");
 						}
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Fraksi):", str_guide, "Ok", "");
+					}
+					// Admin
+					case 3:
+					{
+						new str_guide[2000];
+						format(str_guide, sizeof(str_guide), "");
+						if(GetLevelAdminPlayer(playerid) >= 1){
+							strcat(str_guide, \
+							WHITE"Level 1 :\n"\
+							YELLOW"/kick "WHITE"- Mengeluarkan pemain\n"\
+							YELLOW"/kickall "WHITE"- Mengeluarkan semua pemain\n"\
+							YELLOW"/jetpack "WHITE"- Melakukan aksi jetpack\n"\
+							YELLOW"/spawn "WHITE"- Menghidupkan kembali pemain\n"\
+							YELLOW"/pindahpos "WHITE"- Berpindah sesuai kordinat\n"\
+							YELLOW"/ach "WHITE"- Admin chat\n"\
+							YELLOW"/slap "WHITE"- Menampar pemain\n"\
+							YELLOW"/aactor "WHITE"- Menu perintah actor\n"\
+							YELLOW"/ban "WHITE"- Memblokir pemain\n"\
+							YELLOW"/tele "WHITE"- Berpindah ke lokasi pemain\n"\
+							YELLOW"/showreport "WHITE"- Menampilkan daftar laporan\n"\
+							YELLOW"/get "WHITE"- Memindahkan pemain ke lokasi sekarang\n"\
+							YELLOW"/pma "WHITE"- Chat admin ke pemain\n"\
+							YELLOW"/pmall "WHITE"- Chat admin ke semua pemain\n"\
+							YELLOW"/announce "WHITE"- Announce text ke pemain\n"\
+							YELLOW"/announceall "WHITE"- Announce text ke semua pemain\n"\
+							YELLOW"/spec "WHITE"- Mengaktifkan spec pemain\n"\
+							YELLOW"/specoff "WHITE"- Menonaktifkan spec pemain\n"\
+							YELLOW"/checkmask "WHITE"- Mengecek mask / helm pemain\n"\
+							YELLOW"/checkdevice "WHITE"- Mengecek device pemain\n"\
+							YELLOW"/avoice "WHITE"- Mengakses fitur voice\n\n");
+						}
+						if(GetLevelAdminPlayer(playerid) >= 2){
+							strcat(str_guide, \
+							WHITE"Level 2 :\n"\
+							YELLOW"/aveh "WHITE"- Menu perintah kendaraan\n"\
+							YELLOW"/agiveitem "WHITE"- Beri pemain item\n"\
+							YELLOW"/agivemoney "WHITE"- Beri pemain uang\n"\
+							YELLOW"/arumah "WHITE"- Menu perintah rumah\n"\
+							YELLOW"/arent "WHITE"- Menu perintah sewa\n"\
+							YELLOW"/apapan "WHITE"- Menu perintah papan\n"\
+							YELLOW"/alumber "WHITE"- Menu perintah lumber\n"\
+							YELLOW"/aatm "WHITE"- Menu perintah atm\n"\
+							YELLOW"/unban "WHITE"- Membuka blokir pemain\n"\
+							YELLOW"/setmedic "WHITE"- Mengangkat pemain menjadi medis\n"\
+							YELLOW"/removemedic "WHITE"- Mencopot pemain dari medis\n"\
+							YELLOW"/setpolice "WHITE"- Mengangkat pemain menjadi polisi\n"\
+							YELLOW"/removepolice "WHITE"- Mencopot pemain dari polisi\n"\
+							YELLOW"/setadmin "WHITE"- Mengangkat pemain menjadi admin");
+						}
+						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Admin):", str_guide, "Ok", "");
 					}
 				}
 			}
@@ -11248,20 +11243,6 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			if(vehhealth <= 260.0)
 				return SendClientMessage(playerid, COLOR_RED, "Kendaraan: "WHITE"Darah kendaraan habis dan rusak total.");
 		}
-		else if(Iter_Contains(FactionVehIterator, FactionVehID[vehid])){
-			new idpv = FactionVehID[vehid];
-			if(vehid == FactionVeh[idpv][VehID]){
-				if(FactionVeh[idpv][VehType] == ID_FACTION_POLISI){
-					if(!IsPlayerOnDutyPolice(playerid))
-						if(GetLevelAdminPlayer(playerid) < 2)
-							return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak sedang bertugas sebagai polisi.");
-				} else if(FactionVeh[idpv][VehType] == ID_FACTION_MEDIC){
-					if(!IsPlayerOnDutyMedic(playerid))
-						if(GetLevelAdminPlayer(playerid) < 2)
-							return SendClientMessage(playerid, COLOR_RED, TAG_MEDIC" "WHITE"Anda tidak sedang bertugas sebagai medis.");
-				}
-			}
-		}
 
 		if(GetVehicleFuel(vehid) <= 0) 
 			return SendClientMessage(playerid, COLOR_RED, TAG_BENSIN" "WHITE"Kendaraan kehabisan bensin.");
@@ -12127,6 +12108,27 @@ public OnPlayerStateChange(playerid, newstate, oldstate){
 			}else if(montirL_Job[playerid] == 0 && montirL_Used[vehid] == 1){
 				error_command(playerid, "Tidak dapat menumpangi kendaraan yang sedang melakukan pekerjaan Electrician.");
 				RemovePlayerFromVehicle(playerid);
+			}
+		}else if(Iter_Contains(FactionVehIterator, FactionVehID[vehid])){
+			if(newstate == PLAYER_STATE_DRIVER){
+				new idpv = FactionVehID[vehid];
+				if(vehid == FactionVeh[idpv][VehID]){
+					if(FactionVeh[idpv][VehType] == ID_FACTION_POLISI){
+						if(!IsPlayerOnDutyPolice(playerid)){
+							if(GetLevelAdminPlayer(playerid) < 2){
+								RemovePlayerFromVehicle(playerid);
+								return SendClientMessage(playerid, COLOR_RED, TAG_POLICE" "WHITE"Anda tidak sedang bertugas sebagai polisi.");
+							}
+						}
+					}else if(FactionVeh[idpv][VehType] == ID_FACTION_MEDIC){
+						if(!IsPlayerOnDutyMedic(playerid)){
+							if(GetLevelAdminPlayer(playerid) < 2){
+								RemovePlayerFromVehicle(playerid);
+								return SendClientMessage(playerid, COLOR_RED, TAG_MEDIC" "WHITE"Anda tidak sedang bertugas sebagai medis.");
+							}
+						}
+					}
+				}
 			}
 		}
 	}else if((oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER) && newstate == PLAYER_STATE_ONFOOT){
