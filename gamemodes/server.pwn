@@ -4040,8 +4040,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						Respawn kendaraan Sweeper\n\
 						Respawn kendaraan Trashmaster\n\
 						Respawn kendaraan Pizzaboy\n\
-						Respawn kendaraan Electric\n\
-						Respawn kendaraan Ambulance", "Pilih", "Batal");
+						Respawn kendaraan Electric", "Pilih", "Batal");
 					}
 					case 5: // Kendaraan Fraksi
 					{
@@ -8240,7 +8239,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				No. Penyewaan Kendaraan : "GREEN"%d\n\
 				"WHITE"Nama Kendaraan : "GREEN"%s\n\
 				"WHITE"Lama Durasi : "GREEN"%d hari\n\
-				"WHITE"Harga Sewa : "GREEN"$%d\n", RentPlaceID[placeid], HARGA_VEHICLE_RENT[listid][namaModel], input_hari, hargasewa);
+				"WHITE"Harga Sewa : "GREEN"$%d\n", placeid, HARGA_VEHICLE_RENT[listid][namaModel], input_hari, hargasewa);
 				ShowPlayerDialog(playerid, DIALOG_RENT_VEHICLE_KONFIRMASI, DIALOG_STYLE_MSGBOX, GREEN"Konfirmasi Penyewaan Kendaraan", pDialog[playerid], "Setuju", "Batal");
 			}else{
 				DeletePVar(playerid, "id_vehicle_rent");
@@ -8670,7 +8669,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(GetLevelAdminPlayer(playerid) >= 1 || PlayerInfo[playerid][levelPolice] >= 1){
 							strcatEx(str_guide, sizeof(str_guide), \
 							WHITE"Polisi :\n"\
-							YELLOW"/skill "WHITE"- Menu perintah kemampuan\n"\
 							YELLOW"/showvictimlocation "WHITE"- Menampilkan lokasi peminta\n"\
 							YELLOW"/open "WHITE"- Aksi untuk membuka sesuatu\n"\
 							YELLOW"/close "WHITE"- Aksi untuk menutup sesuatu\n"\
@@ -10405,17 +10403,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						new res_count = 0;
 						foreach(new i : montirL_Veh){
 							if(montirL_Used[i] != 1){
-								SetVehicleToRespawn(i);
-								res_count++;
-							}
-						}
-						sendPesan(playerid, COLOR_LIGHT_BLUE, TAG_KENDARAAN" "WHITE"Berhasil merespawn "GREEN"%d"WHITE" kendaraan Electric.", res_count);
-					}
-					case 5: // Respawn kendaraan Ambulance
-					{
-						new res_count = 0;
-						for(new i = 0; i < 2; i++){
-							if(!IsVehicleOccupied(i)){
 								SetVehicleToRespawn(i);
 								res_count++;
 							}
@@ -13269,6 +13256,8 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid){
 		return 1;
 	}else if(pickupid >= PU_tempatKeluarRumah[0] && pickupid <= PU_tempatKeluarRumah[1]){
 		new id_rumah = PlayerInfo[playerid][inHouse];
+		// Jika id_rumah invalid
+		if(id_rumah == 0) id_rumah = PlayerInfo[playerid][last_temp_inHouse];
 		pindahkanPemain(playerid, houseInfo[id_rumah][icon_x], houseInfo[id_rumah][icon_y], houseInfo[id_rumah][icon_z], houseInfo[id_rumah][last_a], 0, 0, true);
 		// Reset Variable
 		PlayerInfo[playerid][inHouse] = 0;

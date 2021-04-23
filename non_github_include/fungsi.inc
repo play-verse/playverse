@@ -109,6 +109,14 @@ publicFor: isRegistered(playerid)
 		cache_get_value_name_float(0, "last_hp", PlayerInfo[playerid][lastHp]);
 		cache_get_value_name_float(0, "last_armour", PlayerInfo[playerid][lastArmour]);
 
+		PlayerInfo[playerid][last_temp_x] = PlayerInfo[playerid][last_x];
+		PlayerInfo[playerid][last_temp_y] = PlayerInfo[playerid][last_y];
+		PlayerInfo[playerid][last_temp_z] = PlayerInfo[playerid][last_z];
+		PlayerInfo[playerid][last_temp_a] = PlayerInfo[playerid][last_a];
+		PlayerInfo[playerid][last_temp_int] = PlayerInfo[playerid][last_int];
+		PlayerInfo[playerid][last_temp_vw] = PlayerInfo[playerid][last_vw];
+		PlayerInfo[playerid][last_temp_inHouse] = PlayerInfo[playerid][inHouse];
+
 		cache_get_value_name_float(0, "last_stats_makan", PlayerInfo[playerid][last_stats_makan]);
 		cache_get_value_name_float(0, "last_stats_minum", PlayerInfo[playerid][last_stats_minum]);
 		cache_get_value_name_float(0, "last_stats_energi", PlayerInfo[playerid][last_stats_energi]);
@@ -363,6 +371,14 @@ resetPlayerVariable(playerid, dari_callback){
 	PlayerInfo[playerid][last_z] = 0;
 	PlayerInfo[playerid][last_a] = 0;
 
+	PlayerInfo[playerid][last_temp_x] = 0;
+	PlayerInfo[playerid][last_temp_y] = 0;
+	PlayerInfo[playerid][last_temp_z] = 0;
+	PlayerInfo[playerid][last_temp_a] = 0;
+	PlayerInfo[playerid][last_temp_inHouse] = 0;
+	PlayerInfo[playerid][last_temp_spawn] = 0;
+	PlayerInfo[playerid][last_specoff] = 0;
+
 	PlayerInfo[playerid][inSpectating] = INVALID_PLAYER_ID;
 
 	/**
@@ -521,7 +537,21 @@ dialogEmail(playerid){
 // Death - 1 (Jika setelah dying)
 spawnPemain(playerid, dari_callback = 0)
 {
-	if(PlayerInfo[playerid][sudahSpawn]) return 1;
+	if(PlayerInfo[playerid][sudahSpawn]){
+		// Mengatasi posisi null
+		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], PlayerInfo[playerid][last_temp_x], PlayerInfo[playerid][last_temp_y], PlayerInfo[playerid][last_temp_z], PlayerInfo[playerid][last_temp_a], 0, 0, 0, 0, 0, 0);
+		if(PlayerInfo[playerid][last_temp_spawn] != 1){
+			if(PlayerInfo[playerid][last_specoff] != 1){
+				SetPlayerInterior(playerid, PlayerInfo[playerid][last_temp_int]);
+				SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][last_temp_vw]);
+			}else{
+				PlayerInfo[playerid][last_specoff] = 0;
+			}
+		}else{
+			PlayerInfo[playerid][last_temp_spawn] = 0;
+		}
+		return 1;
+	}
 	PlayerInfo[playerid][sudahSpawn] = true;
 	new house_Id = PlayerInfo[playerid][sHouse];
 	EnableHealthBarForPlayer(playerid, true);
@@ -538,6 +568,7 @@ spawnPemain(playerid, dari_callback = 0)
 	if(PlayerInfo[playerid][inDie] == 1){
 		dari_callback = 1;
 		PlayerInfo[playerid][inDie] = 0;
+		PlayerInfo[playerid][last_temp_spawn] = 1;
 	}
 
 	// Tampilkan hanya jika settingan hidup
@@ -5457,7 +5488,7 @@ TerminateInteraksi_Alt(actorid){
 
 publicFor: DecreaseDieCount(playerid, dari){
 	if(PlayerInfo[playerid][inDie] > 0) {
-		PlayerInfo[playerid][inDie] = PlayerInfo[playerid][inDie] + 1;
+		PlayerInfo[playerid][inDie] = PlayerInfo[playerid][inDie] - 1;
 
 		new str_temp[70];
 		format(str_temp, sizeof(str_temp), "~w~Anda sedang sekarat~n~\

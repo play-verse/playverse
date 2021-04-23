@@ -542,6 +542,9 @@ CMD:tele(playerid, params[]){
 
     if(IsInvalidTargetId(target_id, playerid, TIPE_TARGET_ALLOW_SEKARAT))
         return error_command(playerid, "ID Pemain invalid.");
+    
+    if(PlayerInfo[target_id][inSpectating] != INVALID_PLAYER_ID)
+        return error_command(playerid, "Pemain yang dimaksud sedang spectating, teleport dapat menyebabkan bug.");
 
     new Float:pos[4];
     GetPlayerPos(target_id, pos[0], pos[1], pos[2]);    
@@ -575,6 +578,9 @@ CMD:get(playerid, params[]){
 
     if(PlayerInfo[target_id][inDie])
         return error_command(playerid, "Pemain yang dimaksud sedang sekarat, memindahkannya dapat menyebabkan bug.");
+
+    if(PlayerInfo[target_id][inSpectating] != INVALID_PLAYER_ID)
+        return error_command(playerid, "Pemain yang dimaksud sedang spectating, memindahkannya dapat menyebabkan bug.");
 
     new Float:pos[4];
     GetPlayerPos(playerid, pos[0], pos[1], pos[2]);    
@@ -748,6 +754,7 @@ CMD:specoff(playerid, const params[]) {
     PlayerInfo[playerid][inSpectating] = INVALID_PLAYER_ID;
 	TogglePlayerSpectating(playerid, 0);
     PlayerInfo[playerid][sudahSpawn] = false;
+    PlayerInfo[playerid][last_specoff] = 1;
     spawnPemain(playerid);
 	return 1;
 }

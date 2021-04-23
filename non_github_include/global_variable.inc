@@ -55,6 +55,16 @@ enum pInfo
     Float:last_a,
     last_int,
     last_vw,
+	// Temp
+	Float:last_temp_x,
+    Float:last_temp_y,
+    Float:last_temp_z,
+    Float:last_temp_a,
+    last_temp_int,
+    last_temp_vw,
+	last_temp_inHouse,
+	last_temp_spawn,
+	last_specoff,
 
     Float:last_stats_makan,
     Float:last_stats_minum,
