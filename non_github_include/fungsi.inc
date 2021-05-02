@@ -6631,7 +6631,7 @@ publicFor: RemoveDynamicBuilding(playerid){
 }
 
 loadAllFactionVeh(){
-	new idveh, factionid, modelid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle;
+	new idveh, factionid, modelid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle, no_plat[12];
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `vehicle_faction`");
 	cache_get_row_count(row);
@@ -6644,7 +6644,8 @@ loadAllFactionVeh(){
 		cache_get_value_name_float(idx, "pos_y", spawn_y);
 		cache_get_value_name_float(idx, "pos_z", spawn_z);
 		cache_get_value_name_float(idx, "pos_a", z_angle);
-		createFactionVeh(idveh, factionid, modelid, spawn_x, spawn_y, spawn_z, z_angle);
+		cache_get_value_name(idx, "no_plat", no_plat);
+		createFactionVeh(idveh, factionid, modelid, spawn_x, spawn_y, spawn_z, z_angle, no_plat);
 		cache_set_active(result);
 		
 		#if DEBUG_SERVER_LOAD == true
@@ -6668,6 +6669,7 @@ unloadAllFactionVeh(){
 		FactionVeh[i][VehPos][1] = 0;
 		FactionVeh[i][VehPos][2] = 0;
 		FactionVeh[i][VehPos][3] = 0;
+		FactionVeh[i][VehPlat] = 0;
 		DestroyVehicle(vehid);
 		Iter_SafeRemove(FactionVehIterator, i, i);
 	}
@@ -6678,7 +6680,7 @@ unloadAllFactionVeh(){
     factionid = ID fraksi
     modelid = Model ID kendaraan
 */
-createFactionVeh(idveh, factionid, modelid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle){
+createFactionVeh(idveh, factionid, modelid, Float:spawn_x, Float:spawn_y, Float:spawn_z, Float:z_angle, const no_plat[]){
 	new id = CreateVehicle(modelid, spawn_x, spawn_y, spawn_z, z_angle, -1, -1, -1);
 	if(id < MAX_VEHICLES){
 		FactionVehID[id] = idveh;
@@ -6689,7 +6691,9 @@ createFactionVeh(idveh, factionid, modelid, Float:spawn_x, Float:spawn_y, Float:
 		FactionVeh[idveh][VehPos][1] = spawn_y;
 		FactionVeh[idveh][VehPos][2] = spawn_z;
 		FactionVeh[idveh][VehPos][3] = z_angle;
+		format(FactionVeh[idveh][VehPlat], 12, no_plat);
 		Iter_Add(FactionVehIterator, idveh);
+		SetVehicleNumberPlate(id, no_plat);
 		SetVehicleToRespawn(id);
 		return 1;
 	}else{
@@ -6705,7 +6709,7 @@ respawnFactionVeh(playerid, vehicleid, idveh){
 	GetVehicleZAngle(vehicleid, z_angle);
 
 	DestroyVehicle(FactionVeh[idveh][VehID]);
-	createFactionVeh(idveh, FactionVeh[idveh][VehType], FactionVeh[idveh][VehModel], spawn_x, spawn_y, spawn_z, z_angle);
+	createFactionVeh(idveh, FactionVeh[idveh][VehType], FactionVeh[idveh][VehModel], spawn_x, spawn_y, spawn_z, z_angle, FactionVeh[idveh][VehPlat]);
 	
 	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_faction SET pos_x = '%f', pos_y = '%f', pos_z = '%f', pos_a = '%f' WHERE id = '%d'", spawn_x, spawn_y, spawn_z, z_angle, idveh);
 	mysql_tquery(koneksi, pQuery[playerid]);
@@ -6713,21 +6717,22 @@ respawnFactionVeh(playerid, vehicleid, idveh){
 }
 
 insertFactionVeh(playerid, factionid, modelid){
-	new Float: x, Float: y, Float: z, Float: a;
+	new Float: x, Float: y, Float: z, Float: a, plat_nomor[12];
 	GetPlayerPos(playerid, x, y, z);
 	GetPlayerFacingAngle(playerid, a);
 	x += (3.0 * floatsin(-a, degrees));
 	y += (3.0 * floatcos(-a, degrees));
+	GetPVarString(playerid, "fraksi_plat_nomor", plat_nomor, 12);
 	inline responseQuery(){
 		new id = cache_insert_id(),
-			create = createFactionVeh(id, factionid, modelid, x, y, z, a);
+			create = createFactionVeh(id, factionid, modelid, x, y, z, a, plat_nomor);
 		if(create){
 			SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda telah berhasil membuat kendaraan fraksi.");
 		}else{
 			mysql_format(koneksi, pQuery[playerid], sizePQuery, "DELETE FROM `vehicle_faction` WHERE `id` = '%d'", id);
 			mysql_tquery(koneksi, pQuery[playerid]);
-			error_command(playerid, "Tidak dapat membuat vehicle rent lagi.");
+			error_command(playerid, "Tidak dapat membuat vehicle fraksi lagi.");
 		}
 	}
-	MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `vehicle_faction` (id_faction, id_model, pos_x, pos_y, pos_z, pos_a) VALUES ('%d', '%d', '%f', '%f', '%f', '%f')", factionid, modelid, x, y, z, a);
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `vehicle_faction` (id_faction, id_model, pos_x, pos_y, pos_z, pos_a, no_plat) VALUES ('%d', '%d', '%f', '%f', '%f', '%f', '%s)", factionid, modelid, x, y, z, a, plat_nomor);
 }

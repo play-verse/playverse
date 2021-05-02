@@ -1676,7 +1676,8 @@ enum FactionVehInfo
 	VehType,
     VehModel,
 	VehPlaceID,
-    Float:VehPos[4]
+    Float:VehPos[4],
+	VehPlat[12]
 }
 
 new Iterator:FactionVehIterator<MAX_VEHICLES>,

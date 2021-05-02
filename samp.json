@@ -18,7 +18,8 @@
 		"urShadow/Pawn.Regex:1.1.3",
 		"katursis/Pawn.RakNet:1.4.1",
 		"ColAndreas",
-		"sampvoice"
+		"sampvoice",
+		"AGraber/samp-compat"
 	],
 	"rcon_password": "kodokhijau99",
 	"port": 7777,

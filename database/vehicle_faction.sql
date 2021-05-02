@@ -1,10 +1,10 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.4
+-- version 5.1.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 12, 2021 at 06:13 PM
--- Server version: 10.4.17-MariaDB
+-- Generation Time: May 02, 2021 at 04:50 AM
+-- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -34,7 +34,8 @@ CREATE TABLE `vehicle_faction` (
   `pos_x` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan',
   `pos_y` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan',
   `pos_z` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan',
-  `pos_a` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan'
+  `pos_a` float DEFAULT NULL COMMENT 'Posisi terakir kendaraan',
+  `no_plat` varchar(12) NOT NULL COMMENT 'Plat nomor kendaraan'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --

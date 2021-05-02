@@ -48,6 +48,7 @@
 #include <core>
 #include <float>
 #include <PreviewModelDialog>
+#include <compat>
 
 /*
 	INCLUDE INCLUDE BUATAN DIBAWAH
@@ -4047,6 +4048,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI, DIALOG_STYLE_LIST, ORANGE"Admin Menu untuk Kendaraan Fraksi", "\
 						Buat Kendaraan\n\
 						Simpan Kendaraan\n\
+						Edit Plat Kendaraan\n\
 						Hapus Kendaraan\n\
 						Respawn Kendaraan", "Pilih", "Batal");
 					}
@@ -11021,11 +11023,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		}
 		case DIALOG_ADMIN_VEHICLE_FRAKSI:
 		{
+			if(GetPVarInt(playerid, "fraksi_edit_plat") == 1) goto label_edit_plat;
 			if(response){
 				switch(listitem){
 					case 0: // Buat Kendaraan
 					{
-						ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI_TYPE, DIALOG_STYLE_LIST, ORANGE"Pilih jenis kendaraan Fraksi", "Kendaraan Polisi\nKendaraan Medis", "Pilih", "Batal");
+						ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI_PLAT, DIALOG_STYLE_INPUT, "Masukan Plat Nomor Kendaraan", WHITE"Silahkan input plat nomor untuk kendaraan fraksi maksimal 10 karakter (termasuk spasi).", "Pilih", "Batal");
 					}
 					case 1: // Simpan Kendaraan
 					{
@@ -11035,9 +11038,38 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(!Iter_Contains(FactionVehIterator, FactionVehID[vehid])) return showDialogPesan(playerid, RED"Kendaraan tidak valid", WHITE"Anda harus didalam kendaraan fraksi.");
                         respawnFactionVeh(playerid, vehid, FactionVehID[vehid]);
                         SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda telah berhasil menyimpan kendaraan fraksi.");
-
 					}
-					case 2: // Hapus Kendaraan
+					case 2: // Edit Plat Kendaraan
+					{	
+						label_edit_plat:
+						if(GetPVarInt(playerid, "fraksi_edit_plat") == 1){
+							if(response){
+								if(isnull(inputtext))
+									return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI, DIALOG_STYLE_INPUT, "Masukan Plat Nomor Kendaraan", RED"Silahkan input plat nomor.\n"WHITE"Silahkan input plat nomor untuk kendaraan fraksi maksimal 10 karakter (termasuk spasi).", "Pilih", "Batal");
+
+								if(strlen(inputtext) < 1 || strlen(inputtext) > 10) 
+									return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI, DIALOG_STYLE_INPUT, "Masukan Plat Nomor Kendaraan", RED"Jumlah input minimal 1 hingga 10 karakter.\n"WHITE"Silahkan input plat nomor untuk kendaraan fraksi maksimal 10 karakter (termasuk spasi).", "Pilih", "Batal");
+
+								new idveh = GetPVarInt(playerid, "fraksi_vehid");
+								mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE vehicle_faction SET no_plat = '%s' WHERE id = '%d'", inputtext, FactionVehID[idveh]);
+								mysql_tquery(koneksi, pQuery[playerid]);
+								SetVehicleNumberPlate(idveh, inputtext);
+								SetVehicleToRespawn(idveh);
+								SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda telah berhasil mengubah plat nomor kendaraan fraksi.");
+							}
+							DeletePVar(playerid, "fraksi_edit_plat");
+							DeletePVar(playerid, "fraksi_vehid");
+						}else{
+							if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam kendaraan", WHITE"Anda harus didalam kendaraan yang ingin disimpan.");
+							new vehid = GetPlayerVehicleID(playerid);
+							if(!Iter_Contains(FactionVehIterator, FactionVehID[vehid])) return showDialogPesan(playerid, RED"Kendaraan tidak valid", WHITE"Anda harus didalam kendaraan fraksi.");
+							
+							SetPVarInt(playerid, "fraksi_edit_plat", 1);
+							SetPVarInt(playerid, "fraksi_vehid", vehid);
+							ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI, DIALOG_STYLE_INPUT, "Masukan Plat Nomor Kendaraan", WHITE"Silahkan input plat nomor untuk kendaraan fraksi maksimal 10 karakter (termasuk spasi).", "Pilih", "Batal");
+						}
+					}
+					case 3: // Hapus Kendaraan
 					{
 						new vehid = GetPlayerVehicleID(playerid);
 						if(!IsPlayerInAnyVehicle(playerid)) return showDialogPesan(playerid, RED"Anda harus di dalam kendaraan", WHITE"Anda harus didalam kendaraan yang ingin dihapus.");
@@ -11056,7 +11088,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						sendPesan(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda berhasil menghapus kendaraan fraksi (id:"YELLOW"%d"WHITE")!", FactionVehID[vehid]);
 						FactionVehID[vehid] = -1;
 					}
-					case 3: // Respawn Kendaraan
+					case 4: // Respawn Kendaraan
 					{
 						foreach(new i : FactionVehIterator){
 							if(Iter_Contains(FactionVehIterator, i)){
@@ -11066,6 +11098,20 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Semua kendaraan fraksi telah di respawn.");
 					}
 				}
+			}
+			return 1;
+		}
+		case DIALOG_ADMIN_VEHICLE_FRAKSI_PLAT:
+		{
+			if(response){
+				if(isnull(inputtext))
+					return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI_PLAT, DIALOG_STYLE_INPUT, "Masukan Plat Nomor Kendaraan", RED"Silahkan input plat nomor.\n"WHITE"Silahkan input plat nomor untuk kendaraan fraksi maksimal 10 karakter (termasuk spasi).", "Pilih", "Batal");
+
+				if(strlen(inputtext) < 1 || strlen(inputtext) > 10) 
+					return ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI, DIALOG_STYLE_INPUT, "Masukan Plat Nomor Kendaraan", RED"Jumlah input minimal 1 hingga 10 karakter.\n"WHITE"Silahkan input plat nomor untuk kendaraan fraksi maksimal 10 karakter (termasuk spasi).", "Pilih", "Batal");
+
+				SetPVarString(playerid, "fraksi_plat_nomor", inputtext);
+				ShowPlayerDialog(playerid, DIALOG_ADMIN_VEHICLE_FRAKSI_TYPE, DIALOG_STYLE_LIST, ORANGE"Pilih jenis kendaraan Fraksi", "Kendaraan Polisi\nKendaraan Medis", "Pilih", "Batal");
 			}
 			return 1;
 		}
@@ -11092,6 +11138,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						Ambulance", "Pilih", "Batal");
 					}
 				}
+			}else{
+				DeletePVar(playerid, "fraksi_plat_nomor");
 			}
 			return 1;
 		}
@@ -11136,6 +11184,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						insertFactionVeh(playerid, ID_FACTION_POLISI, 601);
 					}
 				}
+			}else{
+				DeletePVar(playerid, "fraksi_plat_nomor");
 			}
 			return 1;
 		}
@@ -11148,6 +11198,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						insertFactionVeh(playerid, ID_FACTION_MEDIC, 416);
 					}
 				}
+			}else{
+				DeletePVar(playerid, "fraksi_plat_nomor");
 			}
 			return 1;
 		}
