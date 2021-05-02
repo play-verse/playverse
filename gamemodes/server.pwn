@@ -14,7 +14,7 @@
 #include <streamer>
 #include <a_mysql>
 // #include <Pawn.RakNet>
-
+#include <compat>
 #include <weapon-config> // Custom Damage
 
 #define YSI_NO_HEAP_MALLOC
@@ -48,7 +48,6 @@
 #include <core>
 #include <float>
 #include <PreviewModelDialog>
-#include <compat>
 
 /*
 	INCLUDE INCLUDE BUATAN DIBAWAH
@@ -11146,61 +11145,63 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		case DIALOG_ADMIN_VEHICLE_FRAKSI_POLISI:
 		{
 			if(response){
+				new plat_nomor[12];
+				GetPVarString(playerid, "fraksi_plat_nomor", plat_nomor, 12);
 				switch(listitem){
 					case 0: // Enforcer
 					{
-						insertFactionVeh(playerid, ID_FACTION_POLISI, 427);
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 427, plat_nomor);
 					}
 					case 1: // Police Maverick
 					{
-						insertFactionVeh(playerid, ID_FACTION_POLISI, 497);
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 497, plat_nomor);
 					}
 					case 2: // HPV-1000
 					{
-						insertFactionVeh(playerid, ID_FACTION_POLISI, 523);
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 523, plat_nomor);
 					}
 					case 3: // FBI Truck
 					{
-						insertFactionVeh(playerid, ID_FACTION_POLISI, 528);
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 528, plat_nomor);
 					}
 					case 4: // Cop Car LS
 					{
-						insertFactionVeh(playerid, ID_FACTION_POLISI, 596);
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 596, plat_nomor);
 					}
 					case 5: // Cop Car SF
 					{
-						insertFactionVeh(playerid, ID_FACTION_POLISI, 597);
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 597, plat_nomor);
 					}
 					case 6: // Cop Car LV
 					{
-						insertFactionVeh(playerid, ID_FACTION_POLISI, 598);
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 598, plat_nomor);
 					}
 					case 7: // Ranger
 					{
-						insertFactionVeh(playerid, ID_FACTION_POLISI, 599);
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 599, plat_nomor);
 					}
 					case 8: // Swat Tank
 					{
-						insertFactionVeh(playerid, ID_FACTION_POLISI, 601);
+						insertFactionVeh(playerid, ID_FACTION_POLISI, 601, plat_nomor);
 					}
 				}
-			}else{
-				DeletePVar(playerid, "fraksi_plat_nomor");
 			}
+			DeletePVar(playerid, "fraksi_plat_nomor");
 			return 1;
 		}
 		case DIALOG_ADMIN_VEHICLE_FRAKSI_MEDIS:
 		{
 			if(response){
+				new plat_nomor[12];
+				GetPVarString(playerid, "fraksi_plat_nomor", plat_nomor, 12);
 				switch(listitem){
 					case 0: // Ambulance
 					{
-						insertFactionVeh(playerid, ID_FACTION_MEDIC, 416);
+						insertFactionVeh(playerid, ID_FACTION_MEDIC, 416, plat_nomor);
 					}
 				}
-			}else{
-				DeletePVar(playerid, "fraksi_plat_nomor");
 			}
+			DeletePVar(playerid, "fraksi_plat_nomor");
 			return 1;
 		}
     }

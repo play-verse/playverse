@@ -6691,7 +6691,7 @@ createFactionVeh(idveh, factionid, modelid, Float:spawn_x, Float:spawn_y, Float:
 		FactionVeh[idveh][VehPos][1] = spawn_y;
 		FactionVeh[idveh][VehPos][2] = spawn_z;
 		FactionVeh[idveh][VehPos][3] = z_angle;
-		format(FactionVeh[idveh][VehPlat], 12, no_plat);
+		format(FactionVeh[idveh][VehPlat], 12, "%s", no_plat);
 		Iter_Add(FactionVehIterator, idveh);
 		SetVehicleNumberPlate(id, no_plat);
 		SetVehicleToRespawn(id);
@@ -6716,13 +6716,12 @@ respawnFactionVeh(playerid, vehicleid, idveh){
 	return 1;
 }
 
-insertFactionVeh(playerid, factionid, modelid){
-	new Float: x, Float: y, Float: z, Float: a, plat_nomor[12];
+insertFactionVeh(playerid, factionid, modelid, const plat_nomor[]){
+	new Float: x, Float: y, Float: z, Float: a;
 	GetPlayerPos(playerid, x, y, z);
 	GetPlayerFacingAngle(playerid, a);
 	x += (3.0 * floatsin(-a, degrees));
 	y += (3.0 * floatcos(-a, degrees));
-	GetPVarString(playerid, "fraksi_plat_nomor", plat_nomor, 12);
 	inline responseQuery(){
 		new id = cache_insert_id(),
 			create = createFactionVeh(id, factionid, modelid, x, y, z, a, plat_nomor);
@@ -6734,5 +6733,5 @@ insertFactionVeh(playerid, factionid, modelid){
 			error_command(playerid, "Tidak dapat membuat vehicle fraksi lagi.");
 		}
 	}
-	MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `vehicle_faction` (id_faction, id_model, pos_x, pos_y, pos_z, pos_a, no_plat) VALUES ('%d', '%d', '%f', '%f', '%f', '%f', '%s)", factionid, modelid, x, y, z, a, plat_nomor);
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `vehicle_faction` (id_faction, id_model, pos_x, pos_y, pos_z, pos_a, no_plat) VALUES ('%d', '%d', '%f', '%f', '%f', '%f', '%s')", factionid, modelid, x, y, z, a, plat_nomor);
 }
