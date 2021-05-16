@@ -2109,3 +2109,7 @@ new
 
 // Custom nametag
 new Text3D:c_nametag[MAX_PLAYERS];
+
+// Dynamic Mapping
+#define MAPPING_NAME_LENGTH 50
+new DYNAMIC_MAPPING_UNIQUE_ID[200][MAPPING_NAME_LENGTH];

@@ -4,8 +4,7 @@
 	],
 	"filterscripts": [
 		"cameditor",
-		"animbrowser",
-		"fitur_tambahan"
+		"animbrowser"
 	],
 	"plugins": [
 		"zeex/samp-plugin-crashdetect:v4.19.4",
