@@ -7,6 +7,7 @@
 ***************************************************************************************************/
 
 #include <a_samp>
+#define CGEN_MEMORY 20000 // Sesuai dengan instruksi warning dari YSI library, letakan dibawah a_samp (diatas semua YSI_Include)
 
 #include <pengaturan> // Pengaturan server disini letak pas di bawah a_samp
 #include <colors> // https://forum.sa-mp.com/showthread.php?t=573049
