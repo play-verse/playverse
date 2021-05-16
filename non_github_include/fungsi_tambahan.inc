@@ -275,7 +275,7 @@ getUangPlayer(playerid)
     return PlayerInfo[playerid][uang];
 }
 
-givePlayerUang(playerid, jumlah, const pesan[] = "", {Float,_}:...){
+givePlayerUang(playerid, jumlah){
     PlayerInfo[playerid][uang] += jumlah;
 
     // Hanya tampilan untuk default

@@ -3687,6 +3687,100 @@ updateOnPlayerDisconnect(playerid){
 	return 1;
 }
 
+publicFor: loadDynamicMapping(playerid, const mapping_name[256]){
+	new object_id, Float:map_pos[3], Float:map_rot[3], is_object, Float:radius, obj_id;
+
+	new row, idx = 0, map_unique_id = -1;
+	cache_get_row_count(row);
+
+	for(new i = 0; i < sizeof(DYNAMIC_MAPPING_UNIQUE_ID); i++){
+		if(isnull(DYNAMIC_MAPPING_UNIQUE_ID[i]))
+		{
+			map_unique_id = i;
+			break;
+		}
+	}
+
+	if(map_unique_id == -1){
+		error_command(playerid, "Tidak dapat meload map lagi.");
+		return 1;
+	}
+
+	format(DYNAMIC_MAPPING_UNIQUE_ID[map_unique_id], MAPPING_NAME_LENGTH, "%s", mapping_name);
+
+	while(idx < row){
+		cache_get_value_name_int(idx, "object_id", object_id);
+		cache_get_value_name_int(idx, "is_object", is_object);
+		cache_get_value_name_float(idx, "pos_x", map_pos[0]);
+		cache_get_value_name_float(idx, "pos_y", map_pos[1]);
+		cache_get_value_name_float(idx, "pos_z", map_pos[2]);
+		cache_get_value_name_float(idx, "rot_x", map_rot[0]);
+		cache_get_value_name_float(idx, "rot_y", map_rot[1]);
+		cache_get_value_name_float(idx, "rot_z", map_rot[2]);
+		cache_get_value_name_float(idx, "radius", radius);
+		
+		if(is_object == 1){			
+			obj_id = CreateDynamicObject(object_id, map_pos[0], map_pos[1], map_pos[2], map_rot[0], map_rot[1], map_rot[2]);
+			Streamer_SetIntData(STREAMER_TYPE_OBJECT, obj_id, E_STREAMER_EXTRA_ID, 1 + map_unique_id);
+		}
+		else{
+			foreach(new i : Player){
+				RemoveBuildingForPlayer(i, object_id, map_pos[0], map_pos[1], map_pos[2], radius);
+			}
+		}
+		
+		// Simpan value is null
+		#if DEBUG_SERVER_LOAD == true
+			printf("[MAP] loaded %d", object_id);
+		#endif
+		idx++;
+	}
+	mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE mapping_parent SET loaded = 1 WHERE mapping_name = '%e'", mapping_name);
+	mysql_tquery(koneksi, pQuery[playerid]);
+
+	format(msg, sizeof(msg), TAG_ADMIN" "WHITE"Berhasil load map %s!", mapping_name);
+	SendClientMessage(playerid, COLOR_RED, msg);
+	return 1;
+}
+
+loadAllDynamicMapping(){
+	new object_id, Float:map_pos[3], Float:map_rot[3], last_mapping_name[50] = "", mapping_name[50], map_unique_id = -1, obj_id;
+
+	new Cache:result, row, idx = 0;
+	result = mysql_query(koneksi, "SELECT m.* FROM `mapping` m INNER JOIN mapping_parent mp ON mp.mapping_name = m.mapping_name WHERE mp.loaded = 1 AND m.is_object = 1 ORDER BY mapping_name");
+	cache_get_row_count(row);
+
+
+	while(idx < row){
+		cache_get_value_name(idx, "mapping_name", mapping_name);
+
+		if(!sama(mapping_name, last_mapping_name)){
+			map_unique_id++;
+			DYNAMIC_MAPPING_UNIQUE_ID[map_unique_id] = mapping_name;
+			last_mapping_name = mapping_name;
+		}
+
+		cache_get_value_name_int(idx, "object_id", object_id);
+		cache_get_value_name_float(idx, "pos_x", map_pos[0]);
+		cache_get_value_name_float(idx, "pos_y", map_pos[1]);
+		cache_get_value_name_float(idx, "pos_z", map_pos[2]);
+		cache_get_value_name_float(idx, "rot_x", map_rot[0]);
+		cache_get_value_name_float(idx, "rot_y", map_rot[1]);
+		cache_get_value_name_float(idx, "rot_z", map_rot[2]);
+
+		obj_id = CreateDynamicObject(object_id, map_pos[0], map_pos[1], map_pos[2], map_rot[0], map_rot[1], map_rot[2]);
+		Streamer_SetIntData(STREAMER_TYPE_OBJECT, obj_id, E_STREAMER_EXTRA_ID, 1 + map_unique_id);
+		
+		// Simpan value is null
+		#if DEBUG_SERVER_LOAD == true
+			printf("Map loaded %d", object_id);
+		#endif
+		idx++;
+	}
+	cache_delete(result);
+	printf("[MASTER MAP] Loaded %d/%d", idx, row);
+}
+
 loadAllRarity(){
 	new Cache:result, row, idx = 0;
 	result = mysql_query(koneksi, "SELECT * FROM `item_rarity`");
@@ -6518,7 +6612,7 @@ publicFor: loadSetup(){
         if(GetLevelAdminPlayer(i) > 0) 
 			SendClientMessage(i, COLOR_RED, pesan);
     }
-	printf("loaded %d/%d", loaded, rows);
+	printf("[SETUP] Loaded %d/%d", loaded, rows);
 }
 
 playerNameMasked(playerid){

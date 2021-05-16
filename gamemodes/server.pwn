@@ -11751,6 +11751,7 @@ public OnGameModeInit()
 	}
 	printf("[MAPPING] Load semua mappingan...");
 	loadAllMapingan();
+	loadAllDynamicMapping();
 	printf("[MAPPING] Sukses load mapping!");
 
 	printf("[ITEM] Load semua item...");

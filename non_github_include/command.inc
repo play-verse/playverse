@@ -47,6 +47,88 @@ CMD:kickall(playerid, params[]){
 	return 1;
 }
 
+CMD:loadmap(playerid, params[]){
+    // Jika level admin < 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
+
+	new mapping_name[50];
+	if(sscanf(params, "s[50]", mapping_name)) return error_syntax(playerid, "/loadmap [mapping name]");
+
+    inline responseQuery(){
+        new rows, loaded;
+        cache_get_row_count(rows);
+        if(rows){
+            cache_get_value_name_int(0, "loaded", loaded);
+            if(loaded == 1)
+                error_command(playerid, "Mapping tersebut telah diload.");
+            else{
+                format(msg, sizeof(msg), TAG_ADMIN" "WHITE"Memulai load map "GREEN"%s"WHITE"!", mapping_name);
+                SendClientMessage(playerid, COLOR_RED, msg);
+                
+                mysql_format(koneksi, pQuery[playerid], sizePQuery, "SELECT * FROM mapping WHERE mapping_name = '%e'", mapping_name);
+                mysql_tquery(koneksi, pQuery[playerid], "loadDynamicMapping", "is", playerid, mapping_name);
+            }
+        }else
+            error_command(playerid, "Mapping dengan nama tersebut tidak ada.");
+    }
+    MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM `mapping_parent` WHERE mapping_name = '%e'", mapping_name);
+	return 1;
+}
+
+CMD:unloadmap(playerid, params[]){
+    // Jika level admin < 2
+    if(GetLevelAdminPlayer(playerid) < 2) return 0;
+
+	new mapping_name[50];
+	if(sscanf(params, "s[50]", mapping_name)) return error_syntax(playerid, "/unloadmap [mapping name]");
+
+    inline responseQuery(){
+        new rows, loaded;
+        cache_get_row_count(rows);
+        if(rows){
+            cache_get_value_name_int(0, "loaded", loaded);
+            if(loaded == 0)
+                error_command(playerid, "Mapping tersebut belum diload.");
+            else{
+                new map_unique_id = -1;
+                for(new i = 0; i < sizeof(DYNAMIC_MAPPING_UNIQUE_ID); i++){
+                    if(sama(DYNAMIC_MAPPING_UNIQUE_ID[i], mapping_name))
+                    {
+                        map_unique_id = i;
+                        break;
+                    }
+                }
+                if(map_unique_id == -1){
+                    error_command(playerid, "Mapping tersebut belum diload/terjadi kesalahan pada server.");
+                }
+
+                DYNAMIC_MAPPING_UNIQUE_ID[map_unique_id][0] = '\0';
+                format(msg, sizeof(msg), TAG_ADMIN" "WHITE"Memulai unload map "GREEN"%s"WHITE"!", mapping_name);
+                SendClientMessage(playerid, COLOR_RED, msg);
+
+                for(new i, maxval = Streamer_GetUpperBound(STREAMER_TYPE_OBJECT); i <= maxval; ++i)
+                {
+                    if(!IsValidDynamicObject(i)) continue;
+                    if(Streamer_GetIntData(STREAMER_TYPE_OBJECT, i, E_STREAMER_EXTRA_ID) == 1 + map_unique_id)
+                    {
+                        DestroyDynamicObject(i);
+                    }
+                }
+
+                mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE mapping_parent SET loaded = 0 WHERE mapping_name = '%e'", mapping_name);
+                mysql_tquery(koneksi, pQuery[playerid]);
+
+                format(msg, sizeof(msg), TAG_ADMIN" "WHITE"Berhasil unload map "GREEN"%s"WHITE"!", mapping_name);
+                SendClientMessage(playerid, COLOR_RED, msg);
+            }
+        }else
+            error_command(playerid, "Mapping dengan nama tersebut tidak ada.");
+    }
+    MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM `mapping_parent` WHERE mapping_name = '%e'", mapping_name);
+	return 1;
+}
+
+
 CMD:jetpack(playerid, params[]){    
     // Jika level admin < 1 (bukan admin)
     if(GetLevelAdminPlayer(playerid) < 1) return 0;
