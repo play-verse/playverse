@@ -1683,6 +1683,10 @@ publicFor: pakaiWeapon(playerid, itemid){
 	PlayerInfo[playerid][usedWeaponId] = weaponid;
 
 	ApplyAnimation(playerid, "RIFLE", "RIFLE_LOAD", 4.1, 0, 0, 0, 0, 0, 1);
+
+	// Tazer Pulse
+	if(itemid == ID_TAZER_PULSE)
+		WeaponTazer[playerid] = 1;
 	return 1;
 }
 
@@ -6828,4 +6832,46 @@ insertFactionVeh(playerid, factionid, modelid, const plat_nomor[]){
 		}
 	}
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `vehicle_faction` (id_faction, id_model, pos_x, pos_y, pos_z, pos_a, no_plat) VALUES ('%d', '%d', '%f', '%f', '%f', '%f', '%s')", factionid, modelid, x, y, z, a, plat_nomor);
+}
+
+publicFor: updateWeaponBody(playerid){
+	if(IsPlayerSpawned(playerid)){
+		new weaponTemp = WeaponBodyTemp[playerid],
+			weaponUsed = GetPlayerWeapon(playerid);
+		if(weaponTemp != weaponUsed){
+			if(DATA_WEAPON_BODY[weaponUsed][weaponModel] != 0){
+				if(IsPlayerAttachedObjectSlotUsed(playerid, BACK_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, BACK_ATTACH_INDEX);
+			}else{
+				if(!IsPlayerAttachedObjectSlotUsed(playerid, BACK_ATTACH_INDEX)){
+					if(DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 1 || DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 3
+					|| DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 4 || DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 5
+					|| DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 6 || DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 7){
+						// Senjata dipunggung
+						SetPlayerAttachedObject(playerid, BACK_ATTACH_INDEX, DATA_WEAPON_BODY[weaponTemp][weaponModel], 15, -0.2, 0.1, -0.15, 0.0, 44.50, 0.0, 1.0, 1.0, 1.0);
+					}else{
+						// Senjata dipaha kanan
+						SetPlayerAttachedObject(playerid, BACK_ATTACH_INDEX, DATA_WEAPON_BODY[weaponTemp][weaponModel], 7, 0.01, 0.01, -0.06, 289.86, 17.39, 7.67, 1.0, 1.0, 1.0);
+					}
+				}
+			}
+		}
+		WeaponBodyTemp[playerid] = GetPlayerWeapon(playerid);
+	}
+	return 1;
+}
+
+publicFor: unfreezeTazed(playerid){
+	TogglePlayerControllable(playerid, 1);
+    DeletePVar(playerid, "player_tazed");
+    ClearAnimations(playerid);
+	return 1;
+}
+
+takeOffTazer(playerid){
+    if(PlayerInfo[playerid][usedWeaponId] == 23 && PlayerInfo[playerid][usedWeapon] == ID_TAZER_PULSE){
+        if(WeaponTazer[playerid] == 1){
+            WeaponTazer[playerid] = 0;
+		}
+	}
+	return 1;
 }

@@ -24,7 +24,7 @@
 							9. Usahakan ketika bermain di server kami selalu membahas segala sesuatu dengan IC.\n\
 							10. Diperbolehkan membahas OOC ketika kalian sedang bermain di server kami, Usahakan seminimal mungkin!"
 
-#define MAX_SERVER_ITEM 99 // Diatur sesuai dengan banyak data didatabase
+#define MAX_SERVER_ITEM 101 // Diatur sesuai dengan banyak data didatabase
 
 #define MAX_SMS_PER_PLAYER 50 // Maksimal pesan diterima dan maksimal pesan dikirim
 // Harus menghapus riwayat pesan untuk dapat mengirim lagi
@@ -167,6 +167,7 @@
 
 #define MASK_ATTACH_INDEX 3 // Helmet dan Mask Gak Boleh di satuin
 #define BORGOL_ATTACH_INDEX 4
+#define BACK_ATTACH_INDEX 5
 
 #define BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_MEKANIK 1
 #define BANYAK_ITEM_YANG_DIBUTUHKAN_UNTUK_AKTIFKAN_SKILL_BLACKSMITH 1
@@ -851,10 +852,12 @@ new const NAMA_ABJAD[][] = {
 #define ID_TEC_9					94
 #define ID_AK_47					95
 #define ID_M4						96
+#define ID_TAZER_PULSE				100
 
 #define ID_AMMO_4_55MM				97
 #define ID_AMMO_7_55MM				98
 #define ID_AMMO_12_55MM				99
+#define ID_AMMO_ELECTRO				101
 
 /**
 	ITEM SPECIAL

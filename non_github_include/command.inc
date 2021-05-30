@@ -1457,10 +1457,18 @@ CMD:removeweapon(playerid, params[]){
 	tambahItemPlayer(playerid, PlayerInfo[playerid][usedWeapon], 1);
     if(PlayerInfo[playerid][usedAmmo] > 0)
         tambahItemPlayer(playerid, ammoid, PlayerInfo[playerid][usedAmmo]);
+    takeOffTazer(playerid); // Tazer Pulse
     PlayerInfo[playerid][usedWeaponId] = 0;
     PlayerInfo[playerid][usedWeapon] = 0;
     PlayerInfo[playerid][usedAmmo] = 0;
     ResetPlayerWeapons(playerid);
+    // Weapon Body
+    if(WeaponBodyTemp[playerid] != 0){
+        WeaponBodyTemp[playerid] = 0;
+        if(IsPlayerAttachedObjectSlotUsed(playerid, BACK_ATTACH_INDEX)){
+            RemovePlayerAttachedObject(playerid, BACK_ATTACH_INDEX);
+        }
+    }
     return 1;
 }
 

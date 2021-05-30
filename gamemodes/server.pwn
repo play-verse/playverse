@@ -188,6 +188,8 @@ public OnPlayerDisconnect(playerid, reason){
 	}
 	// Custom nametag
 	if(IsValidDynamic3DTextLabel(c_nametag[playerid])) DestroyDynamic3DTextLabel(c_nametag[playerid]);
+	// Weapon Body
+	DeletePreciseTimer(TimerWeaponBody[playerid]);
 	return 1;
 }
 
@@ -274,6 +276,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}else{
 						CallRemoteFunction("controlPlayerVoice", "ii", playerid, 0);
 					}
+
+					TimerWeaponBody[playerid] = SetPreciseTimer("updateWeaponBody", 250, true, "i", playerid);
 					return 1;
 				}
 				else
@@ -14124,14 +14128,37 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 	
 	if(weaponid == PlayerInfo[playerid][usedWeaponId]){
 		PlayerInfo[playerid][usedAmmo]--;
+		// Weapon Tazer
+		if(weaponid == WEAPON_SILENCED && PlayerInfo[playerid][usedWeapon] == ID_TAZER_PULSE){
+			if(WeaponTazer[playerid] == 1){
+				if(IsPlayerInAnyVehicle(hitid) == 0 && IsPlayerInAnyVehicle(playerid) == 0){
+					if(hitid != playerid){
+						if(GetPVarInt(hitid, "player_tazed") != 1){
+							TogglePlayerControllable(hitid, 0);
+							ApplyAnimation(hitid, "CRACK", "crckdeth2", 4.0, 1, 0, 0, 0, 0);
+							SetPreciseTimer("unfreezeTazed", 5000, false, "i", hitid);
+							SetPVarInt(hitid, "player_tazed", 1);
+						}
+					}
+				}
+			}
+		}
 		if(GetPlayerAmmo(playerid) == 1 || PlayerInfo[playerid][usedAmmo] <= 0) // If player shot with the last ammo
 		{
 			ResetPlayerWeapons(playerid);
 			tambahItemPlayer(playerid, PlayerInfo[playerid][usedWeapon], 1);
+    		takeOffTazer(playerid); // Tazer Pulse
 			PlayerInfo[playerid][usedWeapon] = 0;
 			PlayerInfo[playerid][usedWeaponId] = 0;
 			PlayerInfo[playerid][usedAmmo] = 0;
 			SendClientMessage(playerid, COLOR_RED, "** Peluru habis, senjata kembali ke inventory.");
+			// Weapon Body
+			if(WeaponBodyTemp[playerid] != 0){
+				WeaponBodyTemp[playerid] = 0;
+				if(IsPlayerAttachedObjectSlotUsed(playerid, BACK_ATTACH_INDEX)){
+					RemovePlayerAttachedObject(playerid, BACK_ATTACH_INDEX);
+				}
+			}
 		}
 	}else{
 		ResetPlayerWeapons(playerid);

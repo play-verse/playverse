@@ -1326,6 +1326,8 @@ getWeaponIdByItemId(itemid){
             return WEAPON_AK47;
         case ID_M4:
             return WEAPON_M4;
+        case ID_TAZER_PULSE:
+            return WEAPON_SILENCED;
 	}
     return -1;
 }
@@ -1338,6 +1340,8 @@ getAmmoIdByIdItemWeapon(itemid){
             return ID_AMMO_7_55MM;
         case ID_AK_47, ID_M4:
             return ID_AMMO_12_55MM;
+        case ID_TAZER_PULSE:
+            return ID_AMMO_ELECTRO;
 	}
     return -1;
 }

@@ -432,7 +432,9 @@ new const POSISI_POM_BENSIN[][COORD_OBJ] = {
 	{1382.6866, 457.3860, 19.9587, 0, 0},
 	{1383.8420, 460.3765, 20.0818, 0, 0},
 	{1020.2277, -1672.6490, 14.3501, 0, 0},
-	{1016.2536, -1672.9060, 14.4898, 0, 0}
+	{1016.2536, -1672.9060, 14.4898, 0, 0},
+	{2669.2693, -2359.5032, 13.6328, 0, 0},
+	{2679.8481, -2362.3098, 13.6328, 0, 0}
 };
 
 /**
@@ -707,7 +709,7 @@ new const ACT_POSITION[][ACT_POSITION_INFO] = {
 	{26, ACTOR_PEMBELI_KAYU_1, {-752.8927, -133.0457, 65.8281, 17.1701}, 0, 0, NAMA_ACTOR_PEMBELI_KAYU_1},
 	{158, ACTOR_PEMBELI_IKAN, {403.8720, -2088.7983, 7.8359, 181.5444}, 0, 0, NAMA_ACTOR_PEMBELI_IKAN},
 	{161, ACTOR_PEMBELI_BUAH, {-1061.4474, -1195.5634, 129.8281, 265.0136}, 0, 0, NAMA_ACTOR_PEMBELI_BUAH},
-	{280, ACTOR_PENJUAL_SENJATA_FRAKSI, {237.8650,71.3585,1005.0391,356.4053}, 6, 1, NAMA_ACTOR_PENJUAL_SENJATA_FRAKSI}
+	{280, ACTOR_PENJUAL_SENJATA_FRAKSI, {220.9455,69.8121,1005.0391,269.7523}, 6, 1, NAMA_ACTOR_PENJUAL_SENJATA_FRAKSI}
 };
 
 enum INFO_ACT_NPC {
@@ -1684,6 +1686,7 @@ new Iterator:FactionVehIterator<MAX_VEHICLES>,
 	FactionVeh[MAX_VEHICLES][FactionVehInfo],
 	FactionVehID[MAX_VEHICLES] = {-1, ...};
 
+new WeaponTazer[MAX_PLAYERS];
 
 /**
 	End Faction
@@ -1890,7 +1893,8 @@ new const item_beli_kayu[][INFO_BARANG_MARKET] = {
 new const item_beli_peluru[][INFO_BARANG_DENGAN_JUMLAH] = {
 	{ID_AMMO_4_55MM, 10, 1},
 	{ID_AMMO_7_55MM, 10, 3},
-	{ID_AMMO_12_55MM, 10, 5}
+	{ID_AMMO_12_55MM, 10, 5},
+	{ID_AMMO_ELECTRO, 10, 10}
 };
 
 new const item_beli_senjata[][INFO_BARANG_MARKET] = {
@@ -1904,8 +1908,65 @@ new const item_beli_senjata[][INFO_BARANG_MARKET] = {
 	{ID_MP5, 50},
 	{ID_TEC_9, 60},
 	{ID_AK_47, 70},
-	{ID_M4, 80}
+	{ID_M4, 80},
+	{ID_TAZER_PULSE, 100}
 };
+
+enum INFO_BODY_WEAPON {
+	weaponSlot,
+	weaponModel
+};
+
+// Beberapa daftar Weapon ID yang memiliki Model ID
+new const DATA_WEAPON_BODY[][INFO_BODY_WEAPON] = {
+	{0, 0},
+	{0, 331},
+	{1, 333},
+	{1, 334},
+	{1, 335},
+	{1, 336},
+	{1, 337},
+	{1, 338},
+	{1, 339},
+	{1, 341},
+	{10, 321},
+	{10, 322},
+	{10, 323},
+	{10, 324},
+	{10, 325},
+	{10, 326},
+	{8, 342},
+	{8, 343},
+	{8, 344},
+	{0, 0},
+	{0, 0},
+	{0, 0},
+	{2, 346},
+	{2, 347},
+	{2, 348},
+	{3, 349},
+	{3, 350},
+	{3, 351},
+	{4, 352},
+	{4, 353},
+	{4, 355},
+	{5, 356},
+	{4, 372},
+	{6, 357},
+	{6, 358},
+	{7, 359},
+	{7, 360},
+	{7, 361},
+	{7, 362},
+	{8, 363},
+	{12, 364},
+	{9, 365},
+	{9, 366},
+	{9, 367}
+};
+
+new WeaponBodyTemp[MAX_PLAYERS],
+	TimerWeaponBody[MAX_PLAYERS];
 
 /*
 	Bagasi Item
