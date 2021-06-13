@@ -8634,6 +8634,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/cancelrentvehicle "WHITE"- Membatalkan sewa kendaraan\n"\
 							YELLOW"/removehelmet "WHITE"- Melepas helm\n"\
 							YELLOW"/removemask "WHITE"- Melepas topeng\n"\
+							YELLOW"/removeweapon "WHITE"- Melepas senjata\n"\
 							YELLOW"/anim "WHITE"- Daftar perintah animasi\n"\
 							YELLOW"/stand "WHITE"- Animasi berdiri\n"\
 							YELLOW"/sit "WHITE"- Animasi duduk\n"\

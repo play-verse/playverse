@@ -2248,6 +2248,7 @@ CMD:clearanimation(playerid, const params[]){
         return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
     ClearAnimations(playerid);
     PlayerInfo[playerid][isOnAnimation] = false;
+    ApplyAnimation(playerid, "CARRY", "crry_prtial", 2.0, 0, 0, 0, 0, 0);
     return 1;
 }
 
