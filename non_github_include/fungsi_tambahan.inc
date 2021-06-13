@@ -1458,3 +1458,19 @@ alphanumeric(strength){
     }
     return random_string;
 }
+
+ApplyAnimationEx(playerid, const animlib[], const animname[], Float:fDelta, loop, lockx, locky, freeze, time){
+    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1]))
+        return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
+    ApplyAnimation(playerid, animlib, animname, fDelta, loop, lockx, locky, freeze, time);
+    PlayerInfo[playerid][isOnAnimation] = true;
+    return 1;
+}
+
+SetPlayerSpecialActionEx(playerid, actionid){
+    if(PlayerInfo[playerid][isOnAnimation] || PlayerInfo[playerid][isBusy] || CA_IsPlayerInWater(playerid, _unusedDepth[0], _unusedDepth[1]))
+        return error_command(playerid, "Anda sedang tidak bisa melakukan hal ini sekarang.");
+    SetPlayerSpecialAction(playerid, actionid);
+    PlayerInfo[playerid][isOnAnimation] = true;
+    return 1;
+}

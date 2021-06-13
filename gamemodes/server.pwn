@@ -190,6 +190,8 @@ public OnPlayerDisconnect(playerid, reason){
 	if(IsValidDynamic3DTextLabel(c_nametag[playerid])) DestroyDynamic3DTextLabel(c_nametag[playerid]);
 	// Weapon Body
 	DeletePreciseTimer(TimerWeaponBody[playerid]);
+	// Gun Drop
+	destroyGunDrop(playerid);
 	return 1;
 }
 
@@ -1473,9 +1475,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								data[fPosX] = pos[0];
 								data[fPosY] = pos[1];
 								data[fPosZ] = pos[2];
-								data[fRotX] = 0.0;
-								data[fRotY] = 0.0;
-								data[fRotZ] = 0.0;
+								data[fRot_X] = 0.0;
+								data[fRot_Y] = 0.0;
+								data[fRot_Z] = 0.0;
 
 								Streamer_SetArrayData(STREAMER_TYPE_OBJECT, objectid, E_STREAMER_EXTRA_ID, data);
 								EditingObject[playerid] = EDITING_FURNITURE;
@@ -7405,7 +7407,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						strcat(pDialog[playerid], "\nPil Darah Merah 50");
 						strcat(pDialog[playerid], "\nPil Darah Merah 100");
 						strcat(pDialog[playerid], "\nColt 45");
-						strcat(pDialog[playerid], "\nSilenced Colt 45");
+						// strcat(pDialog[playerid], "\nSilenced Colt 45");
 						strcat(pDialog[playerid], "\nDesert Eagle");
 						strcat(pDialog[playerid], "\nShotgun");
 						strcat(pDialog[playerid], "\nSawnoff Shotgun");
@@ -7495,81 +7497,81 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_colt_45);
 					}
-					case 5: // Silenced Colt 45
-					{
-						SetPVarInt(playerid, "bs_buat_id_item", ID_SILENCED_COLT_45); 
-						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
-						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_s_colt_45);
-					}
-					case 6: // Desert Eagle
+					// case 5: // Silenced Colt 45
+					// {
+					// 	SetPVarInt(playerid, "bs_buat_id_item", ID_SILENCED_COLT_45); 
+					// 	SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
+					// 	dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_s_colt_45);
+					// }
+					case 5: // Desert Eagle
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_DEAGLE); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_deagle);
 					}					
-					case 7: // Shotgun
+					case 6: // Shotgun
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_SHOTGUN); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_sg);
 					}					
-					case 8: // Sawn Shotgun
+					case 7: // Sawn Shotgun
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_SAWNOFF_SG); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_sawn_sg);
 					}					
-					case 9: // Combat Shotgun
+					case 8: // Combat Shotgun
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_COMBAT_SG); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_combat_sg);
 					}
-					case 10: // Uzi
+					case 9: // Uzi
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_UZI); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_uzi);
 					}
-					case 11: // MP5
+					case 10: // MP5
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_MP5); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_mp5);
 					}
-					case 12: // TEC 9
+					case 11: // TEC 9
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_TEC_9); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_tec);
 					}
-					case 13: // M4
+					case 12: // M4
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_M4); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_m4);
 					}
-					case 14: // AK-47
+					case 13: // AK-47
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_AK_47); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_ak47);
 					}
-					case 15: // Ammo 4,5
+					case 14: // Ammo 4,5
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_AMMO_4_55MM); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						SetPVarInt(playerid, "bs_buat_jumlah", AMMO_4_5MM_PER_CRAFT);
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_ammo45);
 					}
-					case 16: // Ammo 7,5
+					case 15: // Ammo 7,5
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_AMMO_7_55MM); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
 						SetPVarInt(playerid, "bs_buat_jumlah", AMMO_7_5MM_PER_CRAFT);
 						dialogKonfirmasiBuatItemBs(playerid, bahan_weapon_ammo75);
 					}
-					case 17: // Ammo 12,5
+					case 16: // Ammo 12,5
 					{
 						SetPVarInt(playerid, "bs_buat_id_item", ID_AMMO_12_55MM); 
 						SetPVarInt(playerid, "bs_buat_needed_level", 1); // Level skill yang dibutuhkan untuk membuka, untuk menentukan berapa exp yang akan didapat
@@ -7699,14 +7701,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								tambahItemPlayer(playerid, bahan_weapon_colt_45[i][0], -bahan_weapon_colt_45[i][1]);
 						}
 					}
-					case ID_SILENCED_COLT_45:
-					{
-						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_s_colt_45);
-						if(ret){
-							for(new i=0;i<sizeof(bahan_weapon_s_colt_45);i++)
-								tambahItemPlayer(playerid, bahan_weapon_s_colt_45[i][0], -bahan_weapon_s_colt_45[i][1]);
-						}
-					}
+					// case ID_SILENCED_COLT_45:
+					// {
+					// 	ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_s_colt_45);
+					// 	if(ret){
+					// 		for(new i=0;i<sizeof(bahan_weapon_s_colt_45);i++)
+					// 			tambahItemPlayer(playerid, bahan_weapon_s_colt_45[i][0], -bahan_weapon_s_colt_45[i][1]);
+					// 	}
+					// }
 					case ID_DEAGLE:
 					{
 						ret = IsItemPlayerCukup_Massive(playerid, bahan_weapon_deagle);
@@ -8643,7 +8645,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							YELLOW"/exit "WHITE"- Aksi untuk keluar bangunan\n"\
 							YELLOW"/skill "WHITE"- Daftar kemampuan\n"\
 							YELLOW"/suicide "WHITE"- Akhiri hidup\n"\
-							YELLOW"/radio "WHITE"- Mengakses channel radio\n");
+							YELLOW"/radio "WHITE"- Mengakses channel radio\n"\
+							YELLOW"/animlist "WHITE"- Daftar animasi\n"\
+							YELLOW"/gun "WHITE"- Aksi untuk drop/pick senjata\n"\
+							YELLOW"/weaponbody "WHITE"- Mengubah posisi senjata");
 						ShowPlayerDialog(playerid, DIALOG_MSG, DIALOG_STYLE_MSGBOX, "Perintah Bantuan (Umum):", str_guide, "Ok", "");
 					}
 					// Pekerjaan
@@ -11207,6 +11212,56 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 			}
 			DeletePVar(playerid, "fraksi_plat_nomor");
+			return 1;
+		}
+		case DIALOG_WEAPON_BODY_LIST:
+		{
+			if(response){
+				switch(listitem){
+					case 0: // Punggung
+					{
+						if(EditingWeaponBody[playerid] == 1)
+							return error_command(playerid, "Anda sedang mengubah posisi, silahkan selesaikan terlebih dahulu.");
+						
+						if(PlayerInfo[playerid][bone_Status] == 0)
+							SetPlayerAttachedObject(playerid, GUN_ATTACH_INDEX, 349, 15, -0.2, 0.1, -0.15, 0.0, 44.50, 0.0, 1.0, 1.0, 1.0);
+						else
+							SetPlayerAttachedObject(playerid, GUN_ATTACH_INDEX, 349, 15,
+								PlayerInfo[playerid][bone_Top][0], PlayerInfo[playerid][bone_Top][1], PlayerInfo[playerid][bone_Top][2],
+								PlayerInfo[playerid][bone_rTop][0], PlayerInfo[playerid][bone_rTop][1], PlayerInfo[playerid][bone_rTop][2],
+								1.0, 1.0, 1.0);
+						EditingWeaponBody[playerid] = 15;
+						EditAttachedObject(playerid, GUN_ATTACH_INDEX);
+					}
+					case 1: // Paha
+					{
+						if(EditingWeaponBody[playerid] == 1)
+							return error_command(playerid, "Anda sedang mengubah posisi, silahkan selesaikan terlebih dahulu.");
+
+						if(PlayerInfo[playerid][bone_Status] == 0)
+							SetPlayerAttachedObject(playerid, GUN_ATTACH_INDEX, 346, 7, 0.044, -0.1021, 0.351001, -83.7, 21.1, 4, 1.0, 1.0, 1.0);
+						else
+							SetPlayerAttachedObject(playerid, GUN_ATTACH_INDEX, 346, 7,
+								PlayerInfo[playerid][bone_Bottom][0], PlayerInfo[playerid][bone_Bottom][1], PlayerInfo[playerid][bone_Bottom][2],
+								PlayerInfo[playerid][bone_rBottom][0], PlayerInfo[playerid][bone_rBottom][1], PlayerInfo[playerid][bone_rBottom][2],
+								1.0, 1.0, 1.0);
+						EditAttachedObject(playerid, GUN_ATTACH_INDEX);
+						EditingWeaponBody[playerid] = 7;
+					}
+					case 2: // Reset Koordinat
+					{
+						if(EditingWeaponBody[playerid] == 1)
+							return error_command(playerid, "Anda sedang mengubah posisi, silahkan selesaikan terlebih dahulu.");
+
+						PlayerInfo[playerid][bone_Status] = 0;
+
+						mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `weapon_body` SET `bone_status` = '%d' WHERE `id_user` = '%d'", 0, PlayerInfo[playerid][pID]);
+						mysql_tquery(koneksi, pQuery[playerid]);
+
+						SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda berhasil mereset posisi weapon body.");
+					}
+				}
+			}
 			return 1;
 		}
     }
@@ -13881,7 +13936,7 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 				new data[e_furniture];
 				Streamer_GetArrayData(STREAMER_TYPE_OBJECT, objectid, E_STREAMER_EXTRA_ID, data);
 				SetDynamicObjectPos(objectid, data[fPosX], data[fPosY], data[fPosZ]);
-				SetDynamicObjectRot(objectid, data[fRotX], data[fRotY], data[fRotZ]);
+				SetDynamicObjectRot(objectid, data[fRot_X], data[fRot_Y], data[fRot_Z]);
 
 				EditingObject[playerid] = EDITING_NONE;
 			}
@@ -13893,14 +13948,14 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 				data[fPosX] = x;
 				data[fPosY] = y;
 				data[fPosZ] = z;
-				data[fRotX] = rx;
-				data[fRotY] = ry;
-				data[fRotZ] = rz;
+				data[fRot_X] = rx;
+				data[fRot_Y] = ry;
+				data[fRot_Z] = rz;
 				SetDynamicObjectPos(objectid, data[fPosX], data[fPosY], data[fPosZ]);
-				SetDynamicObjectRot(objectid, data[fRotX], data[fRotY], data[fRotZ]);
+				SetDynamicObjectRot(objectid, data[fRot_X], data[fRot_Y], data[fRot_Z]);
 				Streamer_SetArrayData(STREAMER_TYPE_OBJECT, objectid, E_STREAMER_EXTRA_ID, data);
 
-				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE house_furniture SET pos_x=%f, pos_y=%f, pos_z=%f, rot_x=%f, rot_y=%f, rot_z=%f WHERE id=%d", data[fPosX], data[fPosY], data[fPosZ], data[fRotX], data[fRotY], data[fRotZ], data[fID]);
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE house_furniture SET pos_x=%f, pos_y=%f, pos_z=%f, rot_x=%f, rot_y=%f, rot_z=%f WHERE id=%d", data[fPosX], data[fPosY], data[fPosZ], data[fRot_X], data[fRot_Y], data[fRot_Z], data[fID]);
 				mysql_tquery(koneksi, pQuery[playerid]);
 				EditingObject[playerid] = EDITING_NONE;
 
@@ -13994,6 +14049,44 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
         }
     }
 	return 1;
+}
+
+public OnPlayerEditAttachedObject(playerid, response, index, modelid, boneid, Float:fOffsetX, Float:fOffsetY, Float:fOffsetZ, Float:fRotX, Float:fRotY, Float:fRotZ, Float:fScaleX, Float:fScaleY, Float:fScaleZ)
+{
+    if(response){
+		if(EditingWeaponBody[playerid] != 0){
+			if(EditingWeaponBody[playerid] == 15){
+				PlayerInfo[playerid][bone_Status] = 1;
+				PlayerInfo[playerid][bone_Top][0] = fOffsetX;
+				PlayerInfo[playerid][bone_Top][1] = fOffsetY;
+				PlayerInfo[playerid][bone_Top][2] = fOffsetZ;
+				PlayerInfo[playerid][bone_rTop][0] = fRotX;
+				PlayerInfo[playerid][bone_rTop][1] = fRotY;
+				PlayerInfo[playerid][bone_rTop][2] = fRotZ;
+
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `weapon_body` SET `bone_status` = '%d', `bone_topX` = '%f', `bone_topY` = '%f', `bone_topZ` = '%f', `bone_topRX` = '%f', `bone_topRY` = '%f', `bone_topRZ` = '%f' WHERE `id_user` = '%d'", 1, fOffsetX, fOffsetY, fOffsetZ, fRotX, fRotY, fRotZ, PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+				
+				SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda berhasil mengubah posisi weapon body.");
+			} else if(EditingWeaponBody[playerid] == 7){
+				PlayerInfo[playerid][bone_Status] = 1;
+				PlayerInfo[playerid][bone_Bottom][0] = fOffsetX;
+				PlayerInfo[playerid][bone_Bottom][1] = fOffsetY;
+				PlayerInfo[playerid][bone_Bottom][2] = fOffsetZ;
+				PlayerInfo[playerid][bone_rBottom][0] = fRotX;
+				PlayerInfo[playerid][bone_rBottom][1] = fRotY;
+				PlayerInfo[playerid][bone_rBottom][2] = fRotZ;
+
+				mysql_format(koneksi, pQuery[playerid], sizePQuery, "UPDATE `weapon_body` SET `bone_status` = '%d', `bone_bottomX` = '%f', `bone_bottomY` = '%f', `bone_bottomZ` = '%f', `bone_bottomRX` = '%f', `bone_bottomRY` = '%f', `bone_bottomRZ` = '%f' WHERE `id_user` = '%d'", 1, fOffsetX, fOffsetY, fOffsetZ, fRotX, fRotY, fRotZ, PlayerInfo[playerid][pID]);
+				mysql_tquery(koneksi, pQuery[playerid]);
+
+				SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Anda berhasil mengubah posisi weapon body.");
+			}
+        }
+        EditingWeaponBody[playerid] = 0;
+    }
+    RemovePlayerAttachedObject(playerid, GUN_ATTACH_INDEX);
+    return 1;
 }
 
 public OnPlayerEnterDynamicArea(playerid, areaid){
@@ -14096,7 +14189,12 @@ public OnPlayerDamage(&playerid, &Float:amount, &issuerid, &weapon, &bodypart){
 		animasiSekarat(playerid);
 		return 0;
 	}
-	
+	// Damage tazer tidak berkurang
+	if(weapon == WEAPON_SILENCED && PlayerInfo[issuerid][usedWeapon] == ID_TAZER_PULSE){
+		if(PlayerInfo[issuerid][usedTazer] == 1){
+			return 0;
+		}
+	}
 	// Don't allow minigun
 	// if(weapon == WEAPON_MINIGUN) {
 	// 	Kick(issuerid);
@@ -14130,13 +14228,14 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 		PlayerInfo[playerid][usedAmmo]--;
 		// Weapon Tazer
 		if(weaponid == WEAPON_SILENCED && PlayerInfo[playerid][usedWeapon] == ID_TAZER_PULSE){
-			if(WeaponTazer[playerid] == 1){
+			if(PlayerInfo[playerid][usedTazer] == 1){
 				if(IsPlayerInAnyVehicle(hitid) == 0 && IsPlayerInAnyVehicle(playerid) == 0){
 					if(hitid != playerid){
 						if(GetPVarInt(hitid, "player_tazed") != 1){
 							TogglePlayerControllable(hitid, 0);
-							ApplyAnimation(hitid, "CRACK", "crckdeth2", 4.0, 1, 0, 0, 0, 0);
-							SetPreciseTimer("unfreezeTazed", 5000, false, "i", hitid);
+							ApplyAnimation(hitid, "CRACK", "crckdeth2", 4.1, 1, 0, 0, 0, 0, 1);
+							SetPlayerDrunkLevel(hitid, 5000);
+							SetPreciseTimer("unfreezeTazed", 10*1000, false, "i", hitid);
 							SetPVarInt(hitid, "player_tazed", 1);
 						}
 					}
@@ -14155,8 +14254,8 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 			// Weapon Body
 			if(WeaponBodyTemp[playerid] != 0){
 				WeaponBodyTemp[playerid] = 0;
-				if(IsPlayerAttachedObjectSlotUsed(playerid, BACK_ATTACH_INDEX)){
-					RemovePlayerAttachedObject(playerid, BACK_ATTACH_INDEX);
+				if(IsPlayerAttachedObjectSlotUsed(playerid, GUN_ATTACH_INDEX)){
+					RemovePlayerAttachedObject(playerid, GUN_ATTACH_INDEX);
 				}
 			}
 		}

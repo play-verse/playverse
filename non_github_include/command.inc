@@ -1465,8 +1465,8 @@ CMD:removeweapon(playerid, params[]){
     // Weapon Body
     if(WeaponBodyTemp[playerid] != 0){
         WeaponBodyTemp[playerid] = 0;
-        if(IsPlayerAttachedObjectSlotUsed(playerid, BACK_ATTACH_INDEX)){
-            RemovePlayerAttachedObject(playerid, BACK_ATTACH_INDEX);
+        if(IsPlayerAttachedObjectSlotUsed(playerid, GUN_ATTACH_INDEX)){
+            RemovePlayerAttachedObject(playerid, GUN_ATTACH_INDEX);
         }
     }
     return 1;
@@ -2251,6 +2251,8 @@ CMD:clearanimation(playerid, const params[]){
     return 1;
 }
 
+#include <animations>
+
 /**
     End Animations
  */
@@ -2477,3 +2479,61 @@ CMD:radio(playerid, params[]){
 //     UpdateVehicleDamageStatus(vehicleid, panels, doors, lights, tires);
 //     return 1;
 // }
+
+CMD:gun(playerid, params[]){
+    new action[8];
+    if(sscanf(params, "s[8]", action))
+        return error_syntax(playerid, "/gun [pick/drop]");
+
+	if(sama("pick", action)){
+		// Mengambil senjata
+        new gundrop_id = GetClosestGunDrop(playerid);
+        if(gundrop_id == -1) 
+            return error_command(playerid, "Anda tidak berada disekitar senjata.");
+        
+        new id_item = GunDrop[gundrop_id][GunDropID_DB];
+        if(GetSlotInventoryPlayer(playerid) + getKapasitasByIdItem(id_item) > PlayerInfo[playerid][limitItem])
+            return showDialogPesan(playerid, RED"Inventory anda penuh", WHITE"Silahkan sisakan minimal 1 slot item anda terlebih dahulu.\nPengosongan berguna untuk menyisakan tempat untuk hasil yang didapat nantinya.");
+
+        new ammoid = getAmmoIdByIdItemWeapon(id_item);
+        if(ammoid == -1)
+            return error_command(playerid, "Terjadi kesalahan saat penggunaan item. Silahkan coba lagi.");
+
+        tambahItemPlayer(playerid, id_item, 1);
+        tambahItemPlayer(playerid, ammoid, GunDrop[gundrop_id][GunDropWeapon][1]);
+        ApplyAnimation(playerid, "CARRY", "putdwn05", 4.1, 0, 1, 1, 0, 0, 1);
+        destroyGunDrop(playerid);
+        if(PlayerInfo[playerid][usedWeaponId] == 0)
+            pakaiWeapon(playerid, id_item);
+	}else if(sama("drop", action)){
+		// Menjatuhkan senjata
+        if(PlayerInfo[playerid][usedWeaponId] == 0)
+            return error_command(playerid, "Anda tidak sedang menggunakan senjata.");
+
+        new Float:gX, Float:gY, Float:gZ,
+            weapon_id = GetPlayerWeapon(playerid);
+        GetPlayerPos(playerid, gX, gY, gZ);
+        createGunDrop(playerid, PlayerInfo[playerid][usedWeapon], PlayerInfo[playerid][usedAmmo], weapon_id, gX, gY, gZ, GetPlayerVirtualWorld(playerid), GetPlayerInterior(playerid));
+        SendClientMessage(playerid, COLOR_BLUE, TAG_INFO" "WHITE"Senjata yang telah di drop sewaktu-waktu akan hilang.");
+        takeOffTazer(playerid); // Tazer Pulse
+        PlayerInfo[playerid][usedWeaponId] = 0;
+        PlayerInfo[playerid][usedWeapon] = 0;
+        PlayerInfo[playerid][usedAmmo] = 0;
+        ResetPlayerWeapons(playerid);
+        // Weapon Body
+        if(WeaponBodyTemp[playerid] != 0){
+            WeaponBodyTemp[playerid] = 0;
+            if(IsPlayerAttachedObjectSlotUsed(playerid, GUN_ATTACH_INDEX)){
+                RemovePlayerAttachedObject(playerid, GUN_ATTACH_INDEX);
+            }
+        }
+	}
+    return 1;
+}
+
+CMD:weaponbody(playerid, params[]){
+    if(PlayerInfo[playerid][usedWeaponId] != 0)
+        return error_command(playerid, "Anda sedang menggunakan senjata, lepas terlebih dahulu.");
+    ShowPlayerDialog(playerid, DIALOG_WEAPON_BODY_LIST, DIALOG_STYLE_LIST, "Ubah Posisi :", "Punggung\nPaha\nReset Koordinat", "Pilih", "Batal");
+    return 1;
+}

@@ -34,6 +34,7 @@ enum pInfo
 	usedWeaponId,
 	usedAmmo,
 	usedKtp,
+	usedTazer,
 
 	levelAdmin,
 
@@ -180,7 +181,14 @@ enum pInfo
 	ucnt_Police,
 
 	// Player voice mute
-	voice_mute
+	voice_mute,
+
+	// Weapon Body
+	bone_Status,
+	Float:bone_Top[3],
+	Float:bone_rTop[3],
+	Float:bone_Bottom[3],
+	Float:bone_rBottom[3]
 }
 new PlayerInfo[MAX_PLAYERS][pInfo];
 
@@ -259,9 +267,9 @@ enum    e_furniture
 	Float: fPosX,
 	Float: fPosY,
 	Float: fPosZ,
-	Float: fRotX,
-	Float: fRotY,
-	Float: fRotZ
+	Float: fRot_X,
+	Float: fRot_Y,
+	Float: fRot_Z
 };
 
 #define EDITING_NONE 0
@@ -1686,8 +1694,6 @@ new Iterator:FactionVehIterator<MAX_VEHICLES>,
 	FactionVeh[MAX_VEHICLES][FactionVehInfo],
 	FactionVehID[MAX_VEHICLES] = {-1, ...};
 
-new WeaponTazer[MAX_PLAYERS];
-
 /**
 	End Faction
  */
@@ -1738,11 +1744,11 @@ new const bahan_weapon_colt_45[][2] = {
 	{ID_ALUMINIUM, 25}
 };
 
-new const bahan_weapon_s_colt_45[][2] = {
-	{ID_BESI, 25},
-	{ID_ALUMINIUM, 25},
-	{ID_PERAK, 5}
-};
+// new const bahan_weapon_s_colt_45[][2] = {
+// 	{ID_BESI, 25},
+// 	{ID_ALUMINIUM, 25},
+// 	{ID_PERAK, 5}
+// };
 
 new const bahan_weapon_deagle[][2] = {
 	{ID_BESI, 30},
@@ -1899,7 +1905,7 @@ new const item_beli_peluru[][INFO_BARANG_DENGAN_JUMLAH] = {
 
 new const item_beli_senjata[][INFO_BARANG_MARKET] = {
 	{ID_COLT_45, 25},
- 	{ID_SILENCED_COLT_45, 30},
+ 	// {ID_SILENCED_COLT_45, 30},
  	{ID_DEAGLE, 35},
  	{ID_SHOTGUN, 60},
  	{ID_SAWNOFF_SG, 70},
@@ -1912,13 +1918,13 @@ new const item_beli_senjata[][INFO_BARANG_MARKET] = {
 	{ID_TAZER_PULSE, 100}
 };
 
-enum INFO_BODY_WEAPON {
+enum INFO_WEAPON {
 	weaponSlot,
 	weaponModel
 };
 
 // Beberapa daftar Weapon ID yang memiliki Model ID
-new const DATA_WEAPON_BODY[][INFO_BODY_WEAPON] = {
+new const DATA_WEAPONS[][INFO_WEAPON] = {
 	{0, 0},
 	{0, 331},
 	{1, 333},
@@ -1966,7 +1972,8 @@ new const DATA_WEAPON_BODY[][INFO_BODY_WEAPON] = {
 };
 
 new WeaponBodyTemp[MAX_PLAYERS],
-	TimerWeaponBody[MAX_PLAYERS];
+	TimerWeaponBody[MAX_PLAYERS],
+	EditingWeaponBody[MAX_PLAYERS];
 
 /*
 	Bagasi Item
@@ -2185,3 +2192,19 @@ new Text3D:c_nametag[MAX_PLAYERS];
 // Dynamic Mapping
 #define MAPPING_NAME_LENGTH 50
 new DYNAMIC_MAPPING_UNIQUE_ID[200][MAPPING_NAME_LENGTH];
+
+// Gun Drop
+enum GunDropInfo
+{
+	GunDropID_DB,
+	GunDropWeapon[2],
+    Float:GunDropPos[3],
+	GunDropInt,
+	GunDropVWorld,
+	GunDropTime,
+	GunDropObject
+}
+
+new Iterator:GunDropIterator<MAX_DROP_GUNS>,
+	GunDrop[MAX_DROP_GUNS][GunDropInfo],
+	PlayerGunDrop[MAX_PLAYERS] = {-1, ...};

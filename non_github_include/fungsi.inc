@@ -90,6 +90,7 @@ publicFor: isRegistered(playerid)
 		cache_get_value_name_int(0, "used_weapon", PlayerInfo[playerid][usedWeapon]);
 		cache_get_value_name_int(0, "used_ammo", PlayerInfo[playerid][usedAmmo]);
 		cache_get_value_name_int(0, "used_ktp", PlayerInfo[playerid][usedKtp]);
+		cache_get_value_name_int(0, "used_tazer", PlayerInfo[playerid][usedTazer]);
 		if(PlayerInfo[playerid][usedWeapon] != 0)
 			PlayerInfo[playerid][usedWeaponId] = getWeaponIdByItemId(PlayerInfo[playerid][usedWeapon]);
 
@@ -152,6 +153,7 @@ publicFor: isRegistered(playerid)
 		loadPlayerSkill(playerid);
 		loadPlayerAchievement(playerid);
 		loadPlayerCount(playerid);
+		loadWeaponBody(playerid);
 
 		// Pindahkan player
 		SetSpawnInfo(playerid, 0, PlayerInfo[playerid][skinID], 2093.7747, -1806.4586, 13.5499, 87.6500, 0, 0, 0, 0, 0, 0);
@@ -1686,7 +1688,7 @@ publicFor: pakaiWeapon(playerid, itemid){
 
 	// Tazer Pulse
 	if(itemid == ID_TAZER_PULSE)
-		WeaponTazer[playerid] = 1;
+		PlayerInfo[playerid][usedTazer] = 1;
 	return 1;
 }
 
@@ -4054,11 +4056,11 @@ loadHouseFurniture(house_id){
 				cache_get_value_name_float(idx, "pos_x", data[fPosX]);
 				cache_get_value_name_float(idx, "pos_y", data[fPosY]);
 				cache_get_value_name_float(idx, "pos_z", data[fPosZ]);
-				cache_get_value_name_float(idx, "rot_x", data[fRotX]);
-				cache_get_value_name_float(idx, "rot_y", data[fRotY]);
-				cache_get_value_name_float(idx, "rot_z", data[fRotZ]);
+				cache_get_value_name_float(idx, "rot_x", data[fRot_X]);
+				cache_get_value_name_float(idx, "rot_y", data[fRot_Y]);
+				cache_get_value_name_float(idx, "rot_z", data[fRot_Z]);
 
-				new objectid = CreateDynamicObject(id_object, data[fPosX], data[fPosY], data[fPosZ], data[fRotX], data[fRotY], data[fRotZ], house_id, interior);
+				new objectid = CreateDynamicObject(id_object, data[fPosX], data[fPosY], data[fPosZ], data[fRot_X], data[fRot_Y], data[fRot_Z], house_id, interior);
 
 				#if DEBUG_SERVER_LOAD == true
 				printf("House furniture (%d) - House ID(%d) - Object", data[fID], house_id, objectid);
@@ -6834,33 +6836,81 @@ insertFactionVeh(playerid, factionid, modelid, const plat_nomor[]){
 	MySQL_TQueryInline(koneksi, using inline responseQuery, "INSERT INTO `vehicle_faction` (id_faction, id_model, pos_x, pos_y, pos_z, pos_a, no_plat) VALUES ('%d', '%d', '%f', '%f', '%f', '%f', '%s')", factionid, modelid, x, y, z, a, plat_nomor);
 }
 
+loadWeaponBody(playerid){
+	inline responseQuery(){
+		new rows;
+		cache_get_row_count(rows);
+		if(rows){
+			cache_get_value_name_int(0, "bone_status", PlayerInfo[playerid][bone_Status]);
+			cache_get_value_name_float(0, "bone_topX", PlayerInfo[playerid][bone_Top][0]);
+			cache_get_value_name_float(0, "bone_topY", PlayerInfo[playerid][bone_Top][1]);
+			cache_get_value_name_float(0, "bone_topZ", PlayerInfo[playerid][bone_Top][2]);
+			cache_get_value_name_float(0, "bone_topRX", PlayerInfo[playerid][bone_rTop][0]);
+			cache_get_value_name_float(0, "bone_topRY", PlayerInfo[playerid][bone_rTop][1]);
+			cache_get_value_name_float(0, "bone_topRZ", PlayerInfo[playerid][bone_rTop][2]);
+			cache_get_value_name_float(0, "bone_bottomX", PlayerInfo[playerid][bone_Bottom][0]);
+			cache_get_value_name_float(0, "bone_bottomY", PlayerInfo[playerid][bone_Bottom][1]);
+			cache_get_value_name_float(0, "bone_bottomZ", PlayerInfo[playerid][bone_Bottom][2]);
+			cache_get_value_name_float(0, "bone_bottomRX", PlayerInfo[playerid][bone_rBottom][0]);
+			cache_get_value_name_float(0, "bone_bottomRY", PlayerInfo[playerid][bone_rBottom][1]);
+			cache_get_value_name_float(0, "bone_bottomRZ", PlayerInfo[playerid][bone_rBottom][2]);
+		}else{
+			PlayerInfo[playerid][bone_Status] = 0;
+
+			mysql_format(koneksi, pQuery[playerid], sizePQuery, "INSERT INTO `weapon_body` (bone_status, id_user) VALUES ('%d', '%d')", 0, PlayerInfo[playerid][pID]);
+			mysql_tquery(koneksi, pQuery[playerid]);
+		}
+	}
+	MySQL_TQueryInline(koneksi, using inline responseQuery, "SELECT * FROM `weapon_body` WHERE `id_user` = %d", PlayerInfo[playerid][pID]);
+}
+
 publicFor: updateWeaponBody(playerid){
-	if(IsPlayerSpawned(playerid)){
-		new weaponTemp = WeaponBodyTemp[playerid],
-			weaponUsed = GetPlayerWeapon(playerid);
-		if(weaponTemp != weaponUsed){
-			if(DATA_WEAPON_BODY[weaponUsed][weaponModel] != 0){
-				if(IsPlayerAttachedObjectSlotUsed(playerid, BACK_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, BACK_ATTACH_INDEX);
-			}else{
-				if(!IsPlayerAttachedObjectSlotUsed(playerid, BACK_ATTACH_INDEX)){
-					if(DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 1 || DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 3
-					|| DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 4 || DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 5
-					|| DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 6 || DATA_WEAPON_BODY[weaponTemp][weaponSlot] == 7){
-						// Senjata dipunggung
-						SetPlayerAttachedObject(playerid, BACK_ATTACH_INDEX, DATA_WEAPON_BODY[weaponTemp][weaponModel], 15, -0.2, 0.1, -0.15, 0.0, 44.50, 0.0, 1.0, 1.0, 1.0);
+	if(EditingWeaponBody[playerid] == 0){
+		if(IsPlayerSpawned(playerid)){
+			if(PlayerInfo[playerid][usedWeapon] != 0){
+				new weaponTemp = WeaponBodyTemp[playerid],
+					weaponUsed = GetPlayerWeapon(playerid);
+				if(weaponTemp != weaponUsed){
+					if(DATA_WEAPONS[weaponUsed][weaponModel] != 0){
+						if(IsPlayerAttachedObjectSlotUsed(playerid, GUN_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, GUN_ATTACH_INDEX);
 					}else{
-						// Senjata dipaha kanan
-						SetPlayerAttachedObject(playerid, BACK_ATTACH_INDEX, DATA_WEAPON_BODY[weaponTemp][weaponModel], 7, 0.01, 0.01, -0.06, 289.86, 17.39, 7.67, 1.0, 1.0, 1.0);
+						if(!IsPlayerAttachedObjectSlotUsed(playerid, GUN_ATTACH_INDEX)){
+							if(DATA_WEAPONS[weaponTemp][weaponSlot] == 1 || DATA_WEAPONS[weaponTemp][weaponSlot] == 3
+							|| DATA_WEAPONS[weaponTemp][weaponSlot] == 4 || DATA_WEAPONS[weaponTemp][weaponSlot] == 5
+							|| DATA_WEAPONS[weaponTemp][weaponSlot] == 6 || DATA_WEAPONS[weaponTemp][weaponSlot] == 7){
+								// Senjata dipunggung
+								if(PlayerInfo[playerid][bone_Status] == 0)
+									SetPlayerAttachedObject(playerid, GUN_ATTACH_INDEX, DATA_WEAPONS[weaponTemp][weaponModel], 15, -0.2, 0.1, -0.15, 0.0, 44.50, 0.0, 1.0, 1.0, 1.0);
+								else
+									SetPlayerAttachedObject(playerid, GUN_ATTACH_INDEX, DATA_WEAPONS[weaponTemp][weaponModel], 15,
+										PlayerInfo[playerid][bone_Top][0], PlayerInfo[playerid][bone_Top][1], PlayerInfo[playerid][bone_Top][2],
+										PlayerInfo[playerid][bone_rTop][0], PlayerInfo[playerid][bone_rTop][1], PlayerInfo[playerid][bone_rTop][2],
+										1.0, 1.0, 1.0);
+									
+							}else{
+								// Senjata dipaha kanan
+								if(PlayerInfo[playerid][bone_Status] == 0)
+									SetPlayerAttachedObject(playerid, GUN_ATTACH_INDEX, DATA_WEAPONS[weaponTemp][weaponModel], 7, 0.01, 0.01, -0.06, 289.86, 17.39, 7.67, 1.0, 1.0, 1.0);
+								else
+									SetPlayerAttachedObject(playerid, GUN_ATTACH_INDEX, DATA_WEAPONS[weaponTemp][weaponModel], 7,
+										PlayerInfo[playerid][bone_Bottom][0], PlayerInfo[playerid][bone_Bottom][1], PlayerInfo[playerid][bone_Bottom][2],
+										PlayerInfo[playerid][bone_rBottom][0], PlayerInfo[playerid][bone_rBottom][1], PlayerInfo[playerid][bone_rBottom][2],
+										1.0, 1.0, 1.0);
+							}
+						}
 					}
 				}
+				WeaponBodyTemp[playerid] = GetPlayerWeapon(playerid);
+			}else{
+				if(IsPlayerAttachedObjectSlotUsed(playerid, GUN_ATTACH_INDEX)) RemovePlayerAttachedObject(playerid, GUN_ATTACH_INDEX);
 			}
 		}
-		WeaponBodyTemp[playerid] = GetPlayerWeapon(playerid);
 	}
 	return 1;
 }
 
 publicFor: unfreezeTazed(playerid){
+	SetPlayerDrunkLevel(playerid, 0);
 	TogglePlayerControllable(playerid, 1);
     DeletePVar(playerid, "player_tazed");
     ClearAnimations(playerid);
@@ -6869,9 +6919,66 @@ publicFor: unfreezeTazed(playerid){
 
 takeOffTazer(playerid){
     if(PlayerInfo[playerid][usedWeaponId] == 23 && PlayerInfo[playerid][usedWeapon] == ID_TAZER_PULSE){
-        if(WeaponTazer[playerid] == 1){
-            WeaponTazer[playerid] = 0;
+        if(PlayerInfo[playerid][usedTazer] == 1){
+            PlayerInfo[playerid][usedTazer] = 0;
 		}
 	}
 	return 1;
+}
+
+createGunDrop(playerid, db_weapon, ammo, weapon_id, Float:gX, Float:gY, Float:gZ, world, interior){
+	new free = Iter_Free(GunDropIterator);
+	if(free < MAX_DROP_GUNS){
+		PlayerGunDrop[playerid] = free;
+		GunDrop[free][GunDropID_DB] = db_weapon;
+		GunDrop[free][GunDropWeapon][0] = weapon_id;
+		GunDrop[free][GunDropWeapon][1] = ammo;
+		GunDrop[free][GunDropPos][0] = gX;
+		GunDrop[free][GunDropPos][1] = gY;
+		GunDrop[free][GunDropPos][2] = gZ;
+		GunDrop[free][GunDropInt] = interior;
+		GunDrop[free][GunDropVWorld] = world;
+		GunDrop[free][GunDropTime] = SetPreciseTimer("timerGunDrop", 5 * 60000, false, "i", playerid);
+		GunDrop[free][GunDropObject] = CreateDynamicObject(DATA_WEAPONS[weapon_id][weaponModel], gX, gY, gZ-1, 80.0, 0.0, 0.0, world);
+		Iter_Add(GunDropIterator, free);
+	}else{
+		print("Gun Drop mencapai limit!");
+		error_command(playerid, "Tidak dapat melakukan drop saat ini, silahkan coba beberapa saat lagi.");
+	}
+ 	return 1;
+}
+
+destroyGunDrop(playerid){
+	if(PlayerGunDrop[playerid] != -1){
+		new gundrop_id = PlayerGunDrop[playerid];
+		if(Iter_Contains(GunDropIterator, gundrop_id)){
+			DestroyDynamicObject(GunDrop[gundrop_id][GunDropObject]);
+			GunDrop[gundrop_id][GunDropID_DB] = 0;
+			GunDrop[gundrop_id][GunDropWeapon][0] = 0;
+			GunDrop[gundrop_id][GunDropWeapon][1] = 0;
+			GunDrop[gundrop_id][GunDropPos][0] = 0.0;
+			GunDrop[gundrop_id][GunDropPos][1] = 0.0;
+			GunDrop[gundrop_id][GunDropPos][2] = 0.0;
+			DeletePreciseTimer(GunDrop[gundrop_id][GunDropTime]);
+		}
+	}
+	return 1;
+}
+
+publicFor:timerGunDrop(playerid){
+	destroyGunDrop(playerid);
+	return 1;
+}
+
+GetClosestGunDrop(playerid, Float: range = 2.0){
+    new id = -1, Float: dist = range, Float: tempdist;
+    foreach(new i : GunDropIterator){
+        tempdist = GetPlayerDistanceFromPoint(playerid, GunDrop[i][GunDropPos][0], GunDrop[i][GunDropPos][1], GunDrop[i][GunDropPos][2]);
+        if(tempdist > range) continue;
+        if(tempdist <= dist){
+            dist = tempdist;
+            id = i;
+        }
+    }
+    return id;
 }
